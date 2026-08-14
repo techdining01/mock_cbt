@@ -1,0 +1,2326 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Mock CBT</title>
+
+
+    <!-- =========================================================
+         FAVICON
+         ========================================================= -->
+
+    <link
+        rel="icon"
+        type="image/png"
+        href="assets/images/favicon.png"
+    >
+
+
+    <!-- =========================================================
+         APPLICATION CSS
+         ========================================================= -->
+
+    <link
+        rel="stylesheet"
+        href="css/app.css"
+    >
+
+</head>
+
+
+<body class="bg-gray-100 text-gray-900">
+
+
+<div
+    x-data="examApp"
+    class="min-h-screen flex flex-col"
+>
+
+
+    <!-- =========================================================
+         GLOBAL LOADING
+         ========================================================= -->
+
+    <template x-if="loading">
+
+        <main
+            class="flex-1 flex items-center justify-center p-4 sm:p-6"
+        >
+
+            <div
+                class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 sm:p-8 text-center w-full max-w-md"
+            >
+
+                <div
+                    class="mx-auto mb-5 h-10 w-10 rounded-full border-4 border-gray-200 border-t-blue-600 animate-spin"
+                ></div>
+
+                <h1
+                    class="text-xl font-semibold"
+                    x-text="loadingMessage"
+                ></h1>
+
+                <p class="mt-2 text-sm text-gray-500">
+                    Please wait...
+                </p>
+
+            </div>
+
+        </main>
+
+    </template>
+
+
+    <!-- =========================================================
+         GLOBAL ERROR
+         ========================================================= -->
+
+    <template x-if="!loading && error">
+
+        <main
+            class="flex-1 flex items-center justify-center p-4 sm:p-6"
+        >
+
+            <div
+                class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 sm:p-8 text-center w-full max-w-md"
+            >
+
+                <div
+                    class="mx-auto mb-5 w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xl font-bold"
+                >
+                    !
+                </div>
+
+                <h1 class="text-xl font-semibold">
+                    Something went wrong
+                </h1>
+
+                <p
+                    class="mt-3 text-gray-600"
+                    x-text="error"
+                ></p>
+
+                <button
+                    type="button"
+                    @click="clearError()"
+                    class="mt-5 px-5 py-2.5 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700"
+                >
+                    Try Again
+                </button>
+
+            </div>
+
+        </main>
+
+    </template>
+
+
+    <!-- =========================================================
+         SELECTION SCREEN
+         ========================================================= -->
+
+    <template x-if="!loading && !error && screen === 'selection'">
+
+        <div class="min-h-screen flex flex-col">
+
+
+            <!-- HEADER -->
+
+            <header class="bg-white border-b border-gray-200">
+
+                <div class="max-w-6xl mx-auto px-4 sm:px-5 lg:px-6">
+
+                    <div
+                        class="min-h-14 sm:min-h-16 flex items-center justify-between gap-4"
+                    >
+
+                        <div class="flex items-center gap-3 sm:gap-4">
+                            
+                            <img
+                                src="images/alayande.png"
+                                alt="Mock CBT Logo"
+                                class="h-8 sm:h-9"
+                            >
+                        
+
+                            <div>
+
+                                <h1 class="text-xl sm:text-2xl font-bold">
+                                    Mock CBT
+                                </h1>
+
+                                <p class="text-xs sm:text-sm text-gray-500">
+                                    Computer Based Examination
+                                </p>
+
+                            </div>
+
+                            
+
+                        </div>
+
+                        <div
+                            class="hidden sm:block text-sm text-gray-500"
+                        >
+                            Examination Practice
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </header>
+
+
+            <!-- MAIN -->
+
+            <main
+                class="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-5 lg:px-6 py-5 sm:py-6"
+            >
+
+                <div
+                    class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5"
+                >
+
+
+                    <!-- LEFT -->
+
+                    <section class="lg:col-span-1">
+
+                        <div
+                            class="bg-white border border-gray-200 rounded-xl shadow-sm p-4 sm:p-5 lg:sticky lg:top-5"
+                        >
+
+                            <h2 class="text-lg font-semibold">
+                                Start Examination
+                            </h2>
+
+                            <p
+                                class="mt-1.5 text-sm text-gray-500 leading-relaxed"
+                            >
+                                Select the examination year first.
+                                The subjects available for that year
+                                will then be loaded from the question
+                                database.
+                            </p>
+
+
+                            <!-- STUDENT NAME -->
+
+                            <div class="mt-5">
+
+                                <label
+                                    for="student-name"
+                                    class="block text-sm font-medium text-gray-700 mb-1.5"
+                                >
+                                    Student Name
+                                </label>
+
+                                <input
+                                    id="student-name"
+                                    type="text"
+                                    x-model.trim="studentName"
+                                    placeholder="Enter your name"
+                                    class="w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+                                >
+
+                            </div>
+
+
+                            <!-- DURATION -->
+
+                            <div class="mt-4">
+
+                                <label
+                                    for="duration"
+                                    class="block text-sm font-medium text-gray-700 mb-1.5"
+                                >
+                                    Examination Duration
+                                </label>
+
+                                <div class="relative">
+
+                                    <input
+                                        id="duration"
+                                        type="number"
+                                        min="1"
+                                        x-model.number="durationMinutes"
+                                        class="w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 pr-20 text-sm outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+                                    >
+
+                                    <span
+                                        class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-gray-500"
+                                    >
+                                        Minutes
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- DATABASE INFO -->
+
+                            <div
+                                class="mt-5 rounded-lg bg-blue-50 border border-blue-100 p-3.5"
+                            >
+
+                                <p class="text-sm font-medium text-blue-900">
+                                    Question Bank
+                                </p>
+
+                                <p
+                                    class="mt-1 text-xs sm:text-sm text-blue-700 leading-relaxed"
+                                >
+                                    Questions are loaded from the
+                                    examination records already stored
+                                    in the local database.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- RIGHT -->
+
+                    <section class="lg:col-span-2">
+
+                        <div
+                            class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden"
+                        >
+
+
+                            <!-- YEAR -->
+
+                            <div
+                                class="px-4 py-4 sm:px-5 sm:py-5 border-b border-gray-200"
+                            >
+
+                                <h2 class="text-base sm:text-lg font-semibold">
+                                    1. Select Examination Year
+                                </h2>
+
+                                <p class="mt-1 text-xs sm:text-sm text-gray-500">
+                                    Choose the year you want to practise.
+                                </p>
+
+
+                                <div
+                                    class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2"
+                                >
+
+                                    <template
+                                        x-for="year in years"
+                                        :key="year"
+                                    >
+
+                                        <button
+                                            type="button"
+                                            @click="selectYear(year)"
+                                            class="rounded-lg border px-3 py-2.5 text-sm font-semibold transition"
+                                            :class="
+                                                selectedYear === year
+                                                    ? 'border-blue-600 bg-blue-600 text-white shadow-sm'
+                                                    : 'border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100'
+                                            "
+                                            x-text="year"
+                                        ></button>
+
+                                    </template>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- SUBJECTS -->
+
+                            <div
+                                class="px-4 py-4 sm:px-5 sm:py-5 border-b border-gray-200"
+                            >
+
+                                <div
+                                    class="flex items-center justify-between gap-3"
+                                >
+
+                                    <div>
+
+                                        <h2 class="text-base sm:text-lg font-semibold">
+                                            2. Select Subjects
+                                        </h2>
+
+                                        <p
+                                            class="mt-1 text-xs sm:text-sm text-gray-500"
+                                            x-show="!selectedYear"
+                                        >
+                                            Select a year first.
+                                        </p>
+
+                                    </div>
+
+                                    <div
+                                        x-show="selectedYear && subjects.length > 0"
+                                        class="flex gap-2"
+                                    >
+
+                                        <button
+                                            type="button"
+                                            @click="selectAllSubjects()"
+                                            class="text-xs sm:text-sm font-medium text-blue-600"
+                                        >
+                                            Select All
+                                        </button>
+
+                                        <span class="text-gray-300">|</span>
+
+                                        <button
+                                            type="button"
+                                            @click="clearSubjects()"
+                                            class="text-xs sm:text-sm font-medium text-gray-600"
+                                        >
+                                            Clear
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- LOADING -->
+
+                                <template x-if="subjectsLoading">
+
+                                    <div
+                                        class="mt-4 flex items-center gap-3 rounded-lg bg-gray-50 border border-gray-200 p-3.5"
+                                    >
+
+                                        <div
+                                            class="h-5 w-5 rounded-full border-2 border-gray-300 border-t-blue-600 animate-spin"
+                                        ></div>
+
+                                        <span class="text-sm text-gray-600">
+                                            Loading subjects for
+                                            <span
+                                                class="font-semibold"
+                                                x-text="selectedYear"
+                                            ></span>
+                                            ...
+                                        </span>
+
+                                    </div>
+
+                                </template>
+
+
+                                <!-- SUBJECT CARDS -->
+
+                                <div
+                                    x-show="!subjectsLoading && selectedYear && subjects.length > 0"
+                                    class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2.5"
+                                >
+
+                                    <template
+                                        x-for="subject in subjects"
+                                        :key="subject.id"
+                                    >
+
+                                        <button
+                                            type="button"
+                                            @click="toggleSubject(subject.id)"
+                                            class="w-full text-left rounded-lg border p-3 transition"
+                                            :class="
+                                                isSubjectSelected(subject.id)
+                                                    ? 'border-blue-600 bg-blue-50 ring-1 ring-blue-600'
+                                                    : 'border-gray-200 bg-white hover:bg-gray-50'
+                                            "
+                                        >
+
+                                            <div class="flex items-start justify-between">
+
+                                                <div>
+
+                                                    <h3
+                                                        class="text-sm font-semibold"
+                                                        x-text="subject.name"
+                                                    ></h3>
+
+                                                    <p class="mt-1 text-xs text-gray-500">
+
+                                                        <span
+                                                            x-text="subject.question_count ?? subject.count ?? 0"
+                                                        ></span>
+
+                                                        questions
+
+                                                    </p>
+
+                                                </div>
+
+                                                <span
+                                                    class="w-5 h-5 rounded-md border flex items-center justify-center"
+                                                    :class="
+                                                        isSubjectSelected(subject.id)
+                                                            ? 'bg-blue-600 border-blue-600 text-white'
+                                                            : 'bg-white border-gray-300 text-transparent'
+                                                    "
+                                                >
+                                                    ✓
+                                                </span>
+
+                                            </div>
+
+                                        </button>
+
+                                    </template>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- SUMMARY -->
+
+                            <div class="px-4 py-4 sm:px-5 sm:py-5">
+
+                                <div
+                                    class="rounded-lg bg-gray-50 border border-gray-200 p-4"
+                                >
+
+                                    <h2 class="font-semibold">
+                                        Examination Summary
+                                    </h2>
+
+                                    <div
+                                        class="mt-3 grid grid-cols-3 gap-2.5"
+                                    >
+
+                                        <div class="bg-white border rounded-lg p-3">
+                                            <p class="text-xs text-gray-500">
+                                                Year
+                                            </p>
+                                            <p
+                                                class="mt-1 text-lg font-bold"
+                                                x-text="selectedYear || '—'"
+                                            ></p>
+                                        </div>
+
+                                        <div class="bg-white border rounded-lg p-3">
+                                            <p class="text-xs text-gray-500">
+                                                Subjects
+                                            </p>
+                                            <p
+                                                class="mt-1 text-lg font-bold"
+                                                x-text="selectedSubjectIds.length"
+                                            ></p>
+                                        </div>
+
+                                        <div class="bg-white border rounded-lg p-3">
+                                            <p class="text-xs text-gray-500">
+                                                Questions
+                                            </p>
+                                            <p
+                                                class="mt-1 text-lg font-bold"
+                                                x-text="selectedQuestionCount"
+                                            ></p>
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- SELECTED -->
+
+                                    <template x-if="selectedSubjects.length > 0">
+
+                                        <div class="mt-3 flex flex-wrap gap-1.5">
+
+                                            <template
+                                                x-for="subject in selectedSubjects"
+                                                :key="subject.id"
+                                            >
+
+                                                <span
+                                                    class="px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-medium"
+                                                    x-text="subject.name"
+                                                ></span>
+
+                                            </template>
+
+                                        </div>
+
+                                    </template>
+
+
+                                    <button
+                                        type="button"
+                                        @click="createExam()"
+                                        :disabled="
+                                            !selectedYear ||
+                                            selectedSubjectIds.length === 0 ||
+                                            creatingExam
+                                        "
+                                        class="mt-4 w-full rounded-lg bg-blue-600 px-5 py-3 text-white font-semibold hover:bg-blue-700 disabled:opacity-50"
+                                    >
+
+                                        <span x-show="!creatingExam">
+                                            Start Examination
+                                        </span>
+
+                                        <span
+                                            x-show="creatingExam"
+                                            class="inline-flex items-center gap-2"
+                                        >
+
+                                            <span
+                                                class="h-5 w-5 rounded-full border-2 border-white/40 border-t-white animate-spin"
+                                            ></span>
+
+                                            Creating Examination...
+
+                                        </span>
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                </div>
+
+            </main>
+
+        </div>
+
+    </template>
+
+
+    <!-- =========================================================
+         EXAM SCREEN
+         ========================================================= -->
+
+    <template x-if="!loading && !error && screen === 'exam' && exam">
+
+        <div class="min-h-screen flex flex-col">
+
+
+            <!-- HEADER -->
+
+            <header
+                class="bg-white border-b border-gray-200 sticky top-0 z-40"
+            >
+
+                <div class="max-w-6xl mx-auto px-4 sm:px-5 lg:px-6">
+
+                    <div
+                        class="min-h-14 sm:min-h-16 flex items-center justify-between gap-4"
+                    >
+
+                        <div class="min-w-0">
+
+                            <h1 class="text-base sm:text-lg font-bold truncate">
+                                Mock CBT Examination
+                            </h1>
+
+                            <p class="text-xs sm:text-sm text-gray-500">
+
+                                Year:
+
+                                <span
+                                    class="font-semibold"
+                                    x-text="exam.year"
+                                ></span>
+
+                                <template x-if="exam.student_name">
+
+                                    <span>
+                                        ·
+                                        <span x-text="exam.student_name"></span>
+                                    </span>
+
+                                </template>
+
+                            </p>
+
+                        </div>
+
+
+                        <!-- MASTER CLOCK -->
+
+                        <div class="shrink-0 text-right">
+
+                            <p class="text-[10px] uppercase tracking-wide text-gray-500">
+                                Time Remaining
+                            </p>
+
+                            <div
+                                class="text-lg sm:text-xl font-bold tabular-nums"
+                                :class="
+                                    remainingSeconds <= 300
+                                        ? 'text-red-600'
+                                        : 'text-gray-900'
+                                "
+                                x-text="formatTime(remainingSeconds)"
+                            ></div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </header>
+
+
+            <!-- MAIN -->
+
+            <main
+                class="flex-1 w-full max-w-6xl mx-auto px-3 sm:px-4 lg:px-5 py-4 sm:py-5"
+            >
+
+                <div
+                    class="grid grid-cols-1 lg:grid-cols-12 gap-4"
+                >
+
+
+                    <!-- QUESTION -->
+
+                    <section
+                        class="lg:col-span-9 flex flex-col gap-4"
+                    >
+
+
+                        <!-- SUBJECT NAV -->
+
+                        <div
+                            class="bg-white rounded-xl border border-gray-200 shadow-sm"
+                        >
+
+                            <div class="px-4 py-3 border-b">
+
+                                <div class="flex justify-between">
+
+                                    <h2 class="font-semibold">
+                                        Subjects
+                                    </h2>
+
+                                    <div class="text-xs text-gray-500">
+
+                                        <span x-text="answeredCount"></span>
+                                        /
+                                        <span x-text="totalQuestionCount"></span>
+                                        answered
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="px-3 py-2.5 overflow-x-auto">
+
+                                <div class="flex gap-1.5 min-w-max">
+
+                                    <template
+                                        x-for="(subject, index) in exam.subjects"
+                                        :key="subject.id"
+                                    >
+
+                                        <button
+                                            type="button"
+                                            @click="selectSubject(index)"
+                                            class="px-3 py-2 rounded-lg text-xs sm:text-sm font-medium border"
+                                            :class="
+                                                subjectIndex === index
+                                                    ? 'bg-blue-600 text-white border-blue-600'
+                                                    : 'bg-gray-50 text-gray-700 border-gray-200'
+                                            "
+                                        >
+
+                                            <span x-text="subject.name"></span>
+
+                                            <span
+                                                class="ml-1.5 text-[10px] opacity-80"
+                                                x-text="subjectProgressText(subject)"
+                                            ></span>
+
+                                        </button>
+
+                                    </template>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- QUESTION CARD -->
+
+                        <div
+                            class="bg-white rounded-xl border border-gray-200 shadow-sm"
+                        >
+
+                            <div class="px-4 py-3.5 sm:px-5 border-b">
+
+                                <div class="flex justify-between">
+
+                                    <div>
+
+                                        <p
+                                            class="text-xs text-gray-500"
+                                            x-text="currentSubject?.name"
+                                        ></p>
+
+                                        <h2 class="mt-0.5 text-base sm:text-lg font-semibold">
+
+                                            Question
+                                            <span x-text="displayQuestionNumber"></span>
+                                            of
+                                            <span x-text="currentSubject?.question_count"></span>
+
+                                        </h2>
+
+                                    </div>
+
+
+                                    <div>
+
+                                        <template x-if="currentQuestion?.answered">
+
+                                            <span
+                                                class="px-2.5 py-1 rounded-full bg-green-100 text-green-700 text-xs font-medium"
+                                            >
+                                                Answered
+                                            </span>
+
+                                        </template>
+
+                                        <template x-if="!currentQuestion?.answered">
+
+                                            <span
+                                                class="px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 text-xs font-medium"
+                                            >
+                                                Not answered
+                                            </span>
+
+                                        </template>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="px-4 py-5 sm:px-6 sm:py-6">
+
+                                <h3
+                                    class="text-base sm:text-lg lg:text-xl font-medium leading-7 whitespace-pre-wrap"
+                                    x-text="currentQuestion?.text"
+                                ></h3>
+
+
+                                <template x-if="currentQuestion?.image_path">
+
+                                    <div class="mt-5">
+
+                                        <img
+                                            :src="currentQuestion.image_path"
+                                            alt="Question illustration"
+                                            class="max-w-full max-h-96 mx-auto rounded-lg border object-contain"
+                                        >
+
+                                    </div>
+
+                                </template>
+
+
+                                <!-- OPTIONS -->
+
+                                <div class="mt-6 space-y-2.5">
+
+                                    <template
+                                        x-for="option in currentQuestion?.options || []"
+                                        :key="option.id"
+                                    >
+
+                                        <button
+                                            type="button"
+                                            @click="selectAnswer(option.id)"
+                                            class="w-full text-left border rounded-lg px-3.5 py-3 sm:px-4 sm:py-3.5"
+                                            :class="
+                                                currentQuestion?.selected_option_id === option.id
+                                                    ? 'border-blue-600 bg-blue-50 ring-1 ring-blue-600'
+                                                    : 'border-gray-200 bg-white hover:bg-gray-50'
+                                            "
+                                        >
+
+                                            <div class="flex items-start gap-3">
+
+                                                <span
+                                                    class="shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold"
+                                                    :class="
+                                                        currentQuestion?.selected_option_id === option.id
+                                                            ? 'bg-blue-600 text-white'
+                                                            : 'bg-gray-100 text-gray-700'
+                                                    "
+                                                    x-text="option.label"
+                                                ></span>
+
+                                                <span
+                                                    class="pt-1 text-sm sm:text-base whitespace-pre-wrap"
+                                                    x-text="option.text"
+                                                ></span>
+
+                                            </div>
+
+                                        </button>
+
+                                    </template>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- NAVIGATION -->
+
+                            <div class="px-4 py-3.5 sm:px-5 border-t">
+
+                                <div class="flex justify-between">
+
+                                    <button
+                                        type="button"
+                                        @click="previousQuestion()"
+                                        :disabled="!canGoPrevious"
+                                        class="px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm font-medium disabled:opacity-50"
+                                    >
+                                        Previous
+                                    </button>
+
+
+                                    <button
+                                        type="button"
+                                        @click="nextQuestion()"
+                                        class="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium"
+                                    >
+                                        Next
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- SIDEBAR -->
+
+                    <aside class="lg:col-span-3">
+
+                        <div class="lg:sticky lg:top-20 space-y-3">
+
+
+                            <!-- PROGRESS -->
+
+                            <div
+                                class="bg-white rounded-xl border border-gray-200 shadow-sm p-4"
+                            >
+
+                                <h2 class="text-sm font-semibold">
+                                    Exam Progress
+                                </h2>
+
+                                <div class="grid grid-cols-3 gap-1.5 mt-3">
+
+                                    <div class="bg-gray-50 rounded-lg p-2.5 text-center">
+
+                                        <div
+                                            class="text-base font-bold"
+                                            x-text="totalQuestionCount"
+                                        ></div>
+
+                                        <div class="text-[10px] text-gray-500">
+                                            Total
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="bg-green-50 rounded-lg p-2.5 text-center">
+
+                                        <div
+                                            class="text-base font-bold text-green-700"
+                                            x-text="answeredCount"
+                                        ></div>
+
+                                        <div class="text-[10px] text-green-700">
+                                            Answered
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="bg-gray-50 rounded-lg p-2.5 text-center">
+
+                                        <div
+                                            class="text-base font-bold"
+                                            x-text="unansweredCount"
+                                        ></div>
+
+                                        <div class="text-[10px] text-gray-500">
+                                            Remaining
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- NAVIGATOR -->
+
+                            <div
+                                class="bg-white rounded-xl border border-gray-200 shadow-sm p-4"
+                            >
+
+                                <h2 class="text-sm font-semibold">
+                                    Questions
+                                </h2>
+
+                                <div
+                                    class="mt-3 grid grid-cols-6 sm:grid-cols-8 lg:grid-cols-5 gap-1.5"
+                                >
+
+                                    <template
+                                        x-for="(question, index) in currentSubject?.questions || []"
+                                        :key="question.id"
+                                    >
+
+                                        <button
+                                            type="button"
+                                            @click="selectQuestion(index)"
+                                            class="aspect-square rounded-md text-xs font-medium"
+                                            :class="[
+
+                                                question.selected_option_id !== null &&
+                                                question.selected_option_id !== undefined
+                                                    ? 'bg-green-500 text-white'
+                                                    : 'bg-gray-100 text-gray-700',
+
+                                                questionIndex === index
+                                                    ? 'ring-2 ring-blue-600 ring-offset-1'
+                                                    : ''
+
+                                            ]"
+                                            x-text="index + 1"
+                                        ></button>
+
+                                    </template>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- SUBJECT PROGRESS -->
+
+                            <div
+                                class="bg-white rounded-xl border border-gray-200 shadow-sm p-4"
+                            >
+
+                                <h2 class="text-sm font-semibold">
+                                    Subject Progress
+                                </h2>
+
+                                <div class="mt-3 space-y-3">
+
+                                    <template
+                                        x-for="subject in exam.subjects"
+                                        :key="subject.id"
+                                    >
+
+                                        <div>
+
+                                            <div class="flex justify-between text-xs mb-1">
+
+                                                <span
+                                                    class="font-medium truncate"
+                                                    x-text="subject.name"
+                                                ></span>
+
+                                                <span
+                                                    class="text-gray-500"
+                                                    x-text="subjectProgressText(subject)"
+                                                ></span>
+
+                                            </div>
+
+                                            <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+
+                                                <div
+                                                    class="h-full bg-green-500"
+                                                    :style="`
+                                                        width: ${
+                                                            subject.question_count
+                                                                ? (
+                                                                    subjectAnsweredCount(subject)
+                                                                    /
+                                                                    subject.question_count
+                                                                    *
+                                                                    100
+                                                                )
+                                                                : 0
+                                                        }%
+                                                    `"
+                                                ></div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </template>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- FINISH -->
+
+                            <button
+                                type="button"
+                                @click="finishExam()"
+                                class="w-full rounded-lg border border-red-200 bg-white px-4 py-2.5 text-red-600 text-sm font-semibold hover:bg-red-50"
+                            >
+                                Finish Examination
+                            </button>
+
+                        </div>
+
+                    </aside>
+
+                </div>
+
+            </main>
+
+        </div>
+
+    </template>
+
+
+    <!-- =========================================================
+         RESULT SCREEN
+         ========================================================= -->
+
+    <template
+        x-if="!loading && !error && screen === 'result' && result"
+    >
+
+        <div class="min-h-screen bg-gray-100">
+
+
+            <!-- =====================================================
+                 PRINT AREA
+                 ===================================================== -->
+
+            <div
+                id="result-print-area"
+                class="max-w-6xl mx-auto px-4 sm:px-5 lg:px-6 py-6 sm:py-8"
+            >
+
+
+                <!-- RESULT HEADER -->
+
+                <div
+                    class="bg-white border border-gray-200 rounded-xl shadow-sm p-5 sm:p-7"
+                >
+
+                    <div
+                        class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+                    >
+
+                        <div>
+
+                            <p
+                                class="text-sm text-blue-600 font-semibold uppercase tracking-wide"
+                            >
+                                Examination Result
+                            </p>
+
+                            <h1
+                                class="mt-1 text-2xl sm:text-3xl font-bold"
+                            >
+                                Mock CBT
+                            </h1>
+
+                            <p
+                                class="mt-2 text-sm text-gray-500"
+                                x-show="exam?.student_name"
+                            >
+
+                                Student:
+
+                                <span
+                                    class="font-semibold text-gray-800"
+                                    x-text="exam?.student_name"
+                                ></span>
+
+                            </p>
+
+                            <p
+                                class="text-sm text-gray-500"
+                                x-show="exam?.year"
+                            >
+
+                                Year:
+
+                                <span
+                                    class="font-semibold text-gray-800"
+                                    x-text="exam?.year"
+                                ></span>
+
+                            </p>
+
+                        </div>
+
+
+                        <!-- SCORE -->
+
+                        <div class="text-center sm:text-right">
+
+                            <div
+                                class="text-4xl sm:text-5xl font-bold text-blue-600"
+                                x-text="formatPercentage(result.percentage)"
+                            ></div>
+
+                            <p class="mt-1 text-sm text-gray-500">
+                                Overall Score
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     SUMMARY CARDS
+                     ================================================= -->
+
+                <div
+                    class="mt-4 grid grid-cols-2 sm:grid-cols-5 gap-3"
+                >
+
+
+                    <!-- TOTAL -->
+
+                    <div
+                        class="bg-white border border-gray-200 rounded-xl shadow-sm p-4"
+                    >
+
+                        <p class="text-xs uppercase tracking-wide text-gray-500">
+                            Total
+                        </p>
+
+                        <p
+                            class="mt-1 text-2xl font-bold"
+                            x-text="result.total"
+                        ></p>
+
+                    </div>
+
+
+                    <!-- CORRECT -->
+
+                    <div
+                        class="bg-green-50 border border-green-200 rounded-xl p-4"
+                    >
+
+                        <p class="text-xs uppercase tracking-wide text-green-700">
+                            Correct
+                        </p>
+
+                        <p
+                            class="mt-1 text-2xl font-bold text-green-700"
+                            x-text="result.correct"
+                        ></p>
+
+                    </div>
+
+
+                    <!-- WRONG -->
+
+                    <div
+                        class="bg-red-50 border border-red-200 rounded-xl p-4"
+                    >
+
+                        <p class="text-xs uppercase tracking-wide text-red-700">
+                            Wrong
+                        </p>
+
+                        <p
+                            class="mt-1 text-2xl font-bold text-red-700"
+                            x-text="result.wrong"
+                        ></p>
+
+                    </div>
+
+
+                    <!-- UNANSWERED -->
+
+                    <div
+                        class="bg-amber-50 border border-amber-200 rounded-xl p-4"
+                    >
+
+                        <p class="text-xs uppercase tracking-wide text-amber-700">
+                            Unanswered
+                        </p>
+
+                        <p
+                            class="mt-1 text-2xl font-bold text-amber-700"
+                            x-text="result.unanswered"
+                        ></p>
+
+                    </div>
+
+
+                    <!-- PERCENTAGE -->
+
+                    <div
+                        class="bg-blue-50 border border-blue-200 rounded-xl p-4"
+                    >
+
+                        <p class="text-xs uppercase tracking-wide text-blue-700">
+                            Percentage
+                        </p>
+
+                        <p
+                            class="mt-1 text-2xl font-bold text-blue-700"
+                            x-text="formatPercentage(result.percentage)"
+                        ></p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     SUBJECT PERFORMANCE + CHART
+                     ================================================= -->
+
+                <div
+                    class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4"
+                >
+
+
+                    <!-- SUBJECT TABLE -->
+
+                    <section
+                        class="bg-white border border-gray-200 rounded-xl shadow-sm p-5"
+                    >
+
+                        <h2 class="text-lg font-semibold">
+                            Subject Performance
+                        </h2>
+
+                        <p class="mt-1 text-sm text-gray-500">
+                            Performance breakdown by subject.
+                        </p>
+
+
+                        <div class="mt-4 overflow-x-auto">
+
+                            <table class="w-full text-sm">
+
+                                <thead>
+
+                                    <tr class="border-b border-gray-200">
+
+                                        <th class="text-left py-2 pr-3">
+                                            Subject
+                                        </th>
+
+                                        <th class="text-center py-2 px-2">
+                                            Total
+                                        </th>
+
+                                        <th class="text-center py-2 px-2">
+                                            Correct
+                                        </th>
+
+                                        <th class="text-center py-2 px-2">
+                                            Wrong
+                                        </th>
+
+                                        <th class="text-right py-2 pl-2">
+                                            %
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
+
+                                <tbody>
+
+                                    <template
+                                        x-for="subject in result.subjects || []"
+                                        :key="subject.id || subject.name"
+                                    >
+
+                                        <tr class="border-b border-gray-100">
+
+                                            <td
+                                                class="py-3 pr-3 font-medium"
+                                                x-text="subject.name"
+                                            ></td>
+
+                                            <td
+                                                class="text-center py-3 px-2"
+                                                x-text="subject.total"
+                                            ></td>
+
+                                            <td
+                                                class="text-center py-3 px-2 text-green-700 font-semibold"
+                                                x-text="subject.correct"
+                                            ></td>
+
+                                            <td
+                                                class="text-center py-3 px-2 text-red-700 font-semibold"
+                                                x-text="subject.wrong"
+                                            ></td>
+
+                                            <td
+                                                class="text-right py-3 pl-2 font-semibold"
+                                                x-text="formatPercentage(subject.percentage)"
+                                            ></td>
+
+                                        </tr>
+
+                                    </template>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- BAR CHART -->
+
+                    <section
+                        class="bg-white border border-gray-200 rounded-xl shadow-sm p-5"
+                    >
+
+                        <h2 class="text-lg font-semibold">
+                            Subject Chart
+                        </h2>
+
+                        <p class="mt-1 text-sm text-gray-500">
+                            Correct answers by subject.
+                        </p>
+
+                        <div
+                            id="subject-chart">
+                        </div>
+
+                        <canvas
+                            id="subjectChart"
+                            class="w-full"
+                            style="height: 320px;"
+                        ></canvas>
+
+                        
+                        <div class="mt-5 space-y-4">
+
+                            <template
+                                x-for="subject in result.subjects || []"
+                                :key="'chart-' + (subject.id || subject.name)"
+                            >
+
+                                <div>
+
+                                    <div
+                                        class="flex items-center justify-between gap-3 text-sm"
+                                    >
+
+                                        <span
+                                            class="font-medium truncate"
+                                            x-text="subject.name"
+                                        ></span>
+
+                                        <span
+                                            class="text-gray-500 whitespace-nowrap"
+                                        >
+
+                                            <span
+                                                x-text="subject.correct"
+                                            ></span>
+
+                                            /
+
+                                            <span
+                                                x-text="subject.total"
+                                            ></span>
+
+                                        </span>
+
+                                    </div>
+
+
+                                    <div
+                                        class="mt-1.5 h-5 bg-gray-100 rounded-full overflow-hidden"
+                                    >
+
+                                        <div
+                                            class="h-full bg-green-500 rounded-full transition-all"
+                                            :style="`
+                                                width: ${
+                                                    subject.total
+                                                        ? (
+                                                            Number(subject.correct || 0)
+                                                            /
+                                                            Number(subject.total)
+                                                            *
+                                                            100
+                                                        )
+                                                        : 0
+                                                }%
+                                            `"
+                                        ></div>
+
+                                    </div>
+
+
+                                    <div
+                                        class="mt-1 text-xs text-gray-500 text-right"
+                                        x-text="formatPercentage(subject.percentage)"
+                                    ></div>
+
+                                </div>
+
+                            </template>
+
+
+                            <!-- EMPTY -->
+
+                            <template
+                                x-if="!result.subjects || result.subjects.length === 0"
+                            >
+
+                                <div
+                                    class="py-8 text-center text-sm text-gray-500"
+                                >
+                                    No subject performance data available.
+                                </div>
+
+                            </template>
+
+                        </div>
+
+                    </section>
+
+                </div>
+
+
+                <!-- =================================================
+                     QUESTION REVIEW
+                     ================================================= -->
+
+                <section
+                    class="mt-4 bg-white border border-gray-200 rounded-xl shadow-sm p-5 sm:p-6"
+                >
+
+                    <div
+                        class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
+                    >
+
+                        <div>
+
+                            <h2 class="text-lg sm:text-xl font-semibold">
+                                Question Review
+                            </h2>
+
+                            <p class="mt-1 text-sm text-gray-500">
+                                Review your answers, correct answers,
+                                and available explanations.
+                            </p>
+
+                        </div>
+
+
+                        <!-- LEGEND -->
+
+                        <div class="flex flex-wrap gap-2 text-xs">
+
+                            <span
+                                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 text-green-700"
+                            >
+
+                                <span
+                                    class="w-2 h-2 rounded-full bg-green-500"
+                                ></span>
+
+                                Correct
+
+                            </span>
+
+
+                            <span
+                                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-100 text-red-700"
+                            >
+
+                                <span
+                                    class="w-2 h-2 rounded-full bg-red-500"
+                                ></span>
+
+                                Wrong
+
+                            </span>
+
+
+                            <span
+                                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 text-amber-700"
+                            >
+
+                                <span
+                                    class="w-2 h-2 rounded-full bg-amber-500"
+                                ></span>
+
+                                Unanswered
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- REVIEW LIST -->
+
+                    <div class="mt-5 space-y-4">
+
+                        <template
+                            x-for="(question, index) in result.review || []"
+                            :key="question.id || index"
+                        >
+
+                            <article
+                                class="rounded-xl border overflow-hidden"
+                                :class="reviewCardClass(question)"
+                            >
+
+
+                                <!-- QUESTION HEADER -->
+
+                                <div
+                                    class="px-4 py-3 border-b"
+                                    :class="reviewHeaderClass(question)"
+                                >
+
+                                    <div
+                                        class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
+                                    >
+
+                                        <div>
+
+                                            <p
+                                                class="text-xs font-medium uppercase tracking-wide opacity-80"
+                                                x-text="question.subject_name || question.subject || 'Subject'"
+                                            ></p>
+
+                                            <h3
+                                                class="mt-0.5 font-semibold"
+                                            >
+
+                                                Question
+                                                <span
+                                                    x-text="question.number ?? index + 1"
+                                                ></span>
+
+                                            </h3>
+
+                                        </div>
+
+
+                                        <!-- STATUS -->
+
+                                        <span
+                                            class="inline-flex items-center self-start sm:self-auto px-2.5 py-1 rounded-full text-xs font-semibold"
+                                            :class="reviewStatusClass(question)"
+                                            x-text="reviewStatusText(question)"
+                                        ></span>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- QUESTION -->
+
+                                <div class="px-4 py-4">
+
+                                    <p
+                                        class="text-sm sm:text-base font-medium leading-relaxed whitespace-pre-wrap"
+                                        x-text="question.text"
+                                    ></p>
+
+
+                                    <!-- OPTIONS -->
+
+                                    <div class="mt-4 space-y-2">
+
+                                        <template
+                                            x-for="option in question.options || []"
+                                            :key="option.id"
+                                        >
+
+                                            <div
+                                                class="rounded-lg border px-3.5 py-3"
+                                                :class="reviewOptionClass(question, option)"
+                                            >
+
+                                                <div
+                                                    class="flex items-start gap-3"
+                                                >
+
+                                                    <!-- LABEL -->
+
+                                                    <span
+                                                        class="shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold"
+                                                        :class="reviewOptionLabelClass(question, option)"
+                                                        x-text="option.label"
+                                                    ></span>
+
+
+                                                    <!-- TEXT -->
+
+                                                    <div class="flex-1 min-w-0">
+
+                                                        <p
+                                                            class="text-sm leading-relaxed"
+                                                            x-text="option.text"
+                                                        ></p>
+
+                                                    </div>
+
+
+                                                    <!-- INDICATORS -->
+
+                                                    <div class="shrink-0 flex flex-col gap-1 items-end">
+
+
+                                                        <!-- CORRECT ANSWER -->
+
+                                                        <template
+                                                            x-if="isCorrectOption(option)"
+                                                        >
+
+                                                            <span
+                                                                class="inline-flex items-center px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-[10px] font-bold uppercase"
+                                                            >
+                                                                Correct Answer
+                                                            </span>
+
+                                                        </template>
+
+
+                                                        <!-- STUDENT ANSWER -->
+
+                                                        <template
+                                                            x-if="isStudentOption(question, option)"
+                                                        >
+
+                                                            <span
+                                                                class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase"
+                                                                :class="
+                                                                    isCorrectOption(option)
+                                                                        ? 'bg-green-100 text-green-700'
+                                                                        : 'bg-red-100 text-red-700'
+                                                                "
+                                                            >
+
+                                                                Your Answer
+
+                                                            </span>
+
+                                                        </template>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                        </template>
+
+                                    </div>
+
+
+                                    <!-- ANSWER SUMMARY -->
+
+                                    <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+
+                                        <!-- YOUR ANSWER -->
+
+                                        <div
+                                            class="rounded-lg border p-3"
+                                            :class="
+                                                questionIsUnanswered(question)
+                                                    ? 'bg-amber-50 border-amber-200'
+                                                    : questionIsCorrect(question)
+                                                        ? 'bg-green-50 border-green-200'
+                                                        : 'bg-red-50 border-red-200'
+                                            "
+                                        >
+
+                                            <p
+                                                class="text-xs font-semibold uppercase tracking-wide"
+                                                :class="
+                                                    questionIsUnanswered(question)
+                                                        ? 'text-amber-700'
+                                                        : questionIsCorrect(question)
+                                                            ? 'text-green-700'
+                                                            : 'text-red-700'
+                                                "
+                                            >
+                                                Your Answer
+                                            </p>
+
+                                            <p
+                                                class="mt-1 text-sm font-medium"
+                                                :class="
+                                                    questionIsUnanswered(question)
+                                                        ? 'text-amber-900'
+                                                        : questionIsCorrect(question)
+                                                            ? 'text-green-900'
+                                                            : 'text-red-900'
+                                                "
+                                                x-text="studentAnswerText(question)"
+                                            ></p>
+
+                                        </div>
+
+
+                                        <!-- CORRECT ANSWER -->
+
+                                        <div
+                                            class="rounded-lg border bg-green-50 border-green-200 p-3"
+                                        >
+
+                                            <p
+                                                class="text-xs font-semibold uppercase tracking-wide text-green-700"
+                                            >
+                                                Correct Answer
+                                            </p>
+
+                                            <p
+                                                class="mt-1 text-sm font-medium text-green-900"
+                                                x-text="correctAnswerText(question)"
+                                            ></p>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- EXPLANATION -->
+
+                                    <template x-if="question.explanation">
+
+                                        <div
+                                            class="mt-4 rounded-lg bg-blue-50 border border-blue-200 p-4"
+                                        >
+
+                                            <div
+                                                class="flex items-center gap-2"
+                                            >
+
+                                                <span
+                                                    class="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold"
+                                                >
+                                                    i
+                                                </span>
+
+                                                <h4
+                                                    class="font-semibold text-blue-900"
+                                                >
+                                                    Explanation
+                                                </h4>
+
+                                            </div>
+
+                                            <p
+                                                class="mt-2 text-sm leading-relaxed text-blue-900 whitespace-pre-wrap"
+                                                x-text="question.explanation"
+                                            ></p>
+
+                                        </div>
+
+                                    </template>
+
+
+                                    <!-- NO EXPLANATION -->
+
+                                    <template x-if="!question.explanation">
+
+                                        <div
+                                            class="mt-4 rounded-lg bg-gray-50 border border-gray-200 p-3"
+                                        >
+
+                                            <p class="text-xs text-gray-500">
+                                                No explanation is available
+                                                for this question yet.
+                                            </p>
+
+                                        </div>
+
+                                    </template>
+
+                                </div>
+
+                            </article>
+
+                        </template>
+
+
+                        <!-- EMPTY REVIEW -->
+
+                        <template
+                            x-if="!result.review || result.review.length === 0"
+                        >
+
+                            <div
+                                class="py-10 text-center text-gray-500"
+                            >
+
+                                <p class="font-medium">
+                                    No question review is available.
+                                </p>
+
+                                <p class="mt-1 text-sm">
+                                    The examination result was calculated,
+                                    but individual question data was not
+                                    returned.
+                                </p>
+
+                            </div>
+
+                        </template>
+
+                    </div>
+
+                </section>
+
+
+                <!-- PRINT FOOTER -->
+
+                <div class="mt-5 text-center text-xs text-gray-400">
+
+                    Mock CBT Examination Result
+
+                </div>
+
+            </div>
+
+
+            <!-- =====================================================
+                 ACTION BAR
+                 ===================================================== -->
+
+            <div
+                class="no-print max-w-6xl mx-auto px-4 sm:px-5 lg:px-6 pb-8"
+            >
+
+                <div
+                    class="bg-white border border-gray-200 rounded-xl shadow-sm p-4"
+                >
+
+                    <div
+                        class="flex flex-col sm:flex-row gap-3"
+                    >
+
+                        <button
+                            type="button"
+                            @click="printResult()"
+                            class="flex-1 rounded-lg bg-blue-600 text-white px-5 py-3 font-semibold hover:bg-blue-700"
+                        >
+                            Print Result
+                        </button>
+
+
+                        <button
+                            type="button"
+                            @click="restartApplication()"
+                            class="flex-1 rounded-lg border border-gray-300 bg-white px-5 py-3 font-semibold text-gray-700 hover:bg-gray-50"
+                        >
+                            Restart Program
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </template>
+
+
+    <!-- =========================================================
+         FINISH CONFIRMATION MODAL
+         ========================================================= -->
+
+    <template x-if="showFinishModal">
+
+        <div
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 no-print"
+            @keydown.escape.window="showFinishModal = false"
+        >
+
+            <div
+                class="w-full max-w-md bg-white rounded-xl shadow-xl p-5 sm:p-6"
+                @click.stop
+            >
+
+                <h2 class="text-xl font-bold">
+                    Finish Examination?
+                </h2>
+
+                <p class="mt-3 text-gray-600">
+                    You have answered
+                    <strong x-text="answeredCount"></strong>
+                    out of
+                    <strong x-text="totalQuestionCount"></strong>
+                    questions.
+                </p>
+
+                <p class="mt-2 text-sm text-gray-500">
+                    Once you finish, the examination will be submitted
+                    and you will proceed to your result.
+                </p>
+
+
+                <div class="mt-5 flex gap-2.5">
+
+                    <button
+                        type="button"
+                        @click="showFinishModal = false"
+                        class="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium hover:bg-gray-50"
+                    >
+                        Continue Exam
+                    </button>
+
+                    <button
+                        type="button"
+                        @click="confirmFinishExam()"
+                        class="flex-1 rounded-lg bg-red-600 text-white px-4 py-2.5 text-sm font-medium hover:bg-red-700"
+                    >
+                        Finish
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </template>
+
+
+    <!-- =========================================================
+         TIMEOUT OVERLAY
+         ========================================================= -->
+
+    <template x-if="showTimeoutOverlay">
+
+        <div
+            class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 no-print"
+        >
+
+            <div
+                class="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 sm:p-8 text-center"
+            >
+
+
+                <!-- ICON -->
+
+                <div
+                    class="mx-auto w-16 h-16 rounded-full bg-red-100 text-red-600 flex items-center justify-center"
+                >
+
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="w-8 h-8"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+
+                    </svg>
+
+                </div>
+
+
+                <h2 class="mt-5 text-2xl font-bold">
+                    Time's Up
+                </h2>
+
+
+                <p class="mt-3 text-gray-600 leading-relaxed">
+
+                    Your examination time has ended and
+                    your answers have been submitted.
+
+                </p>
+
+
+                <div
+                    class="mt-5 rounded-lg bg-gray-50 border border-gray-200 p-3"
+                >
+
+                    <p class="text-sm text-gray-600">
+
+                        Answered:
+
+                        <strong
+                            class="text-gray-900"
+                            x-text="answeredCount"
+                        ></strong>
+
+                        /
+
+                        <strong
+                            class="text-gray-900"
+                            x-text="totalQuestionCount"
+                        ></strong>
+
+                    </p>
+
+                </div>
+
+
+                <div class="mt-6 space-y-2.5">
+
+                    <button
+                        type="button"
+                        @click="viewTimeoutResult()"
+                        :disabled="timeoutCompleting"
+                        class="w-full rounded-lg bg-blue-600 text-white px-5 py-3 font-semibold hover:bg-blue-700 disabled:opacity-50"
+                    >
+
+                        <span x-show="!timeoutCompleting">
+                            View Result
+                        </span>
+
+                        <span
+                            x-show="timeoutCompleting"
+                            class="inline-flex items-center justify-center gap-2"
+                        >
+
+                            <span
+                                class="h-5 w-5 rounded-full border-2 border-white/40 border-t-white animate-spin"
+                            ></span>
+
+                            Preparing Result...
+
+                        </span>
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        @click="restartApplication()"
+                        class="w-full rounded-lg border border-gray-300 bg-white px-5 py-3 font-semibold text-gray-700 hover:bg-gray-50"
+                    >
+                        Restart Program
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </template>
+
+    <!-- ======================================================
+         RESULT CHART
+         ====================================================== -->
+
+    <div
+        id="subject-chart">
+    </div>
+
+    <canvas
+        id="subjectChart"
+        class="w-full"
+        style="height: 320px;"
+    ></canvas>
+
+
+    <!-- =========================================================
+         QWEBCHANNEL
+         ========================================================= -->
+
+    <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+
+    <script>
+
+        new QWebChannel(
+            qt.webChannelTransport,
+            function (channel) {
+
+                console.log("QWebChannel connected.");
+
+                window.examBridge =
+                    channel.objects.examBridge;
+
+                console.log(
+                    "examBridge:",
+                    window.examBridge
+                );
+
+            }
+        );
+
+    </script>
+
+
+    <!-- =========================================================
+         APPLICATION JAVASCRIPT
+         ========================================================= -->
+
+    <script src="js/app.js"></script>
+
+
+    <!-- =========================================================
+         ALPINE
+         ========================================================= -->
+
+    <script
+        src="js/alpine.min.js"
+        defer
+    ></script>
+
+
+    <!-- =========================================================
+         PRINT CSS
+         ========================================================= -->
+
+    <style>
+
+        @media print {
+
+            @page {
+                size: A4;
+                margin: 12mm;
+            }
+
+
+            html,
+            body {
+                background: white !important;
+            }
+
+
+            body * {
+                visibility: hidden;
+            }
+
+
+            #result-print-area,
+            #result-print-area * {
+                visibility: visible;
+            }
+
+
+            #result-print-area {
+
+                position: absolute;
+
+                left: 0;
+
+                top: 0;
+
+                width: 100%;
+
+                max-width: none !important;
+
+                margin: 0 !important;
+
+                padding: 0 !important;
+
+                background: white !important;
+
+            }
+
+
+            .no-print {
+                display: none !important;
+            }
+
+
+            .shadow-sm,
+            .shadow-xl,
+            .shadow-2xl {
+                box-shadow: none !important;
+            }
+
+
+            .rounded-xl,
+            .rounded-lg {
+                border-radius: 0 !important;
+            }
+
+
+            article {
+                break-inside: avoid;
+            }
+
+
+            section {
+                break-inside: avoid;
+            }
+
+        }
+
+    </style>
+
+
+</div>
+
+</body>
+
+</html>

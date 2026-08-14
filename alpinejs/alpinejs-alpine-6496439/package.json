@@ -1,0 +1,27 @@
+{
+    "private": true,
+    "workspaces": [
+        "packages/*"
+    ],
+    "devDependencies": {
+        "axios": "^0.21.1",
+        "chalk": "^4.1.1",
+        "cypress": "^15.18.0",
+        "cypress-plugin-tab": "^1.0.5",
+        "dot-json": "^1.2.2",
+        "esbuild": "~0.16.17",
+        "jest": "^26.6.3",
+        "jsdom": "^26.1.0",
+        "vitest": "^3.2.4"
+    },
+    "scripts": {
+        "build": "node ./scripts/build.js",
+        "watch": "node ./scripts/build.js --watch",
+        "test": "cypress run --quiet",
+        "cypress": "cypress open",
+        "vitest": "vitest run",
+        "update-docs": "node ./scripts/update-docs.js",
+        "release": "node ./scripts/release.js",
+        "prep-release": "node ./scripts/prep-release.js"
+    }
+}
