@@ -65,6 +65,9 @@ def main():
     # This will eventually display our HTML + Tailwind + Alpine.js interface.
     window = QWebEngineView()
 
+    # Set the web view on the exam bridge for PDF export functionality
+    exam_bridge.set_web_view(window)
+
     # Give the communication channel to the web page.
     window.page().setWebChannel(channel)
 
@@ -80,7 +83,7 @@ def main():
     # We use it to build the path to app/web/index.html.
 
     # Build the full path to index.html.
-    html_file = base_dir / "app" / "web" / "question_import.html"
+    html_file = base_dir / "app" / "web" / "index.html"
 
     # Convert the local Windows file path into a QUrl.
     html_url = QUrl.fromLocalFile(str(html_file))

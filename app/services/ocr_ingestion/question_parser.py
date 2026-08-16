@@ -97,13 +97,13 @@ class QuestionParser:
         )
 
         normalized = re.sub(
-            r"(?<=[\dA-D])[\.\)\]:\-](?=[A-Za-z])",
+            r"(?<=[\dA-E])[\.\)\]:\-](?=[A-Za-z])",
             r"\g<0> ",
             normalized,
         )
 
         normalized = re.sub(
-            r"(?mi)^\s*([A-D])\s{2,}",
+            r"(?mi)^\s*([A-E])\s{2,}",
             r"\1. ",
             normalized,
         )

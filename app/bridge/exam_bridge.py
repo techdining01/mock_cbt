@@ -424,7 +424,7 @@ class ExamBridge(QObject):
                 statement = (
                     select(ExamSession)
                     .where(ExamSession.student_name == name)
-                    .order_by(ExamSession.created_at.desc())
+                    .order_by(ExamSession.started_at.desc())
                 )
                 rows = list(db.scalars(statement).all())
 
@@ -685,5 +685,122 @@ class ExamBridge(QObject):
                     }
                 )
 
+        except Exception as exc:
+            return self._error(exc)
+
+
+    #=======================================
+    # ADMIN DASHBOARD AND FEATURES
+    #=======================================
+
+    @Slot(str, result=str)
+    def search_students(self, search_name: str = ""):
+        try:
+            with SessionLocal() as db:
+                from sqlalchemy import or_
+                
+                query = select(ExamSession)
+                if search_name and search_name.strip():
+                    search_pattern = f"%{search_name.strip()}%"
+                    query = query.where(ExamSession.student_name.like(search_pattern))
+                
+                query = query.order_by(ExamSession.started_at.desc())
+                sessions = list(db.scalars(query).all())
+                
+                # Group by student name
+                students_dict = {}
+                for session in sessions:
+                    name = session.student_name or "Unknown"
+                    if name not in students_dict:
+                        students_dict[name] = {
+                            "name": name,
+                            "session_count": 0,
+                            "last_exam": None,
+                            "last_exam_datetime": None,
+                        }
+                    students_dict[name]["session_count"] += 1
+                    if students_dict[name]["last_exam_datetime"] is None or (session.started_at and session.started_at > students_dict[name]["last_exam_datetime"]):
+                        students_dict[name]["last_exam"] = session.started_at.isoformat() if session.started_at else None
+                        students_dict[name]["last_exam_datetime"] = session.started_at
+                
+                # Remove datetime field before JSON serialization
+                for student_data in students_dict.values():
+                    if "last_exam_datetime" in student_data:
+                        del student_data["last_exam_datetime"]
+                
+                students = list(students_dict.values())
+                
+                return json.dumps({
+                    "success": True,
+                    "students": students,
+                })
+        except Exception as exc:
+            return self._error(exc)
+
+    @Slot(str, result=str)
+    def get_student_history(self, student_name: str):
+        try:
+            with SessionLocal() as db:
+                from app.services.exam_service import ExamService
+                
+                service = ExamService(db)
+                
+                sessions = list(db.scalars(
+                    select(ExamSession)
+                    .where(ExamSession.student_name == student_name)
+                    .where(ExamSession.is_completed == True)
+                    .order_by(ExamSession.completed_at.desc())
+                ).all())
+                
+                history = []
+                for session in sessions:
+                    result = service.get_result(session.id)
+                    
+                    # Extract per-subject breakdown from existing result
+                    subjects_data = []
+                    for subject_result in result.get("subjects", []):
+                        subjects_data.append({
+                            "name": subject_result.get("subject_name", ""),
+                            "total": subject_result.get("total", 0),
+                            "correct": subject_result.get("correct", 0),
+                            "percentage": subject_result.get("percentage", 0),
+                        })
+                    
+                    history.append({
+                        "id": session.id,
+                        "year": session.year,
+                        "completed_at": session.completed_at.isoformat() if session.completed_at else None,
+                        "subject_count": len(session.subjects),
+                        "total": result.get("total", 0),
+                        "correct": result.get("correct", 0),
+                        "percentage": result.get("percentage", 0),
+                        "subjects": subjects_data,
+                    })
+                
+                return json.dumps({
+                    "success": True,
+                    "history": history,
+                })
+        except Exception as exc:
+            return self._error(exc)
+
+    @Slot(str, result=str)
+    def delete_student(self, student_name: str):
+        try:
+            with SessionLocal() as db:
+                sessions = list(db.scalars(
+                    select(ExamSession)
+                    .where(ExamSession.student_name == student_name)
+                ).all())
+                
+                for session in sessions:
+                    db.delete(session)
+                
+                db.commit()
+                
+                return json.dumps({
+                    "success": True,
+                    "deleted": len(sessions),
+                })
         except Exception as exc:
             return self._error(exc)

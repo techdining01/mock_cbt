@@ -16,6 +16,10 @@ document.addEventListener("alpine:init", () => {
 
         error: null,
 
+        studentRegistered: false,
+        welcomeMessage: null,
+        showWelcome: false,
+
 
         // =========================================================
         // DATABASE / SELECTION STATE
@@ -36,6 +40,48 @@ document.addEventListener("alpine:init", () => {
         subjectsLoading: false,
 
         creatingExam: false,
+
+        // =========================================================
+        // HELPER FUNCTIONS
+        // =========================================================
+
+        escapeHtml(text) {
+            if (!text) return "";
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        },
+
+        checkStudentRegistration() {
+            if (!this.studentName || !this.studentName.trim()) {
+                return;
+            }
+
+            if (!window.examBridge || typeof window.examBridge.check_student_registered !== "function") {
+                return;
+            }
+
+            window.examBridge.check_student_registered(
+                this.studentName.trim(),
+                (response) => {
+                    try {
+                        const data = this.parseBridgeResponse(response);
+                        if (data.success && data.registered) {
+                            this.studentRegistered = true;
+                            this.welcomeMessage = `Welcome back, ${this.studentName}! You have taken ${data.sessions} exam(s).`;
+                            this.showWelcome = true;
+                            
+                            // Auto-dismiss after 3 seconds
+                            setTimeout(() => {
+                                this.showWelcome = false;
+                            }, 3000);
+                        }
+                    } catch (error) {
+                        console.error("Student registration check error:", error);
+                    }
+                }
+            );
+        },
 
 
         // =========================================================
@@ -94,15 +140,58 @@ document.addEventListener("alpine:init", () => {
 
 
         // =========================================================
-        // INITIALIZATION
+        // INIT
         // =========================================================
 
         init() {
 
-            console.log("examApp initialized.");
+            this.loading = true;
+            this.loadingMessage = "Initializing...";
+
+            this.setupExamSecurity();
 
             this.waitForBridge();
 
+        },
+
+
+        // =========================================================
+        // EXAM SECURITY
+        // =========================================================
+
+        setupExamSecurity() {
+            // Prevent page reload during exam
+            window.addEventListener('beforeunload', (e) => {
+                if (this.screen === 'exam' && !this.result) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                    return 'You are currently taking an exam. Leaving will end your session.';
+                }
+            });
+
+            // Detect tab switching
+            document.addEventListener('visibilitychange', () => {
+                if (this.screen === 'exam' && !this.result && document.hidden) {
+                    console.warn('Tab switched during exam');
+                    showToast('Warning: Tab switching detected during exam!', 'warning');
+                    // You could add penalties here if needed
+                }
+            });
+
+            // Prevent keyboard shortcuts that could exit
+            document.addEventListener('keydown', (e) => {
+                if (this.screen === 'exam' && !this.result) {
+                    // Prevent common exit shortcuts
+                    if (e.ctrlKey && (e.key === 'w' || e.key === 'f' || e.key === 'r')) {
+                        e.preventDefault();
+                        showToast('Navigation is disabled during exam', 'warning');
+                    }
+                    if (e.key === 'F5' || e.key === 'Escape') {
+                        e.preventDefault();
+                        showToast('Refresh is disabled during exam', 'warning');
+                    }
+                }
+            });
         },
 
 
@@ -463,6 +552,14 @@ document.addEventListener("alpine:init", () => {
                 return;
             }
 
+            // Add validation at the beginning
+            if (!this.studentName || !this.studentName.trim()) {
+                this.setError("Please enter your name to start the examination.");
+                return;
+            }
+
+            // Check if student is registered first
+            this.checkStudentRegistration();
 
             if (!this.selectedYear) {
 
@@ -2709,14 +2806,31 @@ document.addEventListener("alpine:init", () => {
         printResult() {
 
             if (!this.result) {
+                console.error("No result to print");
+                showToast("No result available to print", "error");
                 return;
             }
 
+            console.log("Printing result...");
 
+            // Force Alpine to render the print area with longer delay
             this.$nextTick(() => {
+                setTimeout(() => {
+                    const printArea = document.getElementById("result-print-area");
+                    if (!printArea) {
+                        console.error("Print area not found");
+                        showToast("Print area not found", "error");
+                        return;
+                    }
 
-                window.print();
-
+                    console.log("Print area found, initiating print...");
+                    showToast("Opening print dialog...", "info");
+                    
+                    // Force a reflow before printing
+                    printArea.offsetHeight;
+                    
+                    window.print();
+                }, 300);
             });
 
         },
@@ -2894,6 +3008,227 @@ document.addEventListener("alpine:init", () => {
         },
 
 
+        /* =======================================
+        // DOWNLOAD RESULT
+        ===========================================*/
+
+        downloadResultPDF() {
+            if (!this.result) {
+                showToast("No result available to download", "error");
+                return;
+            }
+
+            console.log("Downloading PDF...");
+
+            if (!window.examBridge || typeof window.examBridge.download_result_pdf !== "function") {
+                console.error("PDF download bridge not available");
+                showToast("PDF download is not available. Bridge not connected.", "error");
+                return;
+            }
+
+            const defaultName = `exam_result_${this.result.student_name || 'student'}_${this.result.year}.pdf`;
+
+            console.log("Calling bridge with filename:", defaultName);
+
+            window.examBridge.download_result_pdf(
+                defaultName,
+                (response) => {
+                    try {
+                        console.log("PDF download response:", response);
+                        const data = this.parseBridgeResponse(response);
+                        if (!data.success) {
+                            if (data.cancelled) {
+                                console.log("PDF download cancelled by user");
+                                return; // User cancelled the dialog
+                            }
+                            console.error("PDF download failed:", data.error);
+                            showToast(data.error || "Unable to download PDF.", "error");
+                        } else {
+                            console.log("PDF download successful");
+                            showToast("PDF downloaded successfully!", "success");
+                        }
+                    } catch (error) {
+                        console.error("PDF download error:", error);
+                        showToast("Failed to download PDF: " + error.message, "error");
+                    }
+                }
+            );
+        },
+
+        /* ============================================
+        // ADMIN DASHBOARD AND STATUS
+        ==============================================*/
+        
+        adminSearchName: "",
+        adminStudents: [],
+        adminCurrentPage: 1,
+        adminItemsPerPage: 10,
+        showStudentHistory: false,
+        selectedStudentName: "",
+        studentHistory: [],
+
+        // Add admin functions
+        searchStudents() {
+            if (!window.examBridge || typeof window.examBridge.search_students !== "function") {
+                this.setError("Student search is not available.");
+                return;
+            }
+
+            window.examBridge.search_students(
+                this.adminSearchName.trim(),
+                (response) => {
+                    try {
+                        const data = this.parseBridgeResponse(response);
+                        if (data.success) {
+                            this.adminStudents = data.students || [];
+                        } else {
+                            this.setError(data.error || "Unable to search students.");
+                        }
+                    } catch (error) {
+                        console.error("Student search error:", error);
+                        this.setError("Failed to search students.");
+                    }
+                }
+            );
+        },
+
+        loadAllStudents() {
+            this.adminSearchName = "";
+            this.adminCurrentPage = 1;
+            this.searchStudents();
+        },
+
+        // Pagination computed properties
+        get paginatedStudents() {
+            const start = (this.adminCurrentPage - 1) * this.adminItemsPerPage;
+            const end = start + this.adminItemsPerPage;
+            return this.adminStudents.slice(start, end);
+        },
+
+        get totalPages() {
+            return Math.ceil(this.adminStudents.length / this.adminItemsPerPage);
+        },
+
+        nextPage() {
+            if (this.adminCurrentPage < this.totalPages) {
+                this.adminCurrentPage++;
+            }
+        },
+
+        prevPage() {
+            if (this.adminCurrentPage > 1) {
+                this.adminCurrentPage--;
+            }
+        },
+
+        goToPage(page) {
+            if (page >= 1 && page <= this.totalPages) {
+                this.adminCurrentPage = page;
+            }
+        },
+
+        viewStudentHistory(studentName) {
+            this.selectedStudentName = studentName;
+            
+            if (!window.examBridge || typeof window.examBridge.get_student_history !== "function") {
+                this.setError("Student history is not available.");
+                return;
+            }
+
+            window.examBridge.get_student_history(
+                studentName,
+                (response) => {
+                    try {
+                        const data = this.parseBridgeResponse(response);
+                        if (data.success) {
+                            this.studentHistory = data.history || [];
+                            this.showStudentHistory = true;
+                        } else {
+                            this.setError(data.error || "Unable to load student history.");
+                        }
+                    } catch (error) {
+                        console.error("Student history error:", error);
+                        this.setError("Failed to load student history.");
+                    }
+                }
+            );
+        },
+
+        deleteStudent(studentName) {
+            if (!confirm(`Are you sure you want to delete all records for ${studentName}?`)) {
+                return;
+            }
+
+            if (!window.examBridge || typeof window.examBridge.delete_student !== "function") {
+                this.setError("Student deletion is not available.");
+                return;
+            }
+
+            window.examBridge.delete_student(
+                studentName,
+                (response) => {
+                    try {
+                        const data = this.parseBridgeResponse(response);
+                        if (data.success) {
+                            this.adminStudents = this.adminStudents.filter(s => s.name !== studentName);
+                            showToast(`Student ${studentName} deleted successfully.`, "success");
+                        } else {
+                            this.setError(data.error || "Unable to delete student.");
+                        }
+                    } catch (error) {
+                        console.error("Student deletion error:", error);
+                        this.setError("Failed to delete student.");
+                    }
+                }
+            );
+        },
+
+        formatDate(dateString) {
+            if (!dateString) return "N/A";
+            const date = new Date(dateString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${day}/${month}/${year} ${hours}:${minutes}`;
+        },
+
+        printStudentHistory() {
+            const historyTable = document.querySelector('.overflow-x-auto table');
+            if (!historyTable) {
+                showToast("History table not found", "error");
+                return;
+            }
+            
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Student History - ${this.selectedStudentName}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                        h1 { margin-bottom: 10px; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Result History: ${this.selectedStudentName}</h1>
+                    ${historyTable.outerHTML}
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        },
+
+        downloadStudentHistoryPDF() {
+            showToast("PDF download for history not yet implemented", "warning");
+        },
+
+
         // =========================================================
         // CLEANUP
         // =========================================================
@@ -2925,3 +3260,4 @@ document.addEventListener("alpine:init", () => {
     }));
 
 });
+

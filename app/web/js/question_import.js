@@ -1377,122 +1377,82 @@ function renderImportReview(data) {
 // CREATE QUESTION REVIEW CARD
 // 
 
-function createQuestionReview(
-    question,
-    index
-) {
-
-    const card =
-        document.createElement(
-            "div"
-        );
-
-    card.className =
-        "question-review-card";
-
-    card.dataset.index =
-        index;
+function createQuestionReview(question, index) {
+    const card = document.createElement("div");
+    card.className = "question-review-card";
+    card.dataset.index = index;
 
     card.innerHTML = `
-
         <div class="question-review-header">
-
-            <strong>
-                Question
-                ${escapeHtml(String(question.number))}
-            </strong>
-
-        </div>
-
-        <div class="question-meta-grid">
-
-            <label class="field-stack">
-                <span>
-                    Question Number
-                </span>
-
-                <input
-                    type="number"
-                    min="1"
-                    class="question-number-input"
-                    value="${escapeHtml(String(question.number || index + 1))}"
-                >
-            </label>
-
-            <div class="question-source-meta">
-                <span>
-                    ${escapeHtml(question.source_reference || "Imported file")}
-                </span>
-                <strong>
-                    ${question.source_page ? `Page ${escapeHtml(String(question.source_page))}` : "Page not set"}
-                </strong>
+            <strong>Question ${escapeHtml(String(question.number))}</strong>
+            <div class="question-actions">
+                <button type="button" class="btn btn-sm btn-edit" data-index="${index}">Edit</button>
+                <button type="button" class="btn btn-sm btn-discard" data-index="${index}">Discard</button>
+                <button type="button" class="btn btn-sm btn-approve" data-index="${index}">Approve</button>
             </div>
-
+        </div>
+        
+        <div class="question-meta-grid">
+            <label class="field-stack">
+                <span>Question Number</span>
+                <input type="number" min="1" class="question-number-input" 
+                       value="${escapeHtml(String(question.number || index + 1))}">
+            </label>
+            <div class="question-source-meta">
+                <span>${escapeHtml(question.source_reference || "Imported file")}</span>
+                <strong>${question.source_page ? `Page ${escapeHtml(String(question.source_page))}` : "Page not set"}</strong>
+            </div>
         </div>
 
-        <label>
-            Question text
-        </label>
-
-        <textarea
-            class="question-text"
-            rows="4"
-        >${escapeHtml(
-            question.text || ""
-        )}</textarea>
+        <label>Question text</label>
+        <textarea class="question-text" rows="4">${escapeHtml(question.text || "")}</textarea>
 
         <div class="options-review">
-
-            ${renderOptions(
-                question.options || [],
-                index
-            )}
-
+            ${renderOptions(question.options || [], index)}
         </div>
 
         <div class="diagram-review">
-
-            <div class="diagram-title">
-                Diagram
-            </div>
-
+            <div class="diagram-title">Diagram</div>
             <div class="diagram-list">
-
-                ${renderQuestionImages(
-                    question.images || []
-                )}
-
+                ${renderQuestionImages(question.images || [])}
             </div>
-
-            <button
-                type="button"
-                class="secondary crop-question-diagram"
-            >
-                Add Diagram
-            </button>
-
+            <button type="button" class="secondary crop-question-diagram">Add Diagram</button>
         </div>
-
     `;
 
-    card
-        .querySelector(
-            ".crop-question-diagram"
-        )
-        .addEventListener(
-            "click",
-            () => {
-
-                selectQuestionForDiagram(
-                    question.number
-                );
-
-            }
-        );
+    // Add event listeners for action buttons
+    card.querySelector('.btn-edit').addEventListener('click', () => toggleEditMode(card));
+    card.querySelector('.btn-discard').addEventListener('click', () => discardQuestion(index));
+    card.querySelector('.btn-approve').addEventListener('click', () => approveQuestion(index));
+    card.querySelector('.crop-question-diagram').addEventListener('click', () => {
+        selectQuestionForDiagram(question.number);
+    });
 
     return card;
 }
 
+// Add these new functions
+function toggleEditMode(card) {
+    const isEditing = card.classList.toggle('editing');
+    const inputs = card.querySelectorAll('input, textarea');
+    inputs.forEach(input => input.disabled = !isEditing);
+}
+
+function discardQuestion(index) {
+    if (confirm('Are you sure you want to discard this question?')) {
+        window.importReviewQuestions.splice(index, 1);
+        refreshImportReview();
+    }
+}
+
+function approveQuestion(index) {
+    const question = window.importReviewQuestions[index];
+    // Mark as approved and visually indicate
+    const card = document.querySelector(`.question-review-card[data-index="${index}"]`);
+    card.classList.add('approved');
+
+
+}
 
 // ============================================================
 //   render options for a question
@@ -1592,9 +1552,15 @@ function renderQuestionImages(
 
 
 /* ============================================================
-// REFERESH IMPORT REVIEW   
+// REFERESH IMPORT REVIEW
 // ============================================================ */
 function refreshImportReview() {
+
+    if (!bridge || typeof bridge.get_review !== "function") {
+        console.error("Bridge not available for get_review");
+        renderReviewEmptyState("Bridge not available", "Question import bridge is not connected.");
+        return;
+    }
 
     bridge.get_review(
         function(response) {
@@ -2082,7 +2048,8 @@ extractButton.addEventListener(
     triggerAutoExtraction
 );
 
-function selectQuestionForDiagram(questionNumber) {
+// Make selectQuestionForDiagram globally available
+window.selectQuestionForDiagram = function(questionNumber) {
 
     window.selectedDiagramQuestion = questionNumber;
 
@@ -2094,7 +2061,7 @@ function selectQuestionForDiagram(questionNumber) {
     setStatus(
         `Ready to crop diagram for Question ${questionNumber}.`
     );
-}
+};
 
 // /* ============================================================
 //    GIVING  QUESTION NUMBER FOR DIAGRAM
