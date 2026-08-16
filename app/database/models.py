@@ -95,7 +95,6 @@ class Subject(Base):
 # QUESTION
 # ============================================================
 
-
 class Question(Base):
     """
     A past examination question.
@@ -162,9 +161,10 @@ class Question(Base):
     # Optional image
     # --------------------------------------------------------
 
-    image_path: Mapped[str | None] = mapped_column(
-        String(500),
-        nullable=True,
+    images: Mapped[list["QuestionImage"]] = relationship(
+        back_populates="question",
+        cascade="all, delete-orphan",
+        order_by="QuestionImage.position",
     )
 
     # --------------------------------------------------------
@@ -238,6 +238,78 @@ class Question(Base):
         ),
     )
 
+
+ 
+# ============================================================
+# QUESTION IMAGE
+# ============================================================
+
+
+class QuestionImage(Base):
+    """
+    An image/diagram belonging to a question.
+
+    The actual image file is stored on disk.
+    The database stores the path and metadata.
+    """
+
+    __tablename__ = "question_images"
+
+    id: Mapped[int] = mapped_column(
+        primary_key=True,
+    )
+
+    question_id: Mapped[int] = mapped_column(
+        ForeignKey(
+            "questions.id",
+            ondelete="CASCADE",
+        ),
+        nullable=False,
+    )
+
+    image_path: Mapped[str] = mapped_column(
+        String(500),
+        nullable=False,
+    )
+
+    position: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=1,
+    )
+
+    image_type: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+        default="diagram",
+    )
+
+    source_page: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        server_default=func.now(),
+        nullable=False,
+    )
+
+    question: Mapped["Question"] = relationship(
+        back_populates="images",
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "question_id",
+            "position",
+            name="uq_question_image_position",
+        ),
+        Index(
+            "ix_question_images_question",
+            "question_id",
+        ),
+    )
 
 # ============================================================
 # OPTION

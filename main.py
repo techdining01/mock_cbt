@@ -23,7 +23,6 @@
 from pathlib import Path
 
 
-
 from PySide6.QtWidgets import QApplication  # pyright: ignore[reportMissingImports]
 from PySide6.QtWebEngineWidgets import QWebEngineView  # pyright: ignore[reportMissingImports]
 from PySide6.QtCore import QUrl  # pyright: ignore[reportMissingImports]
@@ -31,8 +30,9 @@ from PySide6.QtGui import QIcon  # pyright: ignore[reportMissingImports]
 
 from PySide6.QtWebChannel import QWebChannel  # pyright: ignore[reportMissingImports]
 from app.bridge.exam_bridge import ExamBridge
+from app.bridge.question_import_bridge import QuestionImportBridge
 
-
+from app.services.pdf_processor import PDFProcessor
 
 base_dir = Path(__file__).parent
 
@@ -41,6 +41,7 @@ base_dir = Path(__file__).parent
 def main():
     import sys
     from app.database.database import init_database
+
     init_database()
     # Create the Qt application.
     # sys.argv contains any arguments passed when starting the program.
@@ -48,15 +49,17 @@ def main():
 
     # Create the Python object that JavaScript will communicate with.
     exam_bridge = ExamBridge()
+    import_bridge = QuestionImportBridge()
 
     # Create a WebChannel for communication between Python and JavaScript.
     channel = QWebChannel()
 
-    # Register our Python bridge under the name "exam_bridge".
+    # Register our Python bridge for exam and question import
     channel.registerObject("examBridge", exam_bridge)
+    channel.registerObject("questionImportBridge", import_bridge)
 
     # Set the icon for the application.
-    app.setWindowIcon(QIcon(str(base_dir / "app" / "assets" / "alayande.png")))
+    app.setWindowIcon(QIcon(str(base_dir / "app" / "web" / "images" / "alayande.png")))
 
     # Create our desktop browser window.
     # This will eventually display our HTML + Tailwind + Alpine.js interface.
@@ -70,16 +73,15 @@ def main():
 
     # Set the initial size of the application window.
     # The first value is width and the second is height.
-    window.resize(1200, 800)
+    window.resize(1024, 768)
 
     # Get the path to our local HTML file.
     # __file__ represents the location of this main.py file.
     # We use it to build the path to app/web/index.html.
-    
-    # Build the full path to index.html.
-    html_file = base_dir / "app" / "web" / "index.html"
 
-    
+    # Build the full path to index.html.
+    html_file = base_dir / "app" / "web" / "question_import.html"
+
     # Convert the local Windows file path into a QUrl.
     html_url = QUrl.fromLocalFile(str(html_file))
 
@@ -98,5 +100,3 @@ def main():
 # If it is, call our main() function.
 if __name__ == "__main__":
     main()
-
-

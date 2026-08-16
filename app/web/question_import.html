@@ -1,0 +1,449 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Question Import Review</title>
+
+    <link
+        rel="stylesheet"
+        href="./css/question_import.css"
+    >
+    
+  </head>
+
+<body>
+
+<div class="import-app">
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <header class="import-header">
+
+        <div class="header-left">
+
+            <div class="app-title">
+                Question Import
+            </div>
+
+            <div
+                id="status"
+                class="status-badge"
+            >
+                Ready
+            </div>
+
+        </div>
+
+        <div class="header-actions">
+
+            <button
+                id="openButton"
+                class="btn btn-primary"
+                disabled
+            >
+                Open Question Paper
+            </button>
+
+            <button
+                id="resetButton"
+                class="btn btn-secondary"
+                disabled
+            >
+                Reset
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <section class="import-controls">
+
+        <div class="field-inline">
+            <label for="importYearInput">
+                Exam Year
+            </label>
+
+            <input
+                id="importYearInput"
+                type="number"
+                min="1900"
+                max="2100"
+                placeholder="e.g. 2026"
+            >
+        </div>
+
+        <div class="field-inline subject-field">
+            <label for="importSubjectInput">
+                Subject
+            </label>
+
+            <input
+                id="importSubjectInput"
+                type="text"
+                placeholder="Imported Questions"
+            >
+        </div>
+
+        <button
+            id="extractButton"
+            class="btn btn-primary"
+            disabled
+        >
+            Run OCR Extraction
+        </button>
+
+    </section>
+
+
+    <!-- =====================================================
+         DOCUMENT INFORMATION BAR
+    ====================================================== -->
+
+    <section class="document-toolbar">
+
+        <div class="document-info">
+
+            <div class="document-name">
+                <span class="toolbar-label">
+                    Source
+                </span>
+
+                <strong id="sourceName">
+                    No document loaded
+                </strong>
+            </div>
+
+            <div
+                id="pageCount"
+                class="page-count"
+            >
+                —
+            </div>
+
+        </div>
+
+
+        <div class="viewer-controls">
+
+            <button
+                id="previousButton"
+                class="icon-button"
+                disabled
+                title="Previous page"
+            >
+                ‹
+            </button>
+
+            <span id="pageInfo">
+                Page —
+            </span>
+
+            <button
+                id="nextButton"
+                class="icon-button"
+                disabled
+                title="Next page"
+            >
+                ›
+            </button>
+
+
+            <div class="control-divider"></div>
+
+
+            <button
+                id="zoomOutButton"
+                class="icon-button"
+                disabled
+                title="Zoom out"
+            >
+                −
+            </button>
+
+            <span id="zoomLabel">
+                100%
+            </span>
+
+            <button
+                id="zoomInButton"
+                class="icon-button"
+                disabled
+                title="Zoom in"
+            >
+                +
+            </button>
+
+        </div>
+
+    </section>
+
+    <!-- =====================================================
+         MAIN WORKSPACE
+    ====================================================== -->
+
+    <main class="workspace">
+
+
+        <!-- =================================================
+             LEFT: THUMBNAILS
+        ================================================== -->
+
+        <aside class="thumbnail-panel">
+
+            <div class="panel-heading">
+
+                <span>
+                    Pages
+                </span>
+
+            </div>
+
+            <div
+                id="pages"
+                class="pages"
+            >
+
+                <div class="empty-state">
+                    Open a scanned question paper.
+                </div>
+
+            </div>
+
+        </aside>
+
+
+        <!-- =================================================
+             CENTER: DOCUMENT / OCR VIEW
+        ================================================== -->
+
+        <section class="document-panel">
+
+            <div class="panel-heading document-heading">
+
+                <div>
+                    <span>
+                        Question Paper
+                    </span>
+
+                    <small>
+                        Select a diagram region to crop
+                    </small>
+                </div>
+
+            </div>
+
+
+            <div
+                id="documentArea"
+                class="document-area"
+            >
+
+                <div class="empty-state">
+
+                    <div>
+
+                        <h2>
+                            No question paper loaded
+                        </h2>
+
+                        <p>
+                            Select a PDF or scanned image
+                            to begin reviewing questions.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             RIGHT: IMPORT REVIEW
+        ================================================== -->
+
+        <aside class="review-panel">
+
+            <div class="review-header">
+
+                <div>
+
+                    <h2>
+                        Import Review
+                    </h2>
+
+                    <p>
+                        Edit extracted question data
+                        before saving.
+                    </p>
+
+                </div>
+
+                <span class="review-status">
+                    REVIEW
+                </span>
+
+            </div>
+
+
+            <div
+                id="reviewContent"
+                class="review-content"
+            >
+
+                <div class="review-empty">
+
+                    <div class="review-empty-icon">
+                        ✓
+                    </div>
+
+                    <h3>
+                        Nothing to review yet
+                    </h3>
+
+                    <p>
+                        Open a question paper and run
+                        OCR/question extraction.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+        </aside>
+
+    </main>
+
+</div>
+
+
+<!-- =========================================================
+     QUESTION NUMBER MODAL
+========================================================== -->
+
+<div
+    id="questionNumberModal"
+    class="modal hidden"
+    aria-hidden="true"
+>
+
+    <div
+        class="modal-backdrop"
+        data-close-modal="true"
+    ></div>
+
+    <div
+        class="modal-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="questionNumberModalTitle"
+    >
+
+        <div class="modal-header">
+
+            <div>
+
+                <h3 id="questionNumberModalTitle">
+                    Diagram Question
+                </h3>
+
+                <p>
+                    Which question does this diagram
+                    belong to?
+                </p>
+
+            </div>
+
+            <button
+                id="closeQuestionNumberModal"
+                class="modal-close"
+                type="button"
+                aria-label="Close dialog"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="modal-body">
+
+            <label
+                for="questionNumberInput"
+                class="field-label"
+            >
+                Question number
+            </label>
+
+            <input
+                id="questionNumberInput"
+                class="text-input"
+                type="number"
+                min="1"
+                placeholder="e.g. 14"
+                autocomplete="off"
+            >
+
+            <div
+                id="questionNumberError"
+                class="field-error hidden"
+            >
+                Enter a valid question number.
+            </div>
+
+        </div>
+
+
+        <div class="modal-actions">
+
+            <button
+                id="cancelQuestionNumber"
+                class="btn btn-secondary"
+                type="button"
+            >
+                Cancel
+            </button>
+
+            <button
+                id="confirmQuestionNumber"
+                class="btn btn-primary"
+                type="button"
+            >
+                Continue
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     TOAST
+========================================================== -->
+
+<div
+    id="toastContainer"
+    class="toast-container"
+></div>
+
+
+<script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+
+<script src="js/question_import.js"></script>
+
+</body>
+</html>

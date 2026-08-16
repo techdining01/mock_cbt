@@ -824,12 +824,23 @@ document.addEventListener("alpine:init", () => {
             ) {
 
                 this.subjectIndex = 0;
-
                 this.questionIndex = 0;
 
                 return;
             }
 
+
+            /*
+            * A newly-created exam has every subject at position 0.
+            *
+            * Therefore we cannot interpret position 0 alone as
+            * "this subject was previously visited".
+            *
+            * For a fresh exam, start at the first subject.
+            *
+            * If an existing exam has a saved position greater than
+            * zero, restore that subject/question.
+            */
 
             for (
                 let i = 0;
@@ -841,15 +852,24 @@ document.addEventListener("alpine:init", () => {
                     this.exam.subjects[i];
 
 
+                if (
+                    !Array.isArray(subject.questions) ||
+                    !subject.questions.length
+                ) {
+
+                    continue;
+                }
+
+
                 const position =
                     Number(
-                        subject.current_question_position || 0
+                        subject.current_question_position ?? 0
                     );
 
 
                 if (
+                    Number.isInteger(position) &&
                     position > 0 &&
-                    Array.isArray(subject.questions) &&
                     position < subject.questions.length
                 ) {
 
@@ -858,18 +878,24 @@ document.addEventListener("alpine:init", () => {
                     this.questionIndex = position;
 
                     return;
+
                 }
 
             }
 
+
+            /*
+            * No previously advanced position was found.
+            *
+            * This is a fresh exam, so always begin with
+            * the first subject and first question.
+            */
 
             this.subjectIndex = 0;
 
             this.questionIndex = 0;
 
         },
-
-
         // =========================================================
         // CURRENT SUBJECT
         // =========================================================
@@ -1634,7 +1660,6 @@ document.addEventListener("alpine:init", () => {
 
         },
 
-
         // =========================================================
         // ANSWERED COUNT
         // =========================================================
@@ -1645,23 +1670,12 @@ document.addEventListener("alpine:init", () => {
                 return 0;
             }
 
-
             return this.exam.subjects.reduce(
                 (total, subject) => {
 
-                    const questions =
-                        Array.isArray(subject.questions)
-                            ? subject.questions
-                            : [];
-
-
                     return (
                         total +
-                        questions.filter(
-                            question =>
-                                question.selected_option_id !== null &&
-                                question.selected_option_id !== undefined
-                        ).length
+                        this.subjectAnsweredCount(subject)
                     );
 
                 },
@@ -1681,17 +1695,12 @@ document.addEventListener("alpine:init", () => {
                 return 0;
             }
 
-
             return this.exam.subjects.reduce(
                 (total, subject) => {
 
                     return (
                         total +
-                        (
-                            Array.isArray(subject.questions)
-                                ? subject.questions.length
-                                : 0
-                        )
+                        this.subjectTotalCount(subject)
                     );
 
                 },
@@ -1699,7 +1708,6 @@ document.addEventListener("alpine:init", () => {
             );
 
         },
-
 
         // =========================================================
         // UNANSWERED COUNT
@@ -1715,6 +1723,58 @@ document.addEventListener("alpine:init", () => {
 
         },
 
+        // =========================================================
+        // OVERALL PROGRESS PERCENTAGE
+        // =========================================================
+
+        get overallProgressPercent() {
+
+            const total =
+                this.totalQuestionCount;
+
+            if (!total) {
+                return 0;
+            }
+
+            return Math.round(
+                (
+                    this.answeredCount /
+                    total
+                ) * 100
+            );
+
+        },
+
+
+        // =========================================================
+        // SUBJECT TOTAL COUNT
+        // =========================================================
+
+        subjectTotalCount(subject) {
+
+            if (!subject) {
+                return 0;
+            }
+
+            /*
+            * During the actual exam, the authoritative count
+            * comes from the questions loaded by get_exam_payload().
+            */
+
+            if (
+                Array.isArray(subject.questions)
+            ) {
+
+                return subject.questions.length;
+
+            }
+
+            return Number(
+                subject.question_count || 0
+            );
+
+        },
+
 
         // =========================================================
         // SUBJECT ANSWERED COUNT
@@ -1726,12 +1786,10 @@ document.addEventListener("alpine:init", () => {
                 return 0;
             }
 
-
             const questions =
                 Array.isArray(subject.questions)
                     ? subject.questions
                     : [];
-
 
             return questions.filter(
                 question =>
@@ -1743,30 +1801,47 @@ document.addEventListener("alpine:init", () => {
 
 
         // =========================================================
-        // SUBJECT PROGRESS
+        // SUBJECT PROGRESS PERCENTAGE
+        // =========================================================
+
+        subjectProgressPercent(subject) {
+
+            const total =
+                this.subjectTotalCount(subject);
+
+            if (!total) {
+                return 0;
+            }
+
+            return Math.round(
+                (
+                    this.subjectAnsweredCount(subject) /
+                    total
+                ) * 100
+            );
+
+        },
+
+
+        // =========================================================
+        // SUBJECT PROGRESS TEXT
         // =========================================================
 
         subjectProgressText(subject) {
 
             if (!subject) {
-                return "0/0";
+                return "0 / 0";
             }
 
+            const answered =
+                this.subjectAnsweredCount(subject);
 
             const total =
-                Array.isArray(subject.questions)
-                    ? subject.questions.length
-                    : Number(
-                        subject.question_count || 0
-                    );
+                this.subjectTotalCount(subject);
 
-
-            return (
-                `${this.subjectAnsweredCount(subject)}/${total}`
-            );
+            return `${answered} / ${total}`;
 
         },
-
 
         // =========================================================
         // PREVIOUS BUTTON

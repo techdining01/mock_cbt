@@ -7,7 +7,7 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.database.models import Option, Question, Subject
+from app.database.models import Option, Question, Subject, QuestionImage
 
 
 class QuestionImportError(Exception):
@@ -194,7 +194,13 @@ class QuestionImporter:
 
         self._validate_question(question_data)
 
-        question_number = question_data["number"]
+        normalized_question = (
+            self._normalize_question_data(
+                question_data
+            )
+        )
+
+        question_number = normalized_question["question_number"]
 
         # ----------------------------------------------------
         # Check for an existing question.
@@ -219,15 +225,27 @@ class QuestionImporter:
             subject=subject,
             year=year,
             question_number=question_number,
-            text=question_data["text"].strip(),
-            explanation=self._clean_optional_text(question_data.get("explanation")),
-            source_reference=self._clean_optional_text(
-                question_data.get("source_reference")
+            text=normalized_question["text"].strip(),
+            explanation=self._clean_optional_text(
+                normalized_question.get("explanation")
             ),
-            source_page=question_data.get("source_page"),
-            image_path=self._clean_optional_text(question_data.get("image_path")),
+            source_reference=self._clean_optional_text(
+                normalized_question.get("source_reference")
+            ),
+            source_page=normalized_question.get("source_page"),
         )
 
+        for position, image_path in enumerate(
+            normalized_question.get("images", []),
+            start=1,
+        ):
+            image = QuestionImage(
+                image_path=image_path,
+                position=position,
+                image_type="diagram",
+                source_page=normalized_question.get("source_page"),
+            )
+            question.images.append(image)
         self.session.add(question)
 
         self.session.flush()
@@ -237,7 +255,7 @@ class QuestionImporter:
         # ----------------------------------------------------
 
         for position, option_data in enumerate(
-            question_data["options"],
+            normalized_question["options"],
             start=1,
         ):
             option = Option(
@@ -263,11 +281,15 @@ class QuestionImporter:
         question_data: dict[str, Any],
     ) -> None:
 
+        question_data = self._normalize_question_data(
+            question_data
+        )
+
         if not isinstance(question_data, dict):
             raise QuestionImportError("Each question must be an object.")
 
         required_fields = {
-            "number",
+            "question_number",
             "text",
             "options",
         }
@@ -280,12 +302,12 @@ class QuestionImporter:
             )
 
         if not isinstance(
-            question_data["number"],
+            question_data["question_number"],
             int,
         ):
             raise QuestionImportError("Question number must be an integer.")
 
-        if question_data["number"] <= 0:
+        if question_data["question_number"] <= 0:
             raise QuestionImportError("Question number must be greater than zero.")
 
         if not isinstance(
@@ -366,3 +388,100 @@ class QuestionImporter:
         value = value.strip()
 
         return value or None
+
+    def _normalize_question_data(
+        self,
+        question_data: dict[str, Any],
+    ) -> dict[str, Any]:
+
+        normalized = dict(question_data)
+
+        if (
+            "question_number" not in normalized
+            and "number" in normalized
+        ):
+            normalized["question_number"] = normalized["number"]
+
+        try:
+            normalized["question_number"] = int(
+                normalized["question_number"]
+            )
+        except Exception:
+            pass
+
+        source_page = normalized.get(
+            "source_page"
+        )
+
+        if source_page not in (
+            None,
+            "",
+        ):
+            try:
+                normalized["source_page"] = int(
+                    source_page
+                )
+            except Exception:
+                normalized["source_page"] = None
+
+        normalized["images"] = [
+            self._normalize_image_path(
+                image
+            )
+            for image in normalized.get(
+                "images",
+                [],
+            )
+            if self._normalize_image_path(
+                image
+            )
+        ]
+
+        normalized["options"] = [
+            self._normalize_option_data(
+                option
+            )
+            for option in normalized.get(
+                "options",
+                [],
+            )
+        ]
+
+        return normalized
+
+    @staticmethod
+    def _normalize_option_data(
+        option: dict[str, Any],
+    ) -> dict[str, Any]:
+
+        normalized = dict(option)
+
+        normalized["label"] = str(
+            normalized.get("label", "")
+        ).strip().upper()
+
+        normalized["text"] = str(
+            normalized.get("text", "")
+        )
+
+        normalized["is_correct"] = bool(
+            normalized.get("is_correct", False)
+        )
+
+        return normalized
+
+    @staticmethod
+    def _normalize_image_path(
+        image: Any,
+    ) -> str | None:
+
+        if isinstance(image, str):
+            return image.strip() or None
+
+        if isinstance(image, dict):
+            path = image.get("path")
+            if path is None:
+                return None
+            return str(path).strip() or None
+
+        return None

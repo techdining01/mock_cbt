@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import Session, joinedload
 
 from app.database.models import (
@@ -631,13 +631,21 @@ class ExamService:
             self.db.query(
                 Subject.id,
                 Subject.name,
+                func.count(Question.id).label("question_count"),
             )
             .join(
                 Question,
                 Question.subject_id == Subject.id,
             )
-            .filter(Question.year == year)
-            .distinct()
+            .filter(
+                Question.year == year,
+                Question.is_active.is_(True),
+                Subject.is_active.is_(True),
+            )
+            .group_by(
+                Subject.id,
+                Subject.name,
+            )
             .order_by(Subject.name.asc())
             .all()
         )
@@ -646,6 +654,11 @@ class ExamService:
             {
                 "id": subject_id,
                 "name": subject_name,
+                "question_count": int(question_count),
             }
-            for subject_id, subject_name in rows
+            for (
+                subject_id,
+                subject_name,
+                question_count,
+            ) in rows
         ]

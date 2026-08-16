@@ -11,3 +11,6 @@ wheels/
 */**/cbt.sqlite3
 node_modules/
 data/
+old_files/
+import_questions.py
+question_data/*
