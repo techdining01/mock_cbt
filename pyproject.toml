@@ -10,5 +10,6 @@ dependencies = [
     "pymupdf>=1.28.2",
     "pyside6>=6.11.1",
     "pytesseract>=0.3.13",
+    "reportlab>=4.0.0",
     "sqlalchemy>=2.0.52",
 ]

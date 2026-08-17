@@ -248,33 +248,58 @@ function persistDiagramSelection(
    WEB CHANNEL
 ============================================================ */
 
-new QWebChannel(
-    qt.webChannelTransport,
-    function(channel) {
+(function waitForBridge() {
+    var done = false;
+    var attempts = 0;
+    var maxAttempts = 300;
+    var intervalMs = 100;
+    var interval;
 
-        bridge =
-            channel.objects.questionImportBridge;
-
-        if (!bridge) {
-
-            setStatus(
-                "Question import bridge unavailable."
-            );
-
-            return;
-        }
-
-        setStatus(
-            "Ready"
-        );
-
+    function activate(b) {
+        if (done || !b || typeof b !== "object") return false;
+        done = true;
+        if (interval) clearInterval(interval);
+        bridge = b;
+        window.bridge = b;
+        window.questionImportBridge = b;
+        // Enable the action buttons that were locked while bridge was missing
         openButton.disabled = false;
-
-        console.log(
-            "QuestionImportBridge connected."
-        );
+        resetButton.disabled = false;
+        extractButton.disabled = false;
+        setStatus("Ready");
+        console.log("QuestionImportBridge connected.");
+        return true;
     }
-);
+
+    function tryActivate() {
+        attempts++;
+        var b = window.questionImportBridge || window.bridge;
+        if (activate(b)) return;
+        if (attempts >= maxAttempts) {
+            if (interval) clearInterval(interval);
+            setStatus("Question import bridge unavailable after timeout.");
+            console.warn("questionImportBridge never appeared on window after " + (maxAttempts * intervalMs) + "ms.");
+        }
+    }
+
+    // Fast path: try synchronously first (catches the case where inline script
+    // ran successfully before we got here via <script> tag order).
+    tryActivate();
+    if (!done) {
+        interval = setInterval(tryActivate, intervalMs);
+    }
+
+    // Also subscribe to the explicit event the inline script emits when it
+    // publishes the bridge -- covers the case where inline script finishes
+    // installing bridge after our first synchronous check.
+    try {
+        document.addEventListener(
+            "questionImportBridgeReady",
+            function (ev) { activate(ev && ev.detail); },
+            false
+        );
+    } catch (_) { /* older Qt JS environments */ }
+})();
 
 
 /* ============================================================
@@ -1299,6 +1324,12 @@ function renderImportReview(data) {
             importSubjectInput.value;
     }
 
+    if (!window.approvedQuestionIndices) {
+        window.approvedQuestionIndices = new Set();
+    }
+    const approvedCount = window.approvedQuestionIndices.size;
+    const pendingCount = questions.length - approvedCount;
+
     reviewContent.innerHTML = `
         <div class="import-review">
 
@@ -1319,7 +1350,7 @@ function renderImportReview(data) {
                     class="btn btn-success"
                     id="approveImportButton"
                 >
-                    Approve & Save
+                    Approve & Save (${approvedCount || '…'})
                 </button>
 
             </div>
@@ -1328,6 +1359,14 @@ function renderImportReview(data) {
 
                 <div class="summary-chip">
                     ${questions.length} question${questions.length === 1 ? "" : "s"}
+                </div>
+
+                <div class="summary-chip summary-chip-approved">
+                    ✓ ${approvedCount} approved
+                </div>
+
+                <div class="summary-chip summary-chip-pending">
+                    ⏳ ${pendingCount} pending
                 </div>
 
                 <div class="summary-chip">
@@ -1378,17 +1417,31 @@ function renderImportReview(data) {
 // 
 
 function createQuestionReview(question, index) {
+    if (!window.approvedQuestionIndices) {
+        window.approvedQuestionIndices = new Set();
+    }
+
+    const isApproved = window.approvedQuestionIndices.has(index);
     const card = document.createElement("div");
-    card.className = "question-review-card";
+    card.className = "question-review-card" + (isApproved ? " approved" : "");
     card.dataset.index = index;
+
+    const statusBadge = isApproved
+        ? `<span class="status-chip status-approved">✓ Approved</span>`
+        : `<span class="status-chip status-pending">⏳ Pending Review</span>`;
+
+    const approveBtnText = isApproved ? "Un-approve" : "Approve";
 
     card.innerHTML = `
         <div class="question-review-header">
-            <strong>Question ${escapeHtml(String(question.number))}</strong>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                <strong>Question ${escapeHtml(String(question.number))}</strong>
+                ${statusBadge}
+            </div>
             <div class="question-actions">
                 <button type="button" class="btn btn-sm btn-edit" data-index="${index}">Edit</button>
                 <button type="button" class="btn btn-sm btn-discard" data-index="${index}">Discard</button>
-                <button type="button" class="btn btn-sm btn-approve" data-index="${index}">Approve</button>
+                <button type="button" class="btn btn-sm btn-approve" data-index="${index}">${approveBtnText}</button>
             </div>
         </div>
         
@@ -1420,7 +1473,9 @@ function createQuestionReview(question, index) {
         </div>
     `;
 
-    // Add event listeners for action buttons
+    const inputs = card.querySelectorAll('input, textarea');
+    inputs.forEach(input => input.disabled = true);
+
     card.querySelector('.btn-edit').addEventListener('click', () => toggleEditMode(card));
     card.querySelector('.btn-discard').addEventListener('click', () => discardQuestion(index));
     card.querySelector('.btn-approve').addEventListener('click', () => approveQuestion(index));
@@ -1431,27 +1486,113 @@ function createQuestionReview(question, index) {
     return card;
 }
 
-// Add these new functions
+function syncCardToData(card) {
+    if (!window.importReviewQuestions) return;
+    const index = Number(card.dataset.index);
+    const question = window.importReviewQuestions[index];
+    if (!question) return;
+
+    const qt = card.querySelector('.question-text');
+    if (qt) question.text = qt.value;
+
+    const qn = card.querySelector('.question-number-input');
+    if (qn) {
+        const n = Number.parseInt(qn.value, 10);
+        if (Number.isInteger(n) && n > 0) {
+            question.number = n;
+            question.question_number = n;
+        }
+    }
+
+    const optionElements = card.querySelectorAll('.option-review');
+    optionElements.forEach(optEl => {
+        const txtEl = optEl.querySelector('.option-text');
+        const radioEl = optEl.querySelector('input[type=radio]');
+        if (!txtEl) return;
+        const optIdx = Number(txtEl.dataset.optionIndex);
+        if (!question.options) question.options = [];
+        if (!question.options[optIdx]) {
+            question.options[optIdx] = {
+                label: String.fromCharCode(65 + optIdx),
+                text: '',
+                is_correct: false,
+            };
+        }
+        question.options[optIdx].text = txtEl.value;
+        question.options[optIdx].is_correct = radioEl ? radioEl.checked : false;
+    });
+}
+
 function toggleEditMode(card) {
+    const btn = card.querySelector('.btn-edit');
     const isEditing = card.classList.toggle('editing');
     const inputs = card.querySelectorAll('input, textarea');
     inputs.forEach(input => input.disabled = !isEditing);
-}
-
-function discardQuestion(index) {
-    if (confirm('Are you sure you want to discard this question?')) {
-        window.importReviewQuestions.splice(index, 1);
-        refreshImportReview();
+    if (btn) {
+        btn.textContent = isEditing ? 'Save' : 'Edit';
+    }
+    if (!isEditing) {
+        syncCardToData(card);
     }
 }
 
+function discardQuestion(index) {
+    if (!confirm('Are you sure you want to discard this question?')) return;
+    if (!window.importReviewQuestions) return;
+
+    window.importReviewQuestions.splice(index, 1);
+
+    if (window.approvedQuestionIndices) {
+        const updated = new Set();
+        window.approvedQuestionIndices.forEach(approvedIdx => {
+            if (approvedIdx < index) {
+                updated.add(approvedIdx);
+            } else if (approvedIdx > index) {
+                updated.add(approvedIdx - 1);
+            }
+        });
+        window.approvedQuestionIndices = updated;
+    }
+
+    refreshImportReview();
+}
+
 function approveQuestion(index) {
+    if (!window.importReviewQuestions) return;
     const question = window.importReviewQuestions[index];
-    // Mark as approved and visually indicate
+    if (!question) return;
+
+    if (!window.approvedQuestionIndices) {
+        window.approvedQuestionIndices = new Set();
+    }
+
     const card = document.querySelector(`.question-review-card[data-index="${index}"]`);
-    card.classList.add('approved');
+    const btn = card ? card.querySelector('.btn-approve') : null;
+    const header = card ? card.querySelector('.question-review-header') : null;
 
+    const wasApproved = window.approvedQuestionIndices.has(index);
+    if (wasApproved) {
+        window.approvedQuestionIndices.delete(index);
+        if (card) card.classList.remove('approved');
+        if (btn) btn.textContent = 'Approve';
+    } else {
+        syncCardToData(card);
+        window.approvedQuestionIndices.add(index);
+        if (card) card.classList.add('approved');
+        if (btn) btn.textContent = 'Un-approve';
+    }
 
+    const oldChip = header ? header.querySelector('.status-chip') : null;
+    if (oldChip) oldChip.remove();
+    if (header) {
+        const firstDiv = header.firstElementChild;
+        if (firstDiv) {
+            const chip = document.createElement('span');
+            chip.className = 'status-chip ' + (window.approvedQuestionIndices.has(index) ? 'status-approved' : 'status-pending');
+            chip.textContent = window.approvedQuestionIndices.has(index) ? '✓ Approved' : '⏳ Pending Review';
+            firstDiv.appendChild(chip);
+        }
+    }
 }
 
 // ============================================================
@@ -1477,9 +1618,15 @@ function renderOptions(
                     "checked" :
                     "";
 
+            const optionText =
+                (option.text || "").trim();
+
+            const emptyClass =
+                optionText ? "" : " option-empty";
+
             return `
 
-                <div class="option-review">
+                <div class="option-review${emptyClass}">
 
                     <div class="option-label">
                         ${label}
@@ -1635,6 +1782,26 @@ function collectReviewData() {
             ".question-review-card"
         );
 
+    if (!window.approvedQuestionIndices) {
+        window.approvedQuestionIndices = new Set();
+    }
+
+    let approvedOnly = true;
+    if (window.approvedQuestionIndices.size === 0) {
+        if (cards.length > 0) {
+            const choice = confirm(
+                "No questions have been individually approved.\n\n" +
+                "Click OK to save ALL non-discarded questions.\n" +
+                "Click Cancel to go back and approve questions one-by-one."
+            );
+            if (!choice) {
+                showImportToast("Please approve at least one question before saving.", "warning");
+                return null;
+            }
+            approvedOnly = false;
+        }
+    }
+
     const questions = [];
 
     cards.forEach(
@@ -1644,6 +1811,12 @@ function collectReviewData() {
                 Number(
                     card.dataset.index
                 );
+
+            if (approvedOnly && !window.approvedQuestionIndices.has(index)) {
+                return;
+            }
+
+            syncCardToData(card);
 
             const original =
                 (window.importReviewQuestions || [])[
@@ -2017,6 +2190,8 @@ function triggerAutoExtraction() {
 
             window.importReviewQuestions =
                 result.questions;
+
+            window.approvedQuestionIndices = new Set();
 
             renderImportReview({
                 year:

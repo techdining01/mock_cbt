@@ -6,7 +6,7 @@
 
     <title>Mock CBT Examination</title>
 
-    
+    <link rel="icon" type="image/png" href="images/alayande.png">
 
     <link
         rel="stylesheet"
@@ -81,41 +81,401 @@
     x-cloak
 >
 
- <!-- ADMIN DASHBOARD -->
+ <!-- NAVIGATION -->
            
-    <nav class="bg-white border-b border-gray-200 px-4 py-3">
+    <nav class="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-40 shadow-sm">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
-            <div class="flex gap-4">
-                <button @click="screen = 'selection'" :class="screen === 'selection' ? 'text-blue-600 font-semibold' : 'text-gray-600'">Exam</button>
-                <button @click="screen = 'admin'" :class="screen === 'admin' ? 'text-blue-600 font-semibold' : 'text-gray-600'">Admin</button>
-                <button @click="screen = 'import'" :class="screen === 'import' ? 'text-blue-600 font-semibold' : 'text-gray-600'">Import Questions</button>
+            <div class="flex gap-2 sm:gap-4">
+                <button @click="if (isNavLocked) { showToast('Navigation is disabled during exam / result review', 'warning'); return; } if (isAdmin) { showToast('Admin users cannot take exams', 'error'); } else { screen = 'selection'; }" 
+                        :disabled="isNavLocked"
+                        :class="[
+                            screen === 'selection' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-100',
+                            isNavLocked ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''
+                        ]"
+                        class="px-3 py-2 rounded-lg text-sm font-medium transition">
+                    <span class="hidden sm:inline">📝 Exam</span>
+                    <span class="sm:hidden">Exam</span>
+                </button>
+                <button @click="if (isNavLocked) { showToast('Navigation is disabled during exam / result review', 'warning'); return; } if (isAdmin) { screen = 'admin'; } else { showLoginModal = true; }" 
+                        :disabled="isNavLocked"
+                        :class="[
+                            screen === 'admin' ? 'bg-purple-50 text-purple-700 font-semibold' : 'text-gray-600 hover:bg-gray-100',
+                            isNavLocked ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''
+                        ]"
+                        class="px-3 py-2 rounded-lg text-sm font-medium transition">
+                    <span class="hidden sm:inline">🛡 Admin</span>
+                    <span class="sm:hidden">Admin</span>
+                </button>
+                <button @click="if (isNavLocked) { showToast('Navigation is disabled during exam / result review', 'warning'); return; } handleImportClick()" 
+                        :disabled="isNavLocked"
+                        :class="[
+                            screen === 'import' ? 'bg-emerald-50 text-emerald-700 font-semibold' : 'text-gray-600 hover:bg-gray-100',
+                            isNavLocked ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''
+                        ]"
+                        class="px-3 py-2 rounded-lg text-sm font-medium transition">
+                    <span class="hidden sm:inline">📥 Import Questions</span>
+                    <span class="sm:hidden">Import</span>
+                </button>
+            </div>
+            <div class="flex items-center gap-3">
+                <template x-if="isAdmin">
+                    <div class="flex items-center gap-3">
+                        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-purple-50 border border-purple-200">
+                            <span class="h-2 w-2 rounded-full bg-purple-500 animate-pulse"></span>
+                            <span class="text-sm font-semibold text-purple-800" x-text="currentUser?.full_name"></span>
+                        </div>
+                        <span class="sm:hidden text-xs font-bold text-purple-700" x-text="currentUser?.username"></span>
+                        <button @click="if (isNavLocked) { showToast('Cannot logout during exam / result review', 'warning'); return; } logout()" 
+                                :disabled="isNavLocked"
+                                :class="isNavLocked ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''"
+                                class="px-3 py-2 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700 active:scale-95 shadow transition flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                            </svg>
+                            <span class="hidden sm:inline">Logout</span>
+                        </button>
+                    </div>
+                </template>
+                <template x-if="!isAdmin">
+                    <button @click="if (isNavLocked) { showToast('Navigation is disabled during exam / result review', 'warning'); return; } showLoginModal = true" 
+                            :disabled="isNavLocked"
+                            :class="isNavLocked ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''"
+                            class="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 shadow transition">
+                        Admin Login
+                    </button>
+                </template>
             </div>
         </div>
     </nav>
 
+    <!-- LOGIN MODAL -->
+    <div x-show="showLoginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" x-cloak>
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">Admin Login</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                    <input type="text" x-model="loginUsername" class="w-full rounded-xl border border-gray-300 px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" x-model="loginPassword" @keydown.enter="login(loginUsername, loginPassword)" class="w-full rounded-xl border border-gray-300 px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex gap-3">
+                    <button @click="showLoginModal = false; loginUsername = ''; loginPassword = '';" class="flex-1 px-4 py-2 rounded-xl bg-gray-200 text-gray-800 hover:bg-gray-300 transition">Cancel</button>
+                    <button @click="login(loginUsername, loginPassword)" class="flex-1 px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition font-semibold">Login</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- USER MODAL -->
+    <div x-show="showUserModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" x-cloak>
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md">
+            <h2 class="text-xl font-bold text-gray-900 mb-4" x-text="userModalMode === 'create' ? 'Add User' : 'Edit User'"></h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                    <input type="text" x-model="userForm.username" :disabled="userModalMode === 'edit'" 
+                           class="w-full rounded-xl border border-gray-300 px-4 py-2 disabled:bg-gray-100">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" x-model="userForm.password" 
+                           :placeholder="userModalMode === 'edit' ? 'Leave blank to keep current' : ''"
+                           class="w-full rounded-xl border border-gray-300 px-4 py-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                    <input type="text" x-model="userForm.full_name" class="w-full rounded-xl border border-gray-300 px-4 py-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                    <select x-model="userForm.role" class="w-full rounded-xl border border-gray-300 px-4 py-2" @change="console.log('Role changed to:', userForm.role)">
+                        <option value="student">Student</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div x-show="userForm.role === 'student'" x-transition>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Class</label>
+                        <input type="text" x-model="userForm.student_class" class="w-full rounded-xl border border-gray-300 px-4 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Admission Year</label>
+                        <input type="number" x-model="userForm.admission_year" class="w-full rounded-xl border border-gray-300 px-4 py-2">
+                    </div>
+                </div>
+                <template x-if="userModalMode === 'edit'">
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" x-model="userForm.is_active" id="userActive" class="rounded">
+                        <label for="userActive" class="text-sm text-gray-700">Active</label>
+                    </div>
+                </template>
+                <div class="flex gap-3">
+                    <button @click="showUserModal = false; resetUserForm()" class="flex-1 px-4 py-2 rounded-xl bg-gray-200 text-gray-800">Cancel</button>
+                    <button @click="saveUser()" class="flex-1 px-4 py-2 rounded-xl bg-blue-600 text-white">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STUDENT REGISTRATION MODAL -->
+    <div x-show="showStudentRegisterModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" x-cloak>
+        <div class="bg-white rounded-2xl p-6 sm:p-7 w-full max-w-md shadow-2xl">
+            <div class="flex items-center justify-between mb-2">
+                <h2 class="text-xl font-bold text-gray-900">Student Registration</h2>
+                <button @click="showStudentRegisterModal = false" class="text-gray-400 hover:text-gray-600 text-lg">✕</button>
+            </div>
+            <p class="text-xs text-gray-500 mb-5">Username not found in system. Please enter your registration details to proceed with the examination.</p>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">Username <span class="text-red-500">*</span></label>
+                    <input type="text" x-model="studentRegisterForm.username" placeholder="e.g. johndoe" class="w-full rounded-xl border border-gray-300 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">Full Name <span class="text-red-500">*</span></label>
+                    <input type="text" x-model="studentRegisterForm.full_name" placeholder="e.g. John Adebayo Doe" class="w-full rounded-xl border border-gray-300 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">Class</label>
+                        <input type="text" x-model="studentRegisterForm.student_class" placeholder="e.g. SS3" class="w-full rounded-xl border border-gray-300 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">Admission Year</label>
+                        <input type="number" x-model.number="studentRegisterForm.admission_year" placeholder="e.g. 2024" class="w-full rounded-xl border border-gray-300 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">Password <span class="text-gray-400 font-normal">(optional)</span></label>
+                    <input type="password" x-model="studentRegisterForm.password" placeholder="Leave blank for default" class="w-full rounded-xl border border-gray-300 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" @click="showStudentRegisterModal = false" class="flex-1 px-4 py-2.5 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 font-medium text-sm transition">Cancel</button>
+                    <button type="button" @click="registerStudent()" class="flex-1 px-4 py-2.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 font-semibold text-sm shadow transition">Register & Continue</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MANUAL QUESTION MODAL -->
+    <div x-show="showQuestionModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" x-cloak>
+        <div class="bg-white rounded-2xl p-6 sm:p-7 w-full max-w-3xl shadow-2xl max-h-[90vh] flex flex-col">
+            <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900" x-text="questionModalMode === 'create' ? 'Add New Question' : 'Edit Question'"></h2>
+                    <p class="text-xs text-gray-500 mt-0.5">Enter question details, options (A, B, C, D, E...), correct answer, and explanation</p>
+                </div>
+                <button @click="showQuestionModal = false" class="text-gray-400 hover:text-gray-600 text-lg">✕</button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto py-4 space-y-4 pr-1">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">Exam Year <span class="text-red-500">*</span></label>
+                        <input type="number" x-model.number="questionForm.year" @change="onQuestionYearOrSubjectChange()" min="1900" max="2100" class="w-full rounded-xl border border-gray-300 px-3.5 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-gray-700">Subject <span class="text-red-500">*</span></label>
+                            <button type="button" @click="openSubjectModal()" class="text-[11px] text-blue-600 font-semibold hover:underline">+ New Subject</button>
+                        </div>
+                        <select x-model="questionForm.subject_id" @change="onQuestionYearOrSubjectChange()" class="w-full rounded-xl border border-gray-300 bg-white px-3.5 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Select Subject</option>
+                            <template x-for="s in allSubjects" :key="s.id">
+                                <option :value="s.id" x-text="s.name"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-gray-700">Question Number <span class="text-red-500">*</span></label>
+                            <button type="button" @click="fetchNextQuestionNumber()" title="Auto-calculate next question number" class="text-[11px] text-blue-600 font-semibold hover:underline">Auto Next</button>
+                        </div>
+                        <input type="number" min="1" x-model.number="questionForm.question_number" class="w-full rounded-xl border border-gray-300 px-3.5 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">Question Text <span class="text-red-500">*</span></label>
+                    <textarea x-model="questionForm.text" rows="4" placeholder="Enter the complete question text here..." class="w-full rounded-xl border border-gray-300 px-3.5 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 font-mono"></textarea>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-gray-700">Answer Options & Correct Answer <span class="text-red-500">*</span></label>
+                            <span class="text-[11px] text-gray-500">Select the radio button next to the option that is the correct answer</span>
+                        </div>
+                        <template x-if="questionForm.options.length < 6">
+                            <button type="button" @click="addQuestionOption()" class="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 text-xs font-semibold hover:bg-blue-100 transition">
+                                + Add Option (<span x-text="String.fromCharCode(65 + questionForm.options.length)"></span>)
+                            </button>
+                        </template>
+                    </div>
+
+                    <div class="space-y-2.5">
+                        <template x-for="(opt, idx) in questionForm.options" :key="idx">
+                            <div class="flex items-center gap-2.5 p-2 rounded-xl border" :class="questionForm.correct_label === opt.label ? 'border-green-400 bg-green-50/50 ring-1 ring-green-400' : 'border-gray-200 bg-gray-50/50'">
+                                <label class="flex items-center gap-1.5 cursor-pointer shrink-0" title="Mark as correct answer">
+                                    <input type="radio" name="correct_option_radio" :value="opt.label" :checked="questionForm.correct_label === opt.label" @change="questionForm.correct_label = opt.label" class="text-green-600 focus:ring-green-500 h-4 w-4">
+                                    <span class="h-6 w-6 rounded-md flex items-center justify-center text-xs font-bold" :class="questionForm.correct_label === opt.label ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700'" x-text="opt.label"></span>
+                                </label>
+                                <input type="text" x-model="opt.text" :placeholder="`Option ${opt.label} text...`" class="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                                <template x-if="questionForm.options.length > 2">
+                                    <button type="button" @click="removeQuestionOption(idx)" title="Remove this option" class="text-gray-400 hover:text-red-600 p-1 text-xs">✕</button>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">Explanation / Solution Note <span class="text-gray-400 font-normal">(optional)</span></label>
+                    <textarea x-model="questionForm.explanation" rows="2" placeholder="Optional explanation or working shown to students during result review..." class="w-full rounded-xl border border-gray-300 px-3.5 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+            </div>
+
+            <div class="pt-3 border-t border-gray-200 flex flex-wrap gap-2.5 justify-end">
+                <button type="button" @click="showQuestionModal = false" class="px-4 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 font-medium text-sm transition">Cancel</button>
+                <template x-if="questionModalMode === 'create'">
+                    <button type="button" @click="saveQuestionManual(true)" class="px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 font-semibold text-sm shadow transition">Save & Add Next Question</button>
+                </template>
+                <button type="button" @click="saveQuestionManual(false)" class="px-5 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 font-semibold text-sm shadow transition">
+                    <span x-text="questionModalMode === 'create' ? 'Save & Close' : 'Update Question'"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUBJECT MANAGEMENT MODAL -->
+    <div x-show="showSubjectModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" x-cloak>
+        <div class="bg-white rounded-2xl p-6 w-full max-w-lg shadow-2xl max-h-[90vh] flex flex-col">
+            <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900">Manage Subjects</h2>
+                    <p class="text-xs text-gray-500 mt-0.5">Add, edit or view exam subjects in the CBT bank</p>
+                </div>
+                <button @click="showSubjectModal = false" class="text-gray-400 hover:text-gray-600 text-lg">✕</button>
+            </div>
+
+            <div class="p-4 bg-gray-50 rounded-xl border border-gray-200 my-4 space-y-3">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-gray-700" x-text="subjectModalMode === 'edit' ? 'Edit Subject' : 'Add New Subject'"></h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-gray-600 mb-1">Subject Name <span class="text-red-500">*</span></label>
+                        <input type="text" x-model="subjectForm.name" placeholder="e.g. Economics" class="w-full rounded-lg border border-gray-300 px-3 py-1.5 text-sm bg-white outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-gray-600 mb-1">Code <span class="text-gray-400 font-normal">(optional)</span></label>
+                        <input type="text" x-model="subjectForm.code" placeholder="e.g. ECO" class="w-full rounded-lg border border-gray-300 px-3 py-1.5 text-sm bg-white outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div class="flex gap-2 justify-end">
+                    <template x-if="subjectModalMode === 'edit'">
+                        <button type="button" @click="resetSubjectForm()" class="px-3 py-1.5 rounded-lg bg-gray-200 text-gray-700 text-xs font-semibold hover:bg-gray-300">Cancel Edit</button>
+                    </template>
+                    <button type="button" @click="saveSubject()" class="px-4 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 shadow">
+                        <span x-text="subjectModalMode === 'edit' ? 'Update Subject' : 'Add Subject'"></span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b text-xs text-gray-500 uppercase">
+                            <th class="text-left py-2 font-semibold">Subject</th>
+                            <th class="text-center py-2 font-semibold">Code</th>
+                            <th class="text-center py-2 font-semibold">Questions</th>
+                            <th class="text-right py-2 font-semibold">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template x-for="s in allSubjects" :key="s.id">
+                            <tr class="border-b last:border-0 hover:bg-gray-50">
+                                <td class="py-2.5 font-medium text-gray-900" x-text="s.name"></td>
+                                <td class="py-2.5 text-center text-xs text-gray-500" x-text="s.code || '-'"></td>
+                                <td class="py-2.5 text-center">
+                                    <span class="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-xs font-bold" x-text="s.question_count"></span>
+                                </td>
+                                <td class="py-2.5 text-right whitespace-nowrap">
+                                    <button @click="editSubject(s)" class="px-2 py-1 rounded bg-blue-100 text-blue-700 text-xs font-semibold hover:bg-blue-200">Edit</button>
+                                    <button @click="deleteSubject(s.id)" class="px-2 py-1 rounded bg-red-100 text-red-700 text-xs font-semibold ml-1 hover:bg-red-200">Delete</button>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pt-3 border-t border-gray-200 mt-3 flex justify-end">
+                <button type="button" @click="showSubjectModal = false" class="px-4 py-2 rounded-xl bg-gray-200 text-gray-800 text-sm font-semibold hover:bg-gray-300">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DELETE QUESTION CONFIRMATION MODAL -->
+    <div x-show="showDeleteQuestionConfirmModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" x-cloak>
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+            <h3 class="text-xl font-bold text-gray-900 mb-3">Delete Question</h3>
+            <p class="text-gray-600 text-sm mb-5">
+                Are you sure you want to delete Question <strong x-text="questionToDelete?.question_number"></strong> of <strong x-text="questionToDelete?.subject_name"></strong> (<span x-text="questionToDelete?.year"></span>)? This action cannot be undone.
+            </p>
+            <div class="flex gap-3">
+                <button @click="showDeleteQuestionConfirmModal = false; questionToDelete = null" class="flex-1 px-4 py-2 rounded-xl bg-gray-200 text-gray-800 text-sm font-medium hover:bg-gray-300">Cancel</button>
+                <button @click="deleteQuestionManual()" class="flex-1 px-4 py-2 rounded-xl bg-red-600 text-white text-sm font-semibold hover:bg-red-700 shadow">Delete Question</button>
+            </div>
+        </div>
+    </div>
+
     <!--  admin dashboard template -->
     <template x-if="screen === 'admin'">
         <main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-            <div class="mb-8">
+            <div class="mb-6">
                 <h1 class="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-                <p class="text-gray-500 mt-1">Manage students and view system statistics</p>
+                <p class="text-gray-500 mt-1">Manage examination questions, subjects, students, and user accounts</p>
             </div>
 
-            <!-- Student Management Section -->
-            <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
-                <h2 class="text-xl font-bold text-gray-900 mb-4">Student Management</h2>
+            <!-- Admin Navigation Tabs -->
+            <div class="flex border-b border-gray-200 mb-6 gap-2 overflow-x-auto">
+                <button @click="adminActiveTab = 'students'" 
+                        :class="adminActiveTab === 'students' ? 'border-b-2 border-blue-600 text-blue-600 font-bold bg-blue-50/50' : 'text-gray-600 hover:text-gray-900 font-medium'"
+                        class="px-5 py-3 rounded-t-xl text-sm transition flex items-center gap-2 whitespace-nowrap">
+                    <span>👥</span>
+                    <span>Student Exam Records</span>
+                </button>
+                <button @click="adminActiveTab = 'users'; loadUsers()" 
+                        :class="adminActiveTab === 'users' ? 'border-b-2 border-purple-600 text-purple-700 font-bold bg-purple-50/50' : 'text-gray-600 hover:text-gray-900 font-medium'"
+                        class="px-5 py-3 rounded-t-xl text-sm transition flex items-center gap-2 whitespace-nowrap">
+                    <span>👤</span>
+                    <span>User Accounts</span>
+                </button>
+                <button @click="adminActiveTab = 'questions'; loadQuestionBank(); loadAllSubjects()" 
+                        :class="adminActiveTab === 'questions' ? 'border-b-2 border-emerald-600 text-emerald-700 font-bold bg-emerald-50/50' : 'text-gray-600 hover:text-gray-900 font-medium'"
+                        class="px-5 py-3 rounded-t-xl text-sm transition flex items-center gap-2 whitespace-nowrap">
+                    <span>📚</span>
+                    <span>Question Bank & Manual Entry</span>
+                </button>
+            </div>
+
+            <!-- TAB 1: Student Management Section -->
+            <div x-show="adminActiveTab === 'students'" class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
+                <h2 class="text-xl font-bold text-gray-900 mb-4">Student Examination Records</h2>
                 
                 <div class="flex gap-3 mb-4">
                     <input type="text" x-model="adminSearchName" @input="searchStudents()" placeholder="Search student name..." 
                         class="flex-1 rounded-xl border border-gray-300 px-4 py-2">
-                    <button @click="loadAllStudents()" class="px-4 py-2 rounded-xl bg-gray-200 text-gray-800">Load All</button>
+                    <button @click="loadAllStudents()" class="px-4 py-2 rounded-xl bg-gray-200 text-gray-800 hover:bg-gray-300 font-medium transition">Load All</button>
                 </div>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
                             <tr class="border-b">
-                                <th class="text-left py-3">Name</th>
+                                <th class="text-left py-3">Candidate Full Name</th>
                                 <th class="text-center py-3">Total Exams</th>
                                 <th class="text-center py-3">Last Exam</th>
                                 <th class="text-right py-3">Actions</th>
@@ -123,18 +483,21 @@
                         </thead>
                         <tbody>
                             <template x-for="student in paginatedStudents" :key="student.name">
-                                <tr class="border-b">
-                                    <td class="py-3 font-medium" x-text="student.name"></td>
+                                <tr class="border-b hover:bg-gray-50/80 transition">
+                                    <td class="py-3 font-medium text-gray-900" x-text="student.name"></td>
                                     <td class="text-center" x-text="student.session_count"></td>
-                                    <td class="text-center" x-text="student.last_exam"></td>
+                                    <td class="text-center" x-text="formatDate(student.last_exam)"></td>
                                     <td class="text-right">
                                         <button @click="viewStudentHistory(student.name)" 
-                                                class="px-3 py-1 rounded bg-blue-100 text-blue-700 text-xs">History</button>
+                                                class="px-3 py-1 rounded bg-blue-100 text-blue-700 text-xs font-semibold hover:bg-blue-200">History</button>
                                         <button @click="deleteStudent(student.name)" 
-                                                class="px-3 py-1 rounded bg-red-100 text-red-700 text-xs ml-2">Delete</button>
+                                                class="px-3 py-1 rounded bg-red-100 text-red-700 text-xs ml-2 font-semibold hover:bg-red-200">Delete</button>
                                     </td>
                                 </tr>
                             </template>
+                            <tr x-show="paginatedStudents.length === 0">
+                                <td colspan="4" class="py-8 text-center text-gray-500">No student exam sessions found.</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -168,58 +531,264 @@
                 </div>
             </div>
 
-            <!-- Student History Section -->
-            <div x-show="showStudentHistory" class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-                <h2 class="text-xl font-bold text-gray-900 mb-4">
-                    Result History: <span x-text="selectedStudentName"></span>
-                </h2>
-                
+            <!-- TAB 2: User Management Section -->
+            <div x-show="adminActiveTab === 'users'" class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-900">User Accounts Management</h2>
+                        <p class="text-xs text-gray-500 mt-0.5">Filter and search across all registered students and system admins</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button @click="loadUsers" 
+                                class="px-4 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm font-medium transition flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            Refresh
+                        </button>
+                        <button @click="showUserModal = true; userModalMode = 'create'" 
+                                class="px-4 py-2 rounded-xl bg-purple-600 text-white hover:bg-purple-700 text-sm font-semibold shadow transition flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            Add User
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search and Filter Bar -->
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 mb-4 bg-gray-50 p-3.5 rounded-xl border border-gray-200">
+                    <div class="sm:col-span-6 relative">
+                        <input type="text" 
+                               x-model="userSearchQuery" 
+                               @input="userCurrentPage = 1" 
+                               placeholder="Search by name, username, role, or class..." 
+                               class="w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                        <span x-show="userSearchQuery" 
+                              @click="userSearchQuery = ''; userCurrentPage = 1" 
+                              class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 cursor-pointer text-xs">✕</span>
+                    </div>
+                    <div class="sm:col-span-3">
+                        <select x-model="userRoleFilter" 
+                                @change="userCurrentPage = 1" 
+                                class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="all">All Roles</option>
+                            <option value="student">Student</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="sm:col-span-3 flex gap-2">
+                        <select x-model="userClassFilter" 
+                                @change="userCurrentPage = 1" 
+                                class="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="all">All Classes</option>
+                            <template x-for="c in availableUserClasses" :key="c">
+                                <option :value="c" x-text="c"></option>
+                            </template>
+                        </select>
+                        <button x-show="userSearchQuery || userRoleFilter !== 'all' || userClassFilter !== 'all'" 
+                                @click="resetUserFilters()" 
+                                title="Reset filters" 
+                                class="px-3 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 text-xs font-semibold transition">
+                            Reset
+                        </button>
+                    </div>
+                </div>
+
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
                             <tr class="border-b">
-                                <th class="text-left py-3">Date</th>
+                                <th class="text-left py-3">Username</th>
+                                <th class="text-left py-3">Full Name</th>
+                                <th class="text-center py-3">Role</th>
+                                <th class="text-center py-3">Class</th>
                                 <th class="text-center py-3">Year</th>
-                                <th class="text-left py-3">Subject Breakdown</th>
-                                <th class="text-center py-3">Total Score</th>
-                                <th class="text-center py-3">Overall %</th>
+                                <th class="text-center py-3">Status</th>
+                                <th class="text-right py-3">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <template x-for="result in studentHistory" :key="result.id">
-                                <tr class="border-b">
-                                    <td class="py-3" x-text="formatDate(result.completed_at)"></td>
-                                    <td class="text-center" x-text="result.year"></td>
-                                    <td class="py-3">
-                                        <div class="space-y-1">
-                                            <template x-for="subject in result.subjects" :key="subject.name">
-                                                <div class="flex justify-between items-center text-xs">
-                                                    <span x-text="subject.name"></span>
-                                                    <span :class="subject.percentage >= 50 ? 'text-green-600' : 'text-red-600'" 
-                                                          x-text="`${subject.correct}/${subject.total} (${formatPercentage(subject.percentage)})`"></span>
-                                                </div>
-                                            </template>
-                                        </div>
+                            <template x-for="user in paginatedUsers" :key="user.id">
+                                <tr class="border-b hover:bg-gray-50/70 transition">
+                                    <td class="py-3 font-medium" x-text="user.username"></td>
+                                    <td class="py-3" x-text="user.full_name"></td>
+                                    <td class="text-center">
+                                        <span :class="user.role === 'admin' ? 'bg-purple-100 text-purple-700 border border-purple-200' : 'bg-green-100 text-green-700 border border-green-200'" 
+                                              class="px-2 py-0.5 rounded-full text-xs font-medium" x-text="user.role"></span>
                                     </td>
-                                    <td class="text-center" x-text="`${result.correct}/${result.total}`"></td>
-                                    <td class="text-center font-semibold" 
-                                        :class="result.percentage >= 50 ? 'text-green-600' : 'text-red-600'"
-                                        x-text="formatPercentage(result.percentage)"></td>
+                                    <td class="text-center" x-text="user.student_class || '-'"></td>
+                                    <td class="text-center" x-text="user.admission_year || '-'"></td>
+                                    <td class="text-center">
+                                        <span :class="user.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'" 
+                                              class="px-2 py-0.5 rounded-full text-xs font-medium" x-text="user.is_active ? 'Active' : 'Inactive'"></span>
+                                    </td>
+                                    <td class="text-right whitespace-nowrap">
+                                        <template x-if="user.role === 'student'">
+                                            <button @click="viewUserHistory(user.username)" 
+                                                    class="px-3 py-1 rounded-lg bg-green-100 text-green-700 hover:bg-green-200 font-medium text-xs transition">History</button>
+                                        </template>
+                                        <button @click="editUser(user)" 
+                                                class="px-3 py-1 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 font-medium text-xs ml-1.5 transition">Edit</button>
+                                        <button @click="deleteUser(user.id)" 
+                                                class="px-3 py-1 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 font-medium text-xs ml-1.5 transition">Delete</button>
+                                    </td>
                                 </tr>
                             </template>
+                            <tr x-show="filteredUsers.length === 0">
+                                <td colspan="7" class="py-8 text-center text-gray-500">
+                                    No users found matching your search criteria.
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
-                
-                <div class="flex gap-3 mt-4">
-                    <button @click="showStudentHistory = false" 
-                            class="flex-1 px-4 py-2 rounded-xl bg-gray-200 text-gray-800">Close History</button>
-                    <button @click="printStudentHistory()" 
-                            class="flex-1 px-4 py-2 rounded-xl bg-blue-600 text-white">Print</button>
-                    <button @click="downloadStudentHistoryPDF()" 
-                            class="flex-1 px-4 py-2 rounded-xl bg-green-600 text-white">Download PDF</button>
+
+                <!-- User Pagination -->
+                <div x-show="userTotalPages > 1" class="flex items-center justify-between mt-4">
+                    <div class="text-sm text-gray-600">
+                        Showing <span x-text="filteredUsers.length ? (userCurrentPage - 1) * userItemsPerPage + 1 : 0"></span> to 
+                        <span x-text="Math.min(userCurrentPage * userItemsPerPage, filteredUsers.length)"></span> of 
+                        <span x-text="filteredUsers.length"></span> users
+                        <template x-if="filteredUsers.length !== users.length">
+                            <span class="text-xs text-gray-500" x-text="` (filtered from ${users.length} total)`"></span>
+                        </template>
+                    </div>
+                    <div class="flex gap-2">
+                        <button @click="userCurrentPage--" 
+                                :disabled="userCurrentPage === 1"
+                                class="px-3 py-1 rounded border border-gray-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                            Previous
+                        </button>
+                        <template x-for="page in Math.min(userTotalPages, 5)" :key="page">
+                            <button @click="userCurrentPage = page"
+                                    :class="userCurrentPage === page ? 'bg-blue-600 text-white' : 'bg-white text-gray-700'"
+                                    class="px-3 py-1 rounded border border-gray-300 text-sm">
+                                <span x-text="page"></span>
+                            </button>
+                        </template>
+                        <button @click="userCurrentPage++" 
+                                :disabled="userCurrentPage === userTotalPages"
+                                class="px-3 py-1 rounded border border-gray-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                            Next
+                        </button>
+                    </div>
                 </div>
             </div>
+
+            <!-- TAB 3: Question Bank & Manual Entry Section -->
+            <div x-show="adminActiveTab === 'questions'" class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-900">Question Bank & Manual Entry</h2>
+                        <p class="text-xs text-gray-500 mt-0.5">Create, edit, and browse questions across all examination years and subjects</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button @click="openSubjectModal()" class="px-3.5 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm font-medium transition flex items-center gap-1.5">
+                            <span>📁</span>
+                            <span>Manage Subjects</span>
+                        </button>
+                        <button @click="openAddQuestionModal()" class="px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-sm font-semibold shadow transition flex items-center gap-1.5">
+                            <span>➕</span>
+                            <span>Add New Question</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 mb-4 bg-gray-50 p-3.5 rounded-xl border border-gray-200">
+                    <div class="sm:col-span-3">
+                        <select x-model="qbYearFilter" @change="qbPage = 1; loadQuestionBank()" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="all">All Years</option>
+                            <template x-for="y in years" :key="y">
+                                <option :value="y" x-text="y"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div class="sm:col-span-3">
+                        <select x-model="qbSubjectFilter" @change="qbPage = 1; loadQuestionBank()" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="all">All Subjects</option>
+                            <template x-for="s in allSubjects" :key="s.id">
+                                <option :value="s.id" x-text="s.name"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div class="sm:col-span-6 relative">
+                        <input type="text" x-model="qbSearchQuery" @input.debounce.300ms="qbPage = 1; loadQuestionBank()" placeholder="Search question text or explanation..." class="w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                        <span x-show="qbSearchQuery" @click="qbSearchQuery = ''; qbPage = 1; loadQuestionBank()" class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 cursor-pointer text-xs">✕</span>
+                    </div>
+                </div>
+
+                <!-- Questions List -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b text-xs text-gray-500 uppercase bg-gray-50/50">
+                                <th class="text-left py-3 px-3">Subject / Year</th>
+                                <th class="text-center py-3 px-2">#</th>
+                                <th class="text-left py-3 px-3">Question Text</th>
+                                <th class="text-left py-3 px-3">Options</th>
+                                <th class="text-center py-3 px-2">Key</th>
+                                <th class="text-right py-3 px-3">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="q in qbQuestions" :key="q.id">
+                                <tr class="border-b last:border-0 hover:bg-gray-50/80 transition">
+                                    <td class="py-3 px-3 whitespace-nowrap">
+                                        <div class="font-bold text-gray-900" x-text="q.subject_name"></div>
+                                        <div class="text-xs text-gray-500" x-text="`Year ${q.year}`"></div>
+                                    </td>
+                                    <td class="py-3 px-2 text-center font-bold text-blue-600" x-text="`Q${q.question_number}`"></td>
+                                    <td class="py-3 px-3">
+                                        <p class="text-gray-900 line-clamp-2 max-w-md" x-text="q.text"></p>
+                                        <template x-if="q.explanation">
+                                            <p class="text-xs text-gray-500 italic mt-0.5 line-clamp-1">💡 <span x-text="q.explanation"></span></p>
+                                        </template>
+                                    </td>
+                                    <td class="py-3 px-3">
+                                        <div class="flex flex-wrap gap-1">
+                                            <template x-for="opt in q.options" :key="opt.id">
+                                                <span :class="opt.is_correct ? 'bg-green-100 text-green-800 border-green-300 font-bold' : 'bg-gray-100 text-gray-700 border-gray-200'" class="px-2 py-0.5 rounded text-xs border" :title="opt.text" x-text="`${opt.label}: ${opt.text.slice(0, 18)}${opt.text.length > 18 ? '...' : ''}`"></span>
+                                            </template>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-2 text-center">
+                                        <span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold" x-text="q.correct_label || '-'"></span>
+                                    </td>
+                                    <td class="py-3 px-3 text-right whitespace-nowrap">
+                                        <button @click="openEditQuestionModal(q)" class="px-3 py-1 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 font-medium text-xs transition">Edit</button>
+                                        <button @click="confirmDeleteQuestion(q)" class="px-3 py-1 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 font-medium text-xs ml-1.5 transition">Delete</button>
+                                    </td>
+                                </tr>
+                            </template>
+                            <tr x-show="qbQuestions.length === 0 && !qbLoading">
+                                <td colspan="6" class="py-10 text-center text-gray-500">
+                                    <p class="text-base font-semibold text-gray-700">No questions found</p>
+                                    <p class="text-xs text-gray-400 mt-1">Try adjusting your filters or click "+ Add New Question" to create questions manually.</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div x-show="qbTotalPages > 1" class="flex items-center justify-between mt-4 pt-3 border-t border-gray-200">
+                    <div class="text-sm text-gray-600">
+                        Showing <span x-text="qbQuestions.length ? (qbPage - 1) * qbPageSize + 1 : 0"></span> to 
+                        <span x-text="Math.min(qbPage * qbPageSize, qbTotalQuestions)"></span> of 
+                        <span x-text="qbTotalQuestions"></span> questions
+                    </div>
+                    <div class="flex gap-2">
+                        <button @click="qbPage--; loadQuestionBank()" :disabled="qbPage === 1" class="px-3 py-1 rounded border border-gray-300 text-sm disabled:opacity-50">Previous</button>
+                        <template x-for="p in Math.min(qbTotalPages, 5)" :key="p">
+                            <button @click="qbPage = p; loadQuestionBank()" :class="qbPage === p ? 'bg-blue-600 text-white' : 'bg-white text-gray-700'" class="px-3 py-1 rounded border border-gray-300 text-sm" x-text="p"></button>
+                        </template>
+                        <button @click="qbPage++; loadQuestionBank()" :disabled="qbPage === qbTotalPages" class="px-3 py-1 rounded border border-gray-300 text-sm disabled:opacity-50">Next</button>
+                    </div>
+                </div>
+            </div>
+
         </main>
     </template>
 
@@ -317,33 +886,6 @@
 
            
             <!-- ============================================
-            //   QUESTION IMPORT EMBED
-            =============================================== -->
-
-            <template x-if="screen === 'import'">
-                <div class="import-screen" style="height: calc(100vh - 60px); overflow: hidden;">
-                    <!-- Instructions for opening question import -->
-                    <div class="flex items-center justify-center h-full">
-                        <div class="text-center max-w-lg">
-                            <h2 class="text-2xl font-bold text-gray-900 mb-4">Question Import</h2>
-                            <p class="text-gray-600 mb-6">
-                                To use the Question Import interface, you need to run the separate launcher script.
-                            </p>
-                            <div class="bg-gray-100 rounded-lg p-4 mb-6 text-left">
-                                <p class="text-sm font-mono text-gray-700 mb-2">Run this command in your terminal:</p>
-                                <code class="bg-gray-800 text-green-400 px-3 py-2 rounded block text-sm">
-                                    py question_import_launcher.py
-                                </code>
-                            </div>
-                            <p class="text-gray-500 text-sm">
-                                This will open the Question Import interface with full bridge connectivity.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </template>
-
-            <!-- ============================================
             // EXAM SETUP TEMPLATE
             ============================================= -->
 
@@ -359,16 +901,42 @@
                     <div class="mt-6 space-y-5">
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Student Name
-                            </label>
+                            <div class="flex items-center justify-between mb-2">
+                                <label class="block text-sm font-medium text-gray-700">
+                                    Student Username
+                                </label>
+                                <button type="button" 
+                                        @click="openStudentRegisterModal()"
+                                        class="text-xs text-blue-600 hover:text-blue-800 font-semibold hover:underline">
+                                    + New Student? Register
+                                </button>
+                            </div>
 
-                            <input
-                                type="text"
-                                x-model="studentName"
-                                placeholder="Enter your name"
-                                class="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
-                            >
+                            <div class="relative">
+                                <input
+                                    type="text"
+                                    x-model="studentUsername"
+                                    @blur="checkStudentUsername()"
+                                    @keydown.enter="checkStudentUsername()"
+                                    placeholder="Enter your registered username"
+                                    class="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                <template x-if="checkingUsername">
+                                    <div class="absolute right-3 top-3.5">
+                                        <div class="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <template x-if="studentFullName">
+                                <div class="mt-2.5 flex items-center gap-2 p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold animate-fade-in">
+                                    <span class="h-4 w-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px]">✓</span>
+                                    <span>Candidate: <strong class="text-emerald-950 text-sm" x-text="studentFullName"></strong></span>
+                                    <template x-if="currentUserStudent?.student_class">
+                                        <span class="text-emerald-600" x-text="`(${currentUserStudent.student_class})`"></span>
+                                    </template>
+                                </div>
+                            </template>
                         </div>
 
                         <div>
@@ -579,6 +1147,59 @@
 
             </div>
         </main>
+    </template>
+
+
+    <!-- =========================================================
+         QUESTION IMPORT
+         ========================================================= -->
+    <template x-if="!loading && screen === 'import'">
+        <div class="import-screen" style="height: calc(100vh - 60px); overflow: hidden; display: flex; flex-direction: column;">
+            <template x-if="isAdmin">
+                <div class="h-full flex flex-col">
+                    <div class="bg-white border-b border-gray-200 px-4 py-2 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-lg font-bold text-gray-900">Question Import</h2>
+                            <span class="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">Integrated</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button @click="screen = 'selection'" 
+                                    class="px-3 py-1.5 rounded-lg bg-gray-100 text-gray-700 text-sm hover:bg-gray-200 transition">
+                                ← Back to Setup
+                            </button>
+                            <button @click="launchQuestionImport" 
+                                    class="px-3 py-1.5 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700 transition">
+                                🔀 Open in Separate Window
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex-1 bg-gray-50" style="min-height: 0;">
+                        <iframe 
+                            id="import-iframe"
+                            src="question_import.html" 
+                            style="width: 100%; height: 100%; border: none; display: block;" 
+                            title="Question Import Workspace"
+                            referrerpolicy="no-referrer"
+                            loading="eager">
+                        </iframe>
+                    </div>
+                </div>
+            </template>
+            <template x-if="!isAdmin">
+                <div class="flex items-center justify-center h-full">
+                    <div class="text-center max-w-lg p-6">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-4">Access Denied</h2>
+                        <p class="text-gray-600 mb-6">
+                            You need to be logged in as an admin to access the Question Import feature.
+                        </p>
+                        <button @click="showLoginModal = true" 
+                                class="px-4 py-2 rounded-xl bg-blue-600 text-white text-sm">
+                            Login as Admin
+                        </button>
+                    </div>
+                </div>
+            </template>
+        </div>
     </template>
 
 
@@ -841,10 +1462,11 @@
 
                             <button
                                 type="button"
-                                @click="nextQuestion()"
-                                class="px-5 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700"
+                                @click="isLastQuestion ? finishExam() : nextQuestion()"
+                                :disabled="finishingExam || timeExpiredHandled"
+                                class="px-5 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-50"
                             >
-                                Next
+                                <span x-text="isLastQuestion ? 'Submit Exam' : 'Next'"></span>
                             </button>
 
                         </div>
@@ -1501,6 +2123,132 @@
 
     </template>
 
+    <!-- Delete Student Confirmation Modal -->
+    <div x-show="showDeleteStudentConfirmModal" 
+         x-cloak
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full m-4">
+            <div class="p-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Confirm Delete</h3>
+                <p class="text-gray-600 mb-6">
+                    Are you sure you want to delete all records for <span x-text="studentToDelete" class="font-semibold"></span>? This action cannot be undone.
+                </p>
+                <div class="flex gap-3">
+                    <button @click="showDeleteStudentConfirmModal = false; studentToDelete = null" 
+                            class="flex-1 px-4 py-2 rounded-xl bg-gray-200 text-gray-800">Cancel</button>
+                    <button @click="confirmDeleteStudent()" 
+                            class="flex-1 px-4 py-2 rounded-xl bg-red-600 text-white">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete User Confirmation Modal -->
+    <div x-show="showDeleteConfirmModal" 
+         x-cloak
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full m-4">
+            <div class="p-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Confirm Delete</h3>
+                <p class="text-gray-600 mb-6">
+                    Are you sure you want to delete this user? This action cannot be undone.
+                </p>
+                <div class="flex gap-3">
+                    <button @click="showDeleteConfirmModal = false; userToDelete = null" 
+                            class="flex-1 px-4 py-2 rounded-xl bg-gray-200 text-gray-800">Cancel</button>
+                    <button @click="confirmDeleteUser()" 
+                            class="flex-1 px-4 py-2 rounded-xl bg-red-600 text-white">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student History Modal -->
+    <div x-show="showStudentHistory" 
+         x-cloak
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden m-4">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-bold text-gray-900">
+                        Result History: <span x-text="selectedStudentName"></span>
+                    </h2>
+                    <button @click="showStudentHistory = false" class="text-gray-500 hover:text-gray-700">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-6 overflow-y-auto" style="max-height: calc(90vh - 200px);">
+                <div class="overflow-x-auto" id="history-print-area">
+                    <table id="student-history-table" class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b">
+                                <th class="text-left py-3">Date</th>
+                                <th class="text-center py-3">Year</th>
+                                <th class="text-left py-3">Subject Breakdown</th>
+                                <th class="text-center py-3">Total Score</th>
+                                <th class="text-center py-3">Overall %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="result in studentHistory" :key="result.id">
+                                <tr class="border-b">
+                                    <td class="py-3" x-text="formatDate(result.completed_at)"></td>
+                                    <td class="text-center" x-text="result.year"></td>
+                                    <td class="py-3">
+                                        <div class="space-y-1">
+                                            <template x-for="subject in result.subjects" :key="subject.name">
+                                                <div class="flex justify-between items-center text-xs">
+                                                    <span x-text="subject.name"></span>
+                                                    <span :class="subject.percentage >= 50 ? 'text-green-600' : 'text-red-600'" 
+                                                          x-text="`${subject.correct}/${subject.total} (${formatPercentage(subject.percentage)})`"></span>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </td>
+                                    <td class="text-center" x-text="`${result.correct}/${result.total}`"></td>
+                                    <td class="text-center font-semibold" 
+                                        :class="result.percentage >= 50 ? 'text-green-600' : 'text-red-600'"
+                                        x-text="formatPercentage(result.percentage)"></td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="p-6 border-t border-gray-200">
+                <div class="flex gap-3">
+                    <button @click="printStudentHistory()" 
+                            class="flex-1 px-4 py-2 rounded-xl bg-blue-600 text-white">Print</button>
+                    <button @click="downloadStudentHistoryPDF()" 
+                            class="flex-1 px-4 py-2 rounded-xl bg-green-600 text-white">Download PDF</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 
@@ -1518,9 +2266,16 @@
             window.examBridge =
                 channel.objects.examBridge;
 
+            window.questionImportBridge =
+                channel.objects.questionImportBridge;
+
             console.log(
                 "examBridge:",
                 window.examBridge
+            );
+            console.log(
+                "questionImportBridge:",
+                window.questionImportBridge
             );
         }
     );

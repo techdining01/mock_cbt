@@ -52,6 +52,7 @@ class ExamService:
         subject_ids: list[int],
         duration_minutes: int,
         student_name: str | None = None,
+        user_id: int | None = None,
     ) -> ExamSession:
 
         if not subject_ids:
@@ -75,6 +76,7 @@ class ExamService:
         exam = ExamSession(
             year=year,
             student_name=student_name,
+            user_id=user_id,
             duration_minutes=duration_minutes,
         )
 
@@ -586,9 +588,17 @@ class ExamService:
             else 0
         )
 
+        full_name = (
+            exam.user.full_name
+            if (exam.user and exam.user.full_name)
+            else (exam.student_name or "Student")
+        )
+
         return {
             "exam_id": exam.id,
-            "student_name": exam.student_name,
+            "student_name": full_name,
+            "student_full_name": full_name,
+            "username": exam.user.username if exam.user else None,
             "year": exam.year,
             "duration_minutes": (exam.duration_minutes),
             "started_at": (exam.started_at.isoformat() if exam.started_at else None),

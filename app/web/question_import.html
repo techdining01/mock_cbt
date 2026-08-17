@@ -10,10 +10,118 @@
 
     <title>Question Import Review</title>
 
+    <script>
+        // Diagnostic error handler for question import (shows only on genuine error)
+        (function bootstrapFallback() {
+            var bannerId = "qi-bootstrap-status";
+            function ensureBanner() {
+                var el = document.getElementById(bannerId);
+                if (el) return el;
+                el = document.createElement("div");
+                el.id = bannerId;
+                el.style.cssText = [
+                    "position:fixed",
+                    "top:0;left:0;right:0",
+                    "z-index:99999",
+                    "padding:8px 14px",
+                    "font-family:Arial,sans-serif",
+                    "font-size:13px",
+                    "background:#991b1b",
+                    "color:#fff",
+                    "border-bottom:2px solid #7f1d1d",
+                    "display:none",
+                ].join(";");
+                (document.body || document.documentElement).insertBefore(el, (document.body || document.documentElement).firstChild);
+                return el;
+            }
+            function show(msg, kind) {
+                if (kind === "info" || kind === "ok") {
+                    console.log("[QI Status]", msg);
+                    return;
+                }
+                var el = ensureBanner();
+                el.style.display = "block";
+                el.textContent = msg;
+                if (kind === "error") { el.style.background = "#991b1b"; el.style.borderBottomColor = "#7f1d1d"; }
+            }
+            function hide() {
+                var el = document.getElementById(bannerId);
+                if (el) el.style.display = "none";
+            }
+            window.__qiShowStatus = show;
+            window.__qiHideStatus = hide;
+            window.onerror = function (msg, src, line, col, err) {
+                show("Error: " + msg + " (" + (src || "?") + ":" + line + ":" + col + ")", "error");
+                console.error("question_import onerror:", msg, src, line, col, err);
+                return false;
+            };
+            window.addEventListener("unhandledrejection", function (ev) {
+                show("Unhandled: " + (ev.reason && ev.reason.message ? ev.reason.message : String(ev.reason)), "error");
+                console.error("question_import unhandledrejection:", ev.reason);
+            });
+        })();
+    </script>
+
     <link
         rel="stylesheet"
         href="./css/question_import.css"
     >
+
+    <style>
+        .question-review-card.approved {
+            border-color: #10b981 !important;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15) !important;
+            background-color: #ecfdf5;
+        }
+
+        .status-chip {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 10px;
+            border-radius: 999px;
+            line-height: 1.6;
+        }
+        .status-chip.status-approved {
+            background-color: #10b981;
+            color: #fff;
+        }
+        .status-chip.status-pending {
+            background-color: #f59e0b;
+            color: #fff;
+        }
+
+        .summary-chip-approved {
+            background-color: #d1fae5 !important;
+            color: #065f46 !important;
+            border: 1px solid #6ee7b7 !important;
+        }
+        .summary-chip-pending {
+            background-color: #fef3c7 !important;
+            color: #92400e !important;
+            border: 1px solid #fcd34d !important;
+        }
+
+        .question-review-card:not(.editing) .option-review.option-empty {
+            display: none !important;
+        }
+        .question-review-card.editing .option-review.option-empty {
+            opacity: 0.6;
+            border-style: dashed;
+        }
+
+        .question-review-card .btn-approve {
+            min-width: 92px;
+        }
+        .question-review-card.approved .btn-approve {
+            background-color: #6b7280;
+            border-color: #6b7280;
+        }
+        .question-review-card.approved .btn-approve:hover {
+            background-color: #4b5563;
+            border-color: #4b5563;
+        }
+    </style>
     
   </head>
 
@@ -441,7 +549,105 @@
 ></div>
 
 
-<script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+<script>
+    (function initBridge() {
+        function show(msg, kind) {
+            if (typeof window.__qiShowStatus === "function") window.__qiShowStatus(msg, kind);
+        }
+        function publish(b) {
+            if (!b) return false;
+            window.questionImportBridge = b;
+            window.bridge = b;
+            // Re-emit a document-level event in case question_import.js wants to react
+            try {
+                document.dispatchEvent(new CustomEvent("questionImportBridgeReady", { detail: b }));
+            } catch (_) {}
+            return true;
+        }
+        function applyBridgeFromParent() {
+            try {
+                if (window.parent !== window && window.parent.questionImportBridge) {
+                    if (publish(window.parent.questionImportBridge)) {
+                        console.log('[Import] Using parent questionImportBridge (direct access)');
+                        show('Bridge connected (parent).', 'ok');
+                        return true;
+                    }
+                }
+            } catch (e) {
+                console.warn('[Import] Parent bridge direct access failed:', e);
+            }
+            return false;
+        }
+
+        function loadStandaloneQtBridge() {
+            console.log('[Import] Loading standalone Qt WebChannel...');
+            show('Connecting to bridge (standalone)...', 'info');
+            var script = document.createElement('script');
+            script.src = 'qrc:///qtwebchannel/qwebchannel.js';
+            script.onerror = function () {
+                show('Failed to load qwebchannel.js from qrc: path.', 'error');
+                console.error('[Import] qwebchannel.js load failed (qrc: path).');
+            };
+            script.onload = function() {
+                try {
+                    if (!window.QWebChannel) {
+                        show('QWebChannel class not defined after script load.', 'error');
+                        return;
+                    }
+                    if (!window.qt || !window.qt.webChannelTransport) {
+                        show('qt.webChannelTransport missing; standalone init not available.', 'error');
+                        console.warn('[Import] qt.webChannelTransport unavailable in iframe; waiting for parent bridge.');
+                        // Don't give up; keep polling the parent bridge too.
+                        startParentPoll(200, 200);
+                        return;
+                    }
+                    new QWebChannel(qt.webChannelTransport, function(channel) {
+                        var b = channel && channel.objects && channel.objects.questionImportBridge;
+                        if (b && publish(b)) {
+                            console.log('[Import] Standalone questionImportBridge ready');
+                            show('Bridge connected (standalone).', 'ok');
+                        } else {
+                            show('questionImportBridge missing from channel.objects.', 'error');
+                        }
+                    });
+                } catch (err) {
+                    console.error('[Import] Standalone QWebChannel init error:', err);
+                    show('Bridge init error: ' + (err && err.message ? err.message : String(err)), 'error');
+                }
+            };
+            document.head.appendChild(script);
+        }
+
+        function startParentPoll(intervalMs, maxAttempts) {
+            var attempts = 0;
+            var interval = setInterval(function() {
+                attempts++;
+                if (applyBridgeFromParent()) {
+                    clearInterval(interval);
+                    return;
+                }
+                if (attempts >= maxAttempts) {
+                    clearInterval(interval);
+                    console.warn('[Import] Parent bridge not found after polling; falling back to standalone Qt WebChannel');
+                    loadStandaloneQtBridge();
+                }
+            }, intervalMs);
+        }
+
+        show('Initializing bridge...', 'info');
+
+        if (applyBridgeFromParent()) {
+            return;
+        }
+
+        if (window.parent === window) {
+            loadStandaloneQtBridge();
+            return;
+        }
+
+        startParentPoll(100, 100);
+    })();
+</script>
 
 <script src="js/question_import.js"></script>
 

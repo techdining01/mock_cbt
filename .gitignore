@@ -13,4 +13,6 @@ node_modules/
 data/
 old_files/
 import_questions.py
-question_data/*
+question_data/waec_2002.json
+test_registration_and_manual_questions.py
+create_admin.py

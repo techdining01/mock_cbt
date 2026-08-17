@@ -25,6 +25,87 @@ from app.database.database import Base
 
 
 # ============================================================
+# USER
+# ============================================================
+
+
+class User(Base):
+    """
+    A user of the CBT system with role-based access control.
+    
+    Roles:
+        - admin: Full access to all features including user management
+        - student: Can only take exams and view their own results
+    """
+
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(
+        primary_key=True,
+    )
+
+    username: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+        unique=True,
+    )
+
+    password: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+    )
+
+    full_name: Mapped[str] = mapped_column(
+        String(150),
+        nullable=False,
+    )
+
+    role: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+        default="student",
+    )
+
+    # Student-specific fields
+    student_class: Mapped[str | None] = mapped_column(
+        String(50),
+        nullable=True,
+    )
+
+    admission_year: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+    )
+
+    is_active: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+        nullable=False,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        server_default=func.now(),
+        nullable=False,
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
+
+    # --------------------------------------------------------
+    # Relationships
+    # --------------------------------------------------------
+
+    exam_sessions: Mapped[list["ExamSession"]] = relationship(
+        back_populates="user",
+    )
+
+
+# ============================================================
 # SUBJECT
 # ============================================================
 
@@ -420,6 +501,11 @@ class ExamSession(Base):
         nullable=False,
     )
 
+    user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+
     student_name: Mapped[str | None] = mapped_column(
         String(150),
         nullable=True,
@@ -458,6 +544,10 @@ class ExamSession(Base):
     # --------------------------------------------------------
     # Relationships
     # --------------------------------------------------------
+
+    user: Mapped["User"] = relationship(
+        back_populates="exam_sessions",
+    )
 
     subjects: Mapped[list["ExamSubject"]] = relationship(
         back_populates="exam_session",
