@@ -133,6 +133,7 @@ document.addEventListener("alpine:init", () => {
         showStudentRegisterModal: false,
 
         studentRegisterForm: {
+            role: "student",
             username: "",
             full_name: "",
             student_class: "",
@@ -194,6 +195,7 @@ document.addEventListener("alpine:init", () => {
 
         openStudentRegisterModal() {
             this.studentRegisterForm = {
+                role: "student",
                 username: this.studentIdentifier.trim() || "",
                 full_name: "",
                 student_class: "SS3",
@@ -225,10 +227,11 @@ document.addEventListener("alpine:init", () => {
             form.loading = true;
             form.error = "";
 
-            window.examBridge.register_student(
+            window.examBridge.register_user(
                 form.username.trim(),
                 form.password.trim() || "cbt123",
                 form.full_name.trim(),
+                form.role || "student",
                 form.student_class.trim(),
                 String(form.admission_year || ""),
                 (response) => {
