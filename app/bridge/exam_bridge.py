@@ -505,55 +505,30 @@ class ExamBridge(QObject):
     # GENERATE RESULT PDF (REPORTLAB)
     # ========================================================
 
-    @Slot(str, str, result=str)
-    def generate_result_pdf_reportlab(
-        self,
-        result_json: str,
-        default_name: str = "exam_result.pdf",
-    ):
+    @Slot(int, result=str)
+    def generate_result_pdf_reportlab(self, exam_id: int):
+        """Generates a professional PDF result transcript using ReportLab."""
         try:
-            service, service_err = self._get_reportlab_service()
-            if service is None:
-                return self._error(service_err or "PDF service unavailable.")
+            with SessionLocal() as db:
+                service = ExamService(db)
+                result = service.get_result(int(exam_id))
 
-            result = json.loads(result_json or "{}")
-            if not result:
-                return self._error("No result data provided for PDF generation.")
+            from app.services.reportlab_report_service import ReportlabReportService
 
-            full_name = str(
-                result.get("student_full_name")
-                or result.get("student_name")
-                or "Student"
-            ).strip()
-            result["student_name"] = full_name
+            report_service = ReportlabReportService()
+            pdf_path = report_service.generate(result)
 
-            safe_name = "".join(
-                c for c in full_name if c.isalnum() or c in (" ", "_", "-")
-            ).strip().replace(" ", "_") or "student"
-            year = result.get("year", "")
-            suggested_name = f"exam_result_{safe_name}_{year}.pdf" if year else f"exam_result_{safe_name}.pdf"
+            try:
+                if hasattr(os, "startfile"):
+                    os.startfile(pdf_path)
+            except Exception as open_err:
+                print("Could not auto-open PDF:", open_err)
 
-            file_path, _ = QFileDialog.getSaveFileName(
-                None,
-                "Save Result as PDF",
-                suggested_name,
-                "PDF Files (*.pdf)",
-            )
-
-            if not file_path:
-                return json.dumps({"success": False, "cancelled": True})
-
-            output = Path(file_path)
-            service.generate_exam_result_pdf(str(output), result)
-
-            return json.dumps(
-                {
-                    "success": True,
-                    "path": str(output.resolve()),
-                    "name": output.name,
-                }
-            )
-
+            return json.dumps({
+                "success": True,
+                "path": str(pdf_path),
+                "message": f"Result PDF saved successfully to {pdf_path}",
+            })
         except Exception as exc:
             return self._error(exc)
 
@@ -1958,8 +1933,21 @@ class ExamBridge(QObject):
 
     @Slot(result=str)
     def print_current_page(self):
-        """Prints current page using native Qt Print Dialog."""
-        return self.print_html("", "CBT Document")
+        """Opens native Qt Print Dialog to print the current examination document."""
+        try:
+            if hasattr(self, "_window") and self._window is not None:
+                from PySide6.QtPrintSupport import QPrintDialog, QPrinter
+                printer = QPrinter(QPrinter.PrinterMode.HighResolution)
+                dialog = QPrintDialog(printer, self._window)
+                dialog.setWindowTitle("Print CBT Examination Document")
+                if dialog.exec() == QPrintDialog.DialogCode.Accepted:
+                    self._window.page().print(printer, lambda ok: None)
+                    return json.dumps({"success": True, "message": "Print job sent to printer."})
+                else:
+                    return json.dumps({"success": False, "cancelled": True, "message": "Print cancelled."})
+            return json.dumps({"success": False, "error": "Window reference not set."})
+        except Exception as exc:
+            return self._error(exc)
 
     @Slot(str, result=str)
     def generate_student_history_pdf(self, student_name: str):

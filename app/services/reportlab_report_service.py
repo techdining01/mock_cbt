@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterable
@@ -230,6 +231,25 @@ class ReportlabReportService:
     # ==================================================================
     # SINGLE EXAM RESULT
     # ==================================================================
+    def generate(self, result: dict) -> Path:
+        """Generate a PDF result transcript with auto-generated filename.
+
+        Convenience method that creates a default output path and calls
+        generate_exam_result_pdf.
+        """
+        base_dir = Path(__file__).resolve().parents[2]
+        reports_dir = base_dir / "data" / "reports"
+        reports_dir.mkdir(parents=True, exist_ok=True)
+
+        student_name = result.get("student_name") or result.get("student_full_name") or "Student"
+        safe_name = "".join(c for c in str(student_name) if c.isalnum() or c in (" ", "_", "-")).strip().replace(" ", "_") or "student"
+        year = result.get("year", "")
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"exam_result_{safe_name}_{year}_{timestamp}.pdf" if year else f"exam_result_{safe_name}_{timestamp}.pdf"
+        output_path = reports_dir / filename
+
+        return self.generate_exam_result_pdf(output_path, result)
+
     def generate_exam_result_pdf(
         self,
         output_path: str | Path,
