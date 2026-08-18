@@ -21,3 +21,4 @@ oldfiles/
 create_admin.py
 cbt.sqlite3
 with_cbt.sqlite3
+seed_meaningful_questions.py
