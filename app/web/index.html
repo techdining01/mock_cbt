@@ -4,25 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Mock CBT Examination</title>
+    <title>Mock CBT Examination Engine</title>
 
-    <link
-        rel="icon"
-        type="image/png"
-        href="assets/images/favicon.png"
-    >
+    <link rel="icon" type="image/png" href="./images/alayande.ico">
+    <link rel="stylesheet" href="css/app.css">
 
-    <link
-        rel="stylesheet"
-        href="css/app.css"
-    >
-
+    <!-- Dependencies: load app.js before alpine.min.js with defer -->
     <script src="js/chart.umd.min.js"></script>
-
-    <script
-        defer
-        src="js/alpine.min.js"
-    ></script>
+    <script defer src="js/app.js"></script>
+    <script defer src="js/alpine.min.js"></script>
 
     <style>
         [x-cloak] {
@@ -31,43 +21,59 @@
 
         html {
             scroll-behavior: smooth;
+            overflow-y: scroll;
         }
 
         body {
             margin: 0;
             min-height: 100vh;
+            background-color: #f8fafc;
+            -webkit-font-smoothing: antialiased;
+            backface-visibility: hidden;
         }
 
-        /*
-         * The exam is deliberately NOT height constrained.
-         * Questions can become as tall as necessary and the
-         * browser/document scrolls normally.
-         */
         .exam-document {
             min-height: 100vh;
         }
 
         @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            body {
+                background: white !important;
+            }
+
             body * {
                 visibility: hidden !important;
             }
 
             #result-print-area,
-            #result-print-area * {
+            #result-print-area *,
+            #student-history-print-area,
+            #student-history-print-area * {
                 visibility: visible !important;
             }
 
-            #result-print-area {
+            #result-print-area,
+            #student-history-print-area {
                 position: absolute !important;
                 left: 0 !important;
                 top: 0 !important;
                 width: 100% !important;
                 background: white !important;
-                padding: 20px !important;
+                padding: 12px !important;
+                margin: 0 !important;
             }
 
-            .no-print {
+            .no-print,
+            header,
+            nav,
+            .toast-container {
                 display: none !important;
+                visibility: hidden !important;
             }
 
             .print-page-break {
@@ -77,1274 +83,1629 @@
     </style>
 </head>
 
-<body class="bg-gray-100">
+<body class="bg-slate-50 text-slate-900 font-sans antialiased">
 
-<div
-    x-data="examApp"
-    x-init="init()"
-    x-cloak
->
+<div x-data="examApp" x-init="init()" x-cloak>
 
     <!-- =========================================================
-         LOADING
+         GLOBAL TOAST NOTIFICATIONS (TOP RIGHT)
          ========================================================= -->
-    <template x-if="loading">
-        <div class="min-h-screen flex items-center justify-center p-6">
-            <div class="bg-white rounded-2xl shadow-lg p-8 text-center max-w-md w-full">
-                <div class="mx-auto mb-5 h-10 w-10 rounded-full border-4 border-gray-200 border-t-blue-600 animate-spin"></div>
-
-                <h2
-                    class="text-xl font-semibold text-gray-900"
-                    x-text="loadingMessage"
-                ></h2>
-
-                <p class="mt-2 text-sm text-gray-500">
-                    Please wait...
-                </p>
-            </div>
-        </div>
-    </template>
-
-
-    <!-- =========================================================
-         ERROR
-         ========================================================= -->
-    <template x-if="error">
-        <div class="fixed inset-0 z-[100] bg-black/40 flex items-center justify-center p-6">
-            <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-7">
-
-                <div class="flex items-start gap-4">
-                    <div class="h-10 w-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold">
-                        !
-                    </div>
-
-                    <div class="flex-1">
-                        <h2 class="text-lg font-bold text-gray-900">
-                            Something went wrong
-                        </h2>
-
-                        <p
-                            class="mt-2 text-sm text-gray-600"
-                            x-text="error"
-                        ></p>
-                    </div>
+    <div class="toast-container fixed top-5 right-5 z-[9999] flex flex-col gap-2.5 max-w-sm w-full pointer-events-none">
+        <template x-for="toast in toasts" :key="toast.id">
+            <div
+                class="pointer-events-auto flex items-start gap-3 p-4 rounded-2xl shadow-xl border transition-all duration-200 transform translate-y-0"
+                :class="{
+                    'bg-emerald-900 text-white border-emerald-700': toast.type === 'success',
+                    'bg-rose-900 text-white border-rose-700': toast.type === 'error',
+                    'bg-amber-900 text-white border-amber-700': toast.type === 'warning',
+                    'bg-slate-900 text-white border-slate-700': toast.type === 'info' || !toast.type
+                }"
+            >
+                <div class="shrink-0 mt-0.5">
+                    <template x-if="toast.type === 'success'">
+                        <svg class="w-5 h-5 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </template>
+                    <template x-if="toast.type === 'error'">
+                        <svg class="w-5 h-5 text-rose-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </template>
+                    <template x-if="toast.type === 'warning'">
+                        <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                    </template>
+                    <template x-if="toast.type === 'info' || !toast.type">
+                        <svg class="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </template>
                 </div>
-
+                <div class="flex-1 text-sm font-medium leading-snug break-words" x-text="toast.message"></div>
                 <button
                     type="button"
-                    @click="clearError()"
-                    class="mt-6 w-full rounded-xl bg-blue-600 text-white py-3 font-semibold hover:bg-blue-700"
+                    @click="removeToast(toast.id)"
+                    class="shrink-0 text-white/60 hover:text-white transition"
                 >
-                    Continue
+                    ✕
                 </button>
-
             </div>
-        </div>
-    </template>
-
+        </template>
+    </div>
 
     <!-- =========================================================
-         EXAM SETUP
+         TOP APP HEADER & NAVIGATION (NOT IN EXAM SCREEN)
          ========================================================= -->
-    <template x-if="!loading && screen === 'selection'">
-        <main class="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
-
-            <div class="mb-8 flex items-center gap-4">
-
-                <div class="h-14 w-14 shrink-0 rounded-2xl bg-white border border-gray-200 shadow-sm flex items-center justify-center overflow-hidden">
-                    <img
-                        src="images/alayande.png"
-                        alt="Exam logo"
-                        class="h-10 w-10 object-contain"
-                    >
-                </div>
-
+    <header
+        x-show="screen !== 'exam'"
+        class="no-print sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm transition-opacity duration-150"
+    >
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <!-- LOGO & BRAND -->
+            <div class="flex items-center gap-3">
+                <img src="images/alayande.png" alt="Logo" class="h-9 w-9 object-contain">
                 <div>
-                    <p class="text-sm font-semibold text-blue-600">
-                        MOCK CBT
-                    </p>
-
-                    <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">
-                        Examination Setup
-                    </h1>
-
-                    <p class="mt-1 text-gray-500">
-                        Select your examination year and subjects.
-                    </p>
+                    <span class="font-black text-lg tracking-tight text-blue-900 block leading-tight">MOCK CBT</span>
+                    <span class="text-[10px] text-slate-500 font-semibold tracking-wider uppercase block">Examination Portal</span>
                 </div>
-
             </div>
 
+            <!-- NAVIGATION TABS -->
+            <div class="flex items-center gap-2">
+                <button
+                    type="button"
+                    @click="screen = 'selection'"
+                    class="px-3.5 py-2 rounded-xl text-sm font-semibold transition cursor-pointer flex items-center gap-1.5"
+                    :class="screen === 'selection' ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-600 hover:bg-slate-100'"
+                >
+                    <span>📝</span>
+                    <span>Take Exam</span>
+                </button>
 
-            <div class="grid lg:grid-cols-3 gap-6">
+                <div x-show="isAdmin">
+                    <button
+                        type="button"
+                        @click="screen = 'admin'; loadAdminData()"
+                        class="px-3.5 py-2 rounded-xl text-sm font-semibold transition cursor-pointer flex items-center gap-1.5"
+                        :class="screen === 'admin' ? 'bg-blue-600 text-white font-bold shadow-sm' : 'text-slate-600 hover:bg-slate-100'"
+                    >
+                        <span>🛡</span>
+                        <span>Admin Dashboard</span>
+                    </button>
+                </div>
+            </div>
 
-                <!-- EXAM DETAILS -->
-                <section class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+            <!-- USER AUTH / ADMIN STATUS -->
+            <div class="flex items-center gap-3">
+                <div x-show="isAdmin" class="flex items-center gap-2.5">
+                    <div class="hidden sm:flex flex-col items-end">
+                        <span class="text-xs font-bold text-slate-900" x-text="currentUser?.full_name"></span>
+                        <span class="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
+                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                            Administrator
+                        </span>
+                    </div>
+                    <button
+                        type="button"
+                        @click="logoutAdmin()"
+                        class="px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-700 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-300 transition cursor-pointer"
+                    >
+                        Logout
+                    </button>
+                </div>
 
-                    <h2 class="text-lg font-bold text-gray-900">
-                        Examination Details
+                <div x-show="!isAdmin">
+                    <button
+                        type="button"
+                        @click="openLoginModal()"
+                        class="px-3.5 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 active:scale-95 transition shadow-sm cursor-pointer flex items-center gap-1.5"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        <span>Admin Login</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- =========================================================
+         LOADING OVERLAY
+         ========================================================= -->
+    <div x-show="loading" class="min-h-screen flex items-center justify-center p-6 bg-slate-50">
+        <div class="bg-white rounded-3xl shadow-xl border border-slate-200 p-8 text-center max-w-md w-full">
+            <div class="mx-auto mb-5 h-12 w-12 rounded-full border-4 border-slate-200 border-t-blue-600 animate-spin"></div>
+            <h2 class="text-xl font-bold text-slate-900" x-text="loadingMessage"></h2>
+            <p class="mt-2 text-sm text-slate-500">Please wait while the system processes your request...</p>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         ERROR MODAL
+         ========================================================= -->
+    <div x-show="error" class="fixed inset-0 z-[100] bg-slate-950/75 flex items-center justify-center p-6">
+        <div class="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-md w-full p-7">
+            <div class="flex items-start gap-4">
+                <div class="h-11 w-11 shrink-0 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center font-black text-xl">!</div>
+                <div class="flex-1">
+                    <h2 class="text-lg font-bold text-slate-900">System Notification</h2>
+                    <p class="mt-2 text-sm text-slate-600" x-text="error"></p>
+                </div>
+            </div>
+            <button
+                type="button"
+                @click="clearError()"
+                class="mt-6 w-full rounded-2xl bg-slate-900 text-white py-3.5 font-bold hover:bg-slate-800 active:scale-95 transition cursor-pointer"
+            >
+                Dismiss
+            </button>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         SCREEN 1: EXAM SETUP (SELECTION & CANDIDATE REGISTRATION)
+         ========================================================= -->
+    <main x-show="!loading && screen === 'selection'" class="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
+        <div class="mb-8 flex items-center gap-4">
+            <div class="h-16 w-16 shrink-0 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-center p-2">
+                <img src="images/alayande.png" alt="Exam logo" class="h-full w-full object-contain">
+            </div>
+            <div>
+                <span class="text-xs font-black text-blue-600 uppercase tracking-widest block">Official Examination Portal</span>
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Examination Setup</h1>
+                <p class="mt-1 text-slate-500 text-sm sm:text-base">Verify your candidate identity, select academic year, and choose your examination subjects.</p>
+            </div>
+        </div>
+
+        <div class="grid lg:grid-cols-3 gap-8">
+            <!-- LEFT COLUMN: CANDIDATE IDENTITY & EXAM PARAMETERS -->
+            <section class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 sm:p-7 space-y-6">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                        <span>👤</span>
+                        <span>Candidate Identification</span>
                     </h2>
+                    <p class="text-xs text-slate-500 mt-1">Enter your registered username or full name.</p>
+                </div>
 
-                    <div class="mt-6 space-y-5">
+                <!-- IDENTIFIER INPUT -->
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold text-slate-700 uppercase">Student Username / Name</label>
+                    <input
+                        type="text"
+                        x-model="studentIdentifier"
+                        @input="onStudentIdentifierInput()"
+                        placeholder="e.g. jdoe24 or John Doe"
+                        class="w-full rounded-2xl border border-slate-300 px-4 py-3.5 text-sm font-medium focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none transition"
+                    >
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Student Name
-                            </label>
-
-                            <input
-                                type="text"
-                                x-model="studentName"
-                                placeholder="Enter your name"
-                                class="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
-                            >
+                    <!-- IDENTITY VERIFICATION STATUS BADGE -->
+                    <div class="mt-2">
+                        <div x-show="studentStatus === 'checking'" class="flex items-center gap-2 text-xs text-slate-500 py-1.5">
+                            <span class="h-3 w-3 rounded-full border-2 border-blue-600 border-t-transparent animate-spin"></span>
+                            <span>Verifying candidate in database...</span>
                         </div>
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Examination Year
-                            </label>
-
-                            <select
-                                :value="selectedYear || ''"
-                                @change="selectYear($event.target.value)"
-                                class="w-full rounded-xl border border-gray-300 px-4 py-3 bg-white outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                                <option value="">
-                                    Select year
-                                </option>
-
-                                <template
-                                    x-for="year in years"
-                                    :key="year"
-                                >
-                                    <option
-                                        :value="year"
-                                        x-text="year"
-                                    ></option>
-                                </template>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Duration
-                            </label>
-
-                            <div class="flex items-center gap-3">
-                                <input
-                                    type="number"
-                                    min="1"
-                                    x-model.number="durationMinutes"
-                                    class="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
-                                >
-
-                                <span class="text-gray-500">
-                                    minutes
-                                </span>
+                        <div x-show="studentStatus === 'verified'" class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs space-y-1">
+                            <div class="font-bold flex items-center gap-1.5 text-emerald-800">
+                                <span>✓ Verified Candidate:</span>
+                                <span x-text="studentFullName"></span>
+                            </div>
+                            <div class="text-emerald-700 flex items-center gap-2">
+                                <span>Class: <b x-text="studentClass || 'General'"></b></span>
+                                <span x-show="studentAdmissionYear">· Year: <b x-text="studentAdmissionYear"></b></span>
                             </div>
                         </div>
 
-                    </div>
-                </section>
-
-
-                <!-- SUBJECTS -->
-                <section class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-
-                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-
-                        <div>
-                            <h2 class="text-lg font-bold text-gray-900">
-                                Subjects
-                            </h2>
-
-                            <p class="text-sm text-gray-500 mt-1">
-                                <span x-text="selectedSubjectIds.length"></span>
-                                selected
-                            </p>
+                        <div x-show="studentStatus === 'not_found'" class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs space-y-2">
+                            <div class="font-semibold flex items-center gap-1 text-amber-800">
+                                <span>⚠️ Candidate record not found.</span>
+                            </div>
+                            <p class="text-amber-700">Please register as a student to proceed with taking the examination.</p>
+                            <button
+                                type="button"
+                                @click="openStudentRegisterModal()"
+                                class="w-full py-2 px-3 rounded-xl bg-amber-600 text-white font-bold hover:bg-amber-700 active:scale-95 transition cursor-pointer text-center"
+                            >
+                                + Register Candidate Now
+                            </button>
                         </div>
 
-                        <div class="flex gap-2">
+                        <div x-show="studentStatus === 'admin'" class="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold">
+                            🚫 This account is an Administrator. Admin accounts cannot take exams.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EXAMINATION YEAR -->
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold text-slate-700 uppercase">Examination Year</label>
+                    <select
+                        x-model="selectedYear"
+                        @change="loadSubjectsForYear(selectedYear)"
+                        class="w-full rounded-2xl border border-slate-300 px-4 py-3.5 text-sm font-semibold focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none bg-white transition"
+                    >
+                        <template x-for="year in years" :key="year">
+                            <option :value="year" x-text="`Year ${year}`"></option>
+                        </template>
+                    </select>
+                </div>
+
+                <!-- EXAM DURATION -->
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold text-slate-700 uppercase">Allocated Duration</label>
+                    <select
+                        x-model="durationMinutes"
+                        class="w-full rounded-2xl border border-slate-300 px-4 py-3.5 text-sm font-semibold focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none bg-white transition"
+                    >
+                        <option value="30">30 Minutes (Quick Quiz)</option>
+                        <option value="60">60 Minutes (1 Hour)</option>
+                        <option value="90">90 Minutes (1.5 Hours)</option>
+                        <option value="120">120 Minutes (2 Hours - Standard)</option>
+                        <option value="180">180 Minutes (3 Hours - Comprehensive)</option>
+                    </select>
+                </div>
+            </section>
+
+            <!-- RIGHT COLUMN: SUBJECTS SELECTION -->
+            <section class="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-slate-200 p-6 sm:p-7 flex flex-col justify-between">
+                <div>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                                <span>📚</span>
+                                <span>Select Examination Subjects</span>
+                            </h2>
+                            <p class="text-xs text-slate-500 mt-0.5">
+                                Year <b x-text="selectedYear"></b> · Selected: <b class="text-blue-600" x-text="selectedSubjectIds.length"></b> subject(s) · Total: <b class="text-emerald-600 font-extrabold" x-text="`${selectedTotalQuestions} Questions`"></b>
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-2">
                             <button
                                 type="button"
                                 @click="selectAllSubjects()"
-                                class="px-3 py-2 rounded-lg text-sm font-medium bg-gray-100 hover:bg-gray-200"
+                                class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-100 transition cursor-pointer"
                             >
                                 Select All
                             </button>
-
                             <button
                                 type="button"
-                                @click="clearSubjects()"
-                                class="px-3 py-2 rounded-lg text-sm font-medium bg-gray-100 hover:bg-gray-200"
+                                @click="clearAllSubjects()"
+                                class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-100 transition cursor-pointer"
                             >
                                 Clear
                             </button>
                         </div>
-
                     </div>
 
+                    <!-- SUBJECTS GRID -->
+                    <template x-if="subjectsLoading">
+                        <div class="py-12 text-center text-slate-400 text-sm">
+                            <div class="mx-auto mb-3 h-8 w-8 rounded-full border-2 border-slate-200 border-t-blue-600 animate-spin"></div>
+                            Loading subjects for Year <span x-text="selectedYear"></span>...
+                        </div>
+                    </template>
 
-                    <div
-                        x-show="subjectsLoading"
-                        class="py-12 text-center text-gray-500"
-                    >
-                        Loading subjects...
-                    </div>
+                    <template x-if="!subjectsLoading && subjects.length === 0">
+                        <div class="py-12 text-center text-slate-400 text-sm rounded-2xl border border-dashed border-slate-300">
+                            No questions or subjects available for year <span x-text="selectedYear"></span>.
+                        </div>
+                    </template>
 
-
-                    <div
-                        x-show="!subjectsLoading && selectedYear && subjects.length"
-                        class="mt-6 grid sm:grid-cols-2 gap-3"
-                    >
-
-                        <template
-                            x-for="subject in subjects"
-                            :key="subject.id"
-                        >
-
-                            <button
-                                type="button"
-                                @click="toggleSubject(subject.id)"
-                                class="text-left border rounded-xl p-4 transition"
-                                :class="
-                                    isSubjectSelected(subject.id)
-                                        ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500'
-                                        : 'border-gray-200 bg-white hover:border-gray-300'
-                                "
-                            >
-
-                                <div class="flex items-start justify-between gap-3">
-
-                                    <div>
-                                        <h3
-                                            class="font-semibold text-gray-900"
-                                            x-text="subject.name"
-                                        ></h3>
-
-                                        <p class="text-sm text-gray-500 mt-1">
-                                            <span x-text="subject.question_count"></span>
-                                            questions
-                                        </p>
+                    <template x-if="!subjectsLoading && subjects.length > 0">
+                        <div class="grid sm:grid-cols-2 gap-3.5">
+                            <template x-for="subj in subjects" :key="subj.id">
+                                <button
+                                    type="button"
+                                    @click="toggleSubject(subj.id)"
+                                    class="p-4 rounded-2xl border text-left transition-all duration-150 active:scale-[0.99] flex items-center justify-between gap-3 cursor-pointer group"
+                                    :class="selectedSubjectIds.includes(Number(subj.id))
+                                        ? 'border-blue-600 bg-blue-50/80 ring-2 ring-blue-500 shadow-sm'
+                                        : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100/80 hover:border-slate-300'"
+                                >
+                                    <div class="flex-1">
+                                        <div class="font-bold text-slate-800 text-sm group-hover:text-blue-900 transition" x-text="subj.name"></div>
+                                        <div class="mt-1 flex items-center gap-1.5">
+                                            <span
+                                                class="text-[11px] font-bold px-2 py-0.5 rounded-full transition"
+                                                :class="selectedSubjectIds.includes(Number(subj.id))
+                                                    ? 'bg-blue-600 text-white'
+                                                    : 'bg-slate-200 text-slate-600'"
+                                                x-text="`${subj.question_count || 0} Questions`"
+                                            ></span>
+                                        </div>
                                     </div>
 
                                     <div
-                                        class="h-5 w-5 rounded-full border flex items-center justify-center"
-                                        :class="
-                                            isSubjectSelected(subject.id)
-                                                ? 'border-blue-600 bg-blue-600 text-white'
-                                                : 'border-gray-300'
-                                        "
+                                        class="h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 transition"
+                                        :class="selectedSubjectIds.includes(Number(subj.id)) ? 'border-blue-600 bg-blue-600' : 'border-slate-300'"
                                     >
-                                        <span
-                                            x-show="isSubjectSelected(subject.id)"
-                                            class="text-xs"
-                                        >
-                                            ✓
-                                        </span>
+                                        <div class="h-2 w-2 rounded-full bg-white" x-show="selectedSubjectIds.includes(Number(subj.id))"></div>
                                     </div>
-
-                                </div>
-
-                            </button>
-
-                        </template>
-
-                    </div>
-
-
-                    <div
-                        x-show="!subjectsLoading && selectedYear && !subjects.length"
-                        class="mt-8 p-6 rounded-xl bg-gray-50 text-center text-gray-500"
-                    >
-                        No subjects are available for this year.
-                    </div>
-
-
-                    <div
-                        x-show="!selectedYear"
-                        class="mt-8 p-6 rounded-xl bg-gray-50 text-center text-gray-500"
-                    >
-                        Select an examination year to see subjects.
-                    </div>
-
-
-                    <div class="mt-8 border-t pt-6">
-
-                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-
-                            <div>
-                                <p class="text-sm text-gray-500">
-                                    Total Questions
-                                </p>
-
-                                <p
-                                    class="text-2xl font-bold text-gray-900"
-                                    x-text="selectedQuestionCount"
-                                ></p>
-                            </div>
-
-                            <button
-                                type="button"
-                                @click="createExam()"
-                                :disabled="creatingExam || !selectedSubjectIds.length"
-                                class="px-6 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                <span x-show="!creatingExam">
-                                    Start Examination
-                                </span>
-
-                                <span x-show="creatingExam">
-                                    Creating...
-                                </span>
-                            </button>
-
+                                </button>
+                            </template>
                         </div>
+                    </template>
+                </div>
 
+                <!-- START BUTTON -->
+                <div class="mt-8 pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="text-xs text-slate-500 space-y-0.5">
+                        <div>Selected: <b class="text-slate-900" x-text="selectedSubjectIds.length"></b> subject(s) · <b class="text-blue-600 font-extrabold" x-text="`${selectedTotalQuestions} Questions`"></b></div>
+                        <div class="text-[11px] text-slate-400">Duration: <span x-text="durationMinutes"></span> Mins · Master Clock</div>
                     </div>
 
-                </section>
-
-            </div>
-        </main>
-    </template>
-
+                    <button
+                        type="button"
+                        @click="startExamination()"
+                        :disabled="creatingExam || selectedSubjectIds.length === 0 || !studentIdentifier.trim() || studentStatus === 'admin' || studentStatus === 'not_found'"
+                        class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-blue-600 text-white font-extrabold hover:bg-blue-700 active:scale-95 disabled:opacity-40 disabled:pointer-events-none shadow-lg shadow-blue-600/20 transition flex items-center justify-center gap-2.5 cursor-pointer text-base"
+                    >
+                        <span x-show="!creatingExam">Start CBT Examination</span>
+                        <span x-show="creatingExam">Initializing Exam...</span>
+                        <span class="text-lg">→</span>
+                    </button>
+                </div>
+            </section>
+        </div>
+    </main>
 
     <!-- =========================================================
-         EXAM SCREEN
-         NORMAL DOCUMENT FLOW - NO HEIGHT TRAP
+         SCREEN 2: CBT EXAMINATION RUNNER
          ========================================================= -->
-    <template x-if="!loading && screen === 'exam'">
-        <main class="exam-document">
+    <div x-show="!loading && screen === 'exam'" class="exam-document bg-slate-100">
+        <!-- STICKY EXAM HEADER -->
+        <header class="no-print sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <img src="images/alayande.png" alt="Logo" class="h-10 w-10 object-contain">
+                    <div>
+                        <p class="text-xs font-extrabold text-blue-600 uppercase tracking-wider">Candidate Examination</p>
+                        <h1 class="text-lg font-bold text-slate-900 leading-tight truncate max-w-[200px] sm:max-w-xs" x-text="exam?.student_name || 'Candidate'"></h1>
+                    </div>
+                </div>
 
-            <!-- HEADER -->
-            <header class="sticky top-0 z-40 bg-white border-b shadow-sm">
+                <!-- SUBJECT BADGES (SCROLLABLE) -->
+                <div class="hidden md:flex items-center gap-2 overflow-x-auto py-1">
+                    <template x-for="(sub, idx) in (exam?.subjects || [])" :key="sub.id">
+                        <button
+                            type="button"
+                            @click="selectSubject(idx)"
+                            class="px-3 py-1.5 rounded-xl text-xs font-bold border transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
+                            :class="subjectIndex === idx
+                                ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                                : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'"
+                        >
+                            <span x-text="sub.name"></span>
+                            <span
+                                class="px-1.5 py-0.5 rounded-full text-[10px]"
+                                :class="subjectIndex === idx ? 'bg-blue-700 text-blue-100' : 'bg-slate-200 text-slate-700'"
+                                x-text="subjectProgressText(sub)"
+                            ></span>
+                        </button>
+                    </template>
+                </div>
 
-                <div class="max-w-7xl mx-auto px-4 py-3">
+                <!-- TIMER & SUBMIT BUTTON -->
+                <div class="flex items-center gap-3">
+                    <div
+                        class="px-4 py-2 rounded-2xl text-center transition shadow-sm"
+                        :class="remainingSeconds < 300 ? 'bg-rose-600 text-white ring-2 ring-rose-400' : 'bg-slate-900 text-white'"
+                    >
+                        <p class="text-[10px] uppercase font-bold" :class="remainingSeconds < 300 ? 'text-rose-100' : 'text-slate-400'">
+                            Time Remaining
+                        </p>
+                        <div class="text-xl sm:text-2xl font-mono font-black tracking-wider" x-text="formatTime(remainingSeconds)"></div>
+                    </div>
 
-                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+                    <button
+                        type="button"
+                        @click="finishExam()"
+                        :disabled="finishingExam || timeExpiredHandled"
+                        class="px-5 py-3 rounded-2xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 active:scale-95 shadow-md shadow-emerald-600/20 disabled:opacity-50 whitespace-nowrap transition cursor-pointer"
+                    >
+                        Submit Exam
+                    </button>
+                </div>
+            </div>
+        </header>
 
+        <!-- EXAM MAIN BODY -->
+        <main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+            <div class="grid lg:grid-cols-4 gap-8 items-start">
+                <!-- QUESTION CONTAINER -->
+                <section class="lg:col-span-3 bg-white rounded-3xl shadow-sm border border-slate-200 p-6 sm:p-8">
+                    <div class="flex items-center justify-between pb-6 border-b border-slate-100 gap-4">
                         <div>
-                            <p class="text-xs uppercase tracking-wide text-gray-500">
-                                Examination
-                            </p>
-
-                            <h1
-                                class="font-bold text-gray-900"
-                                x-text="exam?.student_name || 'Student'"
-                            ></h1>
+                            <span class="text-xs font-extrabold text-blue-600 uppercase tracking-wider block" x-text="currentSubject?.name"></span>
+                            <h2 class="text-xl font-black text-slate-900">
+                                Question <span x-text="displayQuestionNumber"></span>
+                                <span class="text-sm font-semibold text-slate-400"> of <span x-text="currentSubject?.questions?.length || 0"></span></span>
+                            </h2>
                         </div>
+                        <div class="text-right">
+                            <span class="text-xs font-bold text-slate-500 block">Overall Progress</span>
+                            <span class="text-sm font-extrabold text-blue-600" x-text="`${overallProgressPercent}% Answered`"></span>
+                        </div>
+                    </div>
 
+                    <!-- QUESTION TEXT -->
+                    <div class="mt-8 text-lg sm:text-xl font-medium leading-relaxed text-slate-900 whitespace-pre-line break-words" x-text="currentQuestion?.text || ''"></div>
+
+                    <!-- OPTIONS LIST -->
+                    <div class="mt-8 space-y-3.5">
+                        <template x-for="option in (currentQuestion?.options || [])" :key="option.id">
+                            <button
+                                type="button"
+                                @click="selectAnswer(option.id)"
+                                class="w-full text-left rounded-2xl border p-4 sm:p-4.5 transition-all duration-150 active:scale-[0.99] flex items-center justify-between gap-4 cursor-pointer group"
+                                :class="Number(currentQuestion?.selected_option_id) === Number(option.id)
+                                    ? 'border-blue-600 bg-blue-50/90 ring-2 ring-blue-500 shadow-sm'
+                                    : 'border-slate-200 bg-white hover:border-blue-300 hover:bg-slate-50/80'"
+                            >
+                                <div class="flex items-start gap-4 flex-1">
+                                    <span
+                                        class="h-9 w-9 shrink-0 rounded-xl border flex items-center justify-center font-black text-sm transition"
+                                        :class="Number(currentQuestion?.selected_option_id) === Number(option.id)
+                                            ? 'bg-blue-600 text-white border-blue-600 shadow'
+                                            : 'bg-slate-100 text-slate-700 border-slate-200 group-hover:border-blue-300 group-hover:bg-blue-50 group-hover:text-blue-700'"
+                                        x-text="option.label"
+                                    ></span>
+                                    <span
+                                        class="pt-1.5 text-slate-800 text-base leading-relaxed break-words flex-1"
+                                        :class="Number(currentQuestion?.selected_option_id) === Number(option.id) ? 'font-bold text-slate-900' : ''"
+                                        x-text="option.text"
+                                    ></span>
+                                </div>
+
+                                <div
+                                    class="h-5 w-5 shrink-0 rounded-full border-2 flex items-center justify-center transition"
+                                    :class="Number(currentQuestion?.selected_option_id) === Number(option.id) ? 'border-blue-600 bg-blue-600' : 'border-slate-300 group-hover:border-blue-400'"
+                                >
+                                    <div class="h-2 w-2 rounded-full bg-white" x-show="Number(currentQuestion?.selected_option_id) === Number(option.id)"></div>
+                                </div>
+                            </button>
+                        </template>
+                    </div>
+
+                    <!-- NAVIGATION BUTTONS WITH DYNAMIC SUBMIT ON LAST QUESTION -->
+                    <div class="mt-10 pt-6 border-t border-slate-100 flex items-center justify-between gap-4">
+                        <button
+                            type="button"
+                            @click="previousQuestion()"
+                            :disabled="!canGoPrevious"
+                            class="px-6 py-3.5 rounded-2xl border border-slate-300 bg-white font-bold text-slate-700 hover:bg-slate-50 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition flex items-center gap-2 shadow-sm cursor-pointer"
+                        >
+                            <span>←</span>
+                            <span>Previous</span>
+                        </button>
 
                         <div class="flex items-center gap-3">
-
-                            <div class="px-4 py-2 rounded-xl bg-gray-900 text-white text-center">
-
-                                <p class="text-[10px] text-gray-400">
-                                    TIME REMAINING
-                                </p>
-
-                                <div
-                                    class="text-xl sm:text-2xl font-mono font-bold"
-                                    x-text="formatTime(remainingSeconds)"
-                                ></div>
-
-                            </div>
-
-                            <button
-                                type="button"
-                                @click="finishExam()"
-                                :disabled="finishingExam || timeExpiredHandled"
-                                class="px-4 sm:px-5 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-50 whitespace-nowrap"
-                            >
-                                Submit Examination
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </div>
-            </header>
-
-
-            <div class="max-w-7xl mx-auto p-4 sm:p-6">
-
-                <!-- OVERALL PROGRESS -->
-                <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 mb-5">
-
-                    <div class="flex items-center justify-between gap-3">
-
-                        <div>
-                            <p class="text-sm font-semibold text-gray-900">
-                                Overall Progress
-                            </p>
-
-                            <p class="text-xs text-gray-500 mt-1">
-                                <span x-text="answeredCount"></span>
-                                of
-                                <span x-text="totalQuestionCount"></span>
-                                answered
-                            </p>
-                        </div>
-
-                        <p
-                            class="text-sm font-bold text-blue-700"
-                            x-text="overallProgressPercent + '%'"
-                        ></p>
-
-                    </div>
-
-                    <div class="mt-3 h-2 rounded-full bg-gray-100 overflow-hidden">
-                        <div
-                            class="h-full bg-blue-600 transition-all"
-                            :style="{ width: overallProgressPercent + '%' }"
-                        ></div>
-                    </div>
-
-                </section>
-
-
-                <!-- SUBJECT PROGRESS -->
-                <section class="mb-5">
-
-                    <div class="flex gap-3 overflow-x-auto pb-2">
-
-                        <template
-                            x-for="(subject, index) in exam.subjects"
-                            :key="subject.id"
-                        >
-
-                            <button
-                                type="button"
-                                @click="selectSubject(index)"
-                                class="shrink-0 w-52 rounded-xl border p-3 text-left bg-white transition"
-                                :class="
-                                    index === subjectIndex
-                                        ? 'border-blue-500 ring-1 ring-blue-500'
-                                        : 'border-gray-200 hover:border-gray-300'
-                                "
-                            >
-
-                                <div class="flex items-center justify-between gap-2">
-
-                                    <span
-                                        class="font-semibold text-gray-900 truncate"
-                                        x-text="subject.name"
-                                    ></span>
-
-                                    <span
-                                        class="text-xs font-bold text-blue-700"
-                                        x-text="subjectProgressText(subject)"
-                                    ></span>
-
-                                </div>
-
-                                <div class="mt-2 h-2 rounded-full bg-gray-100 overflow-hidden">
-                                    <div
-                                        class="h-full bg-blue-600 transition-all"
-                                        :style="{
-                                            width: subjectProgressPercent(subject) + '%'
-                                        }"
-                                    ></div>
-                                </div>
-
-                                <p
-                                    class="mt-1 text-[11px] text-gray-500"
-                                    x-text="subjectProgressPercent(subject) + '% complete'"
-                                ></p>
-
-                            </button>
-
-                        </template>
-
-                    </div>
-
-                </section>
-
-
-                <!-- QUESTION + NAVIGATOR -->
-                <div class="grid lg:grid-cols-[minmax(0,1fr)_280px] gap-6 items-start">
-
-                    <!-- QUESTION -->
-                    <section
-                        id="exam-question-area"
-                        class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 sm:p-7"
-                    >
-
-                        <div class="flex items-start justify-between gap-4 mb-6">
-
-                            <div>
-                                <p
-                                    class="text-sm text-gray-500"
-                                    x-text="currentSubject?.name || ''"
-                                ></p>
-
-                                <h2 class="text-xl font-bold text-gray-900 mt-1">
-                                    Question
-                                    <span x-text="displayQuestionNumber"></span>
-                                </h2>
-                            </div>
-
-                            <div class="text-sm text-gray-500 whitespace-nowrap">
-                                <span x-text="answeredCount"></span>
-                                /
-                                <span x-text="totalQuestionCount"></span>
-                            </div>
-
-                        </div>
-
-
-                        <div
-                            class="text-lg leading-8 text-gray-900 whitespace-pre-line break-words"
-                            x-text="currentQuestion?.text || ''"
-                        ></div>
-
-
-                        <!-- OPTIONS -->
-                        <div class="mt-8 space-y-3">
-
-                            <template
-                                x-for="option in (currentQuestion?.options || [])"
-                                :key="option.id"
-                            >
-
+                            <template x-if="!isLastQuestion">
                                 <button
                                     type="button"
-                                    @click="selectAnswer(option.id)"
-                                    class="w-full text-left rounded-xl border p-4 transition"
-                                    :class="
-                                        Number(currentQuestion?.selected_option_id) === Number(option.id)
-                                            ? 'border-blue-600 bg-blue-50 ring-1 ring-blue-600'
-                                            : 'border-gray-200 hover:border-gray-400'
-                                    "
+                                    @click="nextQuestion()"
+                                    class="px-7 py-3.5 rounded-2xl bg-blue-600 text-white font-bold hover:bg-blue-700 active:scale-95 shadow-md shadow-blue-600/20 transition flex items-center gap-2 cursor-pointer"
                                 >
-
-                                    <div class="flex items-start gap-3">
-
-                                        <span
-                                            class="h-8 w-8 shrink-0 rounded-lg border flex items-center justify-center font-semibold"
-                                            :class="
-                                                Number(currentQuestion?.selected_option_id) === Number(option.id)
-                                                    ? 'bg-blue-600 text-white border-blue-600'
-                                                    : 'bg-gray-50 text-gray-700'
-                                            "
-                                            x-text="option.label"
-                                        ></span>
-
-                                        <span
-                                            class="pt-1 text-gray-800 break-words"
-                                            x-text="option.text"
-                                        ></span>
-
-                                    </div>
-
+                                    <span>Next Question</span>
+                                    <span>→</span>
                                 </button>
-
                             </template>
 
-                        </div>
-
-
-                        <!-- NAVIGATION -->
-                        <div class="mt-10 flex items-center justify-between gap-3">
-
-                            <button
-                                type="button"
-                                @click="previousQuestion()"
-                                :disabled="!canGoPrevious"
-                                class="px-5 py-3 rounded-xl border border-gray-300 bg-white font-semibold text-gray-700 disabled:opacity-40"
-                            >
-                                Previous
-                            </button>
-
-                            <button
-                                type="button"
-                                @click="nextQuestion()"
-                                class="px-5 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700"
-                            >
-                                Next
-                            </button>
-
-                        </div>
-
-                    </section>
-
-
-                    <!-- QUESTION NAVIGATOR -->
-                    <aside class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 lg:sticky lg:top-28">
-
-                        <div class="flex items-center justify-between">
-
-                            <div>
-                                <h3 class="font-bold text-gray-900">
-                                    Questions
-                                </h3>
-
-                                <p class="text-sm text-gray-500 mt-1">
-                                    Select a question
-                                </p>
-                            </div>
-
-                            <span class="text-sm font-bold text-blue-700">
-                                <span x-text="subjectProgressText(currentSubject)"></span>
-                            </span>
-
-                        </div>
-
-
-                        <div class="grid grid-cols-5 gap-2 mt-5">
-
-                            <template
-                                x-for="(question, index) in (currentSubject?.questions || [])"
-                                :key="question.id"
-                            >
-
+                            <template x-if="isLastQuestion">
                                 <button
                                     type="button"
-                                    @click="selectQuestion(index)"
-                                    class="aspect-square rounded-lg text-sm font-semibold border"
-                                    :class="
-                                        index === questionIndex
-                                            ? 'bg-blue-600 text-white border-blue-600'
-                                            : question.selected_option_id !== null &&
-                                              question.selected_option_id !== undefined
-                                                ? 'bg-green-50 text-green-700 border-green-300'
-                                                : 'bg-gray-50 text-gray-700 border-gray-200'
-                                    "
-                                    x-text="index + 1"
-                                ></button>
-
-                            </template>
-
-                        </div>
-
-
-                        <div class="mt-6 space-y-2 text-xs">
-
-                            <div class="flex items-center gap-2">
-                                <span class="h-3 w-3 rounded bg-blue-600"></span>
-                                Current
-                            </div>
-
-                            <div class="flex items-center gap-2">
-                                <span class="h-3 w-3 rounded bg-green-100 border border-green-300"></span>
-                                Answered
-                            </div>
-
-                            <div class="flex items-center gap-2">
-                                <span class="h-3 w-3 rounded bg-gray-100 border border-gray-300"></span>
-                                Unanswered
-                            </div>
-
-                        </div>
-
-                    </aside>
-
-                </div>
-
-            </div>
-
-        </main>
-    </template>
-
-
-    <!-- =========================================================
-         SUBMIT MODAL
-         ========================================================= -->
-    <template x-if="showFinishModal">
-
-        <div class="fixed inset-0 z-[80] bg-black/50 flex items-center justify-center p-5">
-
-            <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-7">
-
-                <h2 class="text-xl font-bold text-gray-900">
-                    Submit Examination?
-                </h2>
-
-                <p class="mt-3 text-gray-600">
-                    Your answers will be submitted and your result will be calculated.
-                </p>
-
-                <div class="mt-4 grid grid-cols-3 gap-2 text-center text-sm">
-
-                    <div class="rounded-lg bg-gray-50 p-3">
-                        <div class="font-bold" x-text="totalQuestionCount"></div>
-                        <div class="text-gray-500">Total</div>
-                    </div>
-
-                    <div class="rounded-lg bg-green-50 p-3">
-                        <div class="font-bold text-green-700" x-text="answeredCount"></div>
-                        <div class="text-green-600">Answered</div>
-                    </div>
-
-                    <div class="rounded-lg bg-amber-50 p-3">
-                        <div class="font-bold text-amber-700" x-text="unansweredCount"></div>
-                        <div class="text-amber-600">Unanswered</div>
-                    </div>
-
-                </div>
-
-                <div class="mt-6 flex gap-3">
-
-                    <button
-                        type="button"
-                        @click="showFinishModal = false"
-                        class="flex-1 px-4 py-3 rounded-xl border border-gray-300 font-semibold"
-                    >
-                        Continue Exam
-                    </button>
-
-                    <button
-                        type="button"
-                        @click="confirmFinishExam()"
-                        :disabled="finishingExam"
-                        class="flex-1 px-4 py-3 rounded-xl bg-blue-600 text-white font-semibold disabled:opacity-50"
-                    >
-                        <span x-show="!finishingExam">
-                            Submit
-                        </span>
-
-                        <span x-show="finishingExam">
-                            Submitting...
-                        </span>
-                    </button>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </template>
-
-
-    <!-- =========================================================
-         TIMEOUT
-         ========================================================= -->
-    <template x-if="showTimeoutOverlay">
-
-        <div class="fixed inset-0 z-[90] bg-black/60 flex items-center justify-center p-5">
-
-            <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden">
-
-                <div class="bg-blue-600 text-white p-8 text-center">
-
-                    <div class="mx-auto h-16 w-16 rounded-full bg-white/20 flex items-center justify-center text-3xl">
-                        ⏱
-                    </div>
-
-                    <h2 class="text-3xl font-bold mt-5">
-                        Time's Up
-                    </h2>
-
-                    <p class="mt-2 text-blue-100">
-                        Your examination time has ended.
-                    </p>
-
-                </div>
-
-
-                <div class="p-7 text-center">
-
-                    <p class="text-gray-600">
-
-                        <template x-if="timeoutCompleting">
-                            <span>
-                                Your answers are being submitted. Please wait...
-                            </span>
-                        </template>
-
-                        <template x-if="!timeoutCompleting && timeoutComplete">
-                            <span>
-                                Your answers have been submitted and your result is ready.
-                            </span>
-                        </template>
-
-                    </p>
-
-
-                    <div class="mt-7 grid sm:grid-cols-2 gap-3">
-
-                        <button
-                            type="button"
-                            @click="viewTimeoutResult()"
-                            :disabled="timeoutCompleting || !result"
-                            class="w-full px-5 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            <span x-show="!timeoutCompleting">
-                                View Result
-                            </span>
-
-                            <span x-show="timeoutCompleting">
-                                Submitting...
-                            </span>
-                        </button>
-
-
-                        <button
-                            type="button"
-                            @click="restartApplication()"
-                            class="w-full px-5 py-3 rounded-xl border border-gray-300 bg-white text-gray-800 font-semibold hover:bg-gray-50"
-                        >
-                            Restart Program
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </template>
-
-
-    <!-- =========================================================
-         RESULT
-         ========================================================= -->
-    <template x-if="screen === 'result' && result">
-
-        <main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-
-            <div id="result-print-area">
-
-                <!-- RESULT HEADER -->
-                <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
-
-                    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-5">
-
-                        <div>
-                            <p class="text-sm font-semibold text-blue-600">
-                                EXAMINATION RESULT
-                            </p>
-
-                            <h1 class="text-3xl font-bold text-gray-900 mt-1">
-                                <span x-text="result.student_name || 'Student'"></span>
-                            </h1>
-
-                            <p class="text-gray-500 mt-2">
-                                Year:
-                                <span
-                                    class="font-medium"
-                                    x-text="result.year"
-                                ></span>
-                            </p>
-                        </div>
-
-                        <div class="text-left sm:text-right">
-                            <p class="text-sm text-gray-500">
-                                Overall Score
-                            </p>
-
-                            <p class="text-5xl font-bold text-blue-600">
-                                <span
-                                    x-text="formatPercentage(result.percentage)"
-                                ></span>
-                            </p>
-                        </div>
-
-                    </div>
-
-
-                    <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 mt-8">
-
-                        <div class="rounded-xl bg-gray-50 p-4">
-                            <p class="text-sm text-gray-500">Total</p>
-                            <p
-                                class="text-2xl font-bold text-gray-900 mt-1"
-                                x-text="result.total"
-                            ></p>
-                        </div>
-
-                        <div class="rounded-xl bg-green-50 p-4">
-                            <p class="text-sm text-green-700">Correct</p>
-                            <p
-                                class="text-2xl font-bold text-green-800 mt-1"
-                                x-text="result.correct"
-                            ></p>
-                        </div>
-
-                        <div class="rounded-xl bg-red-50 p-4">
-                            <p class="text-sm text-red-700">Wrong</p>
-                            <p
-                                class="text-2xl font-bold text-red-800 mt-1"
-                                x-text="result.wrong"
-                            ></p>
-                        </div>
-
-                        <div class="rounded-xl bg-amber-50 p-4">
-                            <p class="text-sm text-amber-700">Unanswered</p>
-                            <p
-                                class="text-2xl font-bold text-amber-800 mt-1"
-                                x-text="result.unanswered"
-                            ></p>
-                        </div>
-
-                        <div class="rounded-xl bg-blue-50 p-4">
-                            <p class="text-sm text-blue-700">Percentage</p>
-                            <p
-                                class="text-2xl font-bold text-blue-800 mt-1"
-                                x-text="formatPercentage(result.percentage)"
-                            ></p>
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <!-- SUBJECT PERFORMANCE -->
-                <section class="mt-6 bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-
-                    <h2 class="text-xl font-bold text-gray-900">
-                        Subject Performance
-                    </h2>
-
-                    <div class="mt-6 grid lg:grid-cols-2 gap-8">
-
-                        <div class="relative h-[320px]">
-                            <canvas id="resultSubjectChart"></canvas>
-                        </div>
-
-
-                        <div class="overflow-x-auto">
-
-                            <table class="w-full text-sm">
-
-                                <thead>
-                                    <tr class="border-b">
-                                        <th class="text-left py-3 pr-3">Subject</th>
-                                        <th class="text-center px-3">Total</th>
-                                        <th class="text-center px-3">Correct</th>
-                                        <th class="text-center px-3">Wrong</th>
-                                        <th class="text-right pl-3">%</th>
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-
-                                    <template
-                                        x-for="subject in resultSubjects"
-                                        :key="subject.subject_id"
-                                    >
-
-                                        <tr class="border-b last:border-0">
-
-                                            <td
-                                                class="py-3 pr-3 font-medium text-gray-900"
-                                                x-text="subject.subject_name"
-                                            ></td>
-
-                                            <td
-                                                class="text-center px-3"
-                                                x-text="subject.total"
-                                            ></td>
-
-                                            <td
-                                                class="text-center px-3 text-green-700 font-semibold"
-                                                x-text="subject.correct"
-                                            ></td>
-
-                                            <td
-                                                class="text-center px-3 text-red-700 font-semibold"
-                                                x-text="subject.wrong"
-                                            ></td>
-
-                                            <td
-                                                class="text-right pl-3 font-semibold"
-                                                x-text="formatPercentage(subject.percentage)"
-                                            ></td>
-
-                                        </tr>
-
-                                    </template>
-
-                                </tbody>
-
-                            </table>
-
-                        </div>
-
-                    </div>
-
-                </section>
-
-
-                <!-- QUESTION REVIEW -->
-                <section class="mt-6">
-
-                    <div class="mb-5">
-                        <h2 class="text-2xl font-bold text-gray-900">
-                            Question Review
-                        </h2>
-
-                        <p class="text-gray-500 mt-1">
-                            Review your answers, the correct answers and explanations.
-                        </p>
-                    </div>
-
-
-                    <div class="space-y-5">
-
-                        <template
-                            x-for="(question, reviewIndex) in resultReview"
-                            :key="question.exam_question_id"
-                        >
-
-                            <article
-                                class="rounded-2xl border overflow-hidden"
-                                :class="reviewCardClass(question)"
-                            >
-
-                                <div
-                                    class="px-5 py-4 border-b flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
-                                    :class="reviewHeaderClass(question)"
+                                    @click="finishExam()"
+                                    class="px-8 py-3.5 rounded-2xl bg-emerald-600 text-white font-black hover:bg-emerald-700 active:scale-95 shadow-xl shadow-emerald-600/30 ring-2 ring-emerald-400/60 transition flex items-center gap-2 cursor-pointer"
                                 >
-
-                                    <div>
-                                        <p class="text-sm font-semibold">
-                                            <span x-text="question.subject_name"></span>
-                                            · Question
-                                            <span x-text="question.number"></span>
-                                        </p>
-                                    </div>
-
-                                    <span
-                                        class="inline-flex px-3 py-1 rounded-full text-xs font-bold"
-                                        :class="reviewStatusClass(question)"
-                                        x-text="reviewStatusText(question)"
-                                    ></span>
-
-                                </div>
-
-
-                                <div class="bg-white px-5 py-6">
-
-                                    <p class="text-gray-900 font-medium leading-7">
-                                        <span x-text="question.text"></span>
-                                    </p>
-
-
-                                    <div class="mt-5 space-y-2">
-
-                                        <template
-                                            x-for="option in question.options"
-                                            :key="option.id"
-                                        >
-
-                                            <div
-                                                class="rounded-xl border p-3"
-                                                :class="reviewOptionClass(question, option)"
-                                            >
-
-                                                <div class="flex items-start gap-3">
-
-                                                    <span
-                                                        class="h-7 w-7 shrink-0 rounded-lg border flex items-center justify-center text-xs font-bold"
-                                                        x-text="option.label"
-                                                    ></span>
-
-                                                    <div class="flex-1">
-
-                                                        <p
-                                                            class="text-sm"
-                                                            x-text="option.text"
-                                                        ></p>
-
-
-                                                        <!-- CORRECT OPTION ONLY -->
-                                                        <template
-                                                            x-if="
-                                                                question.correct_option_id !== null &&
-                                                                question.correct_option_id !== undefined &&
-                                                                Number(option.id) === Number(question.correct_option_id)
-                                                            "
-                                                        >
-                                                            <p class="mt-1 text-xs font-bold text-green-700">
-                                                                Correct answer
-                                                            </p>
-                                                        </template>
-
-
-                                                        <!-- WRONG STUDENT SELECTION ONLY -->
-                                                        <template
-                                                            x-if="
-                                                                question.selected_option_id !== null &&
-                                                                question.selected_option_id !== undefined &&
-                                                                Number(option.id) === Number(question.selected_option_id) &&
-                                                                Number(option.id) !== Number(question.correct_option_id)
-                                                            "
-                                                        >
-                                                            <p class="mt-1 text-xs font-bold text-red-700">
-                                                                Your answer
-                                                            </p>
-                                                        </template>
-
-
-                                                        <!-- STUDENT CORRECT SELECTION -->
-                                                        <template
-                                                            x-if="
-                                                                question.selected_option_id !== null &&
-                                                                question.selected_option_id !== undefined &&
-                                                                question.correct_option_id !== null &&
-                                                                question.correct_option_id !== undefined &&
-                                                                Number(option.id) === Number(question.selected_option_id) &&
-                                                                Number(option.id) === Number(question.correct_option_id)
-                                                            "
-                                                        >
-                                                            <p class="mt-1 text-xs font-bold text-green-700">
-                                                                Your answer · Correct
-                                                            </p>
-                                                        </template>
-
-                                                    </div>
-
-                                                </div>
-
-                                            </div>
-
-                                        </template>
-
-                                    </div>
-
-
-                                    <div class="mt-6 grid md:grid-cols-2 gap-4">
-
-                                        <div class="rounded-xl bg-gray-50 border border-gray-200 p-4">
-
-                                            <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">
-                                                Your Answer
-                                            </p>
-
-                                            <p
-                                                class="mt-2 text-sm text-gray-800"
-                                                x-text="studentAnswerText(question)"
-                                            ></p>
-
-                                        </div>
-
-
-                                        <div class="rounded-xl bg-green-50 border border-green-200 p-4">
-
-                                            <p class="text-xs uppercase tracking-wide text-green-700 font-semibold">
-                                                Correct Answer
-                                            </p>
-
-                                            <p
-                                                class="mt-2 text-sm text-green-900"
-                                                x-text="correctAnswerText(question)"
-                                            ></p>
-
-                                        </div>
-
-                                    </div>
-
-
-                                    <template x-if="question.explanation">
-
-                                        <div class="mt-5 rounded-xl bg-blue-50 border border-blue-200 p-5">
-
-                                            <p class="text-sm font-bold text-blue-800">
-                                                Explanation
-                                            </p>
-
-                                            <p
-                                                class="mt-2 text-sm leading-6 text-blue-950 whitespace-pre-line"
-                                                x-text="question.explanation"
-                                            ></p>
-
-                                        </div>
-
-                                    </template>
-
-
-                                    <template x-if="!question.explanation">
-
-                                        <div class="mt-5 rounded-xl bg-gray-50 border border-gray-200 p-5">
-
-                                            <p class="text-sm font-bold text-gray-700">
-                                                Explanation
-                                            </p>
-
-                                            <p class="mt-2 text-sm text-gray-500">
-                                                No explanation is available for this question yet.
-                                            </p>
-
-                                        </div>
-
-                                    </template>
-
-                                </div>
-
-                            </article>
-
-                        </template>
-
+                                    <span>Submit & Finish Exam</span>
+                                    <span>✓</span>
+                                </button>
+                            </template>
+                        </div>
                     </div>
-
                 </section>
 
+                <!-- RIGHT PALETTE: QUESTION NUMBER NAVIGATOR -->
+                <aside class="bg-white rounded-3xl shadow-sm border border-slate-200 p-5 lg:sticky lg:top-24 space-y-5">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-sm">Question Palette</h3>
+                        <p class="text-xs text-slate-500" x-text="currentSubject?.name"></p>
+                    </div>
+
+                    <div class="grid grid-cols-5 gap-2 max-h-80 overflow-y-auto pr-1">
+                        <template x-for="(q, idx) in (currentSubject?.questions || [])" :key="q.id">
+                            <button
+                                type="button"
+                                @click="selectQuestion(idx)"
+                                class="h-10 rounded-xl border text-xs font-bold transition flex items-center justify-center cursor-pointer"
+                                :class="{
+                                    'ring-2 ring-blue-600 border-blue-600': questionIndex === idx,
+                                    'bg-blue-600 text-white border-blue-600 shadow-sm': q.selected_option_id !== null && q.selected_option_id !== undefined,
+                                    'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100': q.selected_option_id === null || q.selected_option_id === undefined
+                                }"
+                                x-text="idx + 1"
+                            ></button>
+                        </template>
+                    </div>
+
+                    <!-- PALETTE LEGEND -->
+                    <div class="pt-4 border-t border-slate-100 space-y-2 text-xs text-slate-600">
+                        <div class="flex items-center gap-2">
+                            <span class="h-3.5 w-3.5 rounded-md bg-blue-600"></span>
+                            <span>Answered (<b x-text="subjectAnsweredCount(currentSubject)"></b>)</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="h-3.5 w-3.5 rounded-md bg-slate-100 border border-slate-300"></span>
+                            <span>Unanswered (<b x-text="(currentSubject?.questions?.length || 0) - subjectAnsweredCount(currentSubject)"></b>)</span>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </main>
+    </div>
+
+    <!-- =========================================================
+         SCREEN 3: EXAMINATION RESULT REVIEW & TRANSCRIPTS
+         ========================================================= -->
+    <main x-show="!loading && screen === 'result'" class="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
+        <div id="result-print-area" class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 sm:p-10 space-y-8">
+            <!-- TRANSCRIPT HEADER -->
+            <div class="flex items-center justify-between border-b border-slate-200 pb-6 gap-4">
+                <div class="flex items-center gap-4">
+                    <img src="images/alayande.png" alt="Logo" class="h-14 w-14 object-contain">
+                    <div>
+                        <span class="text-xs font-black text-blue-600 uppercase tracking-widest block">Official Academic Transcript</span>
+                        <h1 class="text-2xl sm:text-3xl font-black text-slate-900">CBT Examination Result</h1>
+                        <p class="text-xs sm:text-sm text-slate-500" x-text="`Academic Session: Year ${result?.year || 'N/A'}`"></p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="text-xs font-bold text-slate-400 uppercase block">Candidate Name</span>
+                    <h3 class="text-lg font-black text-slate-900" x-text="result?.student_name || 'Candidate'"></h3>
+                    <p class="text-xs text-slate-500" x-show="result?.student_class" x-text="`Class: ${result?.student_class}`"></p>
+                </div>
             </div>
 
+            <!-- METRIC SUMMARY CARDS -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-center">
+                    <span class="text-xs font-bold text-slate-500 uppercase block">Total Questions</span>
+                    <span class="text-3xl font-black text-slate-900 mt-1 block" x-text="result?.total || 0"></span>
+                </div>
+                <div class="p-5 rounded-2xl bg-emerald-50 border border-emerald-200 text-center">
+                    <span class="text-xs font-bold text-emerald-700 uppercase block">Correct Answers</span>
+                    <span class="text-3xl font-black text-emerald-700 mt-1 block" x-text="result?.correct || 0"></span>
+                </div>
+                <div class="p-5 rounded-2xl bg-rose-50 border border-rose-200 text-center">
+                    <span class="text-xs font-bold text-rose-700 uppercase block">Wrong Answers</span>
+                    <span class="text-3xl font-black text-rose-700 mt-1 block" x-text="result?.wrong || 0"></span>
+                </div>
+                <div class="p-5 rounded-2xl bg-blue-50 border border-blue-200 text-center">
+                    <span class="text-xs font-bold text-blue-700 uppercase block">Score Percentage</span>
+                    <span class="text-3xl font-black text-blue-700 mt-1 block" x-text="`${result?.percentage || 0}%`"></span>
+                </div>
+            </div>
 
-            <!-- ACTIONS -->
-            <div class="no-print mt-8 flex flex-col sm:flex-row gap-3">
+            <!-- DOUGHNUT CHART -->
+            <div class="no-print p-6 rounded-2xl bg-slate-50/80 border border-slate-200 flex flex-col items-center">
+                <h3 class="font-bold text-slate-800 text-sm mb-4">Performance Distribution</h3>
+                <div class="h-56 w-56 relative">
+                    <canvas id="resultBreakdownChart"></canvas>
+                </div>
+            </div>
+
+            <!-- SUBJECT-BY-SUBJECT TABLE -->
+            <div>
+                <h3 class="text-base font-extrabold text-slate-900 mb-3">Subject Score Breakdown</h3>
+                <div class="overflow-x-auto rounded-2xl border border-slate-200">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-xs">
+                            <tr>
+                                <th class="p-3.5">Subject</th>
+                                <th class="p-3.5 text-center">Total</th>
+                                <th class="p-3.5 text-center">Correct</th>
+                                <th class="p-3.5 text-center">Wrong</th>
+                                <th class="p-3.5 text-center">Score %</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200">
+                            <template x-for="subj in (result?.subjects || [])" :key="subj.subject_id">
+                                <tr class="hover:bg-slate-50/50">
+                                    <td class="p-3.5 font-bold text-slate-800" x-text="subj.subject_name"></td>
+                                    <td class="p-3.5 text-center text-slate-600" x-text="subj.total"></td>
+                                    <td class="p-3.5 text-center font-bold text-emerald-600" x-text="subj.correct"></td>
+                                    <td class="p-3.5 text-center text-rose-600" x-text="subj.wrong"></td>
+                                    <td class="p-3.5 text-center font-black text-slate-900" x-text="`${subj.percentage}%`"></td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- DETAILED QUESTION REVIEW & EXPLANATIONS -->
+            <div class="space-y-4 pt-4 border-t border-slate-200">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <h3 class="text-lg font-black text-slate-900 flex items-center gap-2">
+                            <span>📖</span>
+                            <span>Detailed Question Review & Explanations</span>
+                        </h3>
+                        <p class="text-xs text-slate-500">Review all questions, your submitted answers, correct choices, and step-by-step academic explanations.</p>
+                    </div>
+
+                    <!-- FILTER BUTTONS -->
+                    <div class="flex flex-wrap items-center gap-1.5 no-print">
+                        <button
+                            type="button"
+                            @click="resultReviewFilter = 'all'"
+                            class="px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer"
+                            :class="resultReviewFilter === 'all' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'"
+                        >
+                            All (<span x-text="result?.review?.length || 0"></span>)
+                        </button>
+                        <button
+                            type="button"
+                            @click="resultReviewFilter = 'correct'"
+                            class="px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer"
+                            :class="resultReviewFilter === 'correct' ? 'bg-emerald-600 text-white' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'"
+                        >
+                            ✓ Correct (<span x-text="result?.correct || 0"></span>)
+                        </button>
+                        <button
+                            type="button"
+                            @click="resultReviewFilter = 'wrong'"
+                            class="px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer"
+                            :class="resultReviewFilter === 'wrong' ? 'bg-rose-600 text-white' : 'bg-rose-50 text-rose-700 hover:bg-rose-100'"
+                        >
+                            ✕ Wrong (<span x-text="result?.wrong || 0"></span>)
+                        </button>
+                        <button
+                            type="button"
+                            @click="resultReviewFilter = 'unanswered'"
+                            class="px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer"
+                            :class="resultReviewFilter === 'unanswered' ? 'bg-amber-600 text-white' : 'bg-amber-50 text-amber-700 hover:bg-amber-100'"
+                        >
+                            ⚠️ Unanswered (<span x-text="result?.unanswered || 0"></span>)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SUBJECT SELECTOR FILTER IF MULTIPLE SUBJECTS -->
+                <div class="no-print flex items-center gap-2 overflow-x-auto py-1" x-show="(result?.subjects || []).length > 1">
+                    <button
+                        type="button"
+                        @click="resultReviewSubjectFilter = 'all'"
+                        class="px-3 py-1 rounded-xl text-xs font-bold border transition whitespace-nowrap cursor-pointer"
+                        :class="resultReviewSubjectFilter === 'all' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'"
+                    >
+                        All Subjects
+                    </button>
+                    <template x-for="subj in (result?.subjects || [])" :key="subj.subject_id">
+                        <button
+                            type="button"
+                            @click="resultReviewSubjectFilter = subj.subject_id"
+                            class="px-3 py-1 rounded-xl text-xs font-bold border transition whitespace-nowrap cursor-pointer"
+                            :class="resultReviewSubjectFilter === subj.subject_id ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'"
+                            x-text="subj.subject_name"
+                        ></button>
+                    </template>
+                </div>
+
+                <!-- QUESTIONS REVIEW LIST -->
+                <div class="space-y-4 pt-2">
+                    <template x-for="(q, idx) in filteredReviewQuestions" :key="`${q.subject_id}_${q.number}`">
+                        <div class="p-5 sm:p-6 rounded-2xl border transition shadow-sm bg-white"
+                             :class="{
+                                 'border-emerald-200 ring-1 ring-emerald-100': q.is_correct,
+                                 'border-rose-200 ring-1 ring-rose-100': q.is_answered && !q.is_correct,
+                                 'border-amber-200 ring-1 ring-amber-100': !q.is_answered
+                             }"
+                        >
+                            <!-- QUESTION HEADER BADGES -->
+                            <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
+                                <div class="flex items-center gap-2">
+                                    <span class="px-2.5 py-1 rounded-xl bg-slate-900 text-white font-black text-xs" x-text="`Question ${idx + 1}`"></span>
+                                    <span class="text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-xl" x-text="q.subject_name"></span>
+                                </div>
+
+                                <div>
+                                    <template x-if="q.is_correct">
+                                        <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black flex items-center gap-1">
+                                            <span>✓</span> <span>Correct (+1 Mark)</span>
+                                        </span>
+                                    </template>
+                                    <template x-if="q.is_answered && !q.is_correct">
+                                        <span class="px-3 py-1 rounded-full bg-rose-100 text-rose-800 text-xs font-black flex items-center gap-1">
+                                            <span>✕</span> <span>Incorrect (0 Marks)</span>
+                                        </span>
+                                    </template>
+                                    <template x-if="!q.is_answered">
+                                        <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-black flex items-center gap-1">
+                                            <span>⚠️</span> <span>Unanswered</span>
+                                        </span>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <!-- QUESTION TEXT -->
+                            <div class="mt-4 text-base font-semibold text-slate-900 leading-relaxed whitespace-pre-line" x-text="q.text"></div>
+
+                            <!-- OPTIONS LIST -->
+                            <div class="mt-4 space-y-2">
+                                <template x-for="opt in q.options" :key="opt.id">
+                                    <div
+                                        class="p-3 rounded-xl border flex items-center justify-between gap-3 text-sm transition"
+                                        :class="{
+                                            'bg-emerald-50 border-emerald-300 text-emerald-950 font-bold': Number(opt.id) === Number(q.correct_option_id),
+                                            'bg-rose-50 border-rose-300 text-rose-950 font-bold': Number(opt.id) === Number(q.selected_option_id) && !q.is_correct,
+                                            'bg-slate-50/60 border-slate-200 text-slate-700': Number(opt.id) !== Number(q.correct_option_id) && Number(opt.id) !== Number(q.selected_option_id)
+                                        }"
+                                    >
+                                        <div class="flex items-center gap-3">
+                                            <span
+                                                class="h-7 w-7 rounded-lg flex items-center justify-center text-xs font-black shrink-0"
+                                                :class="{
+                                                    'bg-emerald-600 text-white': Number(opt.id) === Number(q.correct_option_id),
+                                                    'bg-rose-600 text-white': Number(opt.id) === Number(q.selected_option_id) && !q.is_correct,
+                                                    'bg-slate-200 text-slate-700': Number(opt.id) !== Number(q.correct_option_id) && Number(opt.id) !== Number(q.selected_option_id)
+                                                }"
+                                                x-text="opt.label"
+                                            ></span>
+                                            <span x-text="opt.text"></span>
+                                        </div>
+
+                                        <div>
+                                            <template x-if="Number(opt.id) === Number(q.correct_option_id)">
+                                                <span class="text-xs font-black text-emerald-700 px-2 py-0.5 rounded-md bg-emerald-100/80">
+                                                    ✓ Correct Answer
+                                                </span>
+                                            </template>
+                                            <template x-if="Number(opt.id) === Number(q.selected_option_id) && !q.is_correct">
+                                                <span class="text-xs font-black text-rose-700 px-2 py-0.5 rounded-md bg-rose-100/80">
+                                                    ✕ Your Choice
+                                                </span>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <!-- DETAILED EXPLANATION BOX -->
+                            <div class="mt-4 p-4 rounded-xl bg-blue-50/80 border border-blue-200 text-xs sm:text-sm text-blue-950 space-y-1">
+                                <div class="font-extrabold flex items-center gap-1.5 text-blue-900">
+                                    <span>💡</span>
+                                    <span>Academic Explanation & Solution:</span>
+                                </div>
+                                <p class="leading-relaxed font-medium text-slate-800" x-text="q.explanation || 'No further explanation required for this question.'"></p>
+                            </div>
+                        </div>
+                    </template>
+
+                    <template x-if="filteredReviewQuestions.length === 0">
+                        <div class="p-8 text-center text-slate-400 text-sm rounded-2xl border border-dashed border-slate-300">
+                            No questions match the selected review filter.
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- ACTIONS BUTTONS -->
+            <div class="no-print pt-6 border-t border-slate-100 flex flex-col sm:flex-row gap-4">
+                <button
+                    type="button"
+                    @click="downloadResultPDF()"
+                    class="flex-1 px-6 py-4 rounded-2xl bg-emerald-600 text-white font-extrabold hover:bg-emerald-700 active:scale-95 shadow-md shadow-emerald-600/20 transition flex items-center justify-center gap-2.5 cursor-pointer text-base"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <span>Download Result (PDF)</span>
+                </button>
 
                 <button
                     type="button"
                     @click="printResult()"
-                    class="flex-1 px-5 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700"
+                    class="flex-1 px-6 py-4 rounded-2xl bg-blue-600 text-white font-extrabold hover:bg-blue-700 active:scale-95 shadow-md shadow-blue-600/20 transition flex items-center justify-center gap-2.5 cursor-pointer text-base"
                 >
-                    Print Result
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                    </svg>
+                    <span>Print Result Sheet</span>
                 </button>
 
                 <button
                     type="button"
                     @click="restartApplication()"
-                    class="flex-1 px-5 py-3 rounded-xl border border-gray-300 bg-white text-gray-800 font-semibold hover:bg-gray-50"
+                    class="flex-1 px-6 py-4 rounded-2xl border border-slate-300 bg-white text-slate-800 font-extrabold hover:bg-slate-50 active:scale-95 transition flex items-center justify-center gap-2.5 cursor-pointer text-base"
                 >
-                    Restart Program
+                    <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    <span>Restart Program</span>
                 </button>
+            </div>
+        </div>
+    </main>
 
+    <!-- =========================================================
+         SCREEN 4: ADMIN DASHBOARD (STUDENT RECORDS & USER CRUD)
+         ========================================================= -->
+    <main x-show="!loading && screen === 'admin' && isAdmin" class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
+        <!-- ADMIN HEADER -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <span class="text-xs font-black text-blue-600 uppercase tracking-widest block">System Administration</span>
+                <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">Admin Dashboard</h1>
+                <p class="text-slate-500 text-sm mt-0.5">Manage registered candidates, user accounts, and print student examination history transcripts.</p>
             </div>
 
-        </main>
+            <div class="flex items-center gap-3">
+                <button
+                    type="button"
+                    @click="adminActiveTab = 'students'; loadAllStudents()"
+                    class="px-4 py-2.5 rounded-2xl text-sm font-bold transition cursor-pointer flex items-center gap-2"
+                    :class="adminActiveTab === 'students' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'"
+                >
+                    <span>👥</span>
+                    <span>Student Exam Records</span>
+                </button>
 
-    </template>
+                <button
+                    type="button"
+                    @click="adminActiveTab = 'users'; loadAllUsers()"
+                    class="px-4 py-2.5 rounded-2xl text-sm font-bold transition cursor-pointer flex items-center gap-2"
+                    :class="adminActiveTab === 'users' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'"
+                >
+                    <span>👤</span>
+                    <span>User Management</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- =====================================================
+             ADMIN TAB 1: STUDENT EXAMINATION RECORDS
+             ===================================================== -->
+        <div x-show="adminActiveTab === 'students'" class="space-y-6">
+            <!-- SEARCH & FILTER BAR -->
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="relative flex-1 w-full">
+                    <input
+                        type="text"
+                        x-model="adminSearchQuery"
+                        placeholder="Search student name or class..."
+                        class="w-full pl-10 pr-4 py-3 rounded-2xl border border-slate-200 text-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
+                    >
+                    <svg class="w-5 h-5 text-slate-400 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+
+                <div class="flex items-center gap-3 w-full sm:w-auto">
+                    <select
+                        x-model="adminClassFilter"
+                        class="px-4 py-3 rounded-2xl border border-slate-200 text-sm font-semibold bg-white outline-none w-full sm:w-44"
+                    >
+                        <option value="all">All Classes</option>
+                        <template x-for="c in distinctStudentClasses" :key="c">
+                            <option :value="c" x-text="`Class ${c}`"></option>
+                        </template>
+                    </select>
+
+                    <button
+                        type="button"
+                        @click="loadAllStudents(); showToast('Student records refreshed', 'info')"
+                        class="p-3 rounded-2xl border border-slate-200 text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+                        title="Refresh"
+                    >
+                        🔄
+                    </button>
+                </div>
+            </div>
+
+            <!-- STUDENTS TABLE -->
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-xs border-b border-slate-200">
+                            <tr>
+                                <th class="p-4">Candidate Full Name</th>
+                                <th class="p-4">Class</th>
+                                <th class="p-4 text-center">Exams Taken</th>
+                                <th class="p-4 text-center">Average Score</th>
+                                <th class="p-4 text-center">Best Score</th>
+                                <th class="p-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <template x-for="st in paginatedStudents" :key="st.name">
+                                <tr class="hover:bg-slate-50/60 transition">
+                                    <td class="p-4 font-bold text-slate-900">
+                                        <span x-text="st.name"></span>
+                                        <span class="block text-xs font-normal text-slate-400" x-show="st.admission_year" x-text="`Adm. Year: ${st.admission_year}`"></span>
+                                    </td>
+                                    <td class="p-4 font-semibold text-slate-700" x-text="st.student_class || 'N/A'"></td>
+                                    <td class="p-4 text-center">
+                                        <span class="px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold" x-text="st.session_count"></span>
+                                    </td>
+                                    <td class="p-4 text-center font-bold text-slate-800" x-text="`${st.avg_score}%`"></td>
+                                    <td class="p-4 text-center font-black text-emerald-600" x-text="`${st.best_score}%`"></td>
+                                    <td class="p-4 text-right">
+                                        <div class="flex items-center justify-end gap-2">
+                                            <button
+                                                type="button"
+                                                @click="viewStudentHistory(st.name)"
+                                                class="px-3.5 py-1.5 rounded-xl bg-blue-50 text-blue-700 font-bold text-xs hover:bg-blue-600 hover:text-white transition cursor-pointer"
+                                            >
+                                                View History & Print
+                                            </button>
+                                            <button
+                                                type="button"
+                                                @click="promptDeleteStudentRecords(st.name)"
+                                                class="px-3 py-1.5 rounded-xl border border-rose-200 text-rose-600 font-bold text-xs hover:bg-rose-600 hover:text-white transition cursor-pointer"
+                                                title="Delete student exam history"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                            <template x-if="paginatedStudents.length === 0">
+                                <tr>
+                                    <td colspan="6" class="p-12 text-center text-slate-400">
+                                        No student examination records match your query.
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- PAGINATION -->
+                <div class="p-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-500">
+                    <div>
+                        Showing <span x-text="filteredStudents.length"></span> student(s)
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button
+                            type="button"
+                            @click="adminCurrentPage = Math.max(1, adminCurrentPage - 1)"
+                            :disabled="adminCurrentPage === 1"
+                            class="px-3 py-1.5 rounded-xl border border-slate-200 disabled:opacity-40"
+                        >
+                            Previous
+                        </button>
+                        <span>Page <b x-text="adminCurrentPage"></b> of <b x-text="totalStudentPages"></b></span>
+                        <button
+                            type="button"
+                            @click="adminCurrentPage = Math.min(totalStudentPages, adminCurrentPage + 1)"
+                            :disabled="adminCurrentPage === totalStudentPages"
+                            class="px-3 py-1.5 rounded-xl border border-slate-200 disabled:opacity-40"
+                        >
+                            Next
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =====================================================
+             ADMIN TAB 2: USER MANAGEMENT CRUD
+             ===================================================== -->
+        <div x-show="adminActiveTab === 'users'" class="space-y-6">
+            <!-- SEARCH & FILTER BAR -->
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="relative flex-1 w-full">
+                    <input
+                        type="text"
+                        x-model="userSearchQuery"
+                        placeholder="Search username, full name, class..."
+                        class="w-full pl-10 pr-4 py-3 rounded-2xl border border-slate-200 text-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
+                    >
+                    <svg class="w-5 h-5 text-slate-400 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+
+                <div class="flex items-center gap-3 w-full sm:w-auto">
+                    <select
+                        x-model="userRoleFilter"
+                        class="px-4 py-3 rounded-2xl border border-slate-200 text-sm font-semibold bg-white outline-none"
+                    >
+                        <option value="all">All Roles</option>
+                        <option value="student">Students</option>
+                        <option value="admin">Administrators</option>
+                    </select>
+
+                    <button
+                        type="button"
+                        @click="openAddUserModal()"
+                        class="px-5 py-3 rounded-2xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 active:scale-95 transition shadow-sm cursor-pointer whitespace-nowrap"
+                    >
+                        + Add User
+                    </button>
+                </div>
+            </div>
+
+            <!-- USERS TABLE -->
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-xs border-b border-slate-200">
+                            <tr>
+                                <th class="p-4">Username</th>
+                                <th class="p-4">Full Name</th>
+                                <th class="p-4">Role</th>
+                                <th class="p-4">Class</th>
+                                <th class="p-4 text-center">Status</th>
+                                <th class="p-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <template x-for="u in paginatedUsers" :key="u.id">
+                                <tr class="hover:bg-slate-50/60 transition">
+                                    <td class="p-4 font-mono font-bold text-slate-900" x-text="u.username"></td>
+                                    <td class="p-4 font-bold text-slate-800" x-text="u.full_name"></td>
+                                    <td class="p-4">
+                                        <span
+                                            class="px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
+                                            :class="u.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'"
+                                            x-text="u.role"
+                                        ></span>
+                                    </td>
+                                    <td class="p-4 text-slate-600" x-text="u.student_class || '-'"></td>
+                                    <td class="p-4 text-center">
+                                        <span
+                                            class="px-2.5 py-1 rounded-full text-xs font-bold"
+                                            :class="u.is_active ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'"
+                                            x-text="u.is_active ? 'Active' : 'Inactive'"
+                                        ></span>
+                                    </td>
+                                    <td class="p-4 text-right">
+                                        <div class="flex items-center justify-end gap-2">
+                                            <button
+                                                type="button"
+                                                @click="openEditUserModal(u)"
+                                                class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                type="button"
+                                                @click="promptDeleteUser(u)"
+                                                class="px-3 py-1.5 rounded-xl border border-rose-200 text-xs font-bold text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- PAGINATION -->
+                <div class="p-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-500">
+                    <div>
+                        Showing <span x-text="filteredUsers.length"></span> user(s)
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button
+                            type="button"
+                            @click="userCurrentPage = Math.max(1, userCurrentPage - 1)"
+                            :disabled="userCurrentPage === 1"
+                            class="px-3 py-1.5 rounded-xl border border-slate-200 disabled:opacity-40"
+                        >
+                            Previous
+                        </button>
+                        <span>Page <b x-text="userCurrentPage"></b> of <b x-text="totalUserPages"></b></span>
+                        <button
+                            type="button"
+                            @click="userCurrentPage = Math.min(totalUserPages, userCurrentPage + 1)"
+                            :disabled="userCurrentPage === totalUserPages"
+                            class="px-3 py-1.5 rounded-xl border border-slate-200 disabled:opacity-40"
+                        >
+                            Next
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- =========================================================
+         MODAL 1: ADMIN LOGIN MODAL
+         ========================================================= -->
+    <div x-show="showLoginModal" class="fixed inset-0 z-[100] bg-slate-950/75 flex items-center justify-center p-6">
+        <div class="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-md w-full p-7 space-y-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold">🛡</div>
+                    <div>
+                        <h3 class="text-lg font-black text-slate-900">Administrator Login</h3>
+                        <p class="text-xs text-slate-500">Restricted administrative access</p>
+                    </div>
+                </div>
+                <button type="button" @click="closeLoginModal()" class="text-slate-400 hover:text-slate-700 font-bold">✕</button>
+            </div>
+
+            <div class="space-y-4">
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700 uppercase">Admin Username</label>
+                    <input
+                        type="text"
+                        x-model="loginForm.username"
+                        placeholder="admin"
+                        class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none font-medium"
+                    >
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700 uppercase">Admin Password</label>
+                    <input
+                        type="password"
+                        x-model="loginForm.password"
+                        @keydown.enter="loginAdmin()"
+                        placeholder="••••••••"
+                        class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none font-medium"
+                    >
+                </div>
+
+                <div class="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium" x-show="loginForm.error" x-text="loginForm.error"></div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-2">
+                <button
+                    type="button"
+                    @click="closeLoginModal()"
+                    class="px-5 py-3 rounded-2xl border border-slate-200 text-slate-700 font-bold text-sm hover:bg-slate-100 transition cursor-pointer"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="button"
+                    @click="loginAdmin()"
+                    :disabled="loginForm.loading"
+                    class="px-6 py-3 rounded-2xl bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 active:scale-95 disabled:opacity-50 transition cursor-pointer shadow-md shadow-blue-600/20"
+                >
+                    <span x-show="!loginForm.loading">Sign In</span>
+                    <span x-show="loginForm.loading">Authenticating...</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         MODAL 2: STUDENT SELF-REGISTRATION MODAL
+         ========================================================= -->
+    <div x-show="showStudentRegisterModal" class="fixed inset-0 z-[100] bg-slate-950/75 flex items-center justify-center p-6">
+        <div class="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-lg w-full p-7 space-y-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">📝</div>
+                    <div>
+                        <h3 class="text-lg font-black text-slate-900">Student Registration</h3>
+                        <p class="text-xs text-slate-500">Register once to take exams and maintain history</p>
+                    </div>
+                </div>
+                <button type="button" @click="closeStudentRegisterModal()" class="text-slate-400 hover:text-slate-700 font-bold">✕</button>
+            </div>
+
+            <div class="space-y-4">
+                <div class="grid sm:grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-bold text-slate-700 uppercase">Username *</label>
+                        <input
+                            type="text"
+                            x-model="studentRegisterForm.username"
+                            placeholder="e.g. jdoe24"
+                            class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none font-medium"
+                        >
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-bold text-slate-700 uppercase">Full Name *</label>
+                        <input
+                            type="text"
+                            x-model="studentRegisterForm.full_name"
+                            placeholder="e.g. John Doe"
+                            class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none font-medium"
+                        >
+                    </div>
+                </div>
+
+                <div class="grid sm:grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-bold text-slate-700 uppercase">Student Class</label>
+                        <input
+                            type="text"
+                            x-model="studentRegisterForm.student_class"
+                            placeholder="e.g. SS3 Gold"
+                            class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none font-medium"
+                        >
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-bold text-slate-700 uppercase">Admission Year</label>
+                        <input
+                            type="number"
+                            x-model="studentRegisterForm.admission_year"
+                            placeholder="2024"
+                            class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none font-medium"
+                        >
+                    </div>
+                </div>
+
+                <div class="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium" x-show="studentRegisterForm.error" x-text="studentRegisterForm.error"></div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-2">
+                <button
+                    type="button"
+                    @click="closeStudentRegisterModal()"
+                    class="px-5 py-3 rounded-2xl border border-slate-200 text-slate-700 font-bold text-sm hover:bg-slate-100 transition cursor-pointer"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="button"
+                    @click="registerStudent()"
+                    :disabled="studentRegisterForm.loading"
+                    class="px-6 py-3 rounded-2xl bg-emerald-600 text-white font-bold text-sm hover:bg-emerald-700 active:scale-95 disabled:opacity-50 transition cursor-pointer shadow-md shadow-emerald-600/20"
+                >
+                    <span x-show="!studentRegisterForm.loading">Register Candidate</span>
+                    <span x-show="studentRegisterForm.loading">Registering...</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         MODAL 3: STUDENT HISTORY & TRANSCRIPT MODAL (ADMIN)
+         ========================================================= -->
+    <div x-show="showStudentHistoryModal" class="fixed inset-0 z-[100] bg-slate-950/75 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+        <div class="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-4xl w-full p-6 sm:p-8 space-y-6 my-auto">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="h-11 w-11 rounded-2xl bg-blue-100 text-blue-800 flex items-center justify-center font-black">🎓</div>
+                    <div>
+                        <h3 class="text-xl font-black text-slate-900" x-text="selectedStudentHistory?.student_name"></h3>
+                        <p class="text-xs text-slate-500">
+                            Class: <b x-text="selectedStudentHistory?.user_info?.student_class || 'N/A'"></b> ·
+                            Admission Year: <b x-text="selectedStudentHistory?.user_info?.admission_year || 'N/A'"></b>
+                        </p>
+                    </div>
+                </div>
+                <button type="button" @click="closeStudentHistoryModal()" class="text-slate-400 hover:text-slate-700 font-bold text-lg">✕</button>
+            </div>
+
+            <!-- HISTORY CONTENT AREA (PRINTABLE) -->
+            <div id="student-history-print-area" class="space-y-6">
+                <div class="overflow-x-auto rounded-2xl border border-slate-200">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-xs">
+                            <tr>
+                                <th class="p-3.5">Date / Time</th>
+                                <th class="p-3.5 text-center">Year</th>
+                                <th class="p-3.5">Subjects</th>
+                                <th class="p-3.5 text-center">Questions</th>
+                                <th class="p-3.5 text-center">Correct</th>
+                                <th class="p-3.5 text-center">Wrong</th>
+                                <th class="p-3.5 text-center">Score %</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <template x-for="h in (selectedStudentHistory?.history || [])" :key="h.id">
+                                <tr class="hover:bg-slate-50/50">
+                                    <td class="p-3.5 text-slate-600 font-medium" x-text="h.date_formatted"></td>
+                                    <td class="p-3.5 text-center font-bold text-slate-800" x-text="h.year"></td>
+                                    <td class="p-3.5 text-slate-800 font-medium" x-text="h.subjects_str"></td>
+                                    <td class="p-3.5 text-center text-slate-600" x-text="h.total"></td>
+                                    <td class="p-3.5 text-center font-bold text-emerald-600" x-text="h.correct"></td>
+                                    <td class="p-3.5 text-center text-rose-600" x-text="h.wrong"></td>
+                                    <td class="p-3.5 text-center font-black text-slate-900" x-text="`${h.percentage}%`"></td>
+                                </tr>
+                            </template>
+                            <template x-if="(selectedStudentHistory?.history || []).length === 0">
+                                <tr>
+                                    <td colspan="7" class="p-8 text-center text-slate-400">
+                                        No examination records found for this student.
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ACTIONS -->
+            <div class="no-print flex flex-col sm:flex-row items-center justify-end gap-3 pt-3 border-t border-slate-100">
+                <button
+                    type="button"
+                    @click="downloadStudentHistoryPDF()"
+                    class="w-full sm:w-auto px-5 py-3 rounded-2xl bg-emerald-600 text-white font-bold text-sm hover:bg-emerald-700 active:scale-95 transition flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <span>Download History (PDF)</span>
+                </button>
+
+                <button
+                    type="button"
+                    @click="printStudentHistory()"
+                    class="w-full sm:w-auto px-5 py-3 rounded-2xl bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 active:scale-95 transition flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                    </svg>
+                    <span>Print Student History</span>
+                </button>
+
+                <button
+                    type="button"
+                    @click="closeStudentHistoryModal()"
+                    class="w-full sm:w-auto px-5 py-3 rounded-2xl border border-slate-200 text-slate-700 font-bold text-sm hover:bg-slate-100 transition cursor-pointer"
+                >
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         MODAL 4: ADD / EDIT USER MODAL (ADMIN CRUD)
+         ========================================================= -->
+    <div x-show="showUserModal" class="fixed inset-0 z-[100] bg-slate-950/75 flex items-center justify-center p-6">
+        <div class="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-lg w-full p-7 space-y-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold">👤</div>
+                    <div>
+                        <h3 class="text-lg font-black text-slate-900" x-text="userModalMode === 'create' ? 'Create User Account' : 'Edit User Account'"></h3>
+                        <p class="text-xs text-slate-500">Configure role, class, and credentials</p>
+                    </div>
+                </div>
+                <button type="button" @click="closeUserModal()" class="text-slate-400 hover:text-slate-700 font-bold">✕</button>
+            </div>
+
+            <div class="space-y-4">
+                <div class="grid sm:grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-bold text-slate-700 uppercase">Username *</label>
+                        <input
+                            type="text"
+                            x-model="userForm.username"
+                            :disabled="userModalMode === 'edit'"
+                            placeholder="e.g. teacher_john"
+                            class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none font-medium disabled:bg-slate-100"
+                        >
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-bold text-slate-700 uppercase">Full Name *</label>
+                        <input
+                            type="text"
+                            x-model="userForm.full_name"
+                            placeholder="e.g. John Doe"
+                            class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none font-medium"
+                        >
+                    </div>
+                </div>
+
+                <div class="grid sm:grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-bold text-slate-700 uppercase">Account Role *</label>
+                        <select
+                            x-model="userForm.role"
+                            class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none font-medium bg-white"
+                        >
+                            <option value="student">Student (Candidate)</option>
+                            <option value="admin">Administrator</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-bold text-slate-700 uppercase">Password</label>
+                        <input
+                            type="password"
+                            x-model="userForm.password"
+                            :placeholder="userModalMode === 'edit' ? 'Leave blank to keep same' : 'e.g. cbt123'"
+                            class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none font-medium"
+                        >
+                    </div>
+                </div>
+
+                <template x-if="userForm.role === 'student'">
+                    <div class="grid sm:grid-cols-2 gap-4 pt-1">
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-bold text-slate-700 uppercase">Class</label>
+                            <input
+                                type="text"
+                                x-model="userForm.student_class"
+                                placeholder="e.g. SS3 Science"
+                                class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none font-medium"
+                            >
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-bold text-slate-700 uppercase">Admission Year</label>
+                            <input
+                                type="number"
+                                x-model="userForm.admission_year"
+                                placeholder="2024"
+                                class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none font-medium"
+                            >
+                        </div>
+                    </div>
+                </template>
+
+                <div class="flex items-center gap-2 pt-2">
+                    <input
+                        type="checkbox"
+                        id="userActiveCheck"
+                        x-model="userForm.is_active"
+                        class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    >
+                    <label for="userActiveCheck" class="text-xs font-bold text-slate-700 cursor-pointer">Account is Active & Enabled</label>
+                </div>
+
+                <div class="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium" x-show="userForm.error" x-text="userForm.error"></div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-2">
+                <button
+                    type="button"
+                    @click="closeUserModal()"
+                    class="px-5 py-3 rounded-2xl border border-slate-200 text-slate-700 font-bold text-sm hover:bg-slate-100 transition cursor-pointer"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="button"
+                    @click="saveUser()"
+                    :disabled="userForm.loading"
+                    class="px-6 py-3 rounded-2xl bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 active:scale-95 disabled:opacity-50 transition cursor-pointer shadow-md shadow-blue-600/20"
+                >
+                    <span x-show="!userForm.loading" x-text="userModalMode === 'create' ? 'Create User' : 'Save Changes'"></span>
+                    <span x-show="userForm.loading">Saving...</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         CONFIRM SUBMISSION MODAL
+         ========================================================= -->
+    <div x-show="showFinishModal" class="fixed inset-0 z-[100] bg-slate-950/75 flex items-center justify-center p-6">
+        <div class="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-md w-full p-7 space-y-6">
+            <div class="flex items-center gap-3">
+                <div class="h-10 w-10 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center font-black">?</div>
+                <div>
+                    <h3 class="text-lg font-black text-slate-900">Submit Examination?</h3>
+                    <p class="text-xs text-slate-500">Confirm you are ready to conclude your test</p>
+                </div>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
+                <div class="flex justify-between text-slate-600">
+                    <span>Total Questions:</span>
+                    <b class="text-slate-900" x-text="totalQuestionCount"></b>
+                </div>
+                <div class="flex justify-between text-emerald-700">
+                    <span>Answered Questions:</span>
+                    <b x-text="answeredCount"></b>
+                </div>
+                <div class="flex justify-between text-rose-700">
+                    <span>Unanswered Questions:</span>
+                    <b x-text="unansweredCount"></b>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3">
+                <button
+                    type="button"
+                    @click="showFinishModal = false"
+                    class="px-5 py-3 rounded-2xl border border-slate-200 text-slate-700 font-bold text-sm hover:bg-slate-100 transition cursor-pointer"
+                >
+                    Return to Exam
+                </button>
+
+                <button
+                    type="button"
+                    @click="confirmFinishExam()"
+                    class="px-6 py-3 rounded-2xl bg-emerald-600 text-white font-black text-sm hover:bg-emerald-700 active:scale-95 transition cursor-pointer shadow-md shadow-emerald-600/20"
+                >
+                    Yes, Finalize Submission
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         CONFIRM DELETION MODAL (IN-APP REPLACEMENT FOR ALERT/CONFIRM)
+         ========================================================= -->
+    <div x-show="showDeleteConfirmModal" class="fixed inset-0 z-[100] bg-slate-950/75 flex items-center justify-center p-6">
+        <div class="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-md w-full p-7 space-y-6">
+            <div class="flex items-center gap-3">
+                <div class="h-11 w-11 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center font-black text-xl">🗑</div>
+                <div>
+                    <h3 class="text-lg font-black text-slate-900">Confirm Deletion</h3>
+                    <p class="text-xs text-slate-500">Permanent action cannot be undone</p>
+                </div>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-rose-50 border border-rose-100 text-rose-900 text-sm">
+                Are you sure you want to permanently delete
+                <b class="text-rose-950 font-black" x-text="deleteConfirmData.name"></b>?
+                All associated records will be removed from the system.
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-2">
+                <button
+                    type="button"
+                    @click="cancelDeleteAction()"
+                    class="px-5 py-3 rounded-2xl border border-slate-200 text-slate-700 font-bold text-sm hover:bg-slate-100 transition cursor-pointer"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="button"
+                    @click="confirmDeleteAction()"
+                    :disabled="deleteConfirmData.loading"
+                    class="px-6 py-3 rounded-2xl bg-rose-600 text-white font-black text-sm hover:bg-rose-700 active:scale-95 disabled:opacity-50 transition cursor-pointer shadow-md shadow-rose-600/20"
+                >
+                    <span x-show="!deleteConfirmData.loading">Yes, Delete Permanently</span>
+                    <span x-show="deleteConfirmData.loading">Deleting...</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         TIMEOUT OVERLAY
+         ========================================================= -->
+    <div x-show="showTimeoutOverlay" class="fixed inset-0 z-[100] bg-slate-950/85 flex items-center justify-center p-6 text-center text-white">
+        <div class="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 space-y-5">
+            <div class="h-16 w-16 mx-auto rounded-3xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-3xl font-black">⏰</div>
+            <h2 class="text-2xl font-black">Time has Expired!</h2>
+            <p class="text-slate-400 text-sm">Your examination time has elapsed. Your answers have been safely stored and graded.</p>
+            <div class="pt-2">
+                <button
+                    type="button"
+                    @click="viewTimeoutResult()"
+                    :disabled="timeoutCompleting"
+                    class="w-full py-4 rounded-2xl bg-blue-600 text-white font-black hover:bg-blue-700 active:scale-95 disabled:opacity-50 transition cursor-pointer"
+                >
+                    <span x-show="!timeoutCompleting">View Official Result →</span>
+                    <span x-show="timeoutCompleting">Calculating Final Grades...</span>
+                </button>
+            </div>
+        </div>
+    </div>
 
 </div>
 
-
 <!-- =========================================================
-     QWEBCHANNEL
+     QWEBCHANNEL CONNECTION
      ========================================================= -->
 <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
-
 <script>
-    new QWebChannel(
-        qt.webChannelTransport,
-        function (channel) {
-            console.log("QWebChannel connected.");
-
-            window.examBridge =
-                channel.objects.examBridge;
-
-            console.log(
-                "examBridge:",
-                window.examBridge
-            );
-        }
-    );
+    new QWebChannel(qt.webChannelTransport, function (channel) {
+        console.log("QWebChannel connected.");
+        window.examBridge = channel.objects.examBridge;
+    });
 </script>
-
-
-<!-- =========================================================
-     APP JS
-     ========================================================= -->
-<script src="js/app.js"></script>
 
 </body>
 </html>

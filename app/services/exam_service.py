@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload
 
 from app.database.models import (
@@ -52,6 +52,7 @@ class ExamService:
         subject_ids: list[int],
         duration_minutes: int,
         student_name: str | None = None,
+        user_id: int | None = None,
     ) -> ExamSession:
 
         if not subject_ids:
@@ -75,6 +76,7 @@ class ExamService:
         exam = ExamSession(
             year=year,
             student_name=student_name,
+            user_id=user_id,
             duration_minutes=duration_minutes,
         )
 
@@ -586,9 +588,16 @@ class ExamService:
             else 0
         )
 
+        student_full_name = exam.user.full_name if exam.user else exam.student_name
+        student_class = exam.user.student_class if exam.user else ""
+        admission_year = exam.user.admission_year if exam.user else None
+
         return {
             "exam_id": exam.id,
-            "student_name": exam.student_name,
+            "student_name": student_full_name or exam.student_name,
+            "student_full_name": student_full_name or exam.student_name,
+            "student_class": student_class,
+            "admission_year": admission_year,
             "year": exam.year,
             "duration_minutes": (exam.duration_minutes),
             "started_at": (exam.started_at.isoformat() if exam.started_at else None),
@@ -631,13 +640,14 @@ class ExamService:
             self.db.query(
                 Subject.id,
                 Subject.name,
+                func.count(Question.id).label("question_count"),
             )
             .join(
                 Question,
                 Question.subject_id == Subject.id,
             )
             .filter(Question.year == year)
-            .distinct()
+            .group_by(Subject.id, Subject.name)
             .order_by(Subject.name.asc())
             .all()
         )
@@ -646,6 +656,7 @@ class ExamService:
             {
                 "id": subject_id,
                 "name": subject_name,
+                "question_count": int(q_count or 0),
             }
-            for subject_id, subject_name in rows
+            for subject_id, subject_name, q_count in rows
         ]

@@ -100,13 +100,46 @@ SessionLocal = sessionmaker(
 
 def init_database() -> None:
     """
-    Create all database tables if they do not already exist.
+    Create all database tables if they do not already exist,
+    run safe lightweight column migrations for SQLite,
+    and ensure default admin exists.
     """
 
-    # Import models here so SQLAlchemy knows about them before
-    # create_all() is called.
+    # Import models here so SQLAlchemy knows about them before create_all()
     from app.database import models  # noqa: F401
+    from app.database.models import User
+    from sqlalchemy import text
 
     Base.metadata.create_all(
         bind=engine,
     )
+
+    # Lightweight SQLite schema migration
+    try:
+        with engine.connect() as conn:
+            # Check exam_sessions columns
+            res = conn.execute(text("PRAGMA table_info(exam_sessions)")).fetchall()
+            col_names = [row[1] for row in res]
+            if "user_id" not in col_names:
+                conn.execute(text("ALTER TABLE exam_sessions ADD COLUMN user_id INTEGER REFERENCES users(id)"))
+                conn.commit()
+                print("Migrated: added user_id column to exam_sessions.")
+    except Exception as mig_err:
+        print("Schema migration check:", mig_err)
+
+    try:
+        with SessionLocal() as db:
+            admin_user = db.query(User).filter(User.role == "admin").first()
+            if not admin_user:
+                default_admin = User(
+                    username="admin",
+                    password="adminpassword123",
+                    full_name="System Administrator",
+                    role="admin",
+                    is_active=True,
+                )
+                db.add(default_admin)
+                db.commit()
+                print("Default admin created: username=admin, password=adminpassword123")
+    except Exception as exc:
+        print("Admin seed check:", exc)

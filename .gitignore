@@ -11,3 +11,13 @@ wheels/
 */**/cbt.sqlite3
 node_modules/
 data/
+old_files/
+question_data/
+import_questions.py
+test_registration_and_manual_questions.py
+create_admin.py
+tools/
+oldfiles/
+create_admin.py
+cbt.sqlite3
+with_cbt.sqlite3

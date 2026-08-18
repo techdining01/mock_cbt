@@ -18,20 +18,29 @@
 # # that Qt WebEngine can understand.
 # from PySide6.QtCore import QUrl
 
-# from PySide6.QtGui import QIconimport sys
-
+import os
+import sys
 from pathlib import Path
+import ctypes
 
+# Suppress Chromium D3D11 / DirectComposition HDR probe warnings and window flickering on Windows
+os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = (
+    "--disable-gpu-compositing "
+    "--disable-direct-composition "
+    "--disable-direct-composition-video-overlays "
+    "--disable-features=HardwareMediaKeyHandling,DirectCompositionVideoOverlays "
+    "--log-level=3"
+)
 
+# Tells Windows to use the script's distinct AppUserModelID for taskbar grouping
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("alayande.cbt.v1")
 
-from PySide6.QtWidgets import QApplication  # pyright: ignore[reportMissingImports]
-from PySide6.QtWebEngineWidgets import QWebEngineView  # pyright: ignore[reportMissingImports]
-from PySide6.QtCore import QUrl  # pyright: ignore[reportMissingImports]
-from PySide6.QtGui import QIcon  # pyright: ignore[reportMissingImports]
-
-from PySide6.QtWebChannel import QWebChannel  # pyright: ignore[reportMissingImports]
+from PySide6.QtCore import Qt, QCoreApplication, QUrl
+from PySide6.QtWidgets import QApplication
+from PySide6.QtWebEngineWidgets import QWebEngineView
+from PySide6.QtGui import QIcon, QColor
+from PySide6.QtWebChannel import QWebChannel
 from app.bridge.exam_bridge import ExamBridge
-
 
 
 base_dir = Path(__file__).parent
@@ -39,11 +48,13 @@ base_dir = Path(__file__).parent
 
 # This is the main function of our application.
 def main():
-    import sys
     from app.database.database import init_database
     init_database()
+
+    # Share OpenGL contexts to prevent driver context stall
+    QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts)
+
     # Create the Qt application.
-    # sys.argv contains any arguments passed when starting the program.
     app = QApplication(sys.argv)
 
     # Create the Python object that JavaScript will communicate with.
@@ -52,21 +63,38 @@ def main():
     # Create a WebChannel for communication between Python and JavaScript.
     channel = QWebChannel()
 
-    # Register our Python bridge under the name "exam_bridge".
+    # Register our Python bridge under the name "examBridge".
     channel.registerObject("examBridge", exam_bridge)
 
     # Set the icon for the application.
-    app.setWindowIcon(QIcon(str(base_dir / "app" / "assets" / "alayande.png")))
+    app.setWindowIcon(QIcon(str(base_dir / "app" / "web" / "images" / "alayande.png")))
 
     # Create our desktop browser window.
-    # This will eventually display our HTML + Tailwind + Alpine.js interface.
     window = QWebEngineView()
+    window.page().setBackgroundColor(QColor("#f8fafc"))
+
+    # Connect bridge with window for direct print control
+    exam_bridge.set_window(window)
+
+    # Native Qt Print Handler for window.print() requests
+    def handle_print_requested():
+        try:
+            from PySide6.QtPrintSupport import QPrintDialog, QPrinter
+            printer = QPrinter(QPrinter.PrinterMode.HighResolution)
+            dialog = QPrintDialog(printer, window)
+            dialog.setWindowTitle("Print CBT Examination Document")
+            if dialog.exec() == QPrintDialog.DialogCode.Accepted:
+                window.page().print(printer, lambda res: None)
+        except Exception as err:
+            print("Native print handler error:", err)
+
+    window.page().printRequested.connect(handle_print_requested)
 
     # Give the communication channel to the web page.
     window.page().setWebChannel(channel)
 
     # Set the title that appears on the Windows window.
-    window.setWindowTitle("Mock CBT")
+    window.setWindowTitle("Mock CBT Examination Engine")
 
     # Set the initial size of the application window.
     # The first value is width and the second is height.
@@ -79,7 +107,6 @@ def main():
     # Build the full path to index.html.
     html_file = base_dir / "app" / "web" / "index.html"
 
-    
     # Convert the local Windows file path into a QUrl.
     html_url = QUrl.fromLocalFile(str(html_file))
 

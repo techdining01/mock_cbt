@@ -326,21 +326,115 @@ class Option(Base):
 
 
 # ============================================================
+# USER
+# ============================================================
+
+
+class User(Base):
+    """
+    A registered user in the CBT examination system.
+
+    Roles:
+        - 'admin': Has full administrative access (User management, student history, imports).
+        - 'student': Candidate taking CBT exams.
+    """
+
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(
+        primary_key=True,
+    )
+
+    username: Mapped[str] = mapped_column(
+        String(80),
+        nullable=False,
+        unique=True,
+        index=True,
+    )
+
+    password: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+    )
+
+    full_name: Mapped[str] = mapped_column(
+        String(150),
+        nullable=False,
+    )
+
+    role: Mapped[str] = mapped_column(
+        String(20),
+        default="student",
+        nullable=False,
+    )
+
+    student_class: Mapped[str | None] = mapped_column(
+        String(50),
+        nullable=True,
+    )
+
+    admission_year: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+    )
+
+    is_active: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+        nullable=False,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        server_default=func.now(),
+        nullable=False,
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
+
+    # --------------------------------------------------------
+    # Relationships
+    # --------------------------------------------------------
+
+    exam_sessions: Mapped[list["ExamSession"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+
+
+# ============================================================
 # EXAM SESSION
 # ============================================================
 
 
 class ExamSession(Base):
     """
-    One complete mock examination attempt.
+    Represents one student taking one exam.
 
-    The entire examination uses ONE master clock.
+    An exam session is tied to:
+        - An examination year
+        - One or more subjects
+        - One student
+        - One master countdown timer
     """
 
     __tablename__ = "exam_sessions"
 
     id: Mapped[int] = mapped_column(
         primary_key=True,
+    )
+
+    user_id: Mapped[int | None] = mapped_column(
+        ForeignKey(
+            "users.id",
+            ondelete="SET NULL",
+        ),
+        nullable=True,
     )
 
     year: Mapped[int] = mapped_column(
@@ -386,6 +480,10 @@ class ExamSession(Base):
     # --------------------------------------------------------
     # Relationships
     # --------------------------------------------------------
+
+    user: Mapped["User | None"] = relationship(
+        back_populates="exam_sessions",
+    )
 
     subjects: Mapped[list["ExamSubject"]] = relationship(
         back_populates="exam_session",

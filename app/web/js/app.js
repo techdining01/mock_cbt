@@ -5,10 +5,10 @@ document.addEventListener("alpine:init", () => {
     Alpine.data("examApp", () => ({
 
         // =========================================================
-        // APPLICATION STATE
+        // APPLICATION STATE & NAVIGATION
         // =========================================================
 
-        screen: "selection",
+        screen: "selection", // 'selection' | 'exam' | 'result' | 'admin'
 
         loading: true,
 
@@ -16,6 +16,244 @@ document.addEventListener("alpine:init", () => {
 
         error: null,
 
+        // =========================================================
+        // TOAST NOTIFICATIONS SYSTEM
+        // =========================================================
+
+        toasts: [],
+
+        showToast(message, type = "info", duration = 3500) {
+            const id = Date.now() + Math.random().toString(36).substring(2, 6);
+            const toast = { id, message, type };
+            this.toasts.push(toast);
+
+            setTimeout(() => {
+                this.removeToast(id);
+            }, duration);
+        },
+
+        removeToast(id) {
+            this.toasts = this.toasts.filter(t => t.id !== id);
+        },
+
+        // =========================================================
+        // AUTHENTICATION & USER STATE
+        // =========================================================
+
+        currentUser: null, // { id, username, full_name, role }
+
+        showLoginModal: false,
+
+        loginForm: {
+            username: "",
+            password: "",
+            loading: false,
+            error: "",
+        },
+
+        get isAdmin() {
+            return this.currentUser && this.currentUser.role === "admin";
+        },
+
+        openLoginModal() {
+            this.loginForm.username = "";
+            this.loginForm.password = "";
+            this.loginForm.error = "";
+            this.loginForm.loading = false;
+            this.showLoginModal = true;
+        },
+
+        closeLoginModal() {
+            this.showLoginModal = false;
+        },
+
+        loginAdmin() {
+            if (!this.loginForm.username.trim() || !this.loginForm.password.trim()) {
+                this.loginForm.error = "Please enter both username and password.";
+                this.showToast("Please enter username and password.", "warning");
+                return;
+            }
+
+            if (!window.examBridge || typeof window.examBridge.login_admin !== "function") {
+                this.showToast("Authentication service unavailable.", "error");
+                return;
+            }
+
+            this.loginForm.loading = true;
+            this.loginForm.error = "";
+
+            window.examBridge.login_admin(
+                this.loginForm.username.trim(),
+                this.loginForm.password.trim(),
+                (response) => {
+                    this.loginForm.loading = false;
+                    try {
+                        const data = this.parseBridgeResponse(response);
+                        if (data.success) {
+                            this.currentUser = data.user;
+                            this.showLoginModal = false;
+                            this.showToast(`Welcome back, ${data.user.full_name}!`, "success");
+                            this.screen = "admin";
+                            this.loadAdminData();
+                        } else {
+                            this.loginForm.error = data.error || "Login failed.";
+                            this.showToast(data.error || "Login failed.", "error");
+                        }
+                    } catch (err) {
+                        this.loginForm.error = "Invalid response from server.";
+                        this.showToast("Login error occurred.", "error");
+                    }
+                }
+            );
+        },
+
+        logoutAdmin() {
+            const name = this.currentUser?.full_name || "Admin";
+            this.currentUser = null;
+            this.screen = "selection";
+            this.showToast(`${name} has been logged out successfully.`, "info");
+        },
+
+        // =========================================================
+        // STUDENT IDENTIFICATION & REGISTRATION ON EXAM SETUP
+        // =========================================================
+
+        studentIdentifier: "",
+
+        studentFullName: "",
+
+        studentClass: "",
+
+        studentAdmissionYear: null,
+
+        studentStatus: null, // null | 'checking' | 'verified' | 'not_found' | 'admin'
+
+        studentLookupTimeout: null,
+
+        showStudentRegisterModal: false,
+
+        studentRegisterForm: {
+            username: "",
+            full_name: "",
+            student_class: "",
+            admission_year: new Date().getFullYear(),
+            password: "",
+            loading: false,
+            error: "",
+        },
+
+        onStudentIdentifierInput() {
+            clearTimeout(this.studentLookupTimeout);
+            const val = this.studentIdentifier.trim();
+            if (!val) {
+                this.studentStatus = null;
+                this.studentFullName = "";
+                this.studentClass = "";
+                this.studentAdmissionYear = null;
+                return;
+            }
+
+            this.studentStatus = "checking";
+            this.studentLookupTimeout = setTimeout(() => {
+                this.verifyStudentCandidate(val);
+            }, 350);
+        },
+
+        verifyStudentCandidate(identifier) {
+            if (!window.examBridge || typeof window.examBridge.check_username !== "function") {
+                this.studentStatus = null;
+                return;
+            }
+
+            window.examBridge.check_username(identifier, (response) => {
+                try {
+                    const data = this.parseBridgeResponse(response);
+                    if (data.success && data.exists) {
+                        if (data.is_admin) {
+                            this.studentStatus = "admin";
+                            this.studentFullName = data.user.full_name;
+                            this.showToast("Admin accounts cannot take exams. Please use a student account.", "warning");
+                        } else {
+                            this.studentStatus = "verified";
+                            this.studentFullName = data.user.full_name;
+                            this.studentClass = data.user.student_class || "";
+                            this.studentAdmissionYear = data.user.admission_year;
+                            this.showToast(`Candidate verified: ${data.user.full_name} (${data.user.student_class || "No Class"})`, "success");
+                        }
+                    } else {
+                        this.studentStatus = "not_found";
+                        this.studentFullName = "";
+                        this.studentClass = "";
+                        this.studentAdmissionYear = null;
+                    }
+                } catch (err) {
+                    this.studentStatus = null;
+                }
+            });
+        },
+
+        openStudentRegisterModal() {
+            this.studentRegisterForm = {
+                username: this.studentIdentifier.trim() || "",
+                full_name: "",
+                student_class: "SS3",
+                admission_year: new Date().getFullYear(),
+                password: "",
+                loading: false,
+                error: "",
+            };
+            this.showStudentRegisterModal = true;
+        },
+
+        closeStudentRegisterModal() {
+            this.showStudentRegisterModal = false;
+        },
+
+        registerStudent() {
+            const form = this.studentRegisterForm;
+            if (!form.username.trim() || !form.full_name.trim()) {
+                form.error = "Username and Full Name are required.";
+                this.showToast("Username and Full Name are required.", "warning");
+                return;
+            }
+
+            if (!window.examBridge || typeof window.examBridge.register_student !== "function") {
+                this.showToast("Registration bridge unavailable.", "error");
+                return;
+            }
+
+            form.loading = true;
+            form.error = "";
+
+            window.examBridge.register_student(
+                form.username.trim(),
+                form.password.trim() || "cbt123",
+                form.full_name.trim(),
+                form.student_class.trim(),
+                String(form.admission_year || ""),
+                (response) => {
+                    form.loading = false;
+                    try {
+                        const data = this.parseBridgeResponse(response);
+                        if (data.success) {
+                            this.showToast(`Student registered successfully: ${data.user.full_name}`, "success");
+                            this.studentIdentifier = data.user.username;
+                            this.studentFullName = data.user.full_name;
+                            this.studentClass = data.user.student_class || "";
+                            this.studentAdmissionYear = data.user.admission_year;
+                            this.studentStatus = "verified";
+                            this.showStudentRegisterModal = false;
+                        } else {
+                            form.error = data.error || "Registration failed.";
+                            this.showToast(data.error || "Registration failed.", "error");
+                        }
+                    } catch (err) {
+                        form.error = "Error parsing registration response.";
+                        this.showToast("Registration error occurred.", "error");
+                    }
+                }
+            );
+        },
 
         // =========================================================
         // DATABASE / SELECTION STATE
@@ -29,14 +267,11 @@ document.addEventListener("alpine:init", () => {
 
         selectedSubjectIds: [],
 
-        studentName: "",
-
         durationMinutes: 120,
 
         subjectsLoading: false,
 
         creatingExam: false,
-
 
         // =========================================================
         // EXAM STATE
@@ -50,7 +285,6 @@ document.addEventListener("alpine:init", () => {
 
         questionIndex: 0,
 
-
         // =========================================================
         // MASTER CLOCK
         // =========================================================
@@ -63,26 +297,19 @@ document.addEventListener("alpine:init", () => {
 
         timeExpiredHandled: false,
 
-
         // =========================================================
-        // FINISH
+        // FINISH & TIMEOUT
         // =========================================================
 
         showFinishModal: false,
 
         finishingExam: false,
 
-
-        // =========================================================
-        // TIMEOUT
-        // =========================================================
-
         showTimeoutOverlay: false,
 
         timeoutCompleting: false,
 
         timeoutComplete: false,
-
 
         // =========================================================
         // RESULT
@@ -92,2759 +319,1106 @@ document.addEventListener("alpine:init", () => {
 
         resultChart: null,
 
+        resultReviewFilter: "all", // 'all' | 'correct' | 'wrong' | 'unanswered'
+
+        resultReviewSubjectFilter: "all",
+
+        resultReviewExpandedId: null,
+
+        // =========================================================
+        // ADMIN DASHBOARD STATE
+        // =========================================================
+
+        adminActiveTab: "students", // 'students' | 'users'
+
+        // Tab 1: Student Exam Records
+        adminStudents: [],
+        adminSearchQuery: "",
+        adminClassFilter: "all",
+        adminCurrentPage: 1,
+        adminItemsPerPage: 10,
+        selectedStudentHistory: null,
+        showStudentHistoryModal: false,
+        historyLoading: false,
+
+        // Tab 2: User Accounts CRUD
+        allUsers: [],
+        userSearchQuery: "",
+        userRoleFilter: "all",
+        userClassFilter: "all",
+        userCurrentPage: 1,
+        userItemsPerPage: 10,
+        showUserModal: false,
+        userModalMode: "create", // 'create' | 'edit'
+        editingUserId: null,
+        userForm: {
+            username: "",
+            password: "",
+            full_name: "",
+            role: "student",
+            student_class: "",
+            admission_year: new Date().getFullYear(),
+            is_active: true,
+            loading: false,
+            error: "",
+        },
+
+        showDeleteConfirmModal: false,
+        deleteConfirmData: {
+            type: "", // 'user' | 'student'
+            id: null,
+            name: "",
+            loading: false,
+        },
 
         // =========================================================
         // INITIALIZATION
         // =========================================================
 
         init() {
-
-            console.log("examApp initialized.");
-
+            console.log("examApp initialized with enhanced Features & Toasts.");
+            window.showToast = (msg, type, dur) => this.showToast(msg, type, dur);
             this.waitForBridge();
-
         },
 
-
-        // =========================================================
-        // WAIT FOR QWEBCHANNEL
-        // =========================================================
-
         waitForBridge() {
-
             if (
                 window.examBridge &&
                 typeof window.examBridge.get_years === "function"
             ) {
-
                 console.log("examBridge is ready.");
-
                 this.loadYears();
-
                 return;
             }
 
-            console.log("Waiting for examBridge...");
-
             setTimeout(() => {
-
                 this.waitForBridge();
-
             }, 100);
-
         },
-
 
         // =========================================================
         // LOAD YEARS
         // =========================================================
 
         loadYears() {
-
             this.loading = true;
-
-            this.loadingMessage =
-                "Loading examination years...";
-
+            this.loadingMessage = "Loading examination years...";
             this.error = null;
 
-
-            if (
-                !window.examBridge ||
-                typeof window.examBridge.get_years !== "function"
-            ) {
-
-                this.setError(
-                    "Python examination bridge is not available."
-                );
-
+            if (!window.examBridge || typeof window.examBridge.get_years !== "function") {
+                this.setError("The Python bridge is not ready.");
                 return;
             }
 
-
-            window.examBridge.get_years(
-                (response) => {
-
-                    try {
-
-                        const data =
-                            this.parseBridgeResponse(response);
-
-
-                        if (!data.success) {
-
-                            this.setError(
-                                data.error ||
-                                "Unable to load examination years."
-                            );
-
-                            return;
-                        }
-
-
-                        this.years =
-                            Array.isArray(data.years)
-                                ? data.years
-                                : [];
-
-
-                        this.loading = false;
-
-                        this.screen = "selection";
-
-
-                        console.log(
-                            "Available years:",
-                            this.years
-                        );
-
-                    }
-                    catch (error) {
-
-                        console.error(
-                            "Year response error:",
-                            error
-                        );
-
-                        this.setError(
-                            "Invalid response received while loading years."
-                        );
-
+            window.examBridge.get_years((response) => {
+                this.loading = false;
+                try {
+                    const data = this.parseBridgeResponse(response);
+                    if (!data.success) {
+                        this.setError(data.error || "Failed to load examination years.");
+                        return;
                     }
 
+                    this.years = Array.isArray(data.years) ? data.years : [];
+                    if (this.years.length > 0) {
+                        this.selectedYear = this.years[0];
+                        this.loadSubjectsForYear(this.selectedYear);
+                    }
+                } catch (error) {
+                    this.setError("Failed to parse examination years response.");
                 }
-            );
-
+            });
         },
 
-
         // =========================================================
-        // SELECT YEAR
-        // =========================================================
-
-        selectYear(year) {
-
-            if (!year) {
-                return;
-            }
-
-
-            this.selectedYear = Number(year);
-
-            this.selectedSubjectIds = [];
-
-            this.subjects = [];
-
-
-            this.loadSubjectsForYear(
-                this.selectedYear
-            );
-
-        },
-
-
-        // =========================================================
-        // LOAD SUBJECTS
+        // LOAD SUBJECTS FOR YEAR
         // =========================================================
 
         loadSubjectsForYear(year) {
-
+            if (!year) return;
             this.subjectsLoading = true;
+            this.selectedSubjectIds = [];
 
-            this.error = null;
-
-
-            if (
-                !window.examBridge ||
-                typeof window.examBridge.get_subjects_for_year !== "function"
-            ) {
-
+            if (!window.examBridge || typeof window.examBridge.get_subjects_for_year !== "function") {
                 this.subjectsLoading = false;
-
-                this.setError(
-                    "Python examination bridge cannot load subjects."
-                );
-
                 return;
             }
 
-
-            window.examBridge.get_subjects_for_year(
-                Number(year),
-                (response) => {
-
-                    try {
-
-                        const data =
-                            this.parseBridgeResponse(response);
-
-
-                        if (!data.success) {
-
-                            this.subjectsLoading = false;
-
-                            this.setError(
-                                data.error ||
-                                "Unable to load subjects."
-                            );
-
-                            return;
-                        }
-
-
-                        this.subjects =
-                            Array.isArray(data.subjects)
-                                ? data.subjects
-                                : [];
-
-
-                        this.subjects =
-                            this.subjects.map(
-                                (subject) => ({
-
-                                    ...subject,
-
-                                    question_count:
-                                        Number(
-                                            subject.question_count ??
-                                            subject.count ??
-                                            0
-                                        ),
-
-                                })
-                            );
-
-
-                        this.subjectsLoading = false;
-
-
-                        console.log(
-                            "Subjects for",
-                            year,
-                            this.subjects
-                        );
-
+            window.examBridge.get_subjects_for_year(Number(year), (response) => {
+                this.subjectsLoading = false;
+                try {
+                    const data = this.parseBridgeResponse(response);
+                    if (!data.success) {
+                        this.setError(data.error || "Failed to load subjects for this year.");
+                        return;
                     }
-                    catch (error) {
-
-                        console.error(
-                            "Subject response error:",
-                            error
-                        );
-
-                        this.subjectsLoading = false;
-
-                        this.setError(
-                            "Invalid response received while loading subjects."
-                        );
-
-                    }
-
+                    this.subjects = Array.isArray(data.subjects) ? data.subjects : [];
+                } catch (error) {
+                    this.setError("Failed to parse subjects response.");
                 }
-            );
-
+            });
         },
 
-
         // =========================================================
-        // SUBJECT SELECTION
+        // SUBJECT TOGGLE
         // =========================================================
 
         toggleSubject(subjectId) {
-
             const id = Number(subjectId);
-
-            const index =
-                this.selectedSubjectIds.indexOf(id);
-
-
-            if (index === -1) {
-
+            const index = this.selectedSubjectIds.indexOf(id);
+            if (index >= 0) {
+                this.selectedSubjectIds.splice(index, 1);
+            } else {
                 this.selectedSubjectIds.push(id);
-
             }
-            else {
-
-                this.selectedSubjectIds.splice(
-                    index,
-                    1
-                );
-
-            }
-
         },
-
-
-        // =========================================================
-        // SELECT ALL
-        // =========================================================
 
         selectAllSubjects() {
-
-            this.selectedSubjectIds =
-                this.subjects.map(
-                    subject =>
-                        Number(subject.id)
-                );
-
+            this.selectedSubjectIds = this.subjects.map(s => Number(s.id));
+            this.showToast(`Selected all ${this.subjects.length} subjects`, "info");
         },
 
-
-        // =========================================================
-        // CLEAR SUBJECTS
-        // =========================================================
-
-        clearSubjects() {
-
+        clearAllSubjects() {
             this.selectedSubjectIds = [];
-
         },
 
-
-        // =========================================================
-        // SUBJECT SELECTED?
-        // =========================================================
-
-        isSubjectSelected(subjectId) {
-
-            return this.selectedSubjectIds.includes(
-                Number(subjectId)
-            );
-
+        get selectedTotalQuestions() {
+            return this.subjects
+                .filter(s => this.selectedSubjectIds.includes(Number(s.id)))
+                .reduce((sum, s) => sum + Number(s.question_count || 0), 0);
         },
 
-
         // =========================================================
-        // SELECTED SUBJECTS
-        // =========================================================
-
-        get selectedSubjects() {
-
-            return this.subjects.filter(
-                subject =>
-                    this.selectedSubjectIds.includes(
-                        Number(subject.id)
-                    )
-            );
-
-        },
-
-
-        // =========================================================
-        // SELECTED QUESTION COUNT
+        // START EXAMINATION
         // =========================================================
 
-        get selectedQuestionCount() {
-
-            return this.selectedSubjects.reduce(
-                (total, subject) => {
-
-                    return (
-                        total +
-                        Number(
-                            subject.question_count || 0
-                        )
-                    );
-
-                },
-                0
-            );
-
-        },
-
-
-        // =========================================================
-        // CREATE EXAM
-        // =========================================================
-
-        createExam() {
-
-            if (this.creatingExam) {
-                return;
-            }
-
-
+        startExamination() {
             if (!this.selectedYear) {
-
-                this.setError(
-                    "Please select an examination year."
-                );
-
+                this.showToast("Please select an examination year.", "warning");
                 return;
             }
 
-
-            if (!this.selectedSubjectIds.length) {
-
-                this.setError(
-                    "Please select at least one subject."
-                );
-
+            if (this.selectedSubjectIds.length === 0) {
+                this.showToast("Please select at least one subject.", "warning");
                 return;
             }
 
-
-            if (
-                !Number.isInteger(
-                    Number(this.durationMinutes)
-                ) ||
-                Number(this.durationMinutes) <= 0
-            ) {
-
-                this.setError(
-                    "Exam duration must be greater than zero."
-                );
-
+            // Verify Candidate identity
+            const identifier = this.studentIdentifier.trim();
+            if (!identifier) {
+                this.showToast("Please enter your Student Username or Full Name.", "warning");
                 return;
             }
 
-
-            if (
-                !window.examBridge ||
-                typeof window.examBridge.create_exam !== "function"
-            ) {
-
-                this.setError(
-                    "The Python bridge does not currently expose create_exam()."
-                );
-
+            if (this.studentStatus === "admin") {
+                this.showToast("Admin accounts cannot take exams. Please use a student account.", "error");
                 return;
             }
 
+            if (this.studentStatus === "not_found") {
+                this.showToast("You are not registered in the database. Please register below.", "warning");
+                this.openStudentRegisterModal();
+                return;
+            }
 
             this.creatingExam = true;
-
             this.error = null;
 
-
-            const year =
-                Number(this.selectedYear);
-
-
-            const subjectIds =
-                this.selectedSubjectIds.map(
-                    id => Number(id)
-                );
-
-
-            const duration =
-                Number(this.durationMinutes);
-
-
-            const name =
-                String(
-                    this.studentName || ""
-                ).trim();
-
+            const studentNameParam = this.studentFullName || identifier;
 
             window.examBridge.create_exam(
-                year,
-                subjectIds,
-                duration,
-                name,
+                Number(this.selectedYear),
+                this.selectedSubjectIds,
+                Number(this.durationMinutes),
+                studentNameParam,
                 (response) => {
-
                     try {
-
-                        const data =
-                            this.parseBridgeResponse(response);
-
-
+                        const data = this.parseBridgeResponse(response);
                         if (!data.success) {
-
                             this.creatingExam = false;
-
-                            this.setError(
-                                data.error ||
-                                "Unable to create examination."
-                            );
-
+                            this.setError(data.error || "Failed to create exam session.");
+                            this.showToast(data.error || "Failed to create exam session.", "error");
                             return;
                         }
 
-
-                        this.examId =
-                            Number(data.exam_id);
-
-
-                        if (!this.examId) {
-
-                            this.creatingExam = false;
-
-                            this.setError(
-                                "The examination session was created without a valid ID."
-                            );
-
-                            return;
-                        }
-
-
-                        this.startExam();
-
-                    }
-                    catch (error) {
-
-                        console.error(
-                            "Create exam response error:",
-                            error
-                        );
-
+                        this.examId = Number(data.exam_id);
+                        this.startExamSession(this.examId);
+                    } catch (error) {
                         this.creatingExam = false;
-
-                        this.setError(
-                            "Invalid response received while creating the examination."
-                        );
-
+                        this.setError("Failed to parse create exam response.");
                     }
-
                 }
             );
-
         },
 
-
-        // =========================================================
-        // START EXAM
-        // =========================================================
-
-        startExam() {
-
-            if (!this.examId) {
-
-                this.creatingExam = false;
-
-                this.setError(
-                    "No examination session ID is available."
-                );
-
-                return;
-            }
-
-
-            if (
-                !window.examBridge ||
-                typeof window.examBridge.start_exam !== "function"
-            ) {
-
-                this.creatingExam = false;
-
-                this.setError(
-                    "The Python bridge does not currently expose start_exam()."
-                );
-
-                return;
-            }
-
-
-            this.loading = true;
-
-            this.loadingMessage =
-                "Starting examination...";
-
-
-            window.examBridge.start_exam(
-                this.examId,
-                (response) => {
-
-                    try {
-
-                        const data =
-                            this.parseBridgeResponse(response);
-
-
-                        if (!data.success) {
-
-                            this.creatingExam = false;
-
-                            this.setError(
-                                data.error ||
-                                "Unable to start examination."
-                            );
-
-                            return;
-                        }
-
-
-                        this.loadExam();
-
-                    }
-                    catch (error) {
-
-                        console.error(
-                            "Start exam response error:",
-                            error
-                        );
-
+        startExamSession(examId) {
+            window.examBridge.start_exam(Number(examId), (response) => {
+                try {
+                    const data = this.parseBridgeResponse(response);
+                    if (!data.success) {
                         this.creatingExam = false;
-
-                        this.setError(
-                            "Invalid response received while starting the examination."
-                        );
-
+                        this.setError(data.error || "Failed to start exam session.");
+                        return;
                     }
 
+                    this.remainingSeconds = Number(data.remaining_seconds || 0);
+                    this.loadExamPayload(examId);
+                } catch (error) {
+                    this.creatingExam = false;
+                    this.setError("Failed to parse start exam response.");
                 }
-            );
-
+            });
         },
 
-
-        // =========================================================
-        // LOAD EXAM
-        // =========================================================
-
-        loadExam() {
-
-            if (!this.examId) {
-
+        loadExamPayload(examId) {
+            window.examBridge.get_exam(Number(examId), (response) => {
                 this.creatingExam = false;
-
-                this.setError(
-                    "No examination session ID was supplied."
-                );
-
-                return;
-            }
-
-
-            this.loading = true;
-
-            this.loadingMessage =
-                "Loading examination questions...";
-
-            this.error = null;
-
-
-            if (
-                !window.examBridge ||
-                typeof window.examBridge.get_exam !== "function"
-            ) {
-
-                this.creatingExam = false;
-
-                this.setError(
-                    "Python examination bridge is not available."
-                );
-
-                return;
-            }
-
-
-            window.examBridge.get_exam(
-                this.examId,
-                (response) => {
-
-                    try {
-
-                        const data =
-                            this.parseBridgeResponse(response);
-
-
-                        if (!data.success) {
-
-                            this.creatingExam = false;
-
-                            this.setError(
-                                data.error ||
-                                "Unable to load examination."
-                            );
-
-                            return;
-                        }
-
-
-                        if (!data.exam) {
-
-                            this.creatingExam = false;
-
-                            this.setError(
-                                "The examination response contained no exam data."
-                            );
-
-                            return;
-                        }
-
-
-                        this.exam =
-                            data.exam;
-
-
-                        this.remainingSeconds =
-                            Number(
-                                this.exam.remaining_seconds || 0
-                            );
-
-
-                        this.restorePosition();
-
-
-                        this.screen = "exam";
-
-                        this.loading = false;
-
-                        this.creatingExam = false;
-
-                        this.timeExpiredHandled = false;
-
-
-                        this.startDisplayTimer();
-
-                    }
-                    catch (error) {
-
-                        console.error(
-                            "Exam response error:",
-                            error
-                        );
-
-                        this.creatingExam = false;
-
-                        this.setError(
-                            "Invalid response received from Python."
-                        );
-
+                try {
+                    const data = this.parseBridgeResponse(response);
+                    if (!data.success) {
+                        this.setError(data.error || "Failed to load exam payload.");
+                        return;
                     }
 
+                    this.exam = data.exam;
+                    this.subjectIndex = 0;
+                    this.questionIndex = 0;
+                    this.screen = "exam";
+                    this.startMasterClock();
+                    this.showToast("Examination started. Good luck!", "success");
+                } catch (error) {
+                    this.setError("Failed to parse exam payload.");
                 }
-            );
-
+            });
         },
 
-
         // =========================================================
-        // RESTORE POSITION
-        // =========================================================
-
-        restorePosition() {
-
-            if (
-                !this.exam ||
-                !Array.isArray(this.exam.subjects) ||
-                !this.exam.subjects.length
-            ) {
-
-                this.subjectIndex = 0;
-
-                this.questionIndex = 0;
-
-                return;
-            }
-
-
-            for (
-                let i = 0;
-                i < this.exam.subjects.length;
-                i++
-            ) {
-
-                const subject =
-                    this.exam.subjects[i];
-
-
-                const position =
-                    Number(
-                        subject.current_question_position || 0
-                    );
-
-
-                if (
-                    position > 0 &&
-                    Array.isArray(subject.questions) &&
-                    position < subject.questions.length
-                ) {
-
-                    this.subjectIndex = i;
-
-                    this.questionIndex = position;
-
-                    return;
-                }
-
-            }
-
-
-            this.subjectIndex = 0;
-
-            this.questionIndex = 0;
-
-        },
-
-
-        // =========================================================
-        // CURRENT SUBJECT
+        // MASTER CLOCK
         // =========================================================
 
-        get currentSubject() {
-
-            if (
-                !this.exam ||
-                !Array.isArray(this.exam.subjects)
-            ) {
-
-                return null;
-            }
-
-
-            return (
-                this.exam.subjects[
-                    this.subjectIndex
-                ] || null
-            );
-
-        },
-
-
-        // =========================================================
-        // CURRENT QUESTION
-        // =========================================================
-
-        get currentQuestion() {
-
-            const subject =
-                this.currentSubject;
-
-
-            if (!subject) {
-                return null;
-            }
-
-
-            if (
-                !Array.isArray(subject.questions)
-            ) {
-
-                return null;
-            }
-
-
-            return (
-                subject.questions[
-                    this.questionIndex
-                ] || null
-            );
-
-        },
-
-
-        // =========================================================
-        // QUESTION NUMBER
-        // =========================================================
-
-        get displayQuestionNumber() {
-
-            if (!this.currentQuestion) {
-                return 0;
-            }
-
-
-            return Number(
-                this.currentQuestion.number ??
-                this.questionIndex + 1
-            );
-
-        },
-
-
-        // =========================================================
-        // SELECT SUBJECT
-        // =========================================================
-
-        selectSubject(index) {
-
-            if (!this.exam) {
-                return;
-            }
-
-
-            const targetIndex =
-                Number(index);
-
-
-            if (
-                targetIndex < 0 ||
-                targetIndex >= this.exam.subjects.length
-            ) {
-
-                return;
-            }
-
-
-            if (
-                targetIndex === this.subjectIndex
-            ) {
-
-                return;
-            }
-
-
-            this.saveCurrentPosition();
-
-
-            this.subjectIndex =
-                targetIndex;
-
-
-            const subject =
-                this.currentSubject;
-
-
-            this.questionIndex =
-                Math.min(
-                    Number(
-                        subject.current_question_position || 0
-                    ),
-                    Math.max(
-                        (subject.questions?.length || 1) - 1,
-                        0
-                    )
-                );
-
-
-            this.saveCurrentPosition();
-
-        },
-
-
-        // =========================================================
-        // SELECT QUESTION
-        // =========================================================
-
-        selectQuestion(index) {
-
-            const subject =
-                this.currentSubject;
-
-
-            if (!subject) {
-                return;
-            }
-
-
-            const targetIndex =
-                Number(index);
-
-
-            if (
-                targetIndex < 0 ||
-                targetIndex >= subject.questions.length
-            ) {
-
-                return;
-            }
-
-
-            this.questionIndex =
-                targetIndex;
-
-
-            this.saveCurrentPosition();
-
-        },
-
-
-        // =========================================================
-        // NEXT QUESTION
-        // =========================================================
-
-        nextQuestion() {
-
-            const subject =
-                this.currentSubject;
-
-
-            if (!subject) {
-                return;
-            }
-
-
-            if (
-                this.questionIndex <
-                subject.questions.length - 1
-            ) {
-
-                this.questionIndex++;
-
-                this.saveCurrentPosition();
-
-                return;
-            }
-
-
-            if (
-                this.subjectIndex <
-                this.exam.subjects.length - 1
-            ) {
-
-                this.saveCurrentPosition();
-
-
-                this.subjectIndex++;
-
-
-                const nextSubject =
-                    this.currentSubject;
-
-
-                this.questionIndex =
-                    Math.min(
-                        Number(
-                            nextSubject.current_question_position || 0
-                        ),
-                        Math.max(
-                            (nextSubject.questions?.length || 1) - 1,
-                            0
-                        )
-                    );
-
-
-                this.saveCurrentPosition();
-
-            }
-
-        },
-
-
-        // =========================================================
-        // PREVIOUS QUESTION
-        // =========================================================
-
-        previousQuestion() {
-
-            if (this.questionIndex > 0) {
-
-                this.questionIndex--;
-
-                this.saveCurrentPosition();
-
-                return;
-            }
-
-
-            if (this.subjectIndex > 0) {
-
-                this.saveCurrentPosition();
-
-
-                this.subjectIndex--;
-
-
-                const previousSubject =
-                    this.currentSubject;
-
-
-                this.questionIndex =
-                    Math.max(
-                        (previousSubject.questions?.length || 1) - 1,
-                        0
-                    );
-
-
-                this.saveCurrentPosition();
-
-            }
-
-        },
-
-
-        // =========================================================
-        // SAVE ANSWER
-        // =========================================================
-
-        selectAnswer(optionId) {
-
-            if (
-                this.exam?.is_completed ||
-                this.timeExpiredHandled
-            ) {
-
-                return;
-            }
-
-
-            const question =
-                this.currentQuestion;
-
-
-            if (!question) {
-                return;
-            }
-
-
-            if (
-                !window.examBridge ||
-                typeof window.examBridge.save_answer !== "function"
-            ) {
-
-                this.setError(
-                    "Unable to save answer because the Python bridge is unavailable."
-                );
-
-                return;
-            }
-
-
-            const selectedOptionId =
-                Number(optionId);
-
-
-            question.selected_option_id =
-                selectedOptionId;
-
-
-            question.answered = true;
-
-
-            window.examBridge.save_answer(
-                Number(question.id),
-                selectedOptionId,
-                (response) => {
-
-                    try {
-
-                        const data =
-                            this.parseBridgeResponse(response);
-
-
-                        if (!data.success) {
-
-                            console.error(
-                                "Save answer failed:",
-                                data.error
-                            );
-
-                            return;
-                        }
-
-
-                        question.selected_option_id =
-                            Number(
-                                data.selected_option_id
-                            );
-
-
-                        question.answered = true;
-
-                    }
-                    catch (error) {
-
-                        console.error(
-                            "Save answer response error:",
-                            error
-                        );
-
-                    }
-
-                }
-            );
-
-        },
-
-
-        // =========================================================
-        // SAVE POSITION
-        // =========================================================
-
-        saveCurrentPosition() {
-
-            const subject =
-                this.currentSubject;
-
-
-            if (!subject) {
-                return;
-            }
-
-
-            if (
-                !window.examBridge ||
-                typeof window.examBridge.save_question_position !== "function"
-            ) {
-
-                return;
-            }
-
-
-            const position =
-                Number(this.questionIndex);
-
-
-            subject.current_question_position =
-                position;
-
-
-            window.examBridge.save_question_position(
-                Number(subject.id),
-                position,
-                (response) => {
-
-                    try {
-
-                        const data =
-                            this.parseBridgeResponse(response);
-
-
-                        if (!data.success) {
-
-                            console.error(
-                                "Save position failed:",
-                                data.error
-                            );
-
-                        }
-
-                    }
-                    catch (error) {
-
-                        console.error(
-                            "Save position response error:",
-                            error
-                        );
-
-                    }
-
-                }
-            );
-
-        },
-
-
-        // =========================================================
-        // MASTER TIMER
-        // =========================================================
-
-        startDisplayTimer() {
-
+        startMasterClock() {
             this.stopTimers();
+            this.timeExpiredHandled = false;
 
-
-            this.timerInterval =
-                setInterval(() => {
-
-                    if (
-                        this.remainingSeconds > 0
-                    ) {
-
-                        this.remainingSeconds--;
-
+            this.timerInterval = setInterval(() => {
+                if (this.remainingSeconds > 0) {
+                    this.remainingSeconds -= 1;
+                    if (this.remainingSeconds === 300) {
+                        this.showToast("⚠️ Warning: 5 minutes remaining!", "warning", 5000);
                     }
-
-
-                    if (
-                        this.remainingSeconds <= 0
-                    ) {
-
-                        this.remainingSeconds = 0;
-
-                        this.handleTimeExpired();
-
+                    if (this.remainingSeconds === 60) {
+                        this.showToast("⚠️ Urgent: 1 minute remaining!", "error", 5000);
                     }
+                } else {
+                    this.handleTimeExpired();
+                }
+            }, 1000);
 
-                }, 1000);
-
-
-            this.clockSyncInterval =
-                setInterval(() => {
-
-                    this.syncClock();
-
-                }, 5000);
-
+            this.clockSyncInterval = setInterval(() => {
+                this.syncClock();
+            }, 5000);
         },
-
-
-        // =========================================================
-        // CLOCK SYNC
-        // =========================================================
 
         syncClock() {
+            if (!this.examId || !window.examBridge || typeof window.examBridge.get_remaining_time !== "function") return;
 
-            if (!this.examId) {
-                return;
-            }
-
-
-            if (
-                !window.examBridge ||
-                typeof window.examBridge.get_remaining_time !== "function"
-            ) {
-
-                return;
-            }
-
-
-            window.examBridge.get_remaining_time(
-                Number(this.examId),
-                (response) => {
-
-                    try {
-
-                        const data =
-                            this.parseBridgeResponse(response);
-
-
-                        if (!data.success) {
-
-                            console.error(
-                                "Clock synchronization failed:",
-                                data.error
-                            );
-
-                            return;
-                        }
-
-
-                        this.remainingSeconds =
-                            Math.max(
-                                0,
-                                Number(
-                                    data.remaining_seconds || 0
-                                )
-                            );
-
-
+            window.examBridge.get_remaining_time(Number(this.examId), (response) => {
+                try {
+                    const data = this.parseBridgeResponse(response);
+                    if (data.success) {
+                        this.remainingSeconds = Math.max(0, Number(data.remaining_seconds || 0));
                         if (data.expired) {
-
                             this.handleTimeExpired();
-
                         }
-
                     }
-                    catch (error) {
-
-                        console.error(
-                            "Clock response error:",
-                            error
-                        );
-
-                    }
-
-                }
-            );
-
+                } catch (e) {}
+            });
         },
-
-
-        // =========================================================
-        // TIME EXPIRED
-        // =========================================================
 
         handleTimeExpired() {
-
-            if (this.timeExpiredHandled) {
-                return;
-            }
-
-
+            if (this.timeExpiredHandled) return;
             this.timeExpiredHandled = true;
-
             this.remainingSeconds = 0;
-
             this.stopTimers();
-
-
             this.showTimeoutOverlay = true;
-
             this.timeoutCompleting = true;
-
             this.timeoutComplete = false;
-
-
+            this.showToast("Time has expired! Automatically submitting your examination...", "warning", 6000);
             this.completeExamAfterTimeout();
-
         },
-
-
-        // =========================================================
-        // AUTOMATIC TIMEOUT COMPLETION
-        // =========================================================
 
         completeExamAfterTimeout() {
-
-            if (!this.examId) {
-
+            if (!this.examId || !window.examBridge) {
                 this.timeoutCompleting = false;
-
                 return;
             }
 
-
-            if (
-                !window.examBridge ||
-                typeof window.examBridge.complete_exam !== "function"
-            ) {
-
-                this.timeoutCompleting = false;
-
-                this.setError(
-                    "The Python bridge does not currently expose complete_exam()."
-                );
-
-                return;
-            }
-
-
-            window.examBridge.complete_exam(
-                Number(this.examId),
-                (response) => {
-
-                    try {
-
-                        const data =
-                            this.parseBridgeResponse(response);
-
-
-                        if (!data.success) {
-
-                            console.error(
-                                "Automatic completion failed:",
-                                data.error
-                            );
-
-                            this.timeoutCompleting = false;
-
-                            return;
-                        }
-
-
-                        this.result =
-                            data.result || null;
-
-
+            window.examBridge.complete_exam(Number(this.examId), (response) => {
+                try {
+                    const data = this.parseBridgeResponse(response);
+                    if (data.success) {
+                        this.result = data.result || null;
                         this.timeoutCompleting = false;
-
                         this.timeoutComplete = true;
-
-
-                        if (this.exam) {
-
-                            this.exam.is_completed = true;
-
-                        }
-
-
+                        if (this.exam) this.exam.is_completed = true;
                         this.prepareResultChart();
-
                     }
-                    catch (error) {
-
-                        console.error(
-                            "Timeout completion error:",
-                            error
-                        );
-
-                        this.timeoutCompleting = false;
-
-                    }
-
+                } catch (e) {
+                    this.timeoutCompleting = false;
                 }
-            );
-
+            });
         },
-
-
-        // =========================================================
-        // VIEW RESULT AFTER TIMEOUT
-        // =========================================================
 
         viewTimeoutResult() {
-
-            if (
-                this.timeoutCompleting ||
-                !this.result
-            ) {
-
-                return;
-            }
-
-
+            if (this.timeoutCompleting || !this.result) return;
             this.showTimeoutOverlay = false;
-
             this.screen = "result";
-
-
             this.prepareResultChart();
-
         },
-
-
-        // =========================================================
-        // STOP TIMERS
-        // =========================================================
 
         stopTimers() {
-
             if (this.timerInterval) {
-
-                clearInterval(
-                    this.timerInterval
-                );
-
+                clearInterval(this.timerInterval);
                 this.timerInterval = null;
-
             }
-
-
             if (this.clockSyncInterval) {
-
-                clearInterval(
-                    this.clockSyncInterval
-                );
-
+                clearInterval(this.clockSyncInterval);
                 this.clockSyncInterval = null;
-
             }
-
         },
 
-
-        // =========================================================
-        // FORMAT CLOCK
-        // =========================================================
-
         formatTime(seconds) {
-
-            const total =
-                Math.max(
-                    0,
-                    Number(seconds) || 0
-                );
-
-
-            const hours =
-                Math.floor(
-                    total / 3600
-                );
-
-
-            const minutes =
-                Math.floor(
-                    (total % 3600) / 60
-                );
-
-
-            const secs =
-                total % 60;
-
-
+            const total = Math.max(0, Number(seconds) || 0);
+            const hours = Math.floor(total / 3600);
+            const minutes = Math.floor((total % 3600) / 60);
+            const secs = total % 60;
             return [
                 String(hours).padStart(2, "0"),
                 String(minutes).padStart(2, "0"),
                 String(secs).padStart(2, "0"),
             ].join(":");
-
         },
 
+        // =========================================================
+        // QUESTION NAVIGATION & AUTO ADVANCE
+        // =========================================================
+
+        get currentSubject() {
+            if (!this.exam || !Array.isArray(this.exam.subjects)) return null;
+            return this.exam.subjects[this.subjectIndex] || null;
+        },
+
+        get currentQuestion() {
+            const subject = this.currentSubject;
+            if (!subject || !Array.isArray(subject.questions)) return null;
+            return subject.questions[this.questionIndex] || null;
+        },
+
+        get displayQuestionNumber() {
+            if (!this.currentQuestion) return 0;
+            return Number(this.currentQuestion.number ?? this.questionIndex + 1);
+        },
+
+        selectSubject(index) {
+            if (!this.exam) return;
+            const targetIndex = Number(index);
+            if (targetIndex < 0 || targetIndex >= this.exam.subjects.length || targetIndex === this.subjectIndex) return;
+
+            this.saveCurrentPosition();
+            this.subjectIndex = targetIndex;
+            const subject = this.currentSubject;
+            this.questionIndex = Math.min(
+                Number(subject.current_question_position || 0),
+                Math.max((subject.questions?.length || 1) - 1, 0)
+            );
+            this.saveCurrentPosition();
+        },
+
+        selectQuestion(index) {
+            const subject = this.currentSubject;
+            if (!subject) return;
+            const targetIndex = Number(index);
+            if (targetIndex < 0 || targetIndex >= subject.questions.length) return;
+
+            this.questionIndex = targetIndex;
+            this.saveCurrentPosition();
+        },
+
+        nextQuestion() {
+            const subject = this.currentSubject;
+            if (!subject || !Array.isArray(subject.questions)) return;
+
+            if (this.questionIndex < subject.questions.length - 1) {
+                this.questionIndex += 1;
+                this.saveCurrentPosition();
+                return;
+            }
+
+            if (this.subjectIndex < this.exam.subjects.length - 1) {
+                this.selectSubject(this.subjectIndex + 1);
+            }
+        },
+
+        previousQuestion() {
+            if (this.questionIndex > 0) {
+                this.questionIndex -= 1;
+                this.saveCurrentPosition();
+                return;
+            }
+
+            if (this.subjectIndex > 0) {
+                this.subjectIndex -= 1;
+                const prevSubject = this.currentSubject;
+                if (prevSubject && Array.isArray(prevSubject.questions)) {
+                    this.questionIndex = Math.max(0, prevSubject.questions.length - 1);
+                }
+                this.saveCurrentPosition();
+            }
+        },
+
+        selectAnswer(optionId) {
+            if (this.exam?.is_completed || this.timeExpiredHandled) return;
+            const question = this.currentQuestion;
+            if (!question) return;
+
+            const selectedOptionId = Number(optionId);
+            question.selected_option_id = selectedOptionId;
+            question.answered = true;
+
+            if (window.examBridge && typeof window.examBridge.save_answer === "function") {
+                window.examBridge.save_answer(Number(question.id), selectedOptionId, (response) => {
+                    try {
+                        const data = this.parseBridgeResponse(response);
+                        if (data.success) {
+                            question.selected_option_id = Number(data.selected_option_id);
+                            question.answered = true;
+                        }
+                    } catch (e) {}
+                });
+            }
+
+            // Auto-advance to next question smoothly
+            if (!this.isLastQuestion) {
+                clearTimeout(this._autoNextTimer);
+                this._autoNextTimer = setTimeout(() => {
+                    this.nextQuestion();
+                }, 220);
+            }
+        },
+
+        saveCurrentPosition() {
+            const subject = this.currentSubject;
+            if (!subject || !subject.exam_subject_id || !window.examBridge) return;
+            window.examBridge.save_question_position(Number(subject.exam_subject_id), Number(this.questionIndex), () => {});
+        },
 
         // =========================================================
-        // ANSWERED COUNT
+        // PROGRESS & GETTERS
         // =========================================================
 
         get answeredCount() {
-
-            if (!this.exam) {
-                return 0;
-            }
-
-
-            return this.exam.subjects.reduce(
-                (total, subject) => {
-
-                    const questions =
-                        Array.isArray(subject.questions)
-                            ? subject.questions
-                            : [];
-
-
-                    return (
-                        total +
-                        questions.filter(
-                            question =>
-                                question.selected_option_id !== null &&
-                                question.selected_option_id !== undefined
-                        ).length
-                    );
-
-                },
-                0
-            );
-
+            if (!this.exam || !Array.isArray(this.exam.subjects)) return 0;
+            return this.exam.subjects.reduce((total, subject) => {
+                const questions = Array.isArray(subject.questions) ? subject.questions : [];
+                return total + questions.filter(q => q.selected_option_id !== null && q.selected_option_id !== undefined).length;
+            }, 0);
         },
-
-
-        // =========================================================
-        // TOTAL QUESTIONS
-        // =========================================================
 
         get totalQuestionCount() {
-
-            if (!this.exam) {
-                return 0;
-            }
-
-
-            return this.exam.subjects.reduce(
-                (total, subject) => {
-
-                    return (
-                        total +
-                        (
-                            Array.isArray(subject.questions)
-                                ? subject.questions.length
-                                : 0
-                        )
-                    );
-
-                },
-                0
-            );
-
+            if (!this.exam || !Array.isArray(this.exam.subjects)) return 0;
+            return this.exam.subjects.reduce((total, subject) => {
+                return total + (Array.isArray(subject.questions) ? subject.questions.length : 0);
+            }, 0);
         },
-
-
-        // =========================================================
-        // UNANSWERED COUNT
-        // =========================================================
 
         get unansweredCount() {
-
-            return Math.max(
-                0,
-                this.totalQuestionCount -
-                this.answeredCount
-            );
-
+            return Math.max(0, this.totalQuestionCount - this.answeredCount);
         },
 
-
-        // =========================================================
-        // SUBJECT ANSWERED COUNT
-        // =========================================================
+        get overallProgressPercent() {
+            const total = this.totalQuestionCount;
+            return total > 0 ? Math.round((this.answeredCount / total) * 100) : 0;
+        },
 
         subjectAnsweredCount(subject) {
-
-            if (!subject) {
-                return 0;
-            }
-
-
-            const questions =
-                Array.isArray(subject.questions)
-                    ? subject.questions
-                    : [];
-
-
-            return questions.filter(
-                question =>
-                    question.selected_option_id !== null &&
-                    question.selected_option_id !== undefined
-            ).length;
-
+            if (!subject || !Array.isArray(subject.questions)) return 0;
+            return subject.questions.filter(q => q.selected_option_id !== null && q.selected_option_id !== undefined).length;
         },
-
-
-        // =========================================================
-        // SUBJECT PROGRESS
-        // =========================================================
 
         subjectProgressText(subject) {
-
-            if (!subject) {
-                return "0/0";
-            }
-
-
-            const total =
-                Array.isArray(subject.questions)
-                    ? subject.questions.length
-                    : Number(
-                        subject.question_count || 0
-                    );
-
-
-            return (
-                `${this.subjectAnsweredCount(subject)}/${total}`
-            );
-
+            if (!subject) return "0/0";
+            const total = Array.isArray(subject.questions) ? subject.questions.length : Number(subject.question_count || 0);
+            return `${this.subjectAnsweredCount(subject)}/${total}`;
         },
 
-
-        // =========================================================
-        // PREVIOUS BUTTON
-        // =========================================================
+        subjectProgressPercent(subject) {
+            if (!subject) return 0;
+            const total = Array.isArray(subject.questions) ? subject.questions.length : Number(subject.question_count || 0);
+            if (total <= 0) return 0;
+            return Math.round((this.subjectAnsweredCount(subject) / total) * 100);
+        },
 
         get canGoPrevious() {
-
-            return (
-                this.subjectIndex > 0 ||
-                this.questionIndex > 0
-            );
-
+            return this.subjectIndex > 0 || this.questionIndex > 0;
         },
 
+        get isLastQuestion() {
+            if (!this.exam || !Array.isArray(this.exam.subjects) || !this.currentSubject) return false;
+            const isLastSub = this.subjectIndex >= this.exam.subjects.length - 1;
+            const qCount = Array.isArray(this.currentSubject.questions) ? this.currentSubject.questions.length : 1;
+            const isLastQ = this.questionIndex >= qCount - 1;
+            return isLastSub && isLastQ;
+        },
 
         // =========================================================
-        // FINISH EXAM
+        // FINISH EXAMINATION & RESULTS
         // =========================================================
 
         finishExam() {
-
-            if (
-                this.finishingExam ||
-                !this.exam
-            ) {
-
-                return;
-            }
-
-
+            if (this.finishingExam || !this.exam) return;
             this.saveCurrentPosition();
-
-
             this.showFinishModal = true;
-
         },
-
-
-        // =========================================================
-        // CONFIRM FINISH
-        // =========================================================
 
         confirmFinishExam() {
-
-            if (
-                this.finishingExam ||
-                !this.examId
-            ) {
-
-                return;
-            }
-
-
+            if (this.finishingExam || !this.examId) return;
             this.finishingExam = true;
-
             this.showFinishModal = false;
-
-
             this.stopTimers();
 
-
-            if (
-                !window.examBridge ||
-                typeof window.examBridge.complete_exam !== "function"
-            ) {
-
+            window.examBridge.complete_exam(Number(this.examId), (response) => {
                 this.finishingExam = false;
-
-                this.setError(
-                    "The Python bridge does not currently expose complete_exam()."
-                );
-
-                return;
-            }
-
-
-            window.examBridge.complete_exam(
-                Number(this.examId),
-                (response) => {
-
-                    try {
-
-                        const data =
-                            this.parseBridgeResponse(response);
-
-
-                        if (!data.success) {
-
-                            this.finishingExam = false;
-
-                            this.setError(
-                                data.error ||
-                                "Unable to complete examination."
-                            );
-
-                            return;
-                        }
-
-
-                        /*
-                         * IMPORTANT:
-                         *
-                         * The result comes directly from
-                         * complete_exam().
-                         */
-
-                        this.result =
-                            data.result || null;
-
-
-                        this.exam =
-                            this.exam || {};
-
-
-                        this.exam.is_completed = true;
-
-
-                        this.finishingExam = false;
-
-
-                        this.screen = "result";
-
-
-                        this.prepareResultChart();
-
-                    }
-                    catch (error) {
-
-                        console.error(
-                            "Complete exam response error:",
-                            error
-                        );
-
-                        this.finishingExam = false;
-
-                        this.setError(
-                            "Invalid response received while completing the examination."
-                        );
-
+                try {
+                    const data = this.parseBridgeResponse(response);
+                    if (!data.success) {
+                        this.setError(data.error || "Failed to complete exam.");
+                        this.showToast(data.error || "Failed to complete exam.", "error");
+                        return;
                     }
 
+                    this.result = data.result || null;
+                    if (this.exam) this.exam.is_completed = true;
+                    this.screen = "result";
+                    this.prepareResultChart();
+                    this.showToast("Examination completed successfully!", "success");
+                } catch (error) {
+                    this.setError("Failed to parse completion response.");
                 }
-            );
-
+            });
         },
-
-
-        // =========================================================
-        // RESULT
-        // =========================================================
-
-        loadResult() {
-
-            if (!this.examId) {
-                return;
-            }
-
-
-            if (
-                !window.examBridge ||
-                typeof window.examBridge.get_result !== "function"
-            ) {
-
-                return;
-            }
-
-
-            window.examBridge.get_result(
-                Number(this.examId),
-                (response) => {
-
-                    try {
-
-                        const data =
-                            this.parseBridgeResponse(response);
-
-
-                        if (!data.success) {
-
-                            this.setError(
-                                data.error ||
-                                "Unable to load result."
-                            );
-
-                            return;
-                        }
-
-
-                        this.result =
-                            data.result || null;
-
-
-                        this.screen = "result";
-
-
-                        this.prepareResultChart();
-
-                    }
-                    catch (error) {
-
-                        console.error(
-                            "Result response error:",
-                            error
-                        );
-
-                        this.setError(
-                            "Invalid result response."
-                        );
-
-                    }
-
-                }
-            );
-
-        },
-
-
-        // =========================================================
-        // FORMAT PERCENTAGE
-        // =========================================================
-
-        formatPercentage(value) {
-
-            const number =
-                Number(value);
-
-
-            if (!Number.isFinite(number)) {
-                return "0%";
-            }
-
-
-            return (
-                Number.isInteger(number)
-                    ? `${number}%`
-                    : `${number.toFixed(2)}%`
-            );
-
-        },
-
-
-        // =========================================================
-        // RESULT SUBJECTS
-        // =========================================================
-
-        get resultSubjects() {
-
-            if (
-                !this.result ||
-                !Array.isArray(this.result.subjects)
-            ) {
-
-                return [];
-            }
-
-
-            return this.result.subjects;
-
-        },
-
-
-        // =========================================================
-        // RESULT REVIEW
-        // =========================================================
-
-        get resultReview() {
-
-            if (
-                !this.result ||
-                !Array.isArray(this.result.review)
-            ) {
-
-                return [];
-            }
-
-
-            return this.result.review;
-
-        },
-
-
-        // =========================================================
-        // FIND REVIEW OPTION
-        // =========================================================
-
-        getReviewOption(question, optionId) {
-
-            if (
-                !question ||
-                !Array.isArray(question.options)
-            ) {
-
-                return null;
-            }
-
-
-            return (
-                question.options.find(
-                    option =>
-                        Number(option.id) === Number(optionId)
-                ) || null
-            );
-
-        },
-
-
-        // =========================================================
-        // CORRECT OPTION
-        // =========================================================
-
-        getCorrectOption(question) {
-
-            if (!question) {
-                return null;
-            }
-
-
-            return this.getReviewOption(
-                question,
-                question.correct_option_id
-            );
-
-        },
-
-
-        // =========================================================
-        // STUDENT OPTION
-        // =========================================================
-
-        getStudentOption(question) {
-
-            if (!question) {
-                return null;
-            }
-
-
-            if (
-                question.selected_option_id === null ||
-                question.selected_option_id === undefined
-            ) {
-
-                return null;
-            }
-
-
-            return this.getReviewOption(
-                question,
-                question.selected_option_id
-            );
-
-        },
-
-
-        // =========================================================
-        // CORRECT?
-        // =========================================================
-
-        questionIsCorrect(question) {
-
-            if (!question) {
-                return false;
-            }
-
-
-            return (
-                question.is_answered === true &&
-                question.is_correct === true
-            );
-
-        },
-
-
-        // =========================================================
-        // UNANSWERED?
-        // =========================================================
-
-        questionIsUnanswered(question) {
-
-            if (!question) {
-                return true;
-            }
-
-
-            return (
-                question.is_answered !== true ||
-                question.selected_option_id === null ||
-                question.selected_option_id === undefined
-            );
-
-        },
-
-
-        // =========================================================
-        // WRONG?
-        // =========================================================
-
-        questionIsWrong(question) {
-
-            return (
-                !this.questionIsUnanswered(question) &&
-                !this.questionIsCorrect(question)
-            );
-
-        },
-
-
-        // =========================================================
-        // REVIEW STATUS TEXT
-        // =========================================================
-
-        reviewStatusText(question) {
-
-            if (this.questionIsUnanswered(question)) {
-
-                return "Unanswered";
-
-            }
-
-
-            if (this.questionIsCorrect(question)) {
-
-                return "Correct";
-
-            }
-
-
-            return "Wrong";
-
-        },
-
-
-        // =========================================================
-        // REVIEW STATUS CLASS
-        // =========================================================
-
-        reviewStatusClass(question) {
-
-            if (this.questionIsUnanswered(question)) {
-
-                return "bg-amber-100 text-amber-800";
-
-            }
-
-
-            if (this.questionIsCorrect(question)) {
-
-                return "bg-green-100 text-green-800";
-
-            }
-
-
-            return "bg-red-100 text-red-800";
-
-        },
-
-
-        // =========================================================
-        // REVIEW CARD CLASS
-        // =========================================================
-
-        reviewCardClass(question) {
-
-            if (this.questionIsUnanswered(question)) {
-
-                return "border-amber-200 bg-amber-50";
-
-            }
-
-
-            if (this.questionIsCorrect(question)) {
-
-                return "border-green-200 bg-green-50";
-
-            }
-
-
-            return "border-red-200 bg-red-50";
-
-        },
-
-
-        // =========================================================
-        // REVIEW HEADER CLASS
-        // =========================================================
-
-        reviewHeaderClass(question) {
-
-            if (this.questionIsUnanswered(question)) {
-
-                return "text-amber-800";
-
-            }
-
-
-            if (this.questionIsCorrect(question)) {
-
-                return "text-green-800";
-
-            }
-
-
-            return "text-red-800";
-
-        },
-
-
-        // =========================================================
-        // REVIEW OPTION CLASS
-        //
-        // ONLY:
-        // - correct answer => green
-        // - student's wrong answer => red
-        // - other options => neutral
-        //
-        // =========================================================
-
-        reviewOptionClass(question, option) {
-
-            if (!question || !option) {
-
-                return "border-gray-200 bg-white text-gray-700";
-
-            }
-
-
-            const optionId =
-                Number(option.id);
-
-
-            const correctId =
-                Number(question.correct_option_id);
-
-
-            const studentId =
-                question.selected_option_id === null ||
-                question.selected_option_id === undefined
-                    ? null
-                    : Number(question.selected_option_id);
-
-
-            /*
-             * Correct option always gets green.
-             */
-
-            if (
-                Number.isFinite(correctId) &&
-                optionId === correctId
-            ) {
-
-                return "border-green-400 bg-green-50 text-green-900 ring-1 ring-green-300";
-
-            }
-
-
-            /*
-             * Student's wrong selection gets red.
-             */
-
-            if (
-                studentId !== null &&
-                optionId === studentId &&
-                optionId !== correctId
-            ) {
-
-                return "border-red-400 bg-red-50 text-red-900 ring-1 ring-red-300";
-
-            }
-
-
-            /*
-             * Everything else remains neutral.
-             */
-
-            return "border-gray-200 bg-white text-gray-700";
-
-        },
-
-
-        // =========================================================
-        // REVIEW OPTION LABEL CLASS
-        // =========================================================
-
-        reviewOptionLabelClass(question, option) {
-
-            return this.reviewOptionClass(
-                question,
-                option
-            );
-
-        },
-
-
-        // =========================================================
-        // IS CORRECT OPTION
-        // =========================================================
-
-        isCorrectOption(option) {
-
-            if (!this.activeReviewQuestion || !option) {
-                return false;
-            }
-
-
-            return (
-                Number(option.id) ===
-                Number(
-                    this.activeReviewQuestion.correct_option_id
-                )
-            );
-
-        },
-
-
-        // =========================================================
-        // IS STUDENT OPTION
-        // =========================================================
-
-        isStudentOption(question, option) {
-
-            if (!question || !option) {
-                return false;
-            }
-
-
-            if (
-                question.selected_option_id === null ||
-                question.selected_option_id === undefined
-            ) {
-
-                return false;
-
-            }
-
-
-            return (
-                Number(option.id) ===
-                Number(question.selected_option_id)
-            );
-
-        },
-
-
-        // =========================================================
-        // STUDENT ANSWER TEXT
-        // =========================================================
-
-        studentAnswerText(question) {
-
-            const option =
-                this.getStudentOption(question);
-
-
-            if (!option) {
-
-                return "No answer selected.";
-
-            }
-
-
-            return `${option.label}. ${option.text}`;
-
-        },
-
-
-        // =========================================================
-        // CORRECT ANSWER TEXT
-        // =========================================================
-
-        correctAnswerText(question) {
-
-            const option =
-                this.getCorrectOption(question);
-
-
-            if (!option) {
-
-                return "Correct answer not supplied.";
-
-            }
-
-
-            return `${option.label}. ${option.text}`;
-
-        },
-
-
-        // =========================================================
-        // ACTIVE REVIEW QUESTION
-        //
-        // Used only defensively by isCorrectOption().
-        // =========================================================
-
-        activeReviewQuestion: null,
-
-
-        // =========================================================
-        // PREPARE CHART
-        // =========================================================
 
         prepareResultChart() {
-
+            if (!this.result) return;
             this.$nextTick(() => {
+                const canvas = document.getElementById("resultBreakdownChart");
+                if (!canvas || typeof Chart === "undefined") return;
 
-                this.renderResultChart();
-
-            });
-
-        },
-
-
-        // =========================================================
-        // RENDER SUBJECT CHART
-        // =========================================================
-
-        renderResultChart() {
-
-            const canvas =
-                document.getElementById(
-                    "resultSubjectChart"
-                );
-
-
-            if (!canvas) {
-                return;
-            }
-
-
-            if (
-                typeof window.Chart === "undefined"
-            ) {
-
-                console.warn(
-                    "Chart.js is not available."
-                );
-
-                return;
-            }
-
-
-            if (this.resultChart) {
-
-                try {
-
+                if (this.resultChart) {
                     this.resultChart.destroy();
-
-                }
-                catch (error) {
-
-                    console.warn(
-                        "Unable to destroy previous chart:",
-                        error
-                    );
-
                 }
 
-                this.resultChart = null;
-
-            }
-
-
-            const subjects =
-                this.resultSubjects;
-
-
-            const labels =
-                subjects.map(
-                    subject =>
-                        subject.subject_name
-                );
-
-
-            const percentages =
-                subjects.map(
-                    subject =>
-                        Number(
-                            subject.percentage || 0
-                        )
-                );
-
-
-            this.resultChart =
-                new Chart(
-                    canvas.getContext("2d"),
-                    {
-                        type: "bar",
-
-                        data: {
-                            labels: labels,
-
-                            datasets: [
-                                {
-                                    label: "Percentage",
-
-                                    data: percentages,
-
-                                    borderWidth: 1,
-                                },
+                const ctx = canvas.getContext("2d");
+                this.resultChart = new Chart(ctx, {
+                    type: "doughnut",
+                    data: {
+                        labels: ["Correct", "Wrong", "Unanswered"],
+                        datasets: [{
+                            data: [
+                                Number(this.result.correct || 0),
+                                Number(this.result.wrong || 0),
+                                Number(this.result.unanswered || 0),
                             ],
-                        },
-
-                        options: {
-                            responsive: true,
-
-                            maintainAspectRatio: false,
-
-                            scales: {
-
-                                y: {
-
-                                    beginAtZero: true,
-
-                                    max: 100,
-
-                                    ticks: {
-
-                                        callback: function(value) {
-
-                                            return value + "%";
-
-                                        },
-
-                                    },
-
-                                },
-
+                            backgroundColor: ["#16a34a", "#dc2626", "#9ca3af"],
+                            borderWidth: 2,
+                            borderColor: "#ffffff",
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: "bottom",
+                                labels: { boxWidth: 12, padding: 14 },
                             },
-
-                            plugins: {
-
-                                legend: {
-                                    display: false,
-                                },
-
-                                tooltip: {
-
-                                    callbacks: {
-
-                                        label: function(context) {
-
-                                            return (
-                                                context.raw +
-                                                "%"
-                                            );
-
-                                        },
-
-                                    },
-
-                                },
-
-                            },
-
                         },
-
-                    }
-                );
-
+                    },
+                });
+            });
         },
 
+        get filteredReviewQuestions() {
+            if (!this.result || !Array.isArray(this.result.review)) return [];
+            let list = this.result.review;
 
-        // =========================================================
-        // PRINT RESULT
-        // =========================================================
+            if (this.resultReviewSubjectFilter !== "all") {
+                list = list.filter(q => Number(q.subject_id) === Number(this.resultReviewSubjectFilter));
+            }
+
+            if (this.resultReviewFilter === "correct") {
+                list = list.filter(q => q.is_correct === true);
+            } else if (this.resultReviewFilter === "wrong") {
+                list = list.filter(q => q.is_answered && !q.is_correct);
+            } else if (this.resultReviewFilter === "unanswered") {
+                list = list.filter(q => !q.is_answered);
+            }
+
+            return list;
+        },
 
         printResult() {
+            if (!this.result) return;
+            this.showToast("Opening native print dialog...", "info");
+            if (window.examBridge && typeof window.examBridge.print_current_page === "function") {
+                window.examBridge.print_current_page((response) => {
+                    try {
+                        const data = this.parseBridgeResponse(response);
+                        if (data && data.success) {
+                            this.showToast("Document sent to printer successfully!", "success");
+                        }
+                    } catch (e) {}
+                });
+            } else {
+                this.$nextTick(() => {
+                    window.print();
+                });
+            }
+        },
 
-            if (!this.result) {
+        downloadResultPDF() {
+            if (!this.result) return;
+            const currentExamId = Number(this.examId || this.result.exam_id);
+
+            if (!window.examBridge || typeof window.examBridge.generate_result_pdf_reportlab !== "function") {
+                this.printResult();
                 return;
             }
 
+            this.loading = true;
+            this.loadingMessage = "Generating PDF transcript using ReportLab...";
 
-            this.$nextTick(() => {
-
-                window.print();
-
+            window.examBridge.generate_result_pdf_reportlab(currentExamId, (response) => {
+                this.loading = false;
+                try {
+                    const data = this.parseBridgeResponse(response);
+                    if (data.success) {
+                        this.showToast(`Result PDF transcript saved & opened!`, "success", 5000);
+                    } else {
+                        this.setError(data.error || "Unable to generate PDF.");
+                        this.showToast(data.error || "Unable to generate PDF.", "error");
+                    }
+                } catch (err) {
+                    this.setError("Error parsing PDF response.");
+                }
             });
-
         },
-
-
-        // =========================================================
-        // RETURN TO APP
-        // =========================================================
 
         returnToApp() {
-
             this.showTimeoutOverlay = false;
-
             this.timeoutCompleting = false;
-
             this.timeoutComplete = false;
-
             this.result = null;
-
             this.exam = null;
-
             this.examId = null;
-
             this.subjectIndex = 0;
-
             this.questionIndex = 0;
-
             this.remainingSeconds = 0;
-
             this.timeExpiredHandled = false;
-
             this.stopTimers();
-
             this.screen = "selection";
-
             this.loadYears();
-
         },
 
-
-        // =========================================================
-        // RESTART APPLICATION
-        // =========================================================
-
         restartApplication() {
+            if (!window.examBridge || typeof window.examBridge.restart_application !== "function") {
+                this.returnToApp();
+                return;
+            }
+            this.showToast("Restarting application...", "info");
+            window.examBridge.restart_application(() => {});
+        },
 
-            if (
-                !window.examBridge ||
-                typeof window.examBridge.restart_application !== "function"
-            ) {
+        // =========================================================
+        // ADMIN DASHBOARD LOGIC (STUDENT HISTORY & USER CRUD)
+        // =========================================================
 
-                this.setError(
-                    "The Python bridge does not expose restart_application()."
+        loadAdminData() {
+            this.loadAllStudents();
+            this.loadAllUsers();
+        },
+
+        // --- TAB 1: STUDENT RECORDS & TRANSCRIPTS ---
+
+        loadAllStudents() {
+            if (!window.examBridge || typeof window.examBridge.get_all_student_records !== "function") return;
+
+            window.examBridge.get_all_student_records((response) => {
+                try {
+                    const data = this.parseBridgeResponse(response);
+                    if (data.success) {
+                        this.adminStudents = data.students || [];
+                    }
+                } catch (err) {
+                    console.error("Error loading student records:", err);
+                }
+            });
+        },
+
+        get filteredStudents() {
+            let list = this.adminStudents;
+            const q = this.adminSearchQuery.trim().toLowerCase();
+            if (q) {
+                list = list.filter(s =>
+                    (s.name && s.name.toLowerCase().includes(q)) ||
+                    (s.student_class && s.student_class.toLowerCase().includes(q))
                 );
+            }
+            if (this.adminClassFilter !== "all") {
+                list = list.filter(s => (s.student_class || "").toLowerCase() === this.adminClassFilter.toLowerCase());
+            }
+            return list;
+        },
 
+        get paginatedStudents() {
+            const start = (this.adminCurrentPage - 1) * this.adminItemsPerPage;
+            return this.filteredStudents.slice(start, start + this.adminItemsPerPage);
+        },
+
+        get totalStudentPages() {
+            return Math.max(1, Math.ceil(this.filteredStudents.length / this.adminItemsPerPage));
+        },
+
+        get distinctStudentClasses() {
+            const set = new Set();
+            this.adminStudents.forEach(s => {
+                if (s.student_class) set.add(s.student_class);
+            });
+            return Array.from(set).sort();
+        },
+
+        viewStudentHistory(studentName) {
+            if (!window.examBridge || typeof window.examBridge.get_student_history !== "function") return;
+
+            this.historyLoading = true;
+            this.showStudentHistoryModal = true;
+            this.selectedStudentHistory = null;
+
+            window.examBridge.get_student_history(studentName, (response) => {
+                this.historyLoading = false;
+                try {
+                    const data = this.parseBridgeResponse(response);
+                    if (data.success) {
+                        this.selectedStudentHistory = data;
+                    } else {
+                        this.showToast(data.error || "Failed to load student history.", "error");
+                    }
+                } catch (err) {
+                    this.historyLoading = false;
+                    this.showToast("Error reading student history.", "error");
+                }
+            });
+        },
+
+        closeStudentHistoryModal() {
+            this.showStudentHistoryModal = false;
+            this.selectedStudentHistory = null;
+        },
+
+        promptDeleteStudentRecords(studentName) {
+            this.deleteConfirmData = {
+                type: "student",
+                id: studentName,
+                name: studentName,
+                loading: false,
+            };
+            this.showDeleteConfirmModal = true;
+        },
+
+        deleteStudentRecords(studentName) {
+            if (!window.examBridge || typeof window.examBridge.delete_student_records !== "function") return;
+
+            this.deleteConfirmData.loading = true;
+            window.examBridge.delete_student_records(studentName, (response) => {
+                this.showDeleteConfirmModal = false;
+                this.deleteConfirmData.loading = false;
+                try {
+                    const data = this.parseBridgeResponse(response);
+                    if (data.success) {
+                        this.showToast(data.message || `Exam records for candidate '${studentName}' deleted.`, "success");
+                        this.loadAllStudents();
+                        if (this.showStudentHistoryModal) {
+                            this.closeStudentHistoryModal();
+                        }
+                    } else {
+                        this.showToast(data.error || "Failed to delete student records.", "error");
+                    }
+                } catch (e) {
+                    this.showToast("Error deleting records.", "error");
+                }
+            });
+        },
+
+        printStudentHistory() {
+            this.showToast("Opening candidate history print dialog...", "info");
+            if (window.examBridge && typeof window.examBridge.print_current_page === "function") {
+                window.examBridge.print_current_page((response) => {
+                    try {
+                        const data = this.parseBridgeResponse(response);
+                        if (data && data.success) {
+                            this.showToast("Candidate history sent to printer!", "success");
+                        }
+                    } catch (e) {}
+                });
+            } else {
+                this.$nextTick(() => {
+                    window.print();
+                });
+            }
+        },
+
+        downloadStudentHistoryPDF() {
+            if (!this.selectedStudentHistory) return;
+            const name = this.selectedStudentHistory.student_name;
+
+            if (!window.examBridge || typeof window.examBridge.generate_student_history_pdf !== "function") {
+                this.printStudentHistory();
                 return;
             }
 
+            this.showToast("Generating student transcript PDF...", "info");
 
-            /*
-             * The Python bridge starts a fresh process
-             * and then closes the current process.
-             */
-
-            window.examBridge.restart_application(
-                (response) => {
-
-                    try {
-
-                        const data =
-                            this.parseBridgeResponse(response);
-
-
-                        if (!data.success) {
-
-                            console.error(
-                                "Restart failed:",
-                                data.error
-                            );
-
-                            this.setError(
-                                data.error ||
-                                "Unable to restart application."
-                            );
-
-                        }
-
+            window.examBridge.generate_student_history_pdf(name, (response) => {
+                try {
+                    const data = this.parseBridgeResponse(response);
+                    if (data.success) {
+                        this.showToast("Student transcript PDF saved and opened!", "success", 5000);
+                    } else {
+                        this.showToast(data.error || "Could not generate history PDF.", "error");
                     }
-                    catch (error) {
-
-                        console.error(
-                            "Restart response error:",
-                            error
-                        );
-
-                    }
-
+                } catch (err) {
+                    this.showToast("PDF error occurred.", "error");
                 }
-            );
-
+            });
         },
 
+        // --- TAB 2: USER MANAGEMENT CRUD ---
+
+        loadAllUsers() {
+            if (!window.examBridge || typeof window.examBridge.get_all_users !== "function") return;
+
+            window.examBridge.get_all_users((response) => {
+                try {
+                    const data = this.parseBridgeResponse(response);
+                    if (data.success) {
+                        this.allUsers = data.users || [];
+                    }
+                } catch (e) {
+                    console.error("Error loading users:", e);
+                }
+            });
+        },
+
+        get filteredUsers() {
+            let list = this.allUsers;
+            const q = this.userSearchQuery.trim().toLowerCase();
+            if (q) {
+                list = list.filter(u =>
+                    (u.username && u.username.toLowerCase().includes(q)) ||
+                    (u.full_name && u.full_name.toLowerCase().includes(q)) ||
+                    (u.student_class && u.student_class.toLowerCase().includes(q))
+                );
+            }
+            if (this.userRoleFilter !== "all") {
+                list = list.filter(u => u.role === this.userRoleFilter);
+            }
+            if (this.userClassFilter !== "all") {
+                list = list.filter(u => (u.student_class || "").toLowerCase() === this.userClassFilter.toLowerCase());
+            }
+            return list;
+        },
+
+        get paginatedUsers() {
+            const start = (this.userCurrentPage - 1) * this.userItemsPerPage;
+            return this.filteredUsers.slice(start, start + this.userItemsPerPage);
+        },
+
+        get totalUserPages() {
+            return Math.max(1, Math.ceil(this.filteredUsers.length / this.userItemsPerPage));
+        },
+
+        openAddUserModal() {
+            this.userModalMode = "create";
+            this.editingUserId = null;
+            this.userForm = {
+                username: "",
+                password: "",
+                full_name: "",
+                role: "student",
+                student_class: "SS3",
+                admission_year: new Date().getFullYear(),
+                is_active: true,
+                loading: false,
+                error: "",
+            };
+            this.showUserModal = true;
+        },
+
+        openEditUserModal(user) {
+            this.userModalMode = "edit";
+            this.editingUserId = user.id;
+            this.userForm = {
+                username: user.username,
+                password: "",
+                full_name: user.full_name,
+                role: user.role,
+                student_class: user.student_class || "",
+                admission_year: user.admission_year || new Date().getFullYear(),
+                is_active: Boolean(user.is_active),
+                loading: false,
+                error: "",
+            };
+            this.showUserModal = true;
+        },
+
+        closeUserModal() {
+            this.showUserModal = false;
+        },
+
+        saveUser() {
+            const form = this.userForm;
+            if (!form.username.trim() || !form.full_name.trim()) {
+                form.error = "Username and Full Name are required.";
+                this.showToast("Username and Full Name are required.", "warning");
+                return;
+            }
+
+            form.loading = true;
+            form.error = "";
+
+            if (this.userModalMode === "create") {
+                if (!window.examBridge || typeof window.examBridge.register_user !== "function") return;
+
+                window.examBridge.register_user(
+                    form.username.trim(),
+                    form.password.trim() || "cbt123",
+                    form.full_name.trim(),
+                    form.role,
+                    form.student_class.trim(),
+                    String(form.admission_year || ""),
+                    (response) => {
+                        form.loading = false;
+                        try {
+                            const data = this.parseBridgeResponse(response);
+                            if (data.success) {
+                                this.showToast(`User '${data.user.username}' created successfully!`, "success");
+                                this.showUserModal = false;
+                                this.loadAllUsers();
+                            } else {
+                                form.error = data.error || "Failed to create user.";
+                                this.showToast(data.error || "Failed to create user.", "error");
+                            }
+                        } catch (err) {
+                            form.error = "Error creating user.";
+                        }
+                    }
+                );
+            } else {
+                if (!window.examBridge || typeof window.examBridge.update_user !== "function") return;
+
+                window.examBridge.update_user(
+                    Number(this.editingUserId),
+                    form.username.trim(),
+                    form.password.trim(),
+                    form.full_name.trim(),
+                    form.role,
+                    form.student_class.trim(),
+                    String(form.admission_year || ""),
+                    String(form.is_active),
+                    (response) => {
+                        form.loading = false;
+                        try {
+                            const data = this.parseBridgeResponse(response);
+                            if (data.success) {
+                                this.showToast(`User '${data.user.username}' updated successfully!`, "success");
+                                this.showUserModal = false;
+                                this.loadAllUsers();
+                            } else {
+                                form.error = data.error || "Failed to update user.";
+                                this.showToast(data.error || "Failed to update user.", "error");
+                            }
+                        } catch (err) {
+                            form.error = "Error updating user.";
+                        }
+                    }
+                );
+            }
+        },
+
+        promptDeleteUser(user) {
+            this.deleteConfirmData = {
+                type: "user",
+                id: user.id,
+                name: user.full_name || user.username,
+                loading: false,
+            };
+            this.showDeleteConfirmModal = true;
+        },
+
+        deleteUser(userId) {
+            const user = this.allUsers.find(u => u.id === userId);
+            const name = user ? (user.full_name || user.username) : "User";
+
+            if (!window.examBridge || typeof window.examBridge.delete_user !== "function") return;
+
+            this.deleteConfirmData.loading = true;
+            window.examBridge.delete_user(Number(userId), (response) => {
+                this.showDeleteConfirmModal = false;
+                this.deleteConfirmData.loading = false;
+                try {
+                    const data = this.parseBridgeResponse(response);
+                    if (data.success) {
+                        this.showToast(`User account '${name}' deleted successfully.`, "success");
+                        this.loadAllUsers();
+                    } else {
+                        this.showToast(data.error || "Failed to delete user.", "error");
+                    }
+                } catch (e) {
+                    this.showToast("Error deleting user.", "error");
+                }
+            });
+        },
+
+        confirmDeleteAction() {
+            if (this.deleteConfirmData.type === "student") {
+                this.deleteStudentRecords(this.deleteConfirmData.id);
+            } else if (this.deleteConfirmData.type === "user") {
+                this.deleteUser(this.deleteConfirmData.id);
+            }
+        },
+
+        cancelDeleteAction() {
+            this.showDeleteConfirmModal = false;
+            this.showToast("Deletion cancelled.", "info");
+        },
 
         // =========================================================
-        // ERROR
+        // HELPERS
         // =========================================================
 
         setError(message) {
-
-            this.error =
-                String(
-                    message ||
-                    "An unexpected error occurred."
-                );
-
-
-            this.loading = false;
-
+            this.error = message;
+            this.showToast(message, "error");
         },
-
-
-        // =========================================================
-        // CLEAR ERROR
-        // =========================================================
 
         clearError() {
-
             this.error = null;
-
-
-            if (!this.exam) {
-
-                this.screen = "selection";
-
-                this.loadYears();
-
-                return;
-            }
-
-
-            this.screen = "exam";
-
         },
-
-
-        // =========================================================
-        // BRIDGE RESPONSE PARSER
-        // =========================================================
 
         parseBridgeResponse(response) {
-
-            if (
-                typeof response === "string"
-            ) {
-
+            if (typeof response === "string") {
                 return JSON.parse(response);
-
             }
-
-
-            if (
-                response &&
-                typeof response === "object"
-            ) {
-
-                return response;
-
-            }
-
-
-            throw new Error(
-                "Empty response from Python bridge."
-            );
-
-        },
-
-
-        // =========================================================
-        // CLEANUP
-        // =========================================================
-
-        destroy() {
-
-            this.stopTimers();
-
-
-            if (this.resultChart) {
-
-                try {
-
-                    this.resultChart.destroy();
-
-                }
-                catch (error) {
-
-                    console.warn(error);
-
-                }
-
-                this.resultChart = null;
-
-            }
-
+            return response;
         },
 
     }));
