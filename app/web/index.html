@@ -518,17 +518,27 @@
             <div class="grid lg:grid-cols-4 gap-8 items-start">
                 <!-- QUESTION CONTAINER -->
                 <section class="lg:col-span-3 bg-white rounded-3xl shadow-sm border border-slate-200 p-6 sm:p-8">
-                    <div class="flex items-center justify-between pb-6 border-b border-slate-100 gap-4">
-                        <div>
-                            <span class="text-xs font-extrabold text-blue-600 uppercase tracking-wider block" x-text="currentSubject?.name"></span>
-                            <h2 class="text-xl font-black text-slate-900">
-                                Question <span x-text="displayQuestionNumber"></span>
-                                <span class="text-sm font-semibold text-slate-400"> of <span x-text="currentSubject?.questions?.length || 0"></span></span>
-                            </h2>
+                    <div class="pb-6 border-b border-slate-100 space-y-3">
+                        <div class="flex items-center justify-between gap-4">
+                            <div>
+                                <span class="text-xs font-extrabold text-blue-600 uppercase tracking-wider block" x-text="currentSubject?.name"></span>
+                                <h2 class="text-xl font-black text-slate-900">
+                                    Question <span x-text="displayQuestionNumber"></span>
+                                    <span class="text-sm font-semibold text-slate-400"> of <span x-text="currentSubject?.questions?.length || 0"></span></span>
+                                </h2>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs font-bold text-slate-500 block">Overall Progress</span>
+                                <span class="text-sm font-extrabold text-blue-600" x-text="`${overallProgressPercent}% Answered`"></span>
+                            </div>
                         </div>
-                        <div class="text-right">
-                            <span class="text-xs font-bold text-slate-500 block">Overall Progress</span>
-                            <span class="text-sm font-extrabold text-blue-600" x-text="`${overallProgressPercent}% Answered`"></span>
+
+                        <!-- OVERALL PROGRESS BAR -->
+                        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                            <div
+                                class="bg-gradient-to-r from-blue-600 to-indigo-600 h-full transition-all duration-300 rounded-full"
+                                :style="`width: ${overallProgressPercent}%`"
+                            ></div>
                         </div>
                     </div>
 
@@ -632,8 +642,21 @@
                         </template>
                     </div>
 
-                    <!-- PALETTE LEGEND -->
-                    <div class="pt-4 border-t border-slate-100 space-y-2 text-xs text-slate-600">
+                    <!-- PALETTE LEGEND & PROGRESS -->
+                    <div class="pt-4 border-t border-slate-100 space-y-3 text-xs text-slate-600">
+                        <div class="space-y-1.5">
+                            <div class="flex items-center justify-between font-bold">
+                                <span>Subject Progress</span>
+                                <span class="text-blue-600 font-black" x-text="`${subjectProgressPercent(currentSubject)}%`"></span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                <div
+                                    class="bg-emerald-500 h-full transition-all duration-300 rounded-full"
+                                    :style="`width: ${subjectProgressPercent(currentSubject)}%`"
+                                ></div>
+                            </div>
+                        </div>
+
                         <div class="flex items-center gap-2">
                             <span class="h-3.5 w-3.5 rounded-md bg-blue-600"></span>
                             <span>Answered (<b x-text="subjectAnsweredCount(currentSubject)"></b>)</span>

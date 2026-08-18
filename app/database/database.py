@@ -123,7 +123,32 @@ def init_database() -> None:
             if "user_id" not in col_names:
                 conn.execute(text("ALTER TABLE exam_sessions ADD COLUMN user_id INTEGER REFERENCES users(id)"))
                 conn.commit()
-                print("Migrated: added user_id column to exam_sessions.")
+
+            # Check questions columns
+            res_q = conn.execute(text("PRAGMA table_info(questions)")).fetchall()
+            q_cols = [row[1] for row in res_q]
+            if "image_path" not in q_cols:
+                conn.execute(text("ALTER TABLE questions ADD COLUMN image_path VARCHAR(500)"))
+                conn.commit()
+            if "source_reference" not in q_cols:
+                conn.execute(text("ALTER TABLE questions ADD COLUMN source_reference VARCHAR(255)"))
+                conn.commit()
+            if "source_page" not in q_cols:
+                conn.execute(text("ALTER TABLE questions ADD COLUMN source_page INTEGER"))
+                conn.commit()
+            if "explanation" not in q_cols:
+                conn.execute(text("ALTER TABLE questions ADD COLUMN explanation TEXT"))
+                conn.commit()
+
+            # Check users columns
+            res_u = conn.execute(text("PRAGMA table_info(users)")).fetchall()
+            u_cols = [row[1] for row in res_u]
+            if "student_class" not in u_cols:
+                conn.execute(text("ALTER TABLE users ADD COLUMN student_class VARCHAR(50)"))
+                conn.commit()
+            if "admission_year" not in u_cols:
+                conn.execute(text("ALTER TABLE users ADD COLUMN admission_year INTEGER"))
+                conn.commit()
     except Exception as mig_err:
         print("Schema migration check:", mig_err)
 
