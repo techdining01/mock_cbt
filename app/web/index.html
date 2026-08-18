@@ -231,6 +231,13 @@
             
             <div class="space-y-4">
                 <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">Role <span class="text-red-500">*</span></label>
+                    <select x-model="studentRegisterForm.role" class="w-full rounded-xl border border-gray-300 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <option value="student">Student</option>
+                        <option value="admin">Administrator</option>
+                    </select>
+                </div>
+                <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">Username <span class="text-red-500">*</span></label>
                     <input type="text" x-model="studentRegisterForm.username" placeholder="e.g. johndoe" class="w-full rounded-xl border border-gray-300 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                 </div>
@@ -1149,6 +1156,91 @@
 
 
     <!-- =========================================================
+         SESSION SUMMARY
+         ========================================================= -->
+    <template x-if="!loading && screen === 'session_summary'">
+        <main class="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
+            <div class="bg-white rounded-3xl shadow-xl border border-slate-200 p-8 sm:p-10 space-y-8">
+                <div class="text-center">
+                    <div class="inline-flex items-center justify-center h-20 w-20 rounded-full bg-blue-100 mb-6">
+                        <span class="text-4xl">🎓</span>
+                    </div>
+                    <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Candidate CBT Session</h1>
+                    <p class="mt-2 text-slate-500">Review your examination details before starting</p>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="grid sm:grid-cols-2 gap-6">
+                        <div class="bg-slate-50 rounded-2xl p-5 border border-slate-200">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Candidate Name</p>
+                            <p class="text-lg font-bold text-slate-900" x-text="studentFullName"></p>
+                        </div>
+                        <div class="bg-slate-50 rounded-2xl p-5 border border-slate-200">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Username</p>
+                            <p class="text-lg font-bold text-slate-900" x-text="studentUsername"></p>
+                        </div>
+                    </div>
+
+                    <div class="grid sm:grid-cols-2 gap-6">
+                        <div class="bg-slate-50 rounded-2xl p-5 border border-slate-200">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Academic Year</p>
+                            <p class="text-lg font-bold text-slate-900" x-text="selectedYear"></p>
+                        </div>
+                        <div class="bg-slate-50 rounded-2xl p-5 border border-slate-200">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Duration</p>
+                            <p class="text-lg font-bold text-slate-900" x-text="`${durationMinutes} minutes`"></p>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50 rounded-2xl p-5 border border-blue-200">
+                        <p class="text-xs font-bold text-blue-600 uppercase tracking-wider mb-3">Selected Subjects</p>
+                        <div class="flex flex-wrap gap-2">
+                            <template x-for="subject in selectedSubjects" :key="subject.id">
+                                <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-blue-200 text-sm font-semibold text-slate-700">
+                                    <span x-text="subject.name"></span>
+                                    <span class="text-xs text-slate-400">(<span x-text="subject.question_count"></span> questions)</span>
+                                </span>
+                            </template>
+                        </div>
+                    </div>
+
+                    <div class="bg-emerald-50 rounded-2xl p-5 border border-emerald-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">Total Questions</p>
+                                <p class="text-3xl font-black text-emerald-700" x-text="selectedQuestionCount"></p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">Subjects</p>
+                                <p class="text-3xl font-black text-emerald-700" x-text="selectedSubjectIds.length"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-4 pt-4">
+                    <button
+                        type="button"
+                        @click="screen = 'selection'"
+                        class="flex-1 px-6 py-4 rounded-2xl border border-slate-300 bg-white font-bold text-slate-700 hover:bg-slate-50 active:scale-95 transition"
+                    >
+                        ← Back to Setup
+                    </button>
+                    <button
+                        type="button"
+                        @click="startExam()"
+                        class="flex-1 px-6 py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black hover:from-blue-700 hover:to-indigo-700 active:scale-95 shadow-xl shadow-blue-600/25 transition flex items-center justify-center gap-2"
+                    >
+                        <span>Start Examination</span>
+                        <span>🚀</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </template>
+
+
+    <!-- =========================================================
          QUESTION IMPORT
          ========================================================= -->
     <template x-if="!loading && screen === 'import'">
@@ -1304,6 +1396,7 @@
                     <section
                         id="exam-question-area"
                         class="lg:col-span-3 bg-white rounded-3xl shadow-sm hover:shadow-md border border-slate-200 p-6 sm:p-8 space-y-6 transition-all duration-200"
+                        style="min-height: 75vh;"
                     >
                         <div class="pb-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                             <div>
@@ -1453,11 +1546,6 @@
                     </aside>
                 </div>
             </div>
-        </main>
-    </template></div>
-
-            </div>
-
         </main>
     </template>
 
@@ -1729,140 +1817,200 @@
                     </div>
                 </section>
 
-                <!-- QUESTION BREAKDOWN REVIEW -->
-                <section class="space-y-6">
-                    <div class="flex items-center justify-between">
+                <!-- DETAILED QUESTION REVIEW & EXPLANATIONS -->
+                <div class="space-y-4 pt-4 border-t border-slate-200">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div>
-                            <h2 class="text-xl font-extrabold text-slate-900">Question Review & Explanations</h2>
-                            <p class="text-xs text-slate-500 mt-0.5">Comprehensive breakdown of your answers, key solutions, and academic explanations.</p>
+                            <h3 class="text-lg font-black text-slate-900 flex items-center gap-2">
+                                <span>📖</span>
+                                <span>Detailed Question Review & Explanations</span>
+                            </h3>
+                            <p class="text-xs text-slate-500">Review all questions, your submitted answers, correct choices, and step-by-step academic explanations.</p>
+                        </div>
+
+                        <!-- FILTER BUTTONS -->
+                        <div class="flex flex-wrap items-center gap-1.5 no-print">
+                            <button
+                                type="button"
+                                @click="resultReviewFilter = 'all'"
+                                class="px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer"
+                                :class="resultReviewFilter === 'all' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'"
+                            >
+                                All (<span x-text="result?.review?.length || 0"></span>)
+                            </button>
+                            <button
+                                type="button"
+                                @click="resultReviewFilter = 'correct'"
+                                class="px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer"
+                                :class="resultReviewFilter === 'correct' ? 'bg-emerald-600 text-white' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'"
+                            >
+                                ✓ Correct (<span x-text="result?.correct || 0"></span>)
+                            </button>
+                            <button
+                                type="button"
+                                @click="resultReviewFilter = 'wrong'"
+                                class="px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer"
+                                :class="resultReviewFilter === 'wrong' ? 'bg-rose-600 text-white' : 'bg-rose-50 text-rose-700 hover:bg-rose-100'"
+                            >
+                                ✕ Wrong (<span x-text="result?.wrong || 0"></span>)
+                            </button>
+                            <button
+                                type="button"
+                                @click="resultReviewFilter = 'unanswered'"
+                                class="px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer"
+                                :class="resultReviewFilter === 'unanswered' ? 'bg-amber-600 text-white' : 'bg-amber-50 text-amber-700 hover:bg-amber-100'"
+                            >
+                                ⚠️ Unanswered (<span x-text="result?.unanswered || 0"></span>)
+                            </button>
                         </div>
                     </div>
 
-                    <div class="space-y-5">
-                        <template x-for="(question, reviewIndex) in resultReview" :key="question.exam_question_id">
-                            <article class="rounded-3xl border border-slate-200 bg-white overflow-hidden shadow-xs hover:shadow-sm transition-all duration-200">
-                                <!-- CARD TOP BAR -->
-                                <div
-                                    class="px-6 py-4 border-b flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
-                                    :class="reviewHeaderClass(question)"
-                                >
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-xs font-extrabold uppercase tracking-wider text-slate-700" x-text="question.subject_name"></span>
-                                        <span class="text-slate-400">·</span>
-                                        <span class="text-sm font-black text-slate-900" x-text="`Question ${question.number}`"></span>
-                                    </div>
-
-                                    <span
-                                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black self-start sm:self-auto shadow-2xs"
-                                        :class="reviewStatusClass(question)"
-                                        x-text="reviewStatusText(question)"
-                                    ></span>
-                                </div>
-
-                                <!-- QUESTION BODY -->
-                                <div class="p-6 sm:p-7 space-y-6">
-                                    <p class="text-slate-900 font-medium text-base sm:text-lg leading-relaxed whitespace-pre-line" x-text="question.text"></p>
-
-                                    <!-- OPTIONS -->
-                                    <div class="space-y-2.5">
-                                        <template x-for="option in question.options" :key="option.id">
-                                            <div
-                                                class="rounded-2xl border p-3.5 transition-all"
-                                                :class="reviewOptionClass(question, option)"
-                                            >
-                                                <div class="flex items-start gap-3.5">
-                                                    <span
-                                                        class="h-7 w-7 shrink-0 rounded-xl border flex items-center justify-center text-xs font-black"
-                                                        x-text="option.label"
-                                                    ></span>
-
-                                                    <div class="flex-1 min-w-0">
-                                                        <p class="text-sm text-slate-800 leading-relaxed" x-text="option.text"></p>
-
-                                                        <template x-if="question.correct_option_id !== null && Number(option.id) === Number(question.correct_option_id)">
-                                                            <span class="inline-block mt-1 text-[11px] font-extrabold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md">
-                                                                ✓ Correct Answer
-                                                            </span>
-                                                        </template>
-
-                                                        <template x-if="question.selected_option_id !== null && Number(option.id) === Number(question.selected_option_id) && Number(option.id) !== Number(question.correct_option_id)">
-                                                            <span class="inline-block mt-1 text-[11px] font-extrabold text-rose-700 bg-rose-100 px-2 py-0.5 rounded-md">
-                                                                ✗ Your Answer
-                                                            </span>
-                                                        </template>
-
-                                                        <template x-if="question.selected_option_id !== null && question.correct_option_id !== null && Number(option.id) === Number(question.selected_option_id) && Number(option.id) === Number(question.correct_option_id)">
-                                                            <span class="inline-block mt-1 text-[11px] font-extrabold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md">
-                                                                ✓ Your Answer · Correct
-                                                            </span>
-                                                        </template>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </template>
-                                    </div>
-
-                                    <!-- COMPARISON ROW -->
-                                    <div class="grid md:grid-cols-2 gap-4">
-                                        <div class="rounded-2xl bg-slate-50 border border-slate-200 p-4">
-                                            <p class="text-[10px] uppercase tracking-wider text-slate-400 font-extrabold">Your Candidate Selection</p>
-                                            <p class="mt-1 text-sm font-bold text-slate-800" x-text="studentAnswerText(question)"></p>
-                                        </div>
-
-                                        <div class="rounded-2xl bg-emerald-50 border border-emerald-200 p-4">
-                                            <p class="text-[10px] uppercase tracking-wider text-emerald-700 font-extrabold">Official Correct Key</p>
-                                            <p class="mt-1 text-sm font-bold text-emerald-950" x-text="correctAnswerText(question)"></p>
-                                        </div>
-                                    </div>
-
-                                    <!-- EXPLANATION CALLOUT -->
-                                    <div class="rounded-2xl bg-blue-50/80 border border-blue-200/80 p-5 space-y-1.5">
-                                        <div class="flex items-center gap-2 text-blue-900 font-extrabold text-xs uppercase tracking-wide">
-                                            <span>💡</span>
-                                            <span>Academic Explanation</span>
-                                        </div>
-                                        <p
-                                            class="text-sm leading-relaxed text-blue-950 whitespace-pre-line"
-                                            x-text="question.explanation || 'No prepared explanation is attached to this question.'"
-                                        ></p>
-                                    </div>
-                                </div>
-                            </article>
+                    <!-- SUBJECT SELECTOR FILTER IF MULTIPLE SUBJECTS -->
+                    <div class="no-print flex items-center gap-2 overflow-x-auto py-1" x-show="(result?.subjects || []).length > 1">
+                        <button
+                            type="button"
+                            @click="resultReviewSubjectFilter = 'all'"
+                            class="px-3 py-1 rounded-xl text-xs font-bold border transition whitespace-nowrap cursor-pointer"
+                            :class="resultReviewSubjectFilter === 'all' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'"
+                        >
+                            All Subjects
+                        </button>
+                        <template x-for="subj in (result?.subjects || [])" :key="subj.subject_id">
+                            <button
+                                type="button"
+                                @click="resultReviewSubjectFilter = subj.subject_id"
+                                class="px-3 py-1 rounded-xl text-xs font-bold border transition whitespace-nowrap cursor-pointer"
+                                :class="resultReviewSubjectFilter === subj.subject_id ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'"
+                                x-text="subj.subject_name"
+                            ></button>
                         </template>
                     </div>
-                </section>
+
+                    <!-- QUESTIONS REVIEW LIST -->
+                    <div class="space-y-4 pt-2">
+                        <template x-for="(q, idx) in filteredReviewQuestions" :key="`${q.subject_id}_${q.number}`">
+                            <div class="p-5 sm:p-6 rounded-2xl border transition shadow-sm bg-white"
+                                 :class="{
+                                     'border-emerald-200 ring-1 ring-emerald-100': q.is_correct,
+                                     'border-rose-200 ring-1 ring-rose-100': q.is_answered && !q.is_correct,
+                                     'border-amber-200 ring-1 ring-amber-100': !q.is_answered
+                                 }">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-extrabold uppercase tracking-wider text-slate-500" x-text="q.subject_name"></span>
+                                        <span class="text-slate-300">·</span>
+                                        <span class="text-sm font-black text-slate-900" x-text="`Question ${q.number}`"></span>
+                                    </div>
+                                    <template x-if="q.is_answered">
+                                        <span class="px-3 py-1 rounded-full text-xs font-black"
+                                              :class="q.is_correct ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'"
+                                              x-text="q.is_correct ? '✓ Correct' : '✕ Wrong'"></span>
+                                    </template>
+                                    <template x-if="!q.is_answered">
+                                        <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-black flex items-center gap-1">
+                                            <span>⚠️</span> <span>Unanswered</span>
+                                        </span>
+                                    </template>
+                                </div>
+
+                                <!-- QUESTION TEXT -->
+                                <div class="mt-4 text-base font-semibold text-slate-900 leading-relaxed whitespace-pre-line" x-text="q.text"></div>
+
+                                <!-- OPTIONS LIST -->
+                                <div class="mt-4 space-y-2">
+                                    <template x-for="opt in q.options" :key="opt.id">
+                                        <div
+                                            class="p-3 rounded-xl border flex items-center justify-between gap-3 text-sm transition"
+                                            :class="{
+                                                'bg-emerald-50 border-emerald-300 text-emerald-950 font-bold': Number(opt.id) === Number(q.correct_option_id),
+                                                'bg-rose-50 border-rose-300 text-rose-950 font-bold': Number(opt.id) === Number(q.selected_option_id) && !q.is_correct,
+                                                'bg-slate-50/60 border-slate-200 text-slate-700': Number(opt.id) !== Number(q.correct_option_id) && Number(opt.id) !== Number(q.selected_option_id)
+                                            }"
+                                        >
+                                            <div class="flex items-center gap-3">
+                                                <span
+                                                    class="h-7 w-7 rounded-lg flex items-center justify-center text-xs font-black shrink-0"
+                                                    :class="{
+                                                        'bg-emerald-600 text-white': Number(opt.id) === Number(q.correct_option_id),
+                                                        'bg-rose-600 text-white': Number(opt.id) === Number(q.selected_option_id) && !q.is_correct,
+                                                        'bg-slate-200 text-slate-700': Number(opt.id) !== Number(q.correct_option_id) && Number(opt.id) !== Number(q.selected_option_id)
+                                                    }"
+                                                    x-text="opt.label"
+                                                ></span>
+                                                <span x-text="opt.text"></span>
+                                            </div>
+
+                                            <div>
+                                                <template x-if="Number(opt.id) === Number(q.correct_option_id)">
+                                                    <span class="text-xs font-black text-emerald-700 px-2 py-0.5 rounded-md bg-emerald-100/80">
+                                                        ✓ Correct Answer
+                                                    </span>
+                                                </template>
+                                                <template x-if="Number(opt.id) === Number(q.selected_option_id) && !q.is_correct">
+                                                    <span class="text-xs font-black text-rose-700 px-2 py-0.5 rounded-md bg-rose-100/80">
+                                                        ✕ Your Choice
+                                                    </span>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+
+                                <!-- DETAILED EXPLANATION BOX -->
+                                <div class="mt-4 p-4 rounded-xl bg-blue-50/80 border border-blue-200 text-xs sm:text-sm text-blue-950 space-y-1">
+                                    <div class="font-extrabold flex items-center gap-1.5 text-blue-900">
+                                        <span>💡</span>
+                                        <span>Academic Explanation & Solution:</span>
+                                    </div>
+                                    <p class="leading-relaxed font-medium text-slate-800" x-text="q.explanation || 'No further explanation required for this question.'"></p>
+                                </div>
+                            </div>
+                        </template>
+
+                        <template x-if="filteredReviewQuestions.length === 0">
+                            <div class="p-8 text-center text-slate-400 text-sm rounded-2xl border border-dashed border-slate-300">
+                                No questions match the selected review filter.
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- ACTIONS BUTTONS -->
+                <div class="no-print pt-6 border-t border-slate-100 flex flex-col sm:flex-row gap-4">
+                    <button
+                        type="button"
+                        @click="downloadResultPDF()"
+                        class="flex-1 px-6 py-4 rounded-2xl bg-emerald-600 text-white font-extrabold hover:bg-emerald-700 active:scale-95 shadow-md shadow-emerald-600/20 transition flex items-center justify-center gap-2.5 cursor-pointer text-base"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <span>Download Result (PDF)</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        @click="printResult()"
+                        class="flex-1 px-6 py-4 rounded-2xl bg-blue-600 text-white font-extrabold hover:bg-blue-700 active:scale-95 shadow-md shadow-blue-600/20 transition flex items-center justify-center gap-2.5 cursor-pointer text-base"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                        </svg>
+                        <span>Print Result Sheet</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        @click="restartApplication()"
+                        class="flex-1 px-6 py-4 rounded-2xl border border-slate-300 bg-white text-slate-800 font-extrabold hover:bg-slate-50 active:scale-95 transition flex items-center justify-center gap-2.5 cursor-pointer text-base"
+                    >
+                        <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        <span>Restart Program</span>
+                    </button>
+                </div>
             </div>
-
-            <!-- ACTION BUTTONS -->
-            <div class="no-print mt-8 flex flex-col sm:flex-row gap-4">
-                <button
-                    type="button"
-                    @click="printResult()"
-                    class="flex-1 px-6 py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold shadow-lg shadow-blue-600/20 active:scale-95 transition-all flex items-center justify-center gap-2.5 cursor-pointer"
-                >
-                    <span>🖨️</span>
-                    <span>Print Result Sheet</span>
-                </button>
-
-                <button
-                    type="button"
-                    @click="downloadResultPDF()"
-                    class="flex-1 px-6 py-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold shadow-lg shadow-emerald-600/20 active:scale-95 transition-all flex items-center justify-center gap-2.5 cursor-pointer"
-                >
-                    <span>📥</span>
-                    <span>Download PDF Transcript</span>
-                </button>
-
-                <button
-                    type="button"
-                    @click="restartApplication()"
-                    class="flex-1 px-6 py-4 rounded-2xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 font-bold active:scale-95 transition-all flex items-center justify-center gap-2.5 cursor-pointer shadow-xs"
-                >
-                    <span>🔄</span>
-                    <span>Restart Program</span>
-                </button>
-            </div>
-
         </main>
     </template>
 

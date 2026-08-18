@@ -780,20 +780,22 @@ class ExamBridge(QObject):
         except Exception as exc:
             return self._error(exc)
 
-    @Slot(str, str, str, str, str, result=str)
+    @Slot(str, str, str, str, str, str, result=str)
     def register_student(
         self,
         username: str,
         password: str,
         full_name: str,
+        role: str = "student",
         student_class: str = "",
         admission_year: str = "",
     ):
-        """Register a new student."""
+        """Register a new student or admin."""
         try:
             u_name = str(username or "").strip()
             f_name = str(full_name or "").strip()
             pwd = str(password or "").strip() or "password123"
+            user_role = str(role or "student").strip().lower()
 
             if not u_name:
                 return json.dumps({"success": False, "error": "Username is required."})
@@ -822,7 +824,7 @@ class ExamBridge(QObject):
                     username=u_name,
                     password=pwd,
                     full_name=f_name,
-                    role="student",
+                    role=user_role,
                     student_class=s_class,
                     admission_year=adm_year,
                 )

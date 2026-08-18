@@ -27,6 +27,7 @@ document.addEventListener("alpine:init", () => {
         checkingUsername: false,
         showStudentRegisterModal: false,
         studentRegisterForm: {
+            role: "student",
             username: "",
             password: "",
             full_name: "",
@@ -197,6 +198,7 @@ document.addEventListener("alpine:init", () => {
         openStudentRegisterModal(usernamePrefill) {
             const yr = this.selectedYear || new Date().getFullYear();
             this.studentRegisterForm = {
+                role: "student",
                 username: (usernamePrefill || this.studentUsername || "").trim(),
                 password: "",
                 full_name: "",
@@ -226,6 +228,7 @@ document.addEventListener("alpine:init", () => {
                 form.username.trim(),
                 form.password ? form.password.trim() : "password123",
                 form.full_name.trim(),
+                form.role || "student",
                 form.student_class ? form.student_class.trim() : "",
                 form.admission_year ? String(form.admission_year).trim() : "",
                 (response) => {
@@ -341,6 +344,9 @@ document.addEventListener("alpine:init", () => {
 
         resultChart: null,
 
+        resultReviewFilter: 'all',
+        resultReviewSubjectFilter: 'all',
+
 
         // =========================================================
         // INIT
@@ -371,6 +377,28 @@ document.addEventListener("alpine:init", () => {
 
         get isNavLocked() {
             return this.screen === 'exam' || this.screen === 'result';
+        },
+
+        get filteredReviewQuestions() {
+            if (!this.result || !this.result.review) return [];
+            
+            let questions = this.result.review;
+            
+            // Filter by correctness
+            if (this.resultReviewFilter === 'correct') {
+                questions = questions.filter(q => q.is_correct);
+            } else if (this.resultReviewFilter === 'wrong') {
+                questions = questions.filter(q => q.is_answered && !q.is_correct);
+            } else if (this.resultReviewFilter === 'unanswered') {
+                questions = questions.filter(q => !q.is_answered);
+            }
+            
+            // Filter by subject
+            if (this.resultReviewSubjectFilter !== 'all') {
+                questions = questions.filter(q => q.subject_id === this.resultReviewSubjectFilter);
+            }
+            
+            return questions;
         },
 
         // =========================================================
@@ -1322,7 +1350,8 @@ document.addEventListener("alpine:init", () => {
                         }
 
 
-                        this.startExam();
+                        this.creatingExam = false;
+                        this.screen = "session_summary";
 
                     }
                     catch (error) {
@@ -3435,182 +3464,22 @@ document.addEventListener("alpine:init", () => {
         // =========================================================
 
         printResult() {
-
-            if (!this.result) {
-                console.error("No result to print");
-                showToast("No result available to print", "error");
-                return;
-            }
-
-            const r = this.result;
-            const subjects = this.resultSubjects || [];
-            const review = this.resultReview || [];
-
-            const summaryCards = `
-                <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:24px;">
-                    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px;">
-                        <div style="font-size:12px;color:#64748b;">Total</div>
-                        <div style="font-size:22px;font-weight:700;color:#111827;margin-top:4px;">${this.escapeHtml(r.total || 0)}</div>
-                    </div>
-                    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px;">
-                        <div style="font-size:12px;color:#15803d;">Correct</div>
-                        <div style="font-size:22px;font-weight:700;color:#166534;margin-top:4px;">${this.escapeHtml(r.correct || 0)}</div>
-                    </div>
-                    <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:14px;">
-                        <div style="font-size:12px;color:#b91c1c;">Wrong</div>
-                        <div style="font-size:22px;font-weight:700;color:#991b1b;margin-top:4px;">${this.escapeHtml(r.wrong || 0)}</div>
-                    </div>
-                    <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:14px;">
-                        <div style="font-size:12px;color:#92400e;">Unanswered</div>
-                        <div style="font-size:22px;font-weight:700;color:#78350f;margin-top:4px;">${this.escapeHtml(r.unanswered || 0)}</div>
-                    </div>
-                    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px;">
-                        <div style="font-size:12px;color:#1d4ed8;">Percentage</div>
-                        <div style="font-size:22px;font-weight:700;color:#1e40af;margin-top:4px;">${this.escapeHtml(this.formatPercentage(r.percentage))}</div>
-                    </div>
-                </div>
-            `;
-
-            const subjectRows = subjects.map(s => `
-                <tr style="border-bottom:1px solid #e5e7eb;">
-                    <td style="padding:10px 8px;font-weight:600;">${this.escapeHtml(s.subject_name || '')}</td>
-                    <td style="padding:10px 8px;text-align:center;">${this.escapeHtml(s.total || 0)}</td>
-                    <td style="padding:10px 8px;text-align:center;color:#15803d;font-weight:600;">${this.escapeHtml(s.correct || 0)}</td>
-                    <td style="padding:10px 8px;text-align:center;color:#b91c1c;font-weight:600;">${this.escapeHtml(s.wrong || 0)}</td>
-                    <td style="padding:10px 8px;text-align:right;font-weight:600;">${this.escapeHtml(this.formatPercentage(s.percentage))}</td>
-                </tr>
-            `).join('');
-
-            const subjectTable = `
-                <div style="margin-top:28px;">
-                    <h2 style="font-size:18px;font-weight:700;color:#111827;margin:0 0 14px 0;">Subject Performance</h2>
-                    <table style="width:100%;border-collapse:collapse;font-size:14px;">
-                        <thead>
-                            <tr style="background:#1e3a8a;color:white;">
-                                <th style="padding:10px 8px;text-align:left;border:1px solid #1e3a8a;">Subject</th>
-                                <th style="padding:10px 8px;text-align:center;border:1px solid #1e3a8a;">Total</th>
-                                <th style="padding:10px 8px;text-align:center;border:1px solid #1e3a8a;">Correct</th>
-                                <th style="padding:10px 8px;text-align:center;border:1px solid #1e3a8a;">Wrong</th>
-                                <th style="padding:10px 8px;text-align:right;border:1px solid #1e3a8a;">%</th>
-                            </tr>
-                        </thead>
-                        <tbody>${subjectRows}</tbody>
-                    </table>
-                </div>
-            `;
-
-            const reviewCards = review.map((q, i) => {
-                const isCorrect = q.is_correct;
-                const headerBg = isCorrect ? '#dcfce7' : '#fee2e2';
-                const headerBorder = isCorrect ? '#86efac' : '#fecaca';
-                const headerColor = isCorrect ? '#166534' : '#991b1b';
-                const statusText = isCorrect ? 'Correct' : (q.is_answered ? 'Incorrect' : 'Unanswered');
-
-                const optionsHtml = (q.options || []).map(opt => {
-                    const isCorrectOpt = q.correct_option_id !== null && Number(opt.id) === Number(q.correct_option_id);
-                    const isSelected = q.selected_option_id !== null && Number(opt.id) === Number(q.selected_option_id);
-                    let markers = [];
-                    if (isCorrectOpt) markers.push(`<span style="color:#065f46;font-weight:700;">[Correct]</span>`);
-                    if (isSelected && !isCorrectOpt) markers.push(`<span style="color:#991b1b;font-weight:700;">[Your Answer]</span>`);
-                    if (isSelected && isCorrectOpt) markers.push(`<span style="color:#065f46;font-weight:700;">[Your Answer · Correct]</span>`);
-                    let bg = 'white', border = '#e5e7eb';
-                    if (isCorrectOpt) { bg = '#f0fdf4'; border = '#86efac'; }
-                    if (isSelected && !isCorrectOpt) { bg = '#fef2f2'; border = '#fecaca'; }
-                    return `<div style="background:${bg};border:1px solid ${border};border-radius:8px;padding:10px 12px;margin-bottom:6px;display:flex;gap:10px;">
-                        <div style="flex-shrink:0;width:26px;height:26px;border:1px solid #cbd5e1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;">${this.escapeHtml(opt.label || '')}</div>
-                        <div style="flex:1;font-size:14px;">${this.escapeHtml(opt.text || '')} ${markers.join(' ')}</div>
-                    </div>`;
-                }).join('');
-
-                const studentAnswer = this.escapeHtml(this.studentAnswerText(q) || '-');
-                const correctAns = this.escapeHtml(this.correctAnswerText(q) || '-');
-                const explanation = q.explanation ? this.escapeHtml(q.explanation) : 'No explanation is available for this question yet.';
-                const expBg = q.explanation ? '#eff6ff' : '#f9fafb';
-                const expBorder = q.explanation ? '#bfdbfe' : '#e5e7eb';
-                const expColor = q.explanation ? '#1e3a8a' : '#6b7280';
-
-                return `
-                    <div style="break-inside:avoid;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;margin-bottom:18px;">
-                        <div style="background:${headerBg};border-bottom:1px solid ${headerBorder};padding:10px 16px;display:flex;justify-content:space-between;align-items:center;">
-                            <div style="font-size:13px;font-weight:600;color:#1f2937;">
-                                ${this.escapeHtml(q.subject_name || '')} · Question ${this.escapeHtml(q.number || i + 1)}
-                            </div>
-                            <span style="display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:${headerColor};color:white;">${statusText}</span>
-                        </div>
-                        <div style="background:white;padding:20px;">
-                            <div style="font-weight:500;color:#111827;line-height:1.6;">${this.escapeHtml(q.text || '')}</div>
-                            <div style="margin-top:16px;">${optionsHtml}</div>
-                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;">
-                                <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px;">
-                                    <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:#6b7280;font-weight:700;">Your Answer</div>
-                                    <div style="margin-top:6px;font-size:13px;color:#1f2937;">${studentAnswer}</div>
-                                </div>
-                                <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px;">
-                                    <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:#15803d;font-weight:700;">Correct Answer</div>
-                                    <div style="margin-top:6px;font-size:13px;color:#166534;">${correctAns}</div>
-                                </div>
-                            </div>
-                            <div style="background:${expBg};border:1px solid ${expBorder};border-radius:8px;padding:14px;margin-top:14px;">
-                                <div style="font-size:13px;font-weight:700;color:${expColor};">Explanation</div>
-                                <div style="margin-top:6px;font-size:13px;color:#1f2937;white-space:pre-wrap;line-height:1.6;">${explanation}</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            const reviewSection = review.length ? `
-                <div style="margin-top:32px;">
-                    <div style="margin-bottom:16px;">
-                        <h2 style="font-size:20px;font-weight:700;color:#111827;margin:0;">Question Review</h2>
-                        <p style="color:#6b7280;margin:4px 0 0 0;font-size:13px;">Review your answers, the correct answers and explanations.</p>
-                    </div>
-                    <div>${reviewCards}</div>
-                </div>
-            ` : '';
-
-            const html = `
-                <html>
-                <head>
-                    <title>Exam Result - ${this.escapeHtml(r.student_name || 'Student')}</title>
-                    <style>
-                        * { box-sizing: border-box; }
-                        body { font-family: Arial, sans-serif; padding: 28px; margin: 0; color: #1f2937; }
-                        .header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; background: white; border: 1px solid #e5e7eb; border-radius: 14px; padding: 24px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
-                        .eyebrow { font-size: 12px; font-weight: 700; color: #2563eb; letter-spacing: 0.08em; text-transform: uppercase; margin: 0; }
-                        .student-name { font-size: 26px; font-weight: 800; color: #111827; margin: 6px 0 0 0; }
-                        .year-line { color: #6b7280; margin: 8px 0 0 0; font-size: 14px; }
-                        .overall-pct { text-align: right; }
-                        .pct-label { font-size: 13px; color: #6b7280; }
-                        .pct-value { font-size: 44px; font-weight: 800; color: #1d4ed8; line-height: 1; margin-top: 4px; }
-                        @media print {
-                            body { padding: 10px; }
-                            th { background-color: #1e3a8a !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                            .header { box-shadow: none !important; }
+            if (!this.result) return;
+            showToast("Opening native print dialog...", "info");
+            if (window.examBridge && typeof window.examBridge.print_current_page === "function") {
+                window.examBridge.print_current_page((response) => {
+                    try {
+                        const data = this.parseBridgeResponse(response);
+                        if (data && data.success) {
+                            showToast("Document sent to printer successfully!", "success");
                         }
-                    </style>
-                </head>
-                <body>
-                    <div class="header">
-                        <div>
-                            <p class="eyebrow">Examination Result</p>
-                            <h1 class="student-name">${this.escapeHtml(r.student_full_name || r.student_name || 'Student')}</h1>
-                            <p class="year-line">Year: <strong>${this.escapeHtml(r.year || '-')}</strong></p>
-                        </div>
-                        <div class="overall-pct">
-                            <div class="pct-label">Overall Score</div>
-                            <div class="pct-value">${this.escapeHtml(this.formatPercentage(r.percentage))}</div>
-                        </div>
-                    </div>
-                    ${summaryCards}
-                    ${subjectTable}
-                    ${reviewSection}
-                </body>
-                </html>
-            `;
-
-            const fullCandidateName = r.student_full_name || r.student_name || 'Student';
-            this.printHtmlContent(html, `Exam Result - ${fullCandidateName}`);
+                    } catch (e) {}
+                });
+            } else {
+                this.$nextTick(() => {
+                    window.print();
+                });
+            }
         },
 
         downloadResultPDF() {
@@ -3632,6 +3501,8 @@ document.addEventListener("alpine:init", () => {
             const resultData = JSON.parse(JSON.stringify(this.result));
             resultData.student_name = fullStudentName;
             resultData.student_full_name = fullStudentName;
+
+            showToast("Generating PDF report...", "info");
 
             window.examBridge.generate_result_pdf_reportlab(
                 JSON.stringify(resultData),
@@ -3693,61 +3564,26 @@ document.addEventListener("alpine:init", () => {
         // =========================================================
 
         restartApplication() {
-
-            if (
-                !window.examBridge ||
-                typeof window.examBridge.restart_application !== "function"
-            ) {
-
-                this.setError(
-                    "The Python bridge does not expose restart_application()."
-                );
-
+            if (!window.examBridge || typeof window.examBridge.restart_application !== "function") {
+                showToast("The Python bridge does not expose restart_application().", "error");
                 return;
             }
 
-
-            /*
-             * The Python bridge starts a fresh process
-             * and then closes the current process.
-             */
+            showToast("Restarting application...", "info");
 
             window.examBridge.restart_application(
                 (response) => {
-
                     try {
-
-                        const data =
-                            this.parseBridgeResponse(response);
-
-
+                        const data = this.parseBridgeResponse(response);
                         if (!data.success) {
-
-                            console.error(
-                                "Restart failed:",
-                                data.error
-                            );
-
-                            this.setError(
-                                data.error ||
-                                "Unable to restart application."
-                            );
-
+                            console.error("Restart failed:", data.error);
+                            showToast(data.error || "Unable to restart application.", "error");
                         }
-
+                    } catch (error) {
+                        console.error("Restart response error:", error);
                     }
-                    catch (error) {
-
-                        console.error(
-                            "Restart response error:",
-                            error
-                        );
-
-                    }
-
                 }
             );
-
         },
 
 
