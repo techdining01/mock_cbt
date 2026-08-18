@@ -36,6 +36,11 @@ from app.services.pdf_processor import PDFProcessor
 
 base_dir = Path(__file__).parent
 
+import ctypes
+
+# Tells Windows to use the script's distinct AppUserModelID for taskbar grouping
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("al-mumeen.cbt.v1")
+
 
 # This is the main function of our application.
 def main():
@@ -59,7 +64,11 @@ def main():
     channel.registerObject("questionImportBridge", import_bridge)
 
     # Set the icon for the application.
-    app.setWindowIcon(QIcon(str(base_dir / "app" / "web" / "images" / "alayande.png")))
+    icon_file = base_dir / "app" / "web" / "images" / "school_logo.ico"
+    if not icon_file.exists():
+        icon_file = base_dir / "app" / "web" / "images" / "al-mumeen.ico"
+    if icon_file.exists():
+        app.setWindowIcon(QIcon(str(icon_file)))
 
     # Create our desktop browser window.
     # This will eventually display our HTML + Tailwind + Alpine.js interface.
@@ -67,6 +76,20 @@ def main():
 
     # Set the web view on the exam bridge for PDF export functionality
     exam_bridge.set_web_view(window)
+
+    # Native Qt Print Handler for window.print() requests
+    def handle_print_requested():
+        try:
+            from PySide6.QtPrintSupport import QPrintDialog, QPrinter
+            printer = QPrinter(QPrinter.PrinterMode.HighResolution)
+            dialog = QPrintDialog(printer, window)
+            dialog.setWindowTitle("Print CBT Document")
+            if dialog.exec() == QPrintDialog.DialogCode.Accepted:
+                window.page().print(printer, lambda res: None)
+        except Exception as err:
+            print("Native print handler error:", err)
+
+    window.page().printRequested.connect(handle_print_requested)
 
     # ---- CRITICAL: Attach the channel BEFORE setUrl() so that qt.webChannelTransport
     # is injected into the main page AND all same-origin sub-frame documents (iframes)
@@ -107,7 +130,7 @@ def main():
     window.loadFinished.connect(lambda _ok: reattach())
 
     # Set the title that appears on the Windows window.
-    window.setWindowTitle("Mock CBT")
+    window.setWindowTitle("Al-Mumeen CBT")
 
     # Set the initial size of the application window.
     # The first value is width and the second is height.

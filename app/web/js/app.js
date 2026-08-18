@@ -3305,148 +3305,60 @@ document.addEventListener("alpine:init", () => {
         // =========================================================
 
         renderResultChart() {
-
-            const canvas =
-                document.getElementById(
-                    "resultSubjectChart"
-                );
-
+            const canvas = document.getElementById("resultSubjectChart") || document.getElementById("resultBreakdownChart");
 
             if (!canvas) {
                 return;
             }
 
-
-            if (
-                typeof window.Chart === "undefined"
-            ) {
-
-                console.warn(
-                    "Chart.js is not available."
-                );
-
+            if (typeof window.Chart === "undefined") {
+                console.warn("Chart.js is not available.");
                 return;
             }
 
-
             if (this.resultChart) {
-
                 try {
-
                     this.resultChart.destroy();
-
+                } catch (error) {
+                    console.warn("Unable to destroy previous chart:", error);
                 }
-                catch (error) {
-
-                    console.warn(
-                        "Unable to destroy previous chart:",
-                        error
-                    );
-
-                }
-
                 this.resultChart = null;
-
             }
 
+            const correct = Number(this.result?.correct || 0);
+            const wrong = Number(this.result?.wrong || 0);
+            const unanswered = Number(this.result?.unanswered || 0);
 
-            const subjects =
-                this.resultSubjects;
-
-
-            const labels =
-                subjects.map(
-                    subject =>
-                        subject.subject_name
-                );
-
-
-            const percentages =
-                subjects.map(
-                    subject =>
-                        Number(
-                            subject.percentage || 0
-                        )
-                );
-
-
-            this.resultChart =
-                new Chart(
-                    canvas.getContext("2d"),
-                    {
-                        type: "bar",
-
-                        data: {
-                            labels: labels,
-
-                            datasets: [
-                                {
-                                    label: "Percentage",
-
-                                    data: percentages,
-
-                                    borderWidth: 1,
-                                },
-                            ],
-                        },
-
-                        options: {
-                            responsive: true,
-
-                            maintainAspectRatio: false,
-
-                            scales: {
-
-                                y: {
-
-                                    beginAtZero: true,
-
-                                    max: 100,
-
-                                    ticks: {
-
-                                        callback: function(value) {
-
-                                            return value + "%";
-
-                                        },
-
-                                    },
-
-                                },
-
+            this.resultChart = new Chart(
+                canvas.getContext("2d"),
+                {
+                    type: "doughnut",
+                    data: {
+                        labels: ["Correct", "Wrong", "Unanswered"],
+                        datasets: [
+                            {
+                                data: [correct, wrong, unanswered],
+                                backgroundColor: ["#16a34a", "#dc2626", "#9ca3af"],
+                                borderWidth: 2,
+                                borderColor: "#ffffff",
                             },
-
-                            plugins: {
-
-                                legend: {
-                                    display: false,
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: "bottom",
+                                labels: {
+                                    boxWidth: 12,
+                                    padding: 14,
                                 },
-
-                                tooltip: {
-
-                                    callbacks: {
-
-                                        label: function(context) {
-
-                                            return (
-                                                context.raw +
-                                                "%"
-                                            );
-
-                                        },
-
-                                    },
-
-                                },
-
                             },
-
                         },
-
-                    }
-                );
-
+                    },
+                }
+            );
         },
 
 

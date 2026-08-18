@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import json
+import os
+import re
 import subprocess
 import sys
+import time
 from pathlib import Path
 from typing import Optional
 
@@ -1859,5 +1862,152 @@ class ExamBridge(QObject):
                     "success": True,
                     "message": "Question deleted successfully.",
                 })
+        except Exception as exc:
+            return self._error(exc)
+
+    # ========================================================
+    # REPORTLAB PDF GENERATION & PRINTING
+    # ========================================================
+
+    def set_web_view(self, web_view):
+        self._web_view = web_view
+        self._window = web_view
+
+    def set_window(self, window):
+        self._web_view = window
+        self._window = window
+
+    @Slot(str, str, result=str)
+    @Slot(str, result=str)
+    @Slot(int, result=str)
+    def generate_result_pdf_reportlab(self, result_or_id, suggested_filename: str = ""):
+        """
+        Generates and saves/opens a clean ReportLab PDF transcript.
+        Accepts exam_id (int) or result JSON payload (str).
+        """
+        try:
+            import re
+            import time
+            from app.services.reportlab_report_service import ReportlabReportService
+            base_dir = Path(__file__).resolve().parents[2]
+            logo_path = base_dir / "app" / "web" / "images" / "al-mumeen.ico"
+            if not logo_path.exists():
+                logo_path = base_dir / "app" / "web" / "images" / "alayande.png"
+            report_service = ReportlabReportService(logo_path=logo_path if logo_path.exists() else None)
+
+            if isinstance(result_or_id, int) or (isinstance(result_or_id, str) and result_or_id.isdigit()):
+                with SessionLocal() as db:
+                    service = ExamService(db)
+                    result_data = service.get_result(int(result_or_id))
+            elif isinstance(result_or_id, str):
+                result_data = json.loads(result_or_id)
+            else:
+                result_data = result_or_id
+
+            reports_dir = base_dir / "data" / "reports"
+            reports_dir.mkdir(parents=True, exist_ok=True)
+
+            student_name = result_data.get("student_full_name") or result_data.get("student_name") or "Student"
+            safe_name = re.sub(r'[^a-zA-Z0-9_-]', '_', str(student_name)).strip('_') or "student"
+            filename = suggested_filename or f"Result_{safe_name}_{result_data.get('year', '')}_{int(time.time())}.pdf"
+            output_path = reports_dir / filename
+
+            if hasattr(report_service, "generate_exam_result_pdf"):
+                pdf_path = report_service.generate_exam_result_pdf(output_path, result_data)
+            elif hasattr(report_service, "generate_exam_result"):
+                pdf_path = report_service.generate_exam_result(result_data)
+            else:
+                raise AttributeError("ReportlabReportService missing generate_exam_result_pdf")
+
+            try:
+                if hasattr(os, "startfile"):
+                    os.startfile(pdf_path)
+            except Exception as err:
+                print("Could not auto-open PDF:", err)
+
+            return json.dumps({
+                "success": True,
+                "path": str(pdf_path),
+                "name": Path(pdf_path).name,
+                "message": f"Result PDF saved to {pdf_path}",
+            })
+        except Exception as exc:
+            return self._error(exc)
+
+    @Slot(str, str, result=str)
+    @Slot(str, result=str)
+    def print_html(self, html_content: str, title: str = "Mock CBT"):
+        """Prints HTML content using native Qt Print Dialog."""
+        try:
+            target = getattr(self, "_web_view", None) or getattr(self, "_window", None)
+            if target is not None:
+                from PySide6.QtPrintSupport import QPrintDialog, QPrinter
+                printer = QPrinter(QPrinter.PrinterMode.HighResolution)
+                dialog = QPrintDialog(printer, target)
+                dialog.setWindowTitle(f"Print {title}")
+                if dialog.exec() == QPrintDialog.DialogCode.Accepted:
+                    target.page().print(printer, lambda ok: None)
+                    return json.dumps({"success": True, "printed": True})
+                else:
+                    return json.dumps({"success": False, "cancelled": True, "printed": False})
+            return json.dumps({"success": False, "error": "Web view reference not set."})
+        except Exception as exc:
+            return self._error(exc)
+
+    @Slot(result=str)
+    def print_current_page(self):
+        """Prints current page using native Qt Print Dialog."""
+        return self.print_html("", "CBT Document")
+
+    @Slot(str, result=str)
+    def generate_student_history_pdf(self, student_name: str):
+        """Generates and opens a PDF transcript of all exam sessions taken by a student."""
+        try:
+            import re
+            import time
+            history_json = self.get_student_history(student_name)
+            data = json.loads(history_json)
+            if not data.get("success"):
+                return history_json
+
+            from app.services.reportlab_report_service import ReportlabReportService
+            base_dir = Path(__file__).resolve().parents[2]
+            logo_path = base_dir / "app" / "web" / "images" / "al-mumeen.ico"
+            if not logo_path.exists():
+                logo_path = base_dir / "app" / "web" / "images" / "alayande.png"
+            report_service = ReportlabReportService(logo_path=logo_path if logo_path.exists() else None)
+
+            reports_dir = base_dir / "data" / "reports"
+            reports_dir.mkdir(parents=True, exist_ok=True)
+            safe_name = re.sub(r'[^a-zA-Z0-9_-]', '_', str(student_name)).strip('_') or "student"
+            output_path = reports_dir / f"History_{safe_name}_{int(time.time())}.pdf"
+
+            if hasattr(report_service, "generate_student_history_pdf"):
+                pdf_path = report_service.generate_student_history_pdf(
+                    output_path=output_path,
+                    student_name=data.get("student_name", student_name),
+                    history=data.get("history", []),
+                )
+            elif hasattr(report_service, "generate_student_history"):
+                pdf_path = report_service.generate_student_history(
+                    student_name=data.get("student_name", student_name),
+                    sessions=data.get("history", []),
+                    user_info=data.get("user_info"),
+                )
+            else:
+                raise AttributeError("ReportlabReportService missing generate_student_history_pdf")
+
+            try:
+                if hasattr(os, "startfile"):
+                    os.startfile(pdf_path)
+            except Exception as open_err:
+                print("Could not auto-open PDF:", open_err)
+
+            return json.dumps({
+                "success": True,
+                "path": str(pdf_path),
+                "name": Path(pdf_path).name,
+                "message": f"Student history transcript PDF saved to {pdf_path}",
+            })
         except Exception as exc:
             return self._error(exc)
