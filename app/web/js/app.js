@@ -132,6 +132,33 @@ document.addEventListener("alpine:init", () => {
         creatingExam: false,
 
         // =========================================================
+        // AI TUTOR         
+        // =========================================================
+
+        showTutor: false,
+        tutorLoading: false,
+        tutorError: "",
+        tutorAnswer: "",
+        tutorProvider: "",
+        tutorGreeting: "",
+        tutorExplanation: "",
+        tutorSteps: [],
+        tutorHint: "",
+        tutorEncouragement: "",
+        tutorFollowUp: "",
+        tutorQuestion: null,
+
+
+        // =========================================================
+        // AI TUTOR UI
+        // =========================================================
+
+        tutorLoading: false,
+        tutorError: "",
+        tutorResponse: null,
+        showTutorModal: false,
+
+        // =========================================================
         // HELPER FUNCTIONS
         // =========================================================
 
@@ -364,6 +391,9 @@ document.addEventListener("alpine:init", () => {
 
             // Load users, students, subjects, and questions when admin screen is accessed
             this.$watch('screen', (value) => {
+                // Scroll to top when screen changes
+                window.scrollTo(0, 0);
+                
                 if (value === 'admin' && this.isAdmin) {
                     this.loadUsers();
                     this.loadAllStudents();
@@ -2312,6 +2342,14 @@ document.addEventListener("alpine:init", () => {
                         this.result =
                             data.result || null;
 
+                        this.exam.is_completed = true;
+
+                        this.finishingExam = false;
+
+                        this.screen = "result";
+
+                        this.prepareResultChart();
+
 
                         this.timeoutCompleting = false;
 
@@ -2901,19 +2939,19 @@ document.addEventListener("alpine:init", () => {
 
 
         // =========================================================
-        // FIND REVIEW OPTION
+        // RESULT QUESTION HELPERS
         // =========================================================
 
         getReviewOption(question, optionId) {
 
             if (
                 !question ||
-                !Array.isArray(question.options)
+                !Array.isArray(question.options) ||
+                optionId === null ||
+                optionId === undefined
             ) {
-
                 return null;
             }
-
 
             return (
                 question.options.find(
@@ -2935,7 +2973,6 @@ document.addEventListener("alpine:init", () => {
                 return null;
             }
 
-
             return this.getReviewOption(
                 question,
                 question.correct_option_id
@@ -2954,15 +2991,12 @@ document.addEventListener("alpine:init", () => {
                 return null;
             }
 
-
             if (
                 question.selected_option_id === null ||
                 question.selected_option_id === undefined
             ) {
-
                 return null;
             }
-
 
             return this.getReviewOption(
                 question,
@@ -2973,7 +3007,7 @@ document.addEventListener("alpine:init", () => {
 
 
         // =========================================================
-        // CORRECT?
+        // IS CORRECT
         // =========================================================
 
         questionIsCorrect(question) {
@@ -2982,17 +3016,31 @@ document.addEventListener("alpine:init", () => {
                 return false;
             }
 
+            const selected =
+                question.selected_option_id;
+
+            const correct =
+                question.correct_option_id;
+
+            if (
+                selected === null ||
+                selected === undefined ||
+                correct === null ||
+                correct === undefined
+            ) {
+                return false;
+            }
 
             return (
-                question.is_answered === true &&
-                question.is_correct === true
+                Number(selected) ===
+                Number(correct)
             );
 
         },
 
 
         // =========================================================
-        // UNANSWERED?
+        // IS UNANSWERED
         // =========================================================
 
         questionIsUnanswered(question) {
@@ -3001,9 +3049,7 @@ document.addEventListener("alpine:init", () => {
                 return true;
             }
 
-
             return (
-                question.is_answered !== true ||
                 question.selected_option_id === null ||
                 question.selected_option_id === undefined
             );
@@ -3012,38 +3058,40 @@ document.addEventListener("alpine:init", () => {
 
 
         // =========================================================
-        // WRONG?
+        // IS WRONG
         // =========================================================
 
         questionIsWrong(question) {
 
-            return (
-                !this.questionIsUnanswered(question) &&
-                !this.questionIsCorrect(question)
-            );
+            if (
+                !question ||
+                this.questionIsUnanswered(question)
+            ) {
+                return false;
+            }
+
+            return !this.questionIsCorrect(question);
 
         },
 
 
         // =========================================================
-        // REVIEW STATUS TEXT
+        // STATUS TEXT
         // =========================================================
 
         reviewStatusText(question) {
 
-            if (this.questionIsUnanswered(question)) {
-
+            if (
+                this.questionIsUnanswered(question)
+            ) {
                 return "Unanswered";
-
             }
 
-
-            if (this.questionIsCorrect(question)) {
-
+            if (
+                this.questionIsCorrect(question)
+            ) {
                 return "Correct";
-
             }
-
 
             return "Wrong";
 
@@ -3051,24 +3099,22 @@ document.addEventListener("alpine:init", () => {
 
 
         // =========================================================
-        // REVIEW STATUS CLASS
+        // STATUS CLASS
         // =========================================================
 
         reviewStatusClass(question) {
 
-            if (this.questionIsUnanswered(question)) {
-
+            if (
+                this.questionIsUnanswered(question)
+            ) {
                 return "bg-amber-100 text-amber-800";
-
             }
 
-
-            if (this.questionIsCorrect(question)) {
-
+            if (
+                this.questionIsCorrect(question)
+            ) {
                 return "bg-green-100 text-green-800";
-
             }
-
 
             return "bg-red-100 text-red-800";
 
@@ -3081,19 +3127,17 @@ document.addEventListener("alpine:init", () => {
 
         reviewCardClass(question) {
 
-            if (this.questionIsUnanswered(question)) {
-
+            if (
+                this.questionIsUnanswered(question)
+            ) {
                 return "border-amber-200 bg-amber-50";
-
             }
 
-
-            if (this.questionIsCorrect(question)) {
-
+            if (
+                this.questionIsCorrect(question)
+            ) {
                 return "border-green-200 bg-green-50";
-
             }
-
 
             return "border-red-200 bg-red-50";
 
@@ -3106,51 +3150,47 @@ document.addEventListener("alpine:init", () => {
 
         reviewHeaderClass(question) {
 
-            if (this.questionIsUnanswered(question)) {
-
+            if (
+                this.questionIsUnanswered(question)
+            ) {
                 return "text-amber-800";
-
             }
 
-
-            if (this.questionIsCorrect(question)) {
-
+            if (
+                this.questionIsCorrect(question)
+            ) {
                 return "text-green-800";
-
             }
-
 
             return "text-red-800";
 
         },
 
-
         // =========================================================
         // REVIEW OPTION CLASS
+        // =========================================================
         //
         // ONLY:
         // - correct answer => green
         // - student's wrong answer => red
-        // - other options => neutral
+        // - everything else => neutral
         //
         // =========================================================
 
         reviewOptionClass(question, option) {
 
             if (!question || !option) {
-
                 return "border-gray-200 bg-white text-gray-700";
-
             }
-
 
             const optionId =
                 Number(option.id);
 
-
             const correctId =
-                Number(question.correct_option_id);
-
+                question.correct_option_id === null ||
+                question.correct_option_id === undefined
+                    ? null
+                    : Number(question.correct_option_id);
 
             const studentId =
                 question.selected_option_id === null ||
@@ -3159,39 +3199,27 @@ document.addEventListener("alpine:init", () => {
                     : Number(question.selected_option_id);
 
 
-            /*
-             * Correct option always gets green.
-             */
-
+            // Correct answer is always green.
             if (
+                correctId !== null &&
                 Number.isFinite(correctId) &&
                 optionId === correctId
             ) {
-
                 return "border-green-400 bg-green-50 text-green-900 ring-1 ring-green-300";
-
             }
 
 
-            /*
-             * Student's wrong selection gets red.
-             */
-
+            // Student selected the wrong answer.
             if (
                 studentId !== null &&
                 optionId === studentId &&
                 optionId !== correctId
             ) {
-
                 return "border-red-400 bg-red-50 text-red-900 ring-1 ring-red-300";
-
             }
 
 
-            /*
-             * Everything else remains neutral.
-             */
-
+            // All other options remain neutral.
             return "border-gray-200 bg-white text-gray-700";
 
         },
@@ -3210,7 +3238,6 @@ document.addEventListener("alpine:init", () => {
 
         },
 
-
         // =========================================================
         // IS CORRECT OPTION
         // =========================================================
@@ -3221,8 +3248,9 @@ document.addEventListener("alpine:init", () => {
                 return false;
             }
 
-
             return (
+                this.activeReviewQuestion.correct_option_id !== null &&
+                this.activeReviewQuestion.correct_option_id !== undefined &&
                 Number(option.id) ===
                 Number(
                     this.activeReviewQuestion.correct_option_id
@@ -3242,16 +3270,12 @@ document.addEventListener("alpine:init", () => {
                 return false;
             }
 
-
             if (
                 question.selected_option_id === null ||
                 question.selected_option_id === undefined
             ) {
-
                 return false;
-
             }
-
 
             return (
                 Number(option.id) ===
@@ -3270,13 +3294,9 @@ document.addEventListener("alpine:init", () => {
             const option =
                 this.getStudentOption(question);
 
-
             if (!option) {
-
                 return "No answer selected.";
-
             }
-
 
             return `${option.label}. ${option.text}`;
 
@@ -3292,18 +3312,13 @@ document.addEventListener("alpine:init", () => {
             const option =
                 this.getCorrectOption(question);
 
-
             if (!option) {
-
                 return "Correct answer not supplied.";
-
             }
-
 
             return `${option.label}. ${option.text}`;
 
         },
-
 
         // =========================================================
         // ACTIVE REVIEW QUESTION
@@ -3312,7 +3327,7 @@ document.addEventListener("alpine:init", () => {
         // =========================================================
 
         activeReviewQuestion: null,
-
+        
 
         // =========================================================
         // PREPARE CHART
@@ -3328,66 +3343,136 @@ document.addEventListener("alpine:init", () => {
 
         },
 
-
         // =========================================================
         // RENDER SUBJECT CHART
         // =========================================================
 
         renderResultChart() {
-            const canvas = document.getElementById("resultSubjectChart") || document.getElementById("resultBreakdownChart");
+
+            const canvas =
+                document.getElementById("resultSubjectChart") ||
+                document.getElementById("resultBreakdownChart");
 
             if (!canvas) {
                 return;
             }
 
             if (typeof window.Chart === "undefined") {
-                console.warn("Chart.js is not available.");
+
+                console.warn(
+                    "Chart.js is not available."
+                );
+
                 return;
             }
 
+
+            // ---------------------------------------------------------
+            // Destroy previous chart
+            // ---------------------------------------------------------
+
             if (this.resultChart) {
+
                 try {
+
                     this.resultChart.destroy();
+
                 } catch (error) {
-                    console.warn("Unable to destroy previous chart:", error);
+
+                    console.warn(
+                        "Unable to destroy previous chart:",
+                        error
+                    );
+
                 }
+
                 this.resultChart = null;
+
             }
 
-            const correct = Number(this.result?.correct || 0);
-            const wrong = Number(this.result?.wrong || 0);
-            const unanswered = Number(this.result?.unanswered || 0);
+
+            // ---------------------------------------------------------
+            // Result counts
+            // ---------------------------------------------------------
+
+            const correct =
+                Number(this.result?.correct || 0);
+
+            const wrong =
+                Number(this.result?.wrong || 0);
+
+            const unanswered =
+                Number(this.result?.unanswered || 0);
+
+
+            // ---------------------------------------------------------
+            // Create chart
+            // ---------------------------------------------------------
 
             this.resultChart = new Chart(
                 canvas.getContext("2d"),
                 {
                     type: "doughnut",
+
                     data: {
-                        labels: ["Correct", "Wrong", "Unanswered"],
+
+                        labels: [
+                            "Correct",
+                            "Wrong",
+                            "Unanswered"
+                        ],
+
                         datasets: [
                             {
-                                data: [correct, wrong, unanswered],
-                                backgroundColor: ["#16a34a", "#dc2626", "#9ca3af"],
+                                data: [
+                                    correct,
+                                    wrong,
+                                    unanswered
+                                ],
+
+                                backgroundColor: [
+                                    "#16a34a",
+                                    "#dc2626",
+                                    "#9ca3af"
+                                ],
+
                                 borderWidth: 2,
+
                                 borderColor: "#ffffff",
                             },
                         ],
+
                     },
+
                     options: {
+
                         responsive: true,
+
                         maintainAspectRatio: false,
+
                         plugins: {
+
                             legend: {
+
                                 position: "bottom",
+
                                 labels: {
+
                                     boxWidth: 12,
+
                                     padding: 14,
+
                                 },
+
                             },
+
                         },
+
                     },
+
                 }
             );
+
         },
 
 
@@ -3661,51 +3746,6 @@ document.addEventListener("alpine:init", () => {
         },
 
 
-        /* =======================================
-        // DOWNLOAD RESULT
-        ===========================================*/
-
-        downloadResultPDF() {
-            if (!this.result) {
-                showToast("No result available to download", "error");
-                return;
-            }
-
-            console.log("Downloading PDF via ReportLab...");
-
-            if (!window.examBridge || typeof window.examBridge.generate_result_pdf_reportlab !== "function") {
-                console.error("ReportLab PDF download bridge not available");
-                showToast("PDF download is not available. Bridge not connected.", "error");
-                return;
-            }
-
-            const defaultName = `exam_result_${this.result.student_name || 'student'}_${this.result.year}.pdf`;
-
-            window.examBridge.generate_result_pdf_reportlab(
-                JSON.stringify(this.result),
-                defaultName,
-                (response) => {
-                    try {
-                        const data = this.parseBridgeResponse(response);
-                        if (!data.success) {
-                            if (data.cancelled) {
-                                console.log("PDF download cancelled by user");
-                                return;
-                            }
-                            console.error("PDF download failed:", data.error);
-                            showToast(data.error || "Unable to download PDF.", "error");
-                        } else {
-                            console.log("PDF download successful:", data.path);
-                            showToast(`PDF saved to ${data.name}`, "success");
-                        }
-                    } catch (error) {
-                        console.error("PDF download error:", error);
-                        showToast("Failed to download PDF: " + error.message, "error");
-                    }
-                }
-            );
-        },
-
         // =========================================================
         // ADMIN FUNCTIONS
         // =========================================================
@@ -3748,7 +3788,13 @@ document.addEventListener("alpine:init", () => {
         },
 
         get totalPages() {
-            return Math.ceil(this.adminStudents.length / this.adminItemsPerPage);
+            return Math.max(
+                1,
+                Math.ceil(
+                    this.adminStudents.length /
+                    this.adminItemsPerPage
+                )
+            );
         },
 
         nextPage() {
@@ -4225,6 +4271,86 @@ document.addEventListener("alpine:init", () => {
         },
 
         // =========================================================
+        // AI TUTOR
+        // =========================================================
+
+            askAITutor(question) {
+                if (!question) {
+                    return;
+                }
+
+                if (!window.examBridge || typeof window.examBridge.ask_ai_tutor !== "function") {
+                    this.tutorError = "AI Tutor bridge is not available.";
+                    this.showTutorModal = true;
+                    return;
+                }
+
+                this.tutorLoading = true;
+                this.tutorError = "";
+                this.tutorResponse = null;
+                this.showTutorModal = true;
+                this.tutorQuestion = question;
+                document.body.classList.add("overflow-hidden");
+
+                const optionsJson = JSON.stringify(
+                    Array.isArray(question.options)
+                        ? question.options.map(o => ({ label: o.label || "", text: o.text || "" }))
+                        : []
+                );
+
+                window.examBridge.ask_ai_tutor(
+                    question.subject_name || "",
+                    question.text || "",
+                    optionsJson,
+                    this.getCorrectOption(question)?.text || "",
+                    this.getStudentOption(question)?.text || "",
+                    question.explanation || "",
+                    (response) => {
+                        try {
+                            const data = this.parseBridgeResponse(response);
+                            if (!data.success) {
+                                this.tutorError = data.error || "AI Tutor did not return a successful response.";
+                            } else {
+                                this.tutorResponse = data;
+                            }
+                        } catch (error) {
+                            console.error("AI Tutor error:", error);
+                            this.tutorError = error?.message || "Unable to connect to AI Tutor.";
+                        } finally {
+                            this.tutorLoading = false;
+                        }
+                    }
+                );
+            },
+
+
+            // =========================================================
+            // CLOSE AI TUTOR
+            // =========================================================
+
+            closeAITutor() {
+                this.showTutorModal = false;
+                document.body.classList.remove("overflow-hidden");
+            },
+
+        // =========================================================
+        // RETRY AI TUTOR
+        // =========================================================
+
+        retryAITutor() {
+
+            if (!this.tutorQuestion) {
+                return;
+            }
+
+            this.askAITutor(
+                this.tutorQuestion
+            );
+        },
+
+        
+
+        // =========================================================
         // CLEANUP
         // =========================================================
 
@@ -4252,7 +4378,23 @@ document.addEventListener("alpine:init", () => {
 
         },
 
+        // =========================================================
+        // AI TUTOR ESCAPE KEY
+        // =========================================================
+
+        handleTutorEscape(event) {
+
+            if (
+                event.key === "Escape" &&
+                this.showTutorModal
+            ) {
+                this.closeAITutor();
+            }
+        },
+
     }));
 
 });
+
+
 

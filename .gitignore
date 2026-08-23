@@ -8,6 +8,7 @@ wheels/
 
 # Virtual environments
 .venv
+.env
 */**/cbt.sqlite3
 node_modules/
 data/

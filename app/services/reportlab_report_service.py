@@ -3,17 +3,16 @@ from __future__ import annotations
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Dict
 
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
-from reportlab.lib.units import cm
 from reportlab.platypus import (
     HRFlowable,
     Image,
-    PageBreak,
+    KeepTogether,
     Paragraph,
     SimpleDocTemplate,
     Spacer,
@@ -22,631 +21,622 @@ from reportlab.platypus import (
 )
 
 
-WIDTH, HEIGHT = A4
-
-
-def _clean_text(value: Any) -> str:
-    if value is None:
-        return ""
-    text = str(value)
-    text = (
-        text.replace("<", "&lt;")
-        .replace(">", "&gt;")
-        .replace("&", "&amp;")
-    )
-    return text
-
-
 class ReportlabReportService:
-    """Generate polished PDF reports for exam results and student history using ReportLab."""
+    """
+    Generates professional, high-fidelity PDF examination result transcripts
+    using ReportLab.
+    """
 
-    # ------------------------------------------------------------------
-    # Shared helpers
-    # ------------------------------------------------------------------
-    def __init__(self, logo_path: str | Path | None = None):
-        self.logo_path: Path | None = Path(logo_path) if logo_path else None
+    def __init__(self, logo_path: Path | str | None = None):
+        if logo_path:
+            self.logo_path = Path(logo_path)
+        else:
+            base_dir = Path(__file__).resolve().parents[2]
+            default_logo = base_dir / "app" / "web" / "images" / "school_logo.png"
+            self.logo_path = default_logo if default_logo.exists() else None
+
+    def _get_grade_and_remark(self, percentage: float) -> tuple[str, str, colors.Color]:
+        """Returns grade letter, descriptive remark, and badge color."""
+        pct = float(percentage or 0)
+        if pct >= 75.0:
+            return "A", "DISTINCTION / EXCELLENT", colors.HexColor("#15803d")
+        elif pct >= 65.0:
+            return "B", "VERY GOOD / CREDIT", colors.HexColor("#1d4ed8")
+        elif pct >= 50.0:
+            return "C", "CREDIT / GOOD", colors.HexColor("#0284c7")
+        elif pct >= 40.0:
+            return "D", "PASS", colors.HexColor("#d97706")
+        else:
+            return "F", "NEEDS IMPROVEMENT", colors.HexColor("#b91c1c")
+
+    def generate(self, result: Dict[str, Any], output_path: str | Path | None = None) -> str:
+        """
+        Builds the PDF result sheet and saves it to output_path.
+        Returns the absolute string path to the generated PDF.
+        """
+        student_name = str(result.get("student_name") or result.get("student_full_name") or "Candidate").strip()
+        safe_student_name = "".join(c if c.isalnum() else "_" for c in student_name)[:30]
+        year = result.get("year", datetime.now().year)
+
+        if not output_path:
+            # Default to user's Downloads or Documents directory
+            downloads_dir = Path(os.environ.get("USERPROFILE", ".")) / "Downloads"
+            if not downloads_dir.exists():
+                downloads_dir = Path(os.environ.get("USERPROFILE", ".")) / "Documents"
+            if not downloads_dir.exists():
+                downloads_dir = Path(__file__).resolve().parents[2] / "data"
+                downloads_dir.mkdir(parents=True, exist_ok=True)
+            
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            output_file = downloads_dir / f"CBT_Result_{safe_student_name}_{year}_{timestamp}.pdf"
+        else:
+            output_file = Path(output_path)
+
+        doc = SimpleDocTemplate(
+            str(output_file),
+            pagesize=A4,
+            leftMargin=36,
+            rightMargin=36,
+            topMargin=36,
+            bottomMargin=36,
+        )
 
         styles = getSampleStyleSheet()
 
-        self.styles = {
-            "title": ParagraphStyle(
-                "Title",
-                parent=styles["Title"],
-                fontSize=20,
-                leading=24,
-                alignment=TA_CENTER,
-                textColor=colors.HexColor("#1e3a8a"),
-                spaceAfter=6,
-            ),
-            "subtitle": ParagraphStyle(
-                "Subtitle",
-                parent=styles["Normal"],
-                fontSize=12,
-                leading=15,
-                alignment=TA_CENTER,
-                textColor=colors.HexColor("#334155"),
-                spaceAfter=4,
-            ),
-            "h2": ParagraphStyle(
-                "H2",
-                parent=styles["Heading2"],
-                fontSize=14,
-                leading=18,
-                textColor=colors.HexColor("#0f172a"),
-                spaceBefore=10,
-                spaceAfter=6,
-            ),
-            "h3": ParagraphStyle(
-                "H3",
-                parent=styles["Heading3"],
-                fontSize=12,
-                leading=15,
-                textColor=colors.HexColor("#1e293b"),
-                spaceBefore=8,
-                spaceAfter=4,
-            ),
-            "body": ParagraphStyle(
-                "Body",
-                parent=styles["BodyText"],
-                fontSize=10,
-                leading=13,
-                textColor=colors.HexColor("#1f2937"),
-            ),
-            "body_bold": ParagraphStyle(
-                "BodyBold",
-                parent=styles["BodyText"],
-                fontSize=10,
-                leading=13,
-                textColor=colors.HexColor("#111827"),
-                fontName="Helvetica-Bold",
-            ),
-            "small": ParagraphStyle(
-                "Small",
-                parent=styles["Normal"],
-                fontSize=8,
-                leading=10,
-                textColor=colors.HexColor("#475569"),
-                alignment=TA_RIGHT,
-            ),
-            "question": ParagraphStyle(
-                "Question",
-                parent=styles["BodyText"],
-                fontSize=10.5,
-                leading=14,
-                textColor=colors.HexColor("#0f172a"),
-                fontName="Helvetica-Bold",
-                spaceBefore=6,
-            ),
-            "option": ParagraphStyle(
-                "Option",
-                parent=styles["BodyText"],
-                fontSize=10,
-                leading=13,
-                textColor=colors.HexColor("#1e293b"),
-                leftIndent=14,
-            ),
-            "correct": ParagraphStyle(
-                "Correct",
-                parent=styles["BodyText"],
-                fontSize=9.5,
-                leading=12,
-                textColor=colors.HexColor("#065f46"),
-                fontName="Helvetica-Bold",
-            ),
-            "wrong": ParagraphStyle(
-                "Wrong",
-                parent=styles["BodyText"],
-                fontSize=9.5,
-                leading=12,
-                textColor=colors.HexColor("#991b1b"),
-                fontName="Helvetica-Bold",
-            ),
-            "explanation": ParagraphStyle(
-                "Explanation",
-                parent=styles["BodyText"],
-                fontSize=9.5,
-                leading=13,
-                textColor=colors.HexColor("#1e3a8a"),
-                leftIndent=8,
-                rightIndent=8,
-            ),
-        }
+        # Custom paragraph styles
+        primary_color = colors.HexColor("#1e3a8a")   # Deep navy blue
+        accent_color = colors.HexColor("#2563eb")    # Royal blue
+        dark_text = colors.HexColor("#0f172a")       # Slate 900
+        muted_text = colors.HexColor("#475569")      # Slate 600
 
-    # ------------------------------------------------------------------
-    def _add_header_footer(self, canvas, doc):
-        """Draw watermark-style header / footer on every page."""
-        canvas.saveState()
-
-        # Header line
-        canvas.setStrokeColor(colors.HexColor("#1e3a8a"))
-        canvas.setLineWidth(1.5)
-        canvas.line(2 * cm, HEIGHT - 1.8 * cm, WIDTH - 2 * cm, HEIGHT - 1.8 * cm)
-
-        canvas.setFont("Helvetica-Bold", 10)
-        canvas.setFillColor(colors.HexColor("#1e3a8a"))
-        canvas.drawString(2 * cm, HEIGHT - 1.6 * cm, "MOCK CBT EXAMINATION REPORT")
-
-        canvas.setFont("Helvetica", 8)
-        canvas.setFillColor(colors.HexColor("#64748b"))
-        canvas.drawRightString(
-            WIDTH - 2 * cm,
-            HEIGHT - 1.6 * cm,
-            "Generated: " + datetime.now().strftime("%d/%m/%Y %H:%M"),
+        title_style = ParagraphStyle(
+            "DocTitle",
+            parent=styles["Normal"],
+            fontName="Helvetica-Bold",
+            fontSize=18,
+            leading=22,
+            alignment=TA_CENTER,
+            textColor=primary_color,
         )
 
-        # Footer
-        canvas.setStrokeColor(colors.HexColor("#94a3b8"))
-        canvas.setLineWidth(0.75)
-        canvas.line(2 * cm, 1.6 * cm, WIDTH - 2 * cm, 1.6 * cm)
-
-        canvas.setFont("Helvetica", 8)
-        canvas.setFillColor(colors.HexColor("#64748b"))
-        canvas.drawString(2 * cm, 1.2 * cm, "Confidential - For Educational Use Only")
-        canvas.drawRightString(
-            WIDTH - 2 * cm,
-            1.2 * cm,
-            f"Page {doc.page}",
+        subtitle_style = ParagraphStyle(
+            "DocSubtitle",
+            parent=styles["Normal"],
+            fontName="Helvetica-Bold",
+            fontSize=11,
+            leading=15,
+            alignment=TA_CENTER,
+            textColor=accent_color,
         )
 
-        canvas.restoreState()
+        institution_meta = ParagraphStyle(
+            "InstMeta",
+            parent=styles["Normal"],
+            fontName="Helvetica",
+            fontSize=9,
+            leading=12,
+            alignment=TA_CENTER,
+            textColor=muted_text,
+        )
 
-    def _build_logo(self, max_height_cm: float = 1.2) -> Image | None:
-        if self.logo_path is None or not self.logo_path.exists():
-            return None
-        try:
-            img = Image(str(self.logo_path))
-            aspect = img.drawWidth / max(1, img.drawHeight)
-            h = max_height_cm * cm
-            w = h * aspect
-            img.drawWidth = w
-            img.drawHeight = h
-            return img
-        except Exception:
-            return None
+        section_heading = ParagraphStyle(
+            "SectionHeading",
+            parent=styles["Normal"],
+            fontName="Helvetica-Bold",
+            fontSize=12,
+            leading=16,
+            textColor=primary_color,
+            spaceAfter=6,
+        )
 
-    def _summary_cards_table(self, data: list[list]) -> Table:
-        tbl = Table(data, colWidths=[3.6 * cm] * len(data[0]), hAlign="CENTER")
-        tbl.setStyle(
-            TableStyle(
-                [
-                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#eff6ff")),
-                    ("FONTSIZE", (0, 0), (-1, 0), 9),
-                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.HexColor("#1e3a8a")),
-                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica"),
-                    ("BACKGROUND", (0, 1), (-1, 1), colors.HexColor("#f8fafc")),
-                    ("FONTNAME", (0, 1), (-1, 1), "Helvetica-Bold"),
-                    ("FONTSIZE", (0, 1), (-1, 1), 16),
-                    ("TEXTCOLOR", (0, 1), (-1, 1), colors.HexColor("#0f172a")),
-                    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                    ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#cbd5e1")),
-                    ("BOX", (0, 0), (-1, -1), 0.6, colors.HexColor("#93c5fd")),
-                    ("TOPPADDING", (0, 0), (-1, -1), 8),
-                    ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+        cell_style = ParagraphStyle(
+            "CellNormal",
+            parent=styles["Normal"],
+            fontName="Helvetica",
+            fontSize=9,
+            leading=12,
+            textColor=dark_text,
+        )
+
+        cell_bold = ParagraphStyle(
+            "CellBold",
+            parent=styles["Normal"],
+            fontName="Helvetica-Bold",
+            fontSize=9,
+            leading=12,
+            textColor=dark_text,
+        )
+
+        cell_center = ParagraphStyle(
+            "CellCenter",
+            parent=styles["Normal"],
+            fontName="Helvetica",
+            fontSize=9,
+            leading=12,
+            alignment=TA_CENTER,
+            textColor=dark_text,
+        )
+
+        cell_header = ParagraphStyle(
+            "CellHeader",
+            parent=styles["Normal"],
+            fontName="Helvetica-Bold",
+            fontSize=9,
+            leading=12,
+            alignment=TA_CENTER,
+            textColor=colors.white,
+        )
+
+        cell_header_left = ParagraphStyle(
+            "CellHeaderLeft",
+            parent=styles["Normal"],
+            fontName="Helvetica-Bold",
+            fontSize=9,
+            leading=12,
+            alignment=TA_LEFT,
+            textColor=colors.white,
+        )
+
+        story = []
+
+        # ========================================================
+        # 1. HEADER SECTION (Logo + Title)
+        # ========================================================
+        header_table_data = []
+        if self.logo_path and self.logo_path.exists():
+            try:
+                logo_img = Image(str(self.logo_path), width=58, height=58)
+                header_text = [
+                    Paragraph("MOCK CBT EXAMINATION SYSTEM", title_style),
+                    Spacer(1, 2),
+                    Paragraph("OFFICIAL CANDIDATE EXAMINATION TRANSCRIPT", subtitle_style),
+                    Spacer(1, 2),
+                    Paragraph(f"Academic Assessment · Year: {year}", institution_meta),
                 ]
-            )
+                header_table_data.append([logo_img, header_text])
+                header_table = Table(header_table_data, colWidths=[68, 454])
+                header_table.setStyle(
+                    TableStyle([
+                        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                        ("ALIGN", (0, 0), (0, 0), "CENTER"),
+                    ])
+                )
+                story.append(header_table)
+            except Exception:
+                story.append(Paragraph("MOCK CBT EXAMINATION SYSTEM", title_style))
+                story.append(Spacer(1, 2))
+                story.append(Paragraph("OFFICIAL CANDIDATE EXAMINATION TRANSCRIPT", subtitle_style))
+        else:
+            story.append(Paragraph("MOCK CBT EXAMINATION SYSTEM", title_style))
+            story.append(Spacer(1, 2))
+            story.append(Paragraph("OFFICIAL CANDIDATE EXAMINATION TRANSCRIPT", subtitle_style))
+            story.append(Spacer(1, 2))
+            story.append(Paragraph(f"Academic Assessment · Examination Year: {year}", institution_meta))
+
+        story.append(Spacer(1, 10))
+        story.append(HRFlowable(width="100%", thickness=2, color=primary_color, spaceAfter=12))
+
+        # ========================================================
+        # 2. CANDIDATE PROFILE & META DATA
+        # ========================================================
+        total_questions = result.get("total", 0)
+        correct_count = result.get("correct", 0)
+        wrong_count = result.get("wrong", 0)
+        unanswered_count = result.get("unanswered", 0)
+        pct_value = float(result.get("percentage", 0.0))
+        grade_letter, remark_text, badge_color = self._get_grade_and_remark(pct_value)
+
+        current_date_str = datetime.now().strftime("%B %d, %Y - %I:%M %p")
+        exam_session_id = f"CBT-{result.get('exam_id', '0000'):05d}" if isinstance(result.get("exam_id"), int) else f"CBT-{result.get('exam_id', '0000')}"
+
+        meta_data = [
+            [
+                Paragraph("<b>Candidate Name:</b>", cell_style),
+                Paragraph(f"<font color='#1e3a8a'><b>{student_name}</b></font>", cell_bold),
+                Paragraph("<b>Session ID:</b>", cell_style),
+                Paragraph(exam_session_id, cell_bold),
+            ],
+            [
+                Paragraph("<b>Exam Year:</b>", cell_style),
+                Paragraph(str(year), cell_style),
+                Paragraph("<b>Date Generated:</b>", cell_style),
+                Paragraph(current_date_str, cell_style),
+            ],
+        ]
+
+        meta_table = Table(meta_data, colWidths=[110, 160, 110, 142])
+        meta_table.setStyle(
+            TableStyle([
+                ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#f8fafc")),
+                ("BOX", (0, 0), (-1, -1), 1, colors.HexColor("#cbd5e1")),
+                ("INNERGRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#e2e8f0")),
+                ("TOPPADDING", (0, 0), (-1, -1), 6),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+                ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+            ])
         )
-        return tbl
+        story.append(meta_table)
+        story.append(Spacer(1, 14))
 
-    # ==================================================================
-    # SINGLE EXAM RESULT
-    # ==================================================================
-    def generate(self, result: dict) -> Path:
-        """Generate a PDF result transcript with auto-generated filename.
+        # ========================================================
+        # 3. SCORE SUMMARY CARDS
+        # ========================================================
+        summary_cards_data = [
+            [
+                Paragraph("<b>TOTAL QUESTIONS</b>", ParagraphStyle("CardHead", parent=styles["Normal"], fontSize=8, alignment=TA_CENTER, textColor=muted_text)),
+                Paragraph("<b>CORRECT</b>", ParagraphStyle("CardHead", parent=styles["Normal"], fontSize=8, alignment=TA_CENTER, textColor=colors.HexColor("#166534"))),
+                Paragraph("<b>WRONG</b>", ParagraphStyle("CardHead", parent=styles["Normal"], fontSize=8, alignment=TA_CENTER, textColor=colors.HexColor("#991b1b"))),
+                Paragraph("<b>UNANSWERED</b>", ParagraphStyle("CardHead", parent=styles["Normal"], fontSize=8, alignment=TA_CENTER, textColor=colors.HexColor("#92400e"))),
+                Paragraph("<b>SCORE PERCENT</b>", ParagraphStyle("CardHead", parent=styles["Normal"], fontSize=8, alignment=TA_CENTER, textColor=primary_color)),
+            ],
+            [
+                Paragraph(f"<font size='14'><b>{total_questions}</b></font>", ParagraphStyle("Val", parent=styles["Normal"], alignment=TA_CENTER, textColor=dark_text)),
+                Paragraph(f"<font size='14'><b>{correct_count}</b></font>", ParagraphStyle("Val", parent=styles["Normal"], alignment=TA_CENTER, textColor=colors.HexColor("#15803d"))),
+                Paragraph(f"<font size='14'><b>{wrong_count}</b></font>", ParagraphStyle("Val", parent=styles["Normal"], alignment=TA_CENTER, textColor=colors.HexColor("#b91c1c"))),
+                Paragraph(f"<font size='14'><b>{unanswered_count}</b></font>", ParagraphStyle("Val", parent=styles["Normal"], alignment=TA_CENTER, textColor=colors.HexColor("#d97706"))),
+                Paragraph(f"<font size='14'><b>{pct_value:.1f}%</b></font>", ParagraphStyle("Val", parent=styles["Normal"], alignment=TA_CENTER, textColor=primary_color)),
+            ],
+        ]
 
-        Convenience method that creates a default output path and calls
-        generate_exam_result_pdf.
-        """
-        base_dir = Path(__file__).resolve().parents[2]
-        reports_dir = base_dir / "data" / "reports"
-        reports_dir.mkdir(parents=True, exist_ok=True)
+        summary_table = Table(summary_cards_data, colWidths=[104, 104, 104, 104, 106])
+        summary_table.setStyle(
+            TableStyle([
+                ("BACKGROUND", (0, 0), (0, 1), colors.HexColor("#f1f5f9")),
+                ("BACKGROUND", (1, 0), (1, 1), colors.HexColor("#f0fdf4")),
+                ("BACKGROUND", (2, 0), (2, 1), colors.HexColor("#fef2f2")),
+                ("BACKGROUND", (3, 0), (3, 1), colors.HexColor("#fffbeb")),
+                ("BACKGROUND", (4, 0), (4, 1), colors.HexColor("#eff6ff")),
+                ("BOX", (0, 0), (-1, -1), 1, colors.HexColor("#cbd5e1")),
+                ("INNERGRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e1")),
+                ("TOPPADDING", (0, 0), (-1, 0), 6),
+                ("BOTTOMPADDING", (0, 0), (-1, 0), 2),
+                ("TOPPADDING", (0, 1), (-1, 1), 2),
+                ("BOTTOMPADDING", (0, 1), (-1, 1), 6),
+            ])
+        )
+        story.append(summary_table)
+        story.append(Spacer(1, 10))
 
-        student_name = result.get("student_name") or result.get("student_full_name") or "Student"
-        safe_name = "".join(c for c in str(student_name) if c.isalnum() or c in (" ", "_", "-")).strip().replace(" ", "_") or "student"
-        year = result.get("year", "")
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"exam_result_{safe_name}_{year}_{timestamp}.pdf" if year else f"exam_result_{safe_name}_{timestamp}.pdf"
-        output_path = reports_dir / filename
+        # Grade banner
+        grade_banner_data = [[
+            Paragraph(f"<b>FINAL GRADE:</b> <font color='{badge_color.hexval()}'><b>Grade {grade_letter} ({remark_text})</b></font>", ParagraphStyle("GradeBanner", parent=styles["Normal"], fontName="Helvetica", fontSize=10, alignment=TA_CENTER, textColor=dark_text))
+        ]]
+        grade_table = Table(grade_banner_data, colWidths=[522])
+        grade_table.setStyle(
+            TableStyle([
+                ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#f8fafc")),
+                ("BOX", (0, 0), (-1, -1), 1, colors.HexColor("#94a3b8")),
+                ("TOPPADDING", (0, 0), (-1, -1), 5),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+            ])
+        )
+        story.append(grade_table)
+        story.append(Spacer(1, 16))
 
-        return self.generate_exam_result_pdf(output_path, result)
+        # ========================================================
+        # 4. SUBJECT BREAKDOWN TABLE
+        # ========================================================
+        story.append(Paragraph("Subject-by-Subject Performance", section_heading))
+
+        subject_rows = result.get("subjects") or []
+        table_rows = [
+            [
+                Paragraph("<b>Subject Name</b>", cell_header_left),
+                Paragraph("<b>Total</b>", cell_header),
+                Paragraph("<b>Correct</b>", cell_header),
+                Paragraph("<b>Wrong</b>", cell_header),
+                Paragraph("<b>Unanswered</b>", cell_header),
+                Paragraph("<b>Percentage</b>", cell_header),
+                Paragraph("<b>Grade</b>", cell_header),
+            ]
+        ]
+
+        for s in subject_rows:
+            s_name = s.get("subject_name", "Subject")
+            s_total = s.get("total", 0)
+            s_correct = s.get("correct", 0)
+            s_wrong = s.get("wrong", 0)
+            s_unanswered = s.get("unanswered", 0)
+            s_pct = float(s.get("percentage", 0.0))
+            s_grade, _, _ = self._get_grade_and_remark(s_pct)
+
+            table_rows.append([
+                Paragraph(s_name, cell_bold),
+                Paragraph(str(s_total), cell_center),
+                Paragraph(f"<font color='#15803d'><b>{s_correct}</b></font>", cell_center),
+                Paragraph(f"<font color='#b91c1c'>{s_wrong}</font>", cell_center),
+                Paragraph(f"<font color='#d97706'>{s_unanswered}</font>", cell_center),
+                Paragraph(f"<b>{s_pct:.1f}%</b>", cell_center),
+                Paragraph(f"<b>{s_grade}</b>", cell_center),
+            ])
+
+        # Add total/cumulative row
+        table_rows.append([
+            Paragraph("<b>OVERALL CUMULATIVE</b>", cell_bold),
+            Paragraph(f"<b>{total_questions}</b>", cell_center),
+            Paragraph(f"<font color='#15803d'><b>{correct_count}</b></font>", cell_center),
+            Paragraph(f"<font color='#b91c1c'><b>{wrong_count}</b></font>", cell_center),
+            Paragraph(f"<font color='#d97706'><b>{unanswered_count}</b></font>", cell_center),
+            Paragraph(f"<b>{pct_value:.1f}%</b>", cell_center),
+            Paragraph(f"<b>{grade_letter}</b>", cell_center),
+        ])
+
+        subj_table = Table(table_rows, colWidths=[162, 60, 60, 60, 60, 60, 60])
+        table_styles = [
+            ("BACKGROUND", (0, 0), (-1, 0), primary_color),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("TOPPADDING", (0, 0), (-1, -1), 5),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e1")),
+            ("BACKGROUND", (0, -1), (-1, -1), colors.HexColor("#e2e8f0")),
+        ]
+
+        # Alternating row background for body
+        for i in range(1, len(table_rows) - 1):
+            if i % 2 == 0:
+                table_styles.append(("BACKGROUND", (0, i), (-1, i), colors.HexColor("#f8fafc")))
+
+        subj_table.setStyle(TableStyle(table_styles))
+        story.append(subj_table)
+        story.append(Spacer(1, 24))
+
+        # ========================================================
+        # 5. AUTHENTICATION & SIGNOFF FOOTER
+        # ========================================================
+        footer_data = [
+            [
+                Paragraph("<b>Candidate Signature:</b> ___________________", cell_style),
+                Paragraph("<b>Examiner / Administrator:</b> ___________________", cell_style),
+            ],
+            [
+                Spacer(1, 10),
+                Spacer(1, 10),
+            ],
+            [
+                Paragraph("<font size='7' color='#64748b'>This result transcript was generated automatically by the CBT Examination Engine. Any alteration invalidates this document.</font>", ParagraphStyle("Fine", parent=styles["Normal"], alignment=TA_CENTER)),
+                Paragraph(f"<font size='7' color='#64748b'>Generated: {current_date_str}</font>", ParagraphStyle("FineR", parent=styles["Normal"], alignment=TA_RIGHT)),
+            ]
+        ]
+
+        footer_table = Table(footer_data, colWidths=[300, 222])
+        footer_table.setStyle(
+            TableStyle([
+                ("VALIGN", (0, 0), (-1, -1), "BOTTOM"),
+                ("TOPPADDING", (0, 0), (-1, -1), 2),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 2),
+            ])
+        )
+
+        story.append(KeepTogether([
+            HRFlowable(width="100%", thickness=1, color=colors.HexColor("#cbd5e1"), spaceAfter=14),
+            footer_table,
+        ]))
+
+        # Build document
+        doc.build(story)
+        return str(output_file.resolve())
 
     def generate_exam_result_pdf(
         self,
         output_path: str | Path,
         result: dict,
     ) -> Path:
-        """Generate a detailed PDF for a single completed examination result.
+        """Alias for generate() to maintain compatibility with existing code."""
+        return Path(self.generate(result, output_path=output_path))
 
-        `result` must follow the shape returned by ExamService.get_result():
-          - student_name, year, total, correct, wrong, unanswered, percentage
-          - subjects[]: [{subject_id, subject_name, total, correct, wrong, percentage}]
-          - review[]: [{subject_name, number, text, options[], correct_option_id,
-                        selected_option_id, is_answered, is_correct, explanation}]
-        """
-        output_path = Path(output_path)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-
-        doc = SimpleDocTemplate(
-            str(output_path),
-            pagesize=A4,
-            leftMargin=2 * cm,
-            rightMargin=2 * cm,
-            topMargin=2.4 * cm,
-            bottomMargin=2.2 * cm,
-            title="Exam Result",
-            author="Mock CBT System",
-        )
-
-        story: list = []
-
-        # ----- Header -----
-        logo = self._build_logo()
-        header_row = [[logo or "", Paragraph(_clean_text(result.get("student_name") or "Student"), self.styles["title"])]]
-        header_tbl = Table(header_row, colWidths=[2.2 * cm, 13 * cm], hAlign="CENTER")
-        header_tbl.setStyle(
-            TableStyle(
-                [
-                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                    ("ALIGN", (0, 0), (0, 0), "CENTER"),
-                    ("ALIGN", (1, 0), (1, 0), "CENTER"),
-                ]
-            )
-        )
-        story.append(header_tbl)
-
-        subtitle = (
-            f"Examination Year: <b>{_clean_text(result.get('year', '-'))}</b>"
-            "&nbsp;&nbsp;|&nbsp;&nbsp;"
-            f"Date Printed: <b>{datetime.now().strftime('%d %B %Y')}</b>"
-        )
-        story.append(Paragraph(subtitle, self.styles["subtitle"]))
-        story.append(Spacer(1, 0.15 * cm))
-        story.append(
-            HRFlowable(
-                width="100%",
-                thickness=1,
-                color=colors.HexColor("#93c5fd"),
-                spaceAfter=0.2 * cm,
-            )
-        )
-
-        # ----- Summary cards -----
-        pct = _clean_text(result.get("percentage", 0))
-        summary = self._summary_cards_table(
-            [
-                ["Total", "Correct", "Wrong", "Unanswered", "Percentage"],
-                [
-                    _clean_text(result.get("total", 0)),
-                    _clean_text(result.get("correct", 0)),
-                    _clean_text(result.get("wrong", 0)),
-                    _clean_text(result.get("unanswered", 0)),
-                    f"{pct}%",
-                ],
-            ]
-        )
-        story.append(summary)
-        story.append(Spacer(1, 0.6 * cm))
-
-        # ----- Subject performance -----
-        story.append(Paragraph("Subject Performance", self.styles["h2"]))
-        subjects = result.get("subjects", []) or []
-        if subjects:
-            subj_header = ["Subject", "Total", "Correct", "Wrong", "Percentage"]
-            subj_data = [subj_header]
-            for s in subjects:
-                pct_s = f"{_clean_text(s.get('percentage', 0))}%"
-                subj_data.append(
-                    [
-                        Paragraph(_clean_text(s.get("subject_name", "")), self.styles["body"]),
-                        _clean_text(s.get("total", 0)),
-                        _clean_text(s.get("correct", 0)),
-                        _clean_text(s.get("wrong", 0)),
-                        pct_s,
-                    ]
-                )
-            subj_tbl = Table(
-                subj_data,
-                colWidths=[7 * cm, 2.2 * cm, 2.2 * cm, 2.2 * cm, 2.6 * cm],
-                hAlign="LEFT",
-            )
-            subj_tbl.setStyle(
-                TableStyle(
-                    [
-                        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1e3a8a")),
-                        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                        ("FONTSIZE", (0, 0), (-1, 0), 9.5),
-                        ("FONTSIZE", (0, 1), (-1, -1), 9.5),
-                        ("ALIGN", (1, 0), (-1, -1), "CENTER"),
-                        ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#cbd5e1")),
-                        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#f8fafc")]),
-                        ("TOPPADDING", (0, 0), (-1, -1), 5),
-                        ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
-                    ]
-                )
-            )
-            story.append(subj_tbl)
-        else:
-            story.append(Paragraph("No subject breakdown available.", self.styles["body"]))
-
-        story.append(PageBreak())
-
-        # ----- Question review section -----
-        story.append(Paragraph("Answer Review", self.styles["h2"]))
-        story.append(
-            Paragraph(
-                "Each question below lists the options given, marks the correct answer, "
-                "and indicates your answer.",
-                self.styles["body"],
-            )
-        )
-        story.append(Spacer(1, 0.3 * cm))
-
-        review = result.get("review", []) or []
-        if not review:
-            story.append(Paragraph("No review data available.", self.styles["body"]))
-        else:
-            for i, q in enumerate(review, start=1):
-                status_label = "Correct" if q.get("is_correct") else (
-                    "Unanswered" if not q.get("is_answered") else "Wrong"
-                )
-                status_color = {
-                    "Correct": colors.HexColor("#065f46"),
-                    "Unanswered": colors.HexColor("#92400e"),
-                    "Wrong": colors.HexColor("#991b1b"),
-                }[status_label]
-
-                q_label = (
-                    f"<b>{_clean_text(q.get('subject_name', ''))} · Q{_clean_text(q.get('number', i))}"
-                    f"</b>&nbsp;&nbsp;"
-                    f"<font color='#{status_color.hexval()[2:]}'>[{status_label}]</font>"
-                )
-                story.append(Paragraph(q_label, self.styles["h3"]))
-
-                q_text = _clean_text(q.get("text", ""))
-                story.append(Paragraph(q_text, self.styles["question"]))
-
-                options = q.get("options", []) or []
-                correct_id = q.get("correct_option_id")
-                selected_id = q.get("selected_option_id")
-
-                for opt in options:
-                    label = _clean_text(opt.get("label", "")).upper()
-                    text = _clean_text(opt.get("text", ""))
-                    opt_id = opt.get("id")
-                    markers = []
-                    if correct_id is not None and opt_id is not None and int(opt_id) == int(correct_id):
-                        markers.append('<font color="#065f46"><b>[Correct]</b></font>')
-                    if (
-                        selected_id is not None
-                        and opt_id is not None
-                        and int(opt_id) == int(selected_id)
-                        and not (
-                            correct_id is not None
-                            and opt_id is not None
-                            and int(opt_id) == int(correct_id)
-                        )
-                    ):
-                        markers.append('<font color="#991b1b"><b>[Your Answer]</b></font>')
-                    elif (
-                        selected_id is not None
-                        and correct_id is not None
-                        and opt_id is not None
-                        and int(opt_id) == int(selected_id)
-                        and int(opt_id) == int(correct_id)
-                    ):
-                        markers.append('<font color="#065f46"><b>[Your Answer · Correct]</b></font>')
-
-                    bullet = f"<b>{label}.</b> {text} {' '.join(markers)}"
-                    story.append(Paragraph(bullet, self.styles["option"]))
-
-                # Answer summary row
-                story.append(Spacer(1, 0.15 * cm))
-                student_ans = _clean_text("Not answered")
-                correct_ans = _clean_text("Not provided")
-                for opt in options:
-                    opt_id = opt.get("id")
-                    label = _clean_text(opt.get("label", "")).upper()
-                    txt = _clean_text(opt.get("text", ""))
-                    if correct_id is not None and opt_id is not None and int(opt_id) == int(correct_id):
-                        correct_ans = f"{label}. {txt}"
-                    if selected_id is not None and opt_id is not None and int(opt_id) == int(selected_id):
-                        student_ans = f"{label}. {txt}"
-
-                summary_rows = [
-                    [
-                        Paragraph("<b>Your Answer</b>", self.styles["body"]),
-                        Paragraph(student_ans, self.styles["body"]),
-                    ],
-                    [
-                        Paragraph("<b>Correct Answer</b>", self.styles["body"]),
-                        Paragraph(correct_ans, self.styles["body"]),
-                    ],
-                ]
-                summary_tbl = Table(summary_rows, colWidths=[3.2 * cm, 13 * cm], hAlign="LEFT")
-                summary_tbl.setStyle(
-                    TableStyle(
-                        [
-                            ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#f1f5f9")),
-                            ("GRID", (0, 0), (-1, -1), 0.3, colors.HexColor("#cbd5e1")),
-                            ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                            ("TOPPADDING", (0, 0), (-1, -1), 4),
-                            ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
-                            ("LEFTPADDING", (0, 0), (-1, -1), 6),
-                        ]
-                    )
-                )
-                story.append(summary_tbl)
-
-                # Explanation
-                expl = q.get("explanation") or ""
-                if str(expl).strip():
-                    story.append(Spacer(1, 0.15 * cm))
-                    story.append(Paragraph("<b>Explanation:</b>", self.styles["explanation"]))
-                    story.append(
-                        Paragraph(_clean_text(expl), self.styles["explanation"])
-                    )
-
-                story.append(Spacer(1, 0.4 * cm))
-                story.append(
-                    HRFlowable(
-                        width="100%",
-                        thickness=0.3,
-                        color=colors.HexColor("#e2e8f0"),
-                        spaceAfter=0.2 * cm,
-                    )
-                )
-
-        doc.build(story, onFirstPage=self._add_header_footer, onLaterPages=self._add_header_footer)
-        return output_path
-
-    # ==================================================================
-    # STUDENT HISTORY
-    # ==================================================================
-    def generate_student_history_pdf(
+    def generate_student_history(
         self,
-        output_path: str | Path,
         student_name: str,
-        history: Iterable[dict],
-    ) -> Path:
-        """Generate a PDF report of a student's exam history.
-
-        `history` is a list of dicts each containing:
-            id, year, completed_at, total, correct, percentage,
-            subjects[]: [{name, total, correct, percentage}]
+        sessions: list[dict],
+        user_info: dict | None = None,
+        output_path: str | Path | None = None,
+    ) -> str:
         """
-        output_path = Path(output_path)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
+        Builds a comprehensive multi-exam historical transcript for a student.
+        """
+        student_display = str(student_name or "Student").strip()
+        safe_name = "".join(c if c.isalnum() else "_" for c in student_display)[:30]
+
+        if not output_path:
+            downloads_dir = Path(os.environ.get("USERPROFILE", ".")) / "Downloads"
+            if not downloads_dir.exists():
+                downloads_dir = Path(os.environ.get("USERPROFILE", ".")) / "Documents"
+            if not downloads_dir.exists():
+                downloads_dir = Path(__file__).resolve().parents[2] / "data"
+                downloads_dir.mkdir(parents=True, exist_ok=True)
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            output_file = downloads_dir / f"CBT_History_{safe_name}_{timestamp}.pdf"
+        else:
+            output_file = Path(output_path)
 
         doc = SimpleDocTemplate(
-            str(output_path),
+            str(output_file),
             pagesize=A4,
-            leftMargin=2 * cm,
-            rightMargin=2 * cm,
-            topMargin=2.4 * cm,
-            bottomMargin=2.2 * cm,
-            title="Student History Report",
-            author="Mock CBT System",
+            leftMargin=36,
+            rightMargin=36,
+            topMargin=36,
+            bottomMargin=36,
         )
 
-        story: list = []
-        history_list = list(history)
+        styles = getSampleStyleSheet()
+        primary_color = colors.HexColor("#1e3a8a")
+        accent_color = colors.HexColor("#2563eb")
+        dark_text = colors.HexColor("#0f172a")
+        muted_text = colors.HexColor("#475569")
 
-        # ---- Header ----
-        logo = self._build_logo()
-        header_row = [[logo or "", Paragraph(_clean_text(student_name), self.styles["title"])]]
-        header_tbl = Table(header_row, colWidths=[2.2 * cm, 13 * cm], hAlign="CENTER")
-        header_tbl.setStyle(
-            TableStyle(
-                [
-                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                    ("ALIGN", (0, 0), (0, 0), "CENTER"),
-                    ("ALIGN", (1, 0), (1, 0), "CENTER"),
+        title_style = ParagraphStyle("HistTitle", parent=styles["Normal"], fontName="Helvetica-Bold", fontSize=17, leading=21, alignment=TA_CENTER, textColor=primary_color)
+        subtitle_style = ParagraphStyle("HistSub", parent=styles["Normal"], fontName="Helvetica-Bold", fontSize=11, leading=15, alignment=TA_CENTER, textColor=accent_color)
+        meta_style = ParagraphStyle("HistMeta", parent=styles["Normal"], fontName="Helvetica", fontSize=9, leading=12, alignment=TA_CENTER, textColor=muted_text)
+        cell_style = ParagraphStyle("HistCell", parent=styles["Normal"], fontName="Helvetica", fontSize=8.5, leading=11, textColor=dark_text)
+        cell_bold = ParagraphStyle("HistBold", parent=styles["Normal"], fontName="Helvetica-Bold", fontSize=8.5, leading=11, textColor=dark_text)
+        cell_center = ParagraphStyle("HistCenter", parent=styles["Normal"], fontName="Helvetica", fontSize=8.5, leading=11, alignment=TA_CENTER, textColor=dark_text)
+        cell_head = ParagraphStyle("HistHead", parent=styles["Normal"], fontName="Helvetica-Bold", fontSize=8.5, leading=11, alignment=TA_CENTER, textColor=colors.white)
+        cell_head_left = ParagraphStyle("HistHeadL", parent=styles["Normal"], fontName="Helvetica-Bold", fontSize=8.5, leading=11, alignment=TA_LEFT, textColor=colors.white)
+
+        story = []
+
+        # 1. Header
+        if self.logo_path and self.logo_path.exists():
+            try:
+                logo_img = Image(str(self.logo_path), width=54, height=54)
+                header_text = [
+                    Paragraph("MOCK CBT EXAMINATION SYSTEM", title_style),
+                    Spacer(1, 2),
+                    Paragraph("STUDENT COMPREHENSIVE EXAMINATION HISTORY", subtitle_style),
+                    Spacer(1, 2),
+                    Paragraph("Cumulative Academic Performance Record", meta_style),
                 ]
-            )
-        )
-        story.append(header_tbl)
-        story.append(Paragraph("Student Examination History Report", self.styles["subtitle"]))
-        story.append(Spacer(1, 0.15 * cm))
-        story.append(
-            HRFlowable(
-                width="100%",
-                thickness=1,
-                color=colors.HexColor("#93c5fd"),
-                spaceAfter=0.4 * cm,
-            )
-        )
-
-        # ---- Aggregate summary ----
-        total_sessions = len(history_list)
-        if total_sessions:
-            avg_pct = sum(
-                float(h.get("percentage") or 0) for h in history_list
-            ) / total_sessions
-            total_questions = sum(int(h.get("total") or 0) for h in history_list)
-            total_correct = sum(int(h.get("correct") or 0) for h in history_list)
+                h_table = Table([[logo_img, header_text]], colWidths=[64, 458])
+                h_table.setStyle(TableStyle([("VALIGN", (0, 0), (-1, -1), "MIDDLE")]))
+                story.append(h_table)
+            except Exception:
+                story.append(Paragraph("MOCK CBT EXAMINATION SYSTEM", title_style))
+                story.append(Spacer(1, 2))
+                story.append(Paragraph("STUDENT COMPREHENSIVE EXAMINATION HISTORY", subtitle_style))
         else:
-            avg_pct = 0.0
-            total_questions = 0
-            total_correct = 0
+            story.append(Paragraph("MOCK CBT EXAMINATION SYSTEM", title_style))
+            story.append(Spacer(1, 2))
+            story.append(Paragraph("STUDENT COMPREHENSIVE EXAMINATION HISTORY", subtitle_style))
 
-        summary = self._summary_cards_table(
+        story.append(Spacer(1, 8))
+        story.append(HRFlowable(width="100%", thickness=2, color=primary_color, spaceAfter=10))
+
+        # 2. Student Info Card
+        total_exams = len(sessions)
+        avg_pct = (sum(float(s.get("percentage", 0)) for s in sessions) / total_exams) if total_exams else 0.0
+        best_pct = max((float(s.get("percentage", 0)) for s in sessions), default=0.0)
+        overall_grade, overall_remark, grade_color = self._get_grade_and_remark(avg_pct)
+
+        student_class = (user_info.get("student_class") if user_info else "") or "N/A"
+        adm_year = str((user_info.get("admission_year") if user_info else "") or "N/A")
+
+        prof_data = [
             [
-                ["Sessions", "Questions Attempted", "Correct", "Average %"],
-                [
-                    str(total_sessions),
-                    str(total_questions),
-                    str(total_correct),
-                    f"{avg_pct:.2f}%",
-                ],
-            ]
+                Paragraph("<b>Candidate Name:</b>", cell_style),
+                Paragraph(f"<font color='#1e3a8a'><b>{student_display}</b></font>", cell_bold),
+                Paragraph("<b>Class:</b>", cell_style),
+                Paragraph(student_class, cell_bold),
+            ],
+            [
+                Paragraph("<b>Total Exams Taken:</b>", cell_style),
+                Paragraph(str(total_exams), cell_bold),
+                Paragraph("<b>Admission Year:</b>", cell_style),
+                Paragraph(adm_year, cell_style),
+            ],
+            [
+                Paragraph("<b>Average Score:</b>", cell_style),
+                Paragraph(f"<b>{avg_pct:.1f}%</b>", cell_bold),
+                Paragraph("<b>Best Score:</b>", cell_style),
+                Paragraph(f"<font color='#15803d'><b>{best_pct:.1f}%</b></font>", cell_bold),
+            ],
+        ]
+
+        prof_table = Table(prof_data, colWidths=[115, 155, 110, 142])
+        prof_table.setStyle(
+            TableStyle([
+                ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#f8fafc")),
+                ("BOX", (0, 0), (-1, -1), 1, colors.HexColor("#cbd5e1")),
+                ("INNERGRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#e2e8f0")),
+                ("TOPPADDING", (0, 0), (-1, -1), 4),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+                ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+            ])
         )
-        story.append(summary)
-        story.append(Spacer(1, 0.6 * cm))
+        story.append(prof_table)
+        story.append(Spacer(1, 14))
 
-        # ---- History table ----
-        story.append(Paragraph("Session Breakdown", self.styles["h2"]))
-        if not history_list:
-            story.append(Paragraph("No examination history found for this student.", self.styles["body"]))
-        else:
-            hist_header = [
-                "Date",
-                "Year",
-                "Subjects",
-                "Score",
-                "%",
+        # 3. History Table
+        story.append(Paragraph("<b>Examination History Breakdown</b>", ParagraphStyle("HistSec", parent=styles["Normal"], fontName="Helvetica-Bold", fontSize=11, textColor=primary_color, spaceAfter=6)))
+
+        table_rows = [
+            [
+                Paragraph("<b>Date / Time</b>", cell_head_left),
+                Paragraph("<b>Year</b>", cell_head),
+                Paragraph("<b>Subjects</b>", cell_head_left),
+                Paragraph("<b>Questions</b>", cell_head),
+                Paragraph("<b>Correct</b>", cell_head),
+                Paragraph("<b>Wrong</b>", cell_head),
+                Paragraph("<b>Score %</b>", cell_head),
+                Paragraph("<b>Grade</b>", cell_head),
             ]
-            hist_data = [hist_header]
-            for h in history_list:
-                subjects_bullets = "<br/>".join(
-                    f"· {_clean_text(s.get('name', ''))}: "
-                    f"<b>{_clean_text(s.get('correct', 0))}/{_clean_text(s.get('total', 0))}</b> "
-                    f"({_clean_text(s.get('percentage', 0))}%)"
-                    for s in (h.get("subjects", []) or [])
-                ) or "-"
-                pct_val = float(h.get("percentage") or 0)
-                pct_cell = f"{pct_val:.2f}%"
+        ]
 
-                score_cell = (
-                    f"<b>{_clean_text(h.get('correct', 0))}</b>/"
-                    f"{_clean_text(h.get('total', 0))}"
+        for s in sessions:
+            date_str = s.get("date_formatted") or s.get("completed_at") or s.get("started_at") or "N/A"
+            if len(date_str) > 16:
+                date_str = date_str[:16]
+            y = str(s.get("year", ""))
+            subjects_list = s.get("subjects", [])
+            if subjects_str := s.get("subjects_str"):
+                subjs = subjects_str
+            elif subjects_list:
+                # Handle both string and dict subjects
+                subjs = ", ".join(
+                    subj if isinstance(subj, str) else subj.get("subject_name", subj.get("name", str(subj)))
+                    for subj in subjects_list
                 )
+            else:
+                subjs = "Exam"
+            tot = s.get("total", 0)
+            cor = s.get("correct", 0)
+            wro = s.get("wrong", 0)
+            pct = float(s.get("percentage", 0.0))
+            g, _, _ = self._get_grade_and_remark(pct)
 
-                hist_data.append(
-                    [
-                        Paragraph(_clean_text(h.get("completed_at", "-")), self.styles["body"]),
-                        _clean_text(h.get("year", "-")),
-                        Paragraph(subjects_bullets, self.styles["body"]),
-                        Paragraph(score_cell, self.styles["body"]),
-                        pct_cell,
-                    ]
-                )
+            table_rows.append([
+                Paragraph(date_str, cell_style),
+                Paragraph(y, cell_center),
+                Paragraph(subjs, cell_style),
+                Paragraph(str(tot), cell_center),
+                Paragraph(f"<font color='#15803d'><b>{cor}</b></font>", cell_center),
+                Paragraph(f"<font color='#b91c1c'>{wro}</font>", cell_center),
+                Paragraph(f"<b>{pct:.1f}%</b>", cell_center),
+                Paragraph(f"<b>{g}</b>", cell_center),
+            ])
 
-            hist_tbl = Table(
-                hist_data,
-                repeatRows=1,
-                colWidths=[3.2 * cm, 1.6 * cm, 7.6 * cm, 2.4 * cm, 2 * cm],
-                hAlign="LEFT",
-            )
-            hist_tbl.setStyle(
-                TableStyle(
-                    [
-                        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1e3a8a")),
-                        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                        ("FONTSIZE", (0, 0), (-1, 0), 9.5),
-                        ("FONTSIZE", (0, 1), (-1, -1), 9),
-                        ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                        ("ALIGN", (1, 0), (1, -1), "CENTER"),
-                        ("ALIGN", (3, 0), (-1, -1), "CENTER"),
-                        ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#cbd5e1")),
-                        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#f8fafc")]),
-                        ("TOPPADDING", (0, 0), (-1, -1), 5),
-                        ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
-                    ]
-                )
-            )
-            story.append(hist_tbl)
+        hist_table = Table(table_rows, colWidths=[90, 36, 170, 52, 45, 45, 48, 36])
+        t_styles = [
+            ("BACKGROUND", (0, 0), (-1, 0), primary_color),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("TOPPADDING", (0, 0), (-1, -1), 4),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e1")),
+        ]
 
-        doc.build(story, onFirstPage=self._add_header_footer, onLaterPages=self._add_header_footer)
-        return output_path
+        for i in range(1, len(table_rows)):
+            if i % 2 == 0:
+                t_styles.append(("BACKGROUND", (0, i), (-1, i), colors.HexColor("#f8fafc")))
+
+        hist_table.setStyle(TableStyle(t_styles))
+        story.append(hist_table)
+        story.append(Spacer(1, 20))
+
+        # 4. Signoff Footer
+        gen_time = datetime.now().strftime("%B %d, %Y - %I:%M %p")
+        footer_data = [
+            [
+                Paragraph("<b>School Administrator:</b> ___________________", cell_style),
+                Paragraph("<b>Official Stamp:</b> [ SEAL ]", ParagraphStyle("Stamp", parent=styles["Normal"], alignment=TA_RIGHT, fontName="Helvetica-Bold", textColor=muted_text)),
+            ],
+            [
+                Spacer(1, 8),
+                Spacer(1, 8),
+            ],
+            [
+                Paragraph(f"<font size='7' color='#64748b'>Certified official transcript from Mock CBT System · Generated {gen_time}</font>", ParagraphStyle("HistFine", parent=styles["Normal"])),
+                Paragraph("", cell_style),
+            ]
+        ]
+
+        f_table = Table(footer_data, colWidths=[320, 202])
+        f_table.setStyle(TableStyle([("VALIGN", (0, 0), (-1, -1), "BOTTOM")]))
+
+        story.append(KeepTogether([
+            HRFlowable(width="100%", thickness=1, color=colors.HexColor("#cbd5e1"), spaceAfter=10),
+            f_table,
+        ]))
+
+        doc.build(story)
+        return str(output_file.resolve())

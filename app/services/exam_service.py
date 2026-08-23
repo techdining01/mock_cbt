@@ -672,3 +672,58 @@ class ExamService:
                 question_count,
             ) in rows
         ]
+
+    def get_tutor_context(
+        self,
+        exam_question_id: int,
+    ) -> dict:
+
+        exam_question = self.db.scalar(
+            select(ExamQuestion).where(
+                ExamQuestion.id == exam_question_id,
+            )
+        )
+        if not exam_question:
+            raise ValueError("Exam question not found.")
+
+        question = exam_question.question
+
+        answer = exam_question.answer
+
+        correct_option = None
+        selected_option = None
+
+        options = []
+
+        for option in question.options:
+            options.append(
+                {
+                    "id": option.id,
+                    "label": option.label,
+                    "text": option.text,
+                }
+            )
+
+            if option.is_correct:
+                correct_option = option
+
+            if answer and answer.selected_option_id == option.id:
+                selected_option = option
+
+        if not correct_option:
+            raise ValueError("This question has no correct answer configured.")
+
+        return {
+            "exam_question_id": exam_question.id,
+            "question_id": question.id,
+            "subject": question.subject.name,
+            "question": question.text,
+            "options": options,
+            "correct_answer": (f"{correct_option.label}. {correct_option.text}"),
+            "student_answer": (
+                (f"{selected_option.label}. {selected_option.text}")
+                if selected_option
+                else ""
+            ),
+            "explanation": (question.explanation or ""),
+        }

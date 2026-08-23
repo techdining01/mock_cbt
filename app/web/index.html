@@ -62,6 +62,11 @@
                 padding: 20px !important;
             }
 
+            #result-print-area img {
+                visibility: visible !important;
+                display: block !important;
+            }
+
             .no-print {
                 display: none !important;
             }
@@ -79,6 +84,7 @@
     x-data="examApp"
     x-init="init()"
     x-cloak
+    @keydown.escape.window="handleTutorEscape($event)"
 >
 
  <!-- NAVIGATION -->
@@ -86,6 +92,11 @@
     <nav class="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-40 shadow-sm">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <div class="flex gap-2 sm:gap-4">
+                <img
+                    src="images/school_logo.png"
+                    alt="School Logo"
+                    class="h-12 w-12 object-contain"
+                >
                 <button @click="if (isNavLocked) { showToast('Navigation is disabled during exam / result review', 'warning'); return; } if (isAdmin) { showToast('Admin users cannot take exams', 'error'); } else { screen = 'selection'; }" 
                         :disabled="isNavLocked"
                         :class="[
@@ -867,7 +878,7 @@
             <!-- HERO TITLE AREA -->
             <div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-slate-200/80">
                 <div class="flex items-center gap-4">
-                    <div class="h-16 w-16 shrink-0 rounded-2xl bg-white border border-slate-200/80 shadow-md flex items-center justify-center overflow-hidden p-2 ring-4 ring-blue-500/10 transition-transform hover:scale-105 duration-300">
+                    <div class="h-20 w-20 shrink-0 rounded-2xl bg-white border border-slate-200/80 shadow-md flex items-center justify-center overflow-hidden p-2 ring-4 ring-blue-500/10 transition-transform hover:scale-105 duration-300">
                         <img
                             src="images/school_logo.png"
                             alt="Exam logo"
@@ -1296,9 +1307,9 @@
     <!-- =========================================================
          EXAM SCREEN
          NORMAL DOCUMENT FLOW - NO HEIGHT TRAP
-         ==    <template x-if="!loading && screen === 'exam'">
+    ============================================================= -->
+    <template x-if="!loading && screen === 'exam'">
         <main class="exam-document min-h-screen bg-slate-50/50 pb-16">
-
             <!-- STICKY GLASSMORPHIC HEADER -->
             <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm py-3 px-4 sm:px-6">
                 <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-3.5">
@@ -1509,7 +1520,9 @@
                                 <p class="text-xs text-slate-500 mt-0.5" x-text="currentSubject?.name"></p>
                             </div>
 
-                            <span class="text-xs font-black text-blue-600" x-text="`${subjectProgressPercent(currentSubject)}%`"></span>
+                            <div class="bg-blue-50 border border-blue-200 rounded-xl px-3 py-1.5">
+                                <span class="text-sm font-black text-blue-700" x-text="`${subjectProgressPercent(currentSubject)}%`"></span>
+                            </div>
                         </div>
 
                         <div class="grid grid-cols-5 gap-2 max-h-80 overflow-y-auto pr-1">
@@ -1715,7 +1728,7 @@
 
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 pb-6 border-b border-slate-100">
                         <div class="flex items-center gap-4">
-                            <div class="h-16 w-16 shrink-0 rounded-2xl bg-white border border-slate-200 shadow-md flex items-center justify-center p-2 ring-4 ring-blue-500/10">
+                            <div class="h-20 w-20 shrink-0 rounded-2xl bg-white border border-slate-200 shadow-md flex items-center justify-center p-2 ring-4 ring-blue-500/10">
                                 <img
                                     src="images/school_logo.png"
                                     alt="School Logo"
@@ -1962,7 +1975,28 @@
                                         <span>💡</span>
                                         <span>Academic Explanation & Solution:</span>
                                     </div>
-                                    <p class="leading-relaxed font-medium text-slate-800" x-text="q.explanation || 'No further explanation required for this question.'"></p>
+                                    <div class="justify-between align-contents-center flex flex-col sm:flex-row gap-2.5 mt-1">
+                                        <p class="leading-relaxed font-medium text-slate-800" x-text="q.explanation || 'No further explanation required for this question.'"></p>
+                                        <button
+                                            type="button"
+                                            @click="askAITutor(q)"
+                                            class="mt-4 inline-flex items-center gap-2 rounded-xl
+                                                bg-indigo-600 px-4 py-2.5 text-sm font-semibold
+                                                text-white shadow-sm transition
+                                                hover:bg-indigo-700
+                                                disabled:cursor-not-allowed disabled:opacity-50"
+                                            :disabled="tutorLoading"
+                                        >
+                                            <template x-if="tutorLoading && tutorQuestion?.id === q.id">
+                                                <span class="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
+                                            </template>
+                                            <template x-if="!(tutorLoading && tutorQuestion?.id === q.id)">
+                                                <span>👩‍🏫</span>
+                                            </template>
+                                            <span x-text="tutorLoading && tutorQuestion?.id === q.id ? 'Asking...' : 'Ask AI Tutor'"></span>
+                                        </button>
+                                    </div>
+                                    
                                 </div>
                             </div>
                         </template>
@@ -2012,6 +2046,744 @@
                 </div>
             </div>
         </main>
+    </template>
+
+    <!-- =========================================================
+     AI TUTOR MODAL
+     ========================================================= -->
+
+    <template x-if="showTutorModal">
+
+        <div
+            class="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto p-3 sm:p-5"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="ai-tutor-title"
+        >
+
+            <!-- BACKDROP -->
+            <div
+                class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
+                @click="closeAITutor()"
+            ></div>
+
+
+            <!-- MODAL -->
+            <div
+                class="relative w-full max-w-4xl my-4 overflow-hidden
+                    rounded-3xl bg-white shadow-2xl
+                    border border-slate-200
+                    flex flex-col"
+                @click.stop
+            >
+
+                <!-- =================================================
+                    HEADER
+                    ================================================= -->
+
+                <div
+                    class="shrink-0 px-5 py-4 sm:px-6
+                        border-b border-slate-200
+                        bg-white"
+                >
+
+                    <div class="flex items-center justify-between gap-4">
+
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="h-11 w-11 shrink-0 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-xl">
+                                👩‍🏫
+                            </div>
+                            <div class="min-w-0">
+                                <h2 id="ai-tutor-title" class="text-lg sm:text-xl font-black text-slate-900">AI Tutor</h2>
+                                <p class="text-xs text-slate-500 mt-0.5">Let's understand this question together.</p>
+                            </div>
+                        </div>
+
+                        <!-- PROVIDER BADGE + CLOSE -->
+                        <div class="flex items-center gap-2 shrink-0">
+
+                            <template x-if="tutorLoading">
+                                <span class="px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-700 text-[11px] font-extrabold uppercase tracking-wide flex items-center gap-1.5">
+                                    <span class="h-2 w-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                                    Thinking...
+                                </span>
+                            </template>
+
+                            <template x-if="!tutorLoading && tutorResponse?.provider">
+                                <span
+                                    class="px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-700 text-[11px] font-extrabold uppercase tracking-wide"
+                                    x-text="tutorResponse.provider === 'gemini' ? '✨ Gemini' : tutorResponse.provider === 'ollama' ? '🖥️ Ollama' : tutorResponse.provider"
+                                ></span>
+                            </template>
+
+                            <button
+                                type="button"
+                                @click="closeAITutor()"
+                                class="h-10 w-10 rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition flex items-center justify-center text-xl"
+                                aria-label="Close AI Tutor"
+                            >
+                                ×
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                    CONTENT
+                    ================================================= -->
+
+                <div class="flex-1 overflow-y-auto max-h-[70vh]">
+
+                    <div class="p-4 sm:p-6 space-y-5">
+
+
+                        <!-- =============================================
+                            QUESTION
+                            ============================================= -->
+
+                        <section
+                            x-show="tutorQuestion"
+                            class="rounded-2xl
+                                border border-slate-200
+                                bg-slate-50
+                                p-4 sm:p-5"
+                        >
+
+                            <div
+                                class="flex flex-wrap items-center gap-2 mb-3"
+                            >
+
+                                <span
+                                    class="px-2.5 py-1
+                                        rounded-lg
+                                        bg-blue-100
+                                        text-blue-700
+                                        text-xs
+                                        font-extrabold"
+                                    x-text="
+                                        tutorQuestion?.subject_name ||
+                                        'Question'
+                                    "
+                                ></span>
+
+                                <span
+                                    class="text-xs
+                                        text-slate-400"
+                                >
+                                    •
+                                </span>
+
+                                <span
+                                    class="text-xs
+                                        font-bold
+                                        text-slate-500"
+                                    x-text="
+                                        tutorQuestion?.number
+                                            ? `Question ${tutorQuestion.number}`
+                                            : ''
+                                    "
+                                ></span>
+
+                            </div>
+
+
+                            <p
+                                class="text-sm sm:text-base
+                                    leading-relaxed
+                                    font-semibold
+                                    text-slate-900
+                                    whitespace-pre-line"
+                                x-text="tutorQuestion?.text || ''"
+                            ></p>
+
+
+                            <!-- STUDENT ANSWER / CORRECT ANSWER -->
+
+                            <div
+                                class="grid sm:grid-cols-2
+                                    gap-3 mt-4"
+                            >
+
+                                <!-- STUDENT -->
+
+                                <div
+                                    class="rounded-xl
+                                        border border-slate-200
+                                        bg-white
+                                        p-3"
+                                >
+
+                                    <p
+                                        class="text-[10px]
+                                            font-extrabold
+                                            uppercase
+                                            tracking-wider
+                                            text-slate-500"
+                                    >
+                                        Your Answer
+                                    </p>
+
+                                    <p
+                                        class="text-sm
+                                            font-bold
+                                            text-slate-800
+                                            mt-1"
+                                        x-text="
+                                            getStudentOption(tutorQuestion)?.text ||
+                                            'Not answered'
+                                        "
+                                    ></p>
+
+                                </div>
+
+
+                                <!-- CORRECT -->
+
+                                <div
+                                    class="rounded-xl
+                                        border border-emerald-200
+                                        bg-emerald-50
+                                        p-3"
+                                >
+
+                                    <p
+                                        class="text-[10px]
+                                            font-extrabold
+                                            uppercase
+                                            tracking-wider
+                                            text-emerald-700"
+                                    >
+                                        Correct Answer
+                                    </p>
+
+                                    <p
+                                        class="text-sm
+                                            font-bold
+                                            text-emerald-900
+                                            mt-1"
+                                        x-text="
+                                            getCorrectOption(tutorQuestion)?.text ||
+                                            'Not available'
+                                        "
+                                    ></p>
+
+                                </div>
+
+                            </div>
+
+                        </section>
+
+
+                        <!-- =============================================
+                            LOADING
+                            ============================================= -->
+
+                        <template x-if="tutorLoading">
+
+                            <div
+                                class="rounded-2xl
+                                    border border-indigo-200
+                                    bg-indigo-50
+                                    p-8
+                                    text-center"
+                            >
+
+                                <div
+                                    class="mx-auto h-10 w-10
+                                        rounded-full
+                                        border-4
+                                        border-indigo-200
+                                        border-t-indigo-600
+                                        animate-spin"
+                                ></div>
+
+                                <p
+                                    class="mt-4
+                                        text-sm
+                                        font-bold
+                                        text-indigo-900"
+                                >
+                                    AI Tutor is thinking...
+                                </p>
+
+                                <p
+                                    class="mt-1
+                                        text-xs
+                                        text-indigo-700"
+                                >
+                                    Preparing an explanation for this question.
+                                </p>
+
+                            </div>
+
+                        </template>
+
+
+                        <!-- =============================================
+                            ERROR
+                            ============================================= -->
+
+                        <template x-if="!tutorLoading && tutorError">
+
+                            <div
+                                class="rounded-2xl
+                                    border border-rose-200
+                                    bg-rose-50
+                                    p-5"
+                            >
+
+                                <div class="flex gap-3">
+
+                                    <div
+                                        class="h-9 w-9 shrink-0
+                                            rounded-xl
+                                            bg-rose-100
+                                            flex items-center
+                                            justify-center"
+                                    >
+                                        ⚠️
+                                    </div>
+
+                                    <div class="flex-1">
+
+                                        <h3
+                                            class="font-black
+                                                text-rose-900"
+                                        >
+                                            AI Tutor unavailable
+                                        </h3>
+
+                                        <p
+                                            class="text-sm
+                                                text-rose-800
+                                                mt-1"
+                                            x-text="tutorError"
+                                        ></p>
+
+                                        <button
+                                            type="button"
+                                            @click="retryAITutor()"
+                                            class="mt-4
+                                                px-4 py-2
+                                                rounded-xl
+                                                bg-rose-600
+                                                text-white
+                                                text-sm
+                                                font-bold
+                                                hover:bg-rose-700
+                                                transition"
+                                        >
+                                            Try Again
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </template>
+
+
+                        <!-- =============================================
+                            AI RESPONSE
+                            ============================================= -->
+
+                        <template
+                            x-if="
+                                !tutorLoading &&
+                                !tutorError &&
+                                tutorResponse
+                            "
+                        >
+
+                            <div class="space-y-4">
+
+
+                                <!-- GREETING -->
+
+                                <template
+                                    x-if="tutorResponse.greeting"
+                                >
+
+                                    <div
+                                        class="rounded-2xl
+                                            border border-indigo-200
+                                            bg-indigo-50
+                                            p-4"
+                                    >
+
+                                        <p
+                                            class="text-sm
+                                                font-semibold
+                                                text-indigo-950
+                                                leading-relaxed"
+                                            x-text="tutorResponse.greeting"
+                                        ></p>
+
+                                    </div>
+
+                                </template>
+
+
+                                <!-- EXPLANATION -->
+
+                                <template
+                                    x-if="tutorResponse.explanation"
+                                >
+
+                                    <section
+                                        class="rounded-2xl
+                                            border border-blue-200
+                                            bg-blue-50/70
+                                            p-4 sm:p-5"
+                                    >
+
+                                        <div
+                                            class="flex items-center gap-2 mb-3"
+                                        >
+
+                                            <span
+                                                class="h-8 w-8
+                                                    rounded-xl
+                                                    bg-blue-100
+                                                    text-blue-700
+                                                    flex items-center
+                                                    justify-center"
+                                            >
+                                                💡
+                                            </span>
+
+                                            <h3
+                                                class="font-black
+                                                    text-blue-950"
+                                            >
+                                                Explanation
+                                            </h3>
+
+                                        </div>
+
+                                        <p
+                                            class="text-sm
+                                                leading-7
+                                                text-slate-800
+                                                whitespace-pre-line"
+                                            x-text="tutorResponse.explanation"
+                                        ></p>
+
+                                    </section>
+
+                                </template>
+
+
+                                <!-- STEPS -->
+
+                                <template
+                                    x-if="
+                                        Array.isArray(tutorResponse.steps) &&
+                                        tutorResponse.steps.length
+                                    "
+                                >
+
+                                    <section
+                                        class="rounded-2xl
+                                            border border-slate-200
+                                            bg-white
+                                            p-4 sm:p-5"
+                                    >
+
+                                        <div
+                                            class="flex items-center gap-2 mb-4"
+                                        >
+
+                                            <span
+                                                class="h-8 w-8
+                                                    rounded-xl
+                                                    bg-slate-100
+                                                    flex items-center
+                                                    justify-center"
+                                            >
+                                                📝
+                                            </span>
+
+                                            <h3
+                                                class="font-black
+                                                    text-slate-900"
+                                            >
+                                                Step-by-Step
+                                            </h3>
+
+                                        </div>
+
+
+                                        <div class="space-y-3">
+
+                                            <template
+                                                x-for="
+                                                    (step, index)
+                                                    in tutorResponse.steps
+                                                "
+                                                :key="index"
+                                            >
+
+                                                <div
+                                                    class="flex gap-3"
+                                                >
+
+                                                    <div
+                                                        class="h-7 w-7
+                                                            shrink-0
+                                                            rounded-lg
+                                                            bg-indigo-100
+                                                            text-indigo-700
+                                                            flex items-center
+                                                            justify-center
+                                                            text-xs
+                                                            font-black"
+                                                        x-text="index + 1"
+                                                    ></div>
+
+                                                    <p
+                                                        class="flex-1
+                                                            text-sm
+                                                            leading-6
+                                                            text-slate-700
+                                                            pt-0.5"
+                                                        x-text="step"
+                                                    ></p>
+
+                                                </div>
+
+                                            </template>
+
+                                        </div>
+
+                                    </section>
+
+                                </template>
+
+
+                                <!-- HINT -->
+
+                                <template
+                                    x-if="tutorResponse.hint"
+                                >
+
+                                    <section
+                                        class="rounded-2xl
+                                            border border-amber-200
+                                            bg-amber-50
+                                            p-4"
+                                    >
+
+                                        <div
+                                            class="flex items-center gap-2 mb-2"
+                                        >
+
+                                            <span>💭</span>
+
+                                            <h3
+                                                class="font-black
+                                                    text-amber-900"
+                                            >
+                                                Hint
+                                            </h3>
+
+                                        </div>
+
+                                        <p
+                                            class="text-sm
+                                                leading-relaxed
+                                                text-amber-950"
+                                            x-text="tutorResponse.hint"
+                                        ></p>
+
+                                    </section>
+
+                                </template>
+
+
+                                <!-- ENCOURAGEMENT -->
+
+                                <template
+                                    x-if="tutorResponse.encouragement"
+                                >
+
+                                    <div
+                                        class="rounded-2xl
+                                            border border-emerald-200
+                                            bg-emerald-50
+                                            p-4"
+                                    >
+
+                                        <p
+                                            class="text-sm
+                                                font-semibold
+                                                text-emerald-900"
+                                            x-text="
+                                                tutorResponse.encouragement
+                                            "
+                                        ></p>
+
+                                    </div>
+
+                                </template>
+
+
+                                <!-- FOLLOW UP -->
+
+                                <template
+                                    x-if="tutorResponse.follow_up_question"
+                                >
+
+                                    <section
+                                        class="rounded-2xl
+                                            border border-purple-200
+                                            bg-purple-50
+                                            p-4"
+                                    >
+
+                                        <p
+                                            class="text-xs
+                                                font-extrabold
+                                                uppercase
+                                                tracking-wider
+                                                text-purple-700"
+                                        >
+                                            Think About This
+                                        </p>
+
+                                        <p
+                                            class="text-sm
+                                                font-semibold
+                                                text-purple-950
+                                                mt-1
+                                                leading-relaxed"
+                                            x-text="
+                                                tutorResponse.follow_up_question
+                                            "
+                                        ></p>
+
+                                    </section>
+
+                                </template>
+
+
+                                <!-- RAW ANSWER FALLBACK -->
+
+                                <template
+                                    x-if="
+                                        tutorResponse.answer &&
+                                        !tutorResponse.explanation &&
+                                        !tutorResponse.steps?.length
+                                    "
+                                >
+
+                                    <section
+                                        class="rounded-2xl
+                                            border border-slate-200
+                                            bg-white
+                                            p-5"
+                                    >
+
+                                        <p
+                                            class="text-sm
+                                                leading-7
+                                                whitespace-pre-line
+                                                text-slate-800"
+                                            x-text="tutorResponse.answer"
+                                        ></p>
+
+                                    </section>
+
+                                </template>
+
+                            </div>
+
+                        </template>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                    FOOTER
+                    ================================================= -->
+
+                <div
+                    class="shrink-0
+                        border-t border-slate-200
+                        bg-slate-50
+                        px-4 py-3 sm:px-6"
+                >
+
+                    <div
+                        class="flex flex-col-reverse
+                            sm:flex-row
+                            sm:items-center
+                            sm:justify-between
+                            gap-3"
+                    >
+
+                        <p
+                            class="text-[11px]
+                                text-slate-500"
+                        >
+                            AI Tutor provides learning assistance.
+                            Always check your course materials when needed.
+                        </p>
+
+                        <div class="flex gap-2">
+
+                            <button
+                                type="button"
+                                @click="retryAITutor()"
+                                :disabled="tutorLoading || !tutorQuestion"
+                                class="px-4 py-2.5
+                                    rounded-xl
+                                    border border-slate-300
+                                    bg-white
+                                    text-slate-700
+                                    text-sm
+                                    font-bold
+                                    hover:bg-slate-100
+                                    disabled:opacity-50
+                                    disabled:cursor-not-allowed
+                                    transition"
+                            >
+                                Ask Again
+                            </button>
+
+                            <button
+                                type="button"
+                                @click="closeAITutor()"
+                                class="px-4 py-2.5
+                                    rounded-xl
+                                    bg-slate-900
+                                    text-white
+                                    text-sm
+                                    font-bold
+                                    hover:bg-slate-800
+                                    transition"
+                            >
+                                Done
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
     </template>
 
     <!-- Delete Student Confirmation Modal -->
@@ -2089,6 +2861,332 @@
                     </button>
                 </div>
             </div>
+
+                     
+            <!-- =====================================================
+                AI TUTOR
+            ====================================================== -->
+
+           <template x-if="showTutor">
+
+            <div
+                class="fixed inset-0 z-[100] flex items-center justify-center
+                    bg-black/50 p-4"
+            >
+
+                <div
+                    class="flex max-h-[90vh] w-full max-w-2xl flex-col
+                        overflow-hidden rounded-2xl bg-white shadow-2xl"
+                >
+
+                    <!-- Header -->
+                    <div
+                        class="flex items-center justify-between
+                            border-b border-gray-200 px-5 py-4"
+                    >
+
+                        <div class="flex items-center gap-3">
+
+                            <div
+                                class="flex h-11 w-11 items-center
+                                    justify-center rounded-full
+                                    bg-indigo-100 text-xl"
+                            >
+                                <img
+                                    src="/app/web/images/school_logo.png"
+                                    alt="AI Tutor"
+                                    class="h-7 w-7"
+                                >
+                            </div>
+
+                            <div>
+
+                                <h2
+                                    class="font-semibold text-gray-900"
+                                >
+                                    AI Tutor
+                                </h2>
+
+                                <p
+                                    class="text-xs text-gray-500"
+                                >
+                                    Let's understand the question
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <button
+                            type="button"
+                            @click="closeAITutor()"
+                            class="rounded-lg p-2 text-gray-500
+                                hover:bg-gray-100 hover:text-gray-700"
+                        >
+                            ✕
+                        </button>
+
+                    </div>
+
+
+                    <!-- Question -->
+                    <div
+                        x-show="tutorQuestion"
+                        class="border-b border-gray-100
+                            bg-gray-50 px-5 py-4"
+                    >
+
+                        <p
+                            class="text-sm font-medium leading-6 text-gray-800"
+                            x-text="tutorQuestion ? tutorQuestion.text : ''"
+                        ></p>
+
+                    </div>
+
+
+                    <!-- Body -->
+                    <div
+                        class="flex-1 overflow-y-auto px-5 py-6"
+                    >
+
+                        <!-- Provider -->
+                        <div
+                            x-show="tutorProvider"
+                            class="mb-4 flex items-center gap-2"
+                        >
+
+                            <span
+                                class="inline-flex items-center rounded-full
+                                    bg-indigo-50 px-3 py-1 text-xs
+                                    font-medium text-indigo-700"
+                                x-text="
+                                    tutorProvider === 'ollama'
+                                        ? '🖥️ AI Tutor · Offline'
+                                        : tutorProvider === 'gemini'
+                                            ? '✨ AI Tutor · Gemini'
+                                            : '🤖 AI Tutor'
+                                "
+                            ></span>
+
+                        </div>
+
+
+                        <!-- Loading -->
+                        <div
+                            x-show="tutorLoading"
+                            class="flex items-center gap-3"
+                        >
+
+                            <div
+                                class="h-5 w-5 animate-spin rounded-full
+                                    border-2 border-current
+                                    border-t-transparent"
+                            ></div>
+
+                            <span class="text-sm text-gray-600">
+                                AI Tutor is thinking...
+                            </span>
+
+                        </div>
+
+
+                        <!-- Error -->
+                        <div
+                            x-show="tutorError && !tutorLoading"
+                            class="rounded-lg border border-red-200
+                                bg-red-50 p-4 text-sm text-red-700"
+                            x-text="tutorError"
+                        ></div>
+
+
+                        <!-- Answer -->
+                        <div
+                            x-show="tutorAnswer && !tutorLoading"
+                            class="space-y-5"
+                        >
+
+                            <!-- Greeting -->
+                            <section
+                                x-show="tutorGreeting"
+                            >
+
+                                <p
+                                    class="text-sm font-medium
+                                        leading-6 text-gray-800"
+                                    x-text="tutorGreeting"
+                                ></p>
+
+                            </section>
+
+
+                            <!-- Explanation -->
+                            <section
+                                x-show="tutorExplanation"
+                            >
+
+                                <h4
+                                    class="mb-2 text-sm font-semibold
+                                        text-gray-900"
+                                >
+                                    Explanation
+                                </h4>
+
+                                <p
+                                    class="text-sm leading-6 text-gray-700"
+                                    x-text="tutorExplanation"
+                                ></p>
+
+                            </section>
+
+
+                            <!-- Steps -->
+                            <section
+                                x-show="
+                                    Array.isArray(tutorSteps)
+                                    && tutorSteps.length > 0
+                                "
+                            >
+
+                                <h4
+                                    class="mb-2 text-sm font-semibold
+                                        text-gray-900"
+                                >
+                                    Step by step
+                                </h4>
+
+                                <ol class="space-y-2">
+
+                                    <template
+                                        x-for="
+                                            (step, index)
+                                            in tutorSteps
+                                        "
+                                        :key="index"
+                                    >
+
+                                        <li
+                                            class="flex gap-3 text-sm
+                                                leading-6 text-gray-700"
+                                        >
+
+                                            <span
+                                                class="flex h-6 w-6 shrink-0
+                                                    items-center justify-center
+                                                    rounded-full bg-gray-100
+                                                    text-xs font-semibold"
+                                                x-text="index + 1"
+                                            ></span>
+
+                                            <span
+                                                x-text="step"
+                                            ></span>
+
+                                        </li>
+
+                                    </template>
+
+                                </ol>
+
+                            </section>
+
+
+                            <!-- Hint -->
+                            <section
+                                x-show="tutorHint"
+                                class="rounded-lg bg-amber-50 p-4"
+                            >
+
+                                <h4
+                                    class="mb-1 text-sm font-semibold
+                                        text-amber-800"
+                                >
+                                    Hint
+                                </h4>
+
+                                <p
+                                    class="text-sm leading-6 text-amber-900"
+                                    x-text="tutorHint"
+                                ></p>
+
+                            </section>
+
+
+                            <!-- Encouragement -->
+                            <section
+                                x-show="tutorEncouragement"
+                                class="rounded-lg bg-emerald-50 p-4"
+                            >
+
+                                <p
+                                    class="text-sm leading-6 text-emerald-800"
+                                    x-text="tutorEncouragement"
+                                ></p>
+
+                            </section>
+
+
+                            <!-- Follow-up -->
+                            <section
+                                x-show="tutorFollowUp"
+                                class="rounded-lg bg-blue-50 p-4"
+                            >
+
+                                <h4
+                                    class="mb-1 text-sm font-semibold
+                                        text-blue-800"
+                                >
+                                    Check your understanding
+                                </h4>
+
+                                <p
+                                    class="text-sm leading-6 text-blue-900"
+                                    x-text="tutorFollowUp"
+                                ></p>
+
+                            </section>
+
+                        </div>
+
+
+                        <!-- Nothing yet -->
+                        <div
+                            x-show="
+                                !tutorLoading
+                                && !tutorError
+                                && !tutorAnswer
+                            "
+                            class="py-10 text-center text-sm
+                                text-gray-500"
+                        >
+                            Ask the AI Tutor to explain this question.
+                        </div>
+
+                    </div>
+
+
+                    <!-- Footer -->
+                    <div
+                        class="border-t border-gray-200 px-5 py-4"
+                    >
+
+                        <button
+                            type="button"
+                            @click="closeAITutor()"
+                            class="w-full rounded-xl border
+                                border-gray-300 px-4 py-3
+                                text-sm font-semibold text-gray-700
+                                hover:bg-gray-50"
+                        >
+                            Close
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </template>
             
             <div class="p-6 overflow-y-auto" style="max-height: calc(90vh - 200px);">
                 <div class="overflow-x-auto" id="history-print-area">

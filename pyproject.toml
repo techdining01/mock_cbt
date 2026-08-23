@@ -5,11 +5,17 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "fastapi[standard]>=0.141.1",
+    "google-genai>=2.19.0",
+    "httpx>=0.28.1",
     "opencv-python>=5.0.0.93",
     "pillow>=12.3.0",
+    "pydantic>=2.13.4",
     "pymupdf>=1.28.2",
     "pyside6>=6.11.1",
     "pytesseract>=0.3.13",
+    "python-dotenv>=1.2.3",
     "reportlab>=4.0.0",
+    "requests>=2.34.2",
     "sqlalchemy>=2.0.52",
 ]

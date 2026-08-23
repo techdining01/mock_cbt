@@ -2,22 +2,24 @@ from __future__ import annotations
 
 import json
 import os
-import re
 import subprocess
 import sys
-import time
+import requests
+
 from pathlib import Path
-from typing import Optional
 
 from PySide6.QtCore import QObject, Slot, QTimer, QCoreApplication, QUrl
-from PySide6.QtWidgets import QApplication, QMessageBox, QFileDialog
-from sqlalchemy import distinct, select, func
+from PySide6.QtWidgets import QFileDialog
+from sqlalchemy import select, func
 
 from app.database.database import SessionLocal
 from app.database.models import ExamSession, User, Subject, Question, Option
 from app.services.exam_service import ExamService
 from app.services.pdf_processor import PDFProcessor
 from app.services.auth_service import AuthService
+
+
+from app.ai_tutor.services.tutor_service import TutorService
 
 
 class ExamBridge(QObject):
@@ -490,7 +492,9 @@ class ExamBridge(QObject):
             doc_title = str(title or "Mock CBT Examination")
             printer.setDocName(doc_title)
 
-            dialog = QPrintDialog(printer, self._web_view if hasattr(self, '_web_view') else None)
+            dialog = QPrintDialog(
+                printer, self._web_view if hasattr(self, "_web_view") else None
+            )
             dialog.setWindowTitle(f"Print - {doc_title}")
 
             if dialog.exec() == QPrintDialog.DialogCode.Accepted:
@@ -524,11 +528,13 @@ class ExamBridge(QObject):
             except Exception as open_err:
                 print("Could not auto-open PDF:", open_err)
 
-            return json.dumps({
-                "success": True,
-                "path": str(pdf_path),
-                "message": f"Result PDF saved successfully to {pdf_path}",
-            })
+            return json.dumps(
+                {
+                    "success": True,
+                    "path": str(pdf_path),
+                    "message": f"Result PDF saved successfully to {pdf_path}",
+                }
+            )
         except Exception as exc:
             return self._error(exc)
 
@@ -544,9 +550,7 @@ class ExamBridge(QObject):
         default_name: str = "student_history.pdf",
     ):
         try:
-            service, service_err = self._get_reportlab_service()
-            if service is None:
-                return self._error(service_err or "PDF service unavailable.")
+            from app.services.reportlab_report_service import ReportlabReportService
 
             history = json.loads(history_json or "[]")
             if not history:
@@ -554,7 +558,10 @@ class ExamBridge(QObject):
 
             sname = str(student_name or "Student").strip() or "Student"
 
-            safe_name = "".join(c for c in sname if c.isalnum() or c in (" ", "_", "-")).strip() or "student"
+            safe_name = (
+                "".join(c for c in sname if c.isalnum() or c in (" ", "_", "-")).strip()
+                or "student"
+            )
             default_name = str(default_name or f"{safe_name}_history.pdf")
             if not default_name.lower().endswith(".pdf"):
                 default_name += ".pdf"
@@ -570,13 +577,22 @@ class ExamBridge(QObject):
                 return json.dumps({"success": False, "cancelled": True})
 
             output = Path(file_path)
-            service.generate_student_history_pdf(str(output), sname, history)
+            report_service = ReportlabReportService()
+            pdf_path = report_service.generate_student_history(
+                sname, history, output_path=output
+            )
+
+            try:
+                if hasattr(os, "startfile"):
+                    os.startfile(pdf_path)
+            except Exception as open_err:
+                print("Could not auto-open PDF:", open_err)
 
             return json.dumps(
                 {
                     "success": True,
-                    "path": str(output.resolve()),
-                    "name": output.name,
+                    "path": str(pdf_path),
+                    "name": Path(pdf_path).name,
                 }
             )
 
@@ -624,11 +640,11 @@ class ExamBridge(QObject):
                 if last.started_at:
                     last_exam = {
                         "year": int(last.year),
-                        "started_at": last.started_at.isoformat() if last.started_at else None,
+                        "started_at": last.started_at.isoformat()
+                        if last.started_at
+                        else None,
                         "completed_at": (
-                            last.completed_at.isoformat()
-                            if last.completed_at
-                            else None
+                            last.completed_at.isoformat() if last.completed_at else None
                         ),
                         "is_completed": bool(last.is_completed),
                     }
@@ -675,8 +691,9 @@ class ExamBridge(QObject):
                 matched_admin = None
                 for admin in admins:
                     if (
-                        (admin.username and admin.username.lower() == name_normalized)
-                        or (admin.full_name and admin.full_name.lower() == name_normalized)
+                        admin.username and admin.username.lower() == name_normalized
+                    ) or (
+                        admin.full_name and admin.full_name.lower() == name_normalized
                     ):
                         matched_admin = admin
                         break
@@ -711,47 +728,55 @@ class ExamBridge(QObject):
         try:
             raw_username = str(username or "").strip()
             if not raw_username:
-                return json.dumps({
-                    "success": True,
-                    "exists": False,
-                })
+                return json.dumps(
+                    {
+                        "success": True,
+                        "exists": False,
+                    }
+                )
 
             with SessionLocal() as db:
-                user = db.scalar(
-                    select(User).where(User.username == raw_username)
-                )
+                user = db.scalar(select(User).where(User.username == raw_username))
 
                 if not user:
                     # Also try case-insensitive
                     user = db.scalar(
-                        select(User).where(func.lower(User.username) == raw_username.lower())
+                        select(User).where(
+                            func.lower(User.username) == raw_username.lower()
+                        )
                     )
 
                 if user:
                     if not user.is_active:
-                        return json.dumps({
-                            "success": False,
-                            "error": "This account is inactive. Please contact an administrator.",
-                        })
+                        return json.dumps(
+                            {
+                                "success": False,
+                                "error": "This account is inactive. Please contact an administrator.",
+                            }
+                        )
 
-                    return json.dumps({
-                        "success": True,
-                        "exists": True,
-                        "is_admin": user.role == "admin",
-                        "user": {
-                            "id": user.id,
-                            "username": user.username,
-                            "full_name": user.full_name,
-                            "role": user.role,
-                            "student_class": user.student_class,
-                            "admission_year": user.admission_year,
+                    return json.dumps(
+                        {
+                            "success": True,
+                            "exists": True,
+                            "is_admin": user.role == "admin",
+                            "user": {
+                                "id": user.id,
+                                "username": user.username,
+                                "full_name": user.full_name,
+                                "role": user.role,
+                                "student_class": user.student_class,
+                                "admission_year": user.admission_year,
+                            },
                         }
-                    })
+                    )
                 else:
-                    return json.dumps({
-                        "success": True,
-                        "exists": False,
-                    })
+                    return json.dumps(
+                        {
+                            "success": True,
+                            "exists": False,
+                        }
+                    )
         except Exception as exc:
             return self._error(exc)
 
@@ -782,18 +807,26 @@ class ExamBridge(QObject):
 
                 # Check if username exists
                 existing = db.scalar(
-                    select(User).where(
-                        (func.lower(User.username) == u_name.lower())
-                    )
+                    select(User).where((func.lower(User.username) == u_name.lower()))
                 )
                 if existing:
-                    return json.dumps({
-                        "success": False,
-                        "error": "Username already exists. Please choose another username or log in."
-                    })
+                    return json.dumps(
+                        {
+                            "success": False,
+                            "error": "Username already exists. Please choose another username or log in.",
+                        }
+                    )
 
-                s_class = student_class.strip() if student_class and student_class.strip() else None
-                adm_year = int(admission_year) if admission_year and str(admission_year).strip().isdigit() else None
+                s_class = (
+                    student_class.strip()
+                    if student_class and student_class.strip()
+                    else None
+                )
+                adm_year = (
+                    int(admission_year)
+                    if admission_year and str(admission_year).strip().isdigit()
+                    else None
+                )
 
                 user = auth_service.create_user(
                     username=u_name,
@@ -804,17 +837,19 @@ class ExamBridge(QObject):
                     admission_year=adm_year,
                 )
 
-                return json.dumps({
-                    "success": True,
-                    "user": {
-                        "id": user.id,
-                        "username": user.username,
-                        "full_name": user.full_name,
-                        "role": user.role,
-                        "student_class": user.student_class,
-                        "admission_year": user.admission_year,
+                return json.dumps(
+                    {
+                        "success": True,
+                        "user": {
+                            "id": user.id,
+                            "username": user.username,
+                            "full_name": user.full_name,
+                            "role": user.role,
+                            "student_class": user.student_class,
+                            "admission_year": user.admission_year,
+                        },
                     }
-                })
+                )
         except Exception as exc:
             return self._error(exc)
 
@@ -1041,25 +1076,24 @@ class ExamBridge(QObject):
         except Exception as exc:
             return self._error(exc)
 
-
-    #=======================================
+    # =======================================
     # ADMIN DASHBOARD AND FEATURES
-    #=======================================
+    # =======================================
 
     @Slot(str, result=str)
     def search_students(self, search_name: str = ""):
         try:
             with SessionLocal() as db:
                 from sqlalchemy import or_
-                
+
                 query = select(ExamSession)
                 if search_name and search_name.strip():
                     search_pattern = f"%{search_name.strip()}%"
                     query = query.where(ExamSession.student_name.like(search_pattern))
-                
+
                 query = query.order_by(ExamSession.started_at.desc())
                 sessions = list(db.scalars(query).all())
-                
+
                 # Group by student name
                 students_dict = {}
                 for session in sessions:
@@ -1072,21 +1106,31 @@ class ExamBridge(QObject):
                             "last_exam_datetime": None,
                         }
                     students_dict[name]["session_count"] += 1
-                    if students_dict[name]["last_exam_datetime"] is None or (session.started_at and session.started_at > students_dict[name]["last_exam_datetime"]):
-                        students_dict[name]["last_exam"] = session.started_at.strftime("%d-%m-%Y %H:%M:%S") if session.started_at else None
+                    if students_dict[name]["last_exam_datetime"] is None or (
+                        session.started_at
+                        and session.started_at
+                        > students_dict[name]["last_exam_datetime"]
+                    ):
+                        students_dict[name]["last_exam"] = (
+                            session.started_at.strftime("%d-%m-%Y %H:%M:%S")
+                            if session.started_at
+                            else None
+                        )
                         students_dict[name]["last_exam_datetime"] = session.started_at
-                
+
                 # Remove datetime field before JSON serialization
                 for student_data in students_dict.values():
                     if "last_exam_datetime" in student_data:
                         del student_data["last_exam_datetime"]
-                
+
                 students = list(students_dict.values())
-                
-                return json.dumps({
-                    "success": True,
-                    "students": students,
-                })
+
+                return json.dumps(
+                    {
+                        "success": True,
+                        "students": students,
+                    }
+                )
         except Exception as exc:
             return self._error(exc)
 
@@ -1095,45 +1139,57 @@ class ExamBridge(QObject):
         try:
             with SessionLocal() as db:
                 from app.services.exam_service import ExamService
-                
+
                 service = ExamService(db)
-                
-                sessions = list(db.scalars(
-                    select(ExamSession)
-                    .where(ExamSession.student_name == student_name)
-                    .where(ExamSession.is_completed == True)
-                    .order_by(ExamSession.completed_at.desc())
-                ).all())
-                
+
+                sessions = list(
+                    db.scalars(
+                        select(ExamSession)
+                        .where(ExamSession.student_name == student_name)
+                        .where(ExamSession.is_completed == True)
+                        .order_by(ExamSession.completed_at.desc())
+                    ).all()
+                )
+
                 history = []
                 for session in sessions:
                     result = service.get_result(session.id)
-                    
+
                     # Extract per-subject breakdown from existing result
                     subjects_data = []
                     for subject_result in result.get("subjects", []):
-                        subjects_data.append({
-                            "name": subject_result.get("subject_name", ""),
-                            "total": subject_result.get("total", 0),
-                            "correct": subject_result.get("correct", 0),
-                            "percentage": subject_result.get("percentage", 0),
-                        })
-                    
-                    history.append({
-                        "id": session.id,
-                        "year": session.year,
-                        "completed_at": session.completed_at.strftime("%d-%m-%Y %H:%M:%S") if session.completed_at else None,
-                        "subject_count": len(session.subjects),
-                        "total": result.get("total", 0),
-                        "correct": result.get("correct", 0),
-                        "percentage": result.get("percentage", 0),
-                        "subjects": subjects_data,
-                    })
-                
-                return json.dumps({
-                    "success": True,
-                    "history": history,
-                })
+                        subjects_data.append(
+                            {
+                                "name": subject_result.get("subject_name", ""),
+                                "total": subject_result.get("total", 0),
+                                "correct": subject_result.get("correct", 0),
+                                "percentage": subject_result.get("percentage", 0),
+                            }
+                        )
+
+                    history.append(
+                        {
+                            "id": session.id,
+                            "year": session.year,
+                            "completed_at": session.completed_at.strftime(
+                                "%d-%m-%Y %H:%M:%S"
+                            )
+                            if session.completed_at
+                            else None,
+                            "subject_count": len(session.subjects),
+                            "total": result.get("total", 0),
+                            "correct": result.get("correct", 0),
+                            "percentage": result.get("percentage", 0),
+                            "subjects": subjects_data,
+                        }
+                    )
+
+                return json.dumps(
+                    {
+                        "success": True,
+                        "history": history,
+                    }
+                )
         except Exception as exc:
             return self._error(exc)
 
@@ -1141,20 +1197,25 @@ class ExamBridge(QObject):
     def delete_student(self, student_name: str):
         try:
             with SessionLocal() as db:
-                sessions = list(db.scalars(
-                    select(ExamSession)
-                    .where(ExamSession.student_name == student_name)
-                ).all())
-                
+                sessions = list(
+                    db.scalars(
+                        select(ExamSession).where(
+                            ExamSession.student_name == student_name
+                        )
+                    ).all()
+                )
+
                 for session in sessions:
                     db.delete(session)
-                
+
                 db.commit()
-                
-                return json.dumps({
-                    "success": True,
-                    "deleted": len(sessions),
-                })
+
+                return json.dumps(
+                    {
+                        "success": True,
+                        "deleted": len(sessions),
+                    }
+                )
         except Exception as exc:
             return self._error(exc)
 
@@ -1168,25 +1229,26 @@ class ExamBridge(QObject):
             with SessionLocal() as db:
                 auth_service = AuthService(db)
                 user = auth_service.authenticate(username, password)
-                
+
                 if user:
                     self._current_user = user
-                    return json.dumps({
-                        "success": True,
-                        "user": {
-                            "id": user.id,
-                            "username": user.username,
-                            "full_name": user.full_name,
-                            "role": user.role,
-                            "student_class": user.student_class,
-                            "admission_year": user.admission_year,
+                    return json.dumps(
+                        {
+                            "success": True,
+                            "user": {
+                                "id": user.id,
+                                "username": user.username,
+                                "full_name": user.full_name,
+                                "role": user.role,
+                                "student_class": user.student_class,
+                                "admission_year": user.admission_year,
+                            },
                         }
-                    })
+                    )
                 else:
-                    return json.dumps({
-                        "success": False,
-                        "error": "Invalid username or password"
-                    })
+                    return json.dumps(
+                        {"success": False, "error": "Invalid username or password"}
+                    )
         except Exception as exc:
             return self._error(exc)
 
@@ -1194,10 +1256,7 @@ class ExamBridge(QObject):
     def logout(self):
         try:
             self._current_user = None
-            return json.dumps({
-                "success": True,
-                "message": "Logged out successfully"
-            })
+            return json.dumps({"success": True, "message": "Logged out successfully"})
         except Exception as exc:
             return self._error(exc)
 
@@ -1205,22 +1264,21 @@ class ExamBridge(QObject):
     def get_current_user(self):
         try:
             if self._current_user:
-                return json.dumps({
-                    "success": True,
-                    "user": {
-                        "id": self._current_user.id,
-                        "username": self._current_user.username,
-                        "full_name": self._current_user.full_name,
-                        "role": self._current_user.role,
-                        "student_class": self._current_user.student_class,
-                        "admission_year": self._current_user.admission_year,
+                return json.dumps(
+                    {
+                        "success": True,
+                        "user": {
+                            "id": self._current_user.id,
+                            "username": self._current_user.username,
+                            "full_name": self._current_user.full_name,
+                            "role": self._current_user.role,
+                            "student_class": self._current_user.student_class,
+                            "admission_year": self._current_user.admission_year,
+                        },
                     }
-                })
+                )
             else:
-                return json.dumps({
-                    "success": False,
-                    "error": "No user logged in"
-                })
+                return json.dumps({"success": False, "error": "No user logged in"})
         except Exception as exc:
             return self._error(exc)
 
@@ -1229,22 +1287,29 @@ class ExamBridge(QObject):
     # ========================================================
 
     @Slot(str, str, str, str, str, str, result=str)
-    def create_user(self, username: str, password: str, full_name: str, role: str, student_class: str, admission_year: str):
+    def create_user(
+        self,
+        username: str,
+        password: str,
+        full_name: str,
+        role: str,
+        student_class: str,
+        admission_year: str,
+    ):
         """Create a new user (admin only)."""
         try:
             if not self._current_user or self._current_user.role != "admin":
-                return json.dumps({
-                    "success": False,
-                    "error": "Access denied. Admin only."
-                })
-            
+                return json.dumps(
+                    {"success": False, "error": "Access denied. Admin only."}
+                )
+
             with SessionLocal() as db:
                 auth_service = AuthService(db)
-                
+
                 # Parse optional fields
                 student_class_parsed = student_class if student_class else None
                 admission_year_parsed = int(admission_year) if admission_year else None
-                
+
                 user = auth_service.create_user(
                     username=username,
                     password=password,
@@ -1253,33 +1318,43 @@ class ExamBridge(QObject):
                     student_class=student_class_parsed,
                     admission_year=admission_year_parsed,
                 )
-                
-                return json.dumps({
-                    "success": True,
-                    "user": {
-                        "id": user.id,
-                        "username": user.username,
-                        "full_name": user.full_name,
-                        "role": user.role,
-                        "student_class": user.student_class,
-                        "admission_year": user.admission_year,
+
+                return json.dumps(
+                    {
+                        "success": True,
+                        "user": {
+                            "id": user.id,
+                            "username": user.username,
+                            "full_name": user.full_name,
+                            "role": user.role,
+                            "student_class": user.student_class,
+                            "admission_year": user.admission_year,
+                        },
                     }
-                })
+                )
         except Exception as exc:
             return self._error(exc)
 
     @Slot(str, str, str, str, str, str, str, result=str)
-    def update_user(self, user_id: str, full_name: str, role: str, student_class: str, admission_year: str, is_active: str, password: str):
+    def update_user(
+        self,
+        user_id: str,
+        full_name: str,
+        role: str,
+        student_class: str,
+        admission_year: str,
+        is_active: str,
+        password: str,
+    ):
         try:
             if not self._current_user or self._current_user.role != "admin":
-                return json.dumps({
-                    "success": False,
-                    "error": "Access denied. Admin only."
-                })
-            
+                return json.dumps(
+                    {"success": False, "error": "Access denied. Admin only."}
+                )
+
             with SessionLocal() as db:
                 auth_service = AuthService(db)
-                
+
                 # Parse optional fields
                 full_name_parsed = full_name if full_name else None
                 role_parsed = role if role else None
@@ -1287,7 +1362,7 @@ class ExamBridge(QObject):
                 admission_year_parsed = int(admission_year) if admission_year else None
                 is_active_parsed = is_active.lower() == "true" if is_active else None
                 password_parsed = password if password else None
-                
+
                 user = auth_service.update_user(
                     user_id=int(user_id),
                     full_name=full_name_parsed,
@@ -1297,19 +1372,21 @@ class ExamBridge(QObject):
                     is_active=is_active_parsed,
                     password=password_parsed,
                 )
-                
-                return json.dumps({
-                    "success": True,
-                    "user": {
-                        "id": user.id,
-                        "username": user.username,
-                        "full_name": user.full_name,
-                        "role": user.role,
-                        "student_class": user.student_class,
-                        "admission_year": user.admission_year,
-                        "is_active": user.is_active,
+
+                return json.dumps(
+                    {
+                        "success": True,
+                        "user": {
+                            "id": user.id,
+                            "username": user.username,
+                            "full_name": user.full_name,
+                            "role": user.role,
+                            "student_class": user.student_class,
+                            "admission_year": user.admission_year,
+                            "is_active": user.is_active,
+                        },
                     }
-                })
+                )
         except Exception as exc:
             return self._error(exc)
 
@@ -1317,19 +1394,22 @@ class ExamBridge(QObject):
     def delete_user(self, user_id: str):
         try:
             if not self._current_user or self._current_user.role != "admin":
-                return json.dumps({
-                    "success": False,
-                    "error": "Access denied. Admin only."
-                })
-            
+                return json.dumps(
+                    {"success": False, "error": "Access denied. Admin only."}
+                )
+
             with SessionLocal() as db:
                 auth_service = AuthService(db)
                 success = auth_service.delete_user(int(user_id))
-                
-                return json.dumps({
-                    "success": success,
-                    "message": "User deleted successfully" if success else "User not found"
-                })
+
+                return json.dumps(
+                    {
+                        "success": success,
+                        "message": "User deleted successfully"
+                        if success
+                        else "User not found",
+                    }
+                )
         except Exception as exc:
             return self._error(exc)
 
@@ -1344,21 +1424,22 @@ class ExamBridge(QObject):
                 users = auth_service.get_all_users()
                 users_data = []
                 for user in users:
-                    users_data.append({
-                        "id": user.id,
-                        "username": user.username,
-                        "full_name": user.full_name,
-                        "role": user.role,
-                        "student_class": user.student_class,
-                        "admission_year": user.admission_year,
-                        "is_active": user.is_active,
-                        "created_at": user.created_at.isoformat() if user.created_at else None,
-                    })
-                
-                return json.dumps({
-                    "success": True,
-                    "users": users_data
-                })
+                    users_data.append(
+                        {
+                            "id": user.id,
+                            "username": user.username,
+                            "full_name": user.full_name,
+                            "role": user.role,
+                            "student_class": user.student_class,
+                            "admission_year": user.admission_year,
+                            "is_active": user.is_active,
+                            "created_at": user.created_at.isoformat()
+                            if user.created_at
+                            else None,
+                        }
+                    )
+
+                return json.dumps({"success": True, "users": users_data})
         except Exception as exc:
             return self._error(exc)
 
@@ -1376,13 +1457,17 @@ class ExamBridge(QObject):
             subprocess.Popen(
                 [sys.executable, str(launcher_script)],
                 cwd=str(base_dir),
-                creationflags=subprocess.CREATE_NEW_CONSOLE if sys.platform == "win32" else 0
+                creationflags=subprocess.CREATE_NEW_CONSOLE
+                if sys.platform == "win32"
+                else 0,
             )
 
-            return json.dumps({
-                "success": True,
-                "message": "Question import window launched.",
-            })
+            return json.dumps(
+                {
+                    "success": True,
+                    "message": "Question import window launched.",
+                }
+            )
         except Exception as exc:
             return self._error(f"Failed to launch question import: {exc}")
 
@@ -1395,28 +1480,37 @@ class ExamBridge(QObject):
         """Get all subjects with their question count."""
         try:
             with SessionLocal() as db:
-                subjects = list(db.scalars(
-                    select(Subject).order_by(Subject.name.asc())
-                ).all())
+                subjects = list(
+                    db.scalars(select(Subject).order_by(Subject.name.asc())).all()
+                )
 
                 subjects_data = []
                 for s in subjects:
-                    q_count = db.scalar(
-                        select(func.count(Question.id)).where(Question.subject_id == s.id)
-                    ) or 0
+                    q_count = (
+                        db.scalar(
+                            select(func.count(Question.id)).where(
+                                Question.subject_id == s.id
+                            )
+                        )
+                        or 0
+                    )
 
-                    subjects_data.append({
-                        "id": s.id,
-                        "name": s.name,
-                        "code": s.code,
-                        "is_active": s.is_active,
-                        "question_count": q_count,
-                    })
+                    subjects_data.append(
+                        {
+                            "id": s.id,
+                            "name": s.name,
+                            "code": s.code,
+                            "is_active": s.is_active,
+                            "question_count": q_count,
+                        }
+                    )
 
-                return json.dumps({
-                    "success": True,
-                    "subjects": subjects_data,
-                })
+                return json.dumps(
+                    {
+                        "success": True,
+                        "subjects": subjects_data,
+                    }
+                )
         except Exception as exc:
             return self._error(exc)
 
@@ -1428,38 +1522,58 @@ class ExamBridge(QObject):
             s_code = str(code or "").strip().upper() if code and code.strip() else None
 
             if not s_name:
-                return json.dumps({"success": False, "error": "Subject name is required."})
+                return json.dumps(
+                    {"success": False, "error": "Subject name is required."}
+                )
 
             with SessionLocal() as db:
-                existing = db.scalar(select(Subject).where(func.lower(Subject.name) == s_name.lower()))
+                existing = db.scalar(
+                    select(Subject).where(func.lower(Subject.name) == s_name.lower())
+                )
                 if existing:
-                    return json.dumps({"success": False, "error": f"Subject '{s_name}' already exists."})
+                    return json.dumps(
+                        {
+                            "success": False,
+                            "error": f"Subject '{s_name}' already exists.",
+                        }
+                    )
 
                 if s_code:
-                    existing_code = db.scalar(select(Subject).where(func.upper(Subject.code) == s_code))
+                    existing_code = db.scalar(
+                        select(Subject).where(func.upper(Subject.code) == s_code)
+                    )
                     if existing_code:
-                        return json.dumps({"success": False, "error": f"Subject code '{s_code}' is already used by '{existing_code.name}'."})
+                        return json.dumps(
+                            {
+                                "success": False,
+                                "error": f"Subject code '{s_code}' is already used by '{existing_code.name}'.",
+                            }
+                        )
 
                 subject = Subject(name=s_name, code=s_code, is_active=True)
                 db.add(subject)
                 db.commit()
                 db.refresh(subject)
 
-                return json.dumps({
-                    "success": True,
-                    "subject": {
-                        "id": subject.id,
-                        "name": subject.name,
-                        "code": subject.code,
-                        "is_active": subject.is_active,
-                        "question_count": 0,
+                return json.dumps(
+                    {
+                        "success": True,
+                        "subject": {
+                            "id": subject.id,
+                            "name": subject.name,
+                            "code": subject.code,
+                            "is_active": subject.is_active,
+                            "question_count": 0,
+                        },
                     }
-                })
+                )
         except Exception as exc:
             return self._error(exc)
 
     @Slot(int, str, str, str, result=str)
-    def update_subject(self, subject_id: int, name: str, code: str = "", is_active: str = "true"):
+    def update_subject(
+        self, subject_id: int, name: str, code: str = "", is_active: str = "true"
+    ):
         """Update an existing subject."""
         try:
             s_name = str(name or "").strip()
@@ -1467,7 +1581,9 @@ class ExamBridge(QObject):
             active_bool = is_active.lower() == "true" if is_active else True
 
             if not s_name:
-                return json.dumps({"success": False, "error": "Subject name is required."})
+                return json.dumps(
+                    {"success": False, "error": "Subject name is required."}
+                )
 
             with SessionLocal() as db:
                 subject = db.get(Subject, int(subject_id))
@@ -1477,21 +1593,30 @@ class ExamBridge(QObject):
                 dup = db.scalar(
                     select(Subject).where(
                         func.lower(Subject.name) == s_name.lower(),
-                        Subject.id != subject.id
+                        Subject.id != subject.id,
                     )
                 )
                 if dup:
-                    return json.dumps({"success": False, "error": f"Another subject with name '{s_name}' already exists."})
+                    return json.dumps(
+                        {
+                            "success": False,
+                            "error": f"Another subject with name '{s_name}' already exists.",
+                        }
+                    )
 
                 if s_code:
                     dup_code = db.scalar(
                         select(Subject).where(
-                            func.upper(Subject.code) == s_code,
-                            Subject.id != subject.id
+                            func.upper(Subject.code) == s_code, Subject.id != subject.id
                         )
                     )
                     if dup_code:
-                        return json.dumps({"success": False, "error": f"Subject code '{s_code}' is already used by '{dup_code.name}'."})
+                        return json.dumps(
+                            {
+                                "success": False,
+                                "error": f"Subject code '{s_code}' is already used by '{dup_code.name}'.",
+                            }
+                        )
 
                 subject.name = s_name
                 subject.code = s_code
@@ -1499,15 +1624,17 @@ class ExamBridge(QObject):
                 db.commit()
                 db.refresh(subject)
 
-                return json.dumps({
-                    "success": True,
-                    "subject": {
-                        "id": subject.id,
-                        "name": subject.name,
-                        "code": subject.code,
-                        "is_active": subject.is_active,
+                return json.dumps(
+                    {
+                        "success": True,
+                        "subject": {
+                            "id": subject.id,
+                            "name": subject.name,
+                            "code": subject.code,
+                            "is_active": subject.is_active,
+                        },
                     }
-                })
+                )
         except Exception as exc:
             return self._error(exc)
 
@@ -1520,17 +1647,28 @@ class ExamBridge(QObject):
                 if not subject:
                     return json.dumps({"success": False, "error": "Subject not found."})
 
-                q_count = db.scalar(select(func.count(Question.id)).where(Question.subject_id == subject.id)) or 0
+                q_count = (
+                    db.scalar(
+                        select(func.count(Question.id)).where(
+                            Question.subject_id == subject.id
+                        )
+                    )
+                    or 0
+                )
                 if q_count > 0:
-                    return json.dumps({
-                        "success": False,
-                        "error": f"Cannot delete '{subject.name}' because it contains {q_count} question(s). Please delete its questions first."
-                    })
+                    return json.dumps(
+                        {
+                            "success": False,
+                            "error": f"Cannot delete '{subject.name}' because it contains {q_count} question(s). Please delete its questions first.",
+                        }
+                    )
 
                 db.delete(subject)
                 db.commit()
 
-                return json.dumps({"success": True, "message": "Subject deleted successfully."})
+                return json.dumps(
+                    {"success": True, "message": "Subject deleted successfully."}
+                )
         except Exception as exc:
             return self._error(exc)
 
@@ -1569,31 +1707,50 @@ class ExamBridge(QObject):
                 from sqlalchemy.orm import joinedload
 
                 query = select(Question).options(
-                    joinedload(Question.subject),
-                    joinedload(Question.options)
+                    joinedload(Question.subject), joinedload(Question.options)
                 )
 
-                if year_str and str(year_str).strip() and str(year_str).strip() != "all":
+                if (
+                    year_str
+                    and str(year_str).strip()
+                    and str(year_str).strip() != "all"
+                ):
                     query = query.where(Question.year == int(year_str))
 
-                if subject_id_str and str(subject_id_str).strip() and str(subject_id_str).strip() != "all":
+                if (
+                    subject_id_str
+                    and str(subject_id_str).strip()
+                    and str(subject_id_str).strip() != "all"
+                ):
                     query = query.where(Question.subject_id == int(subject_id_str))
 
                 if search_query and str(search_query).strip():
                     pattern = f"%{str(search_query).strip()}%"
                     query = query.where(
-                        (Question.text.like(pattern)) | (Question.explanation.like(pattern))
+                        (Question.text.like(pattern))
+                        | (Question.explanation.like(pattern))
                     )
 
                 count_query = select(func.count(Question.id))
-                if year_str and str(year_str).strip() and str(year_str).strip() != "all":
+                if (
+                    year_str
+                    and str(year_str).strip()
+                    and str(year_str).strip() != "all"
+                ):
                     count_query = count_query.where(Question.year == int(year_str))
-                if subject_id_str and str(subject_id_str).strip() and str(subject_id_str).strip() != "all":
-                    count_query = count_query.where(Question.subject_id == int(subject_id_str))
+                if (
+                    subject_id_str
+                    and str(subject_id_str).strip()
+                    and str(subject_id_str).strip() != "all"
+                ):
+                    count_query = count_query.where(
+                        Question.subject_id == int(subject_id_str)
+                    )
                 if search_query and str(search_query).strip():
                     pattern = f"%{str(search_query).strip()}%"
                     count_query = count_query.where(
-                        (Question.text.like(pattern)) | (Question.explanation.like(pattern))
+                        (Question.text.like(pattern))
+                        | (Question.explanation.like(pattern))
                     )
 
                 total_count = db.scalar(count_query) or 0
@@ -1602,49 +1759,61 @@ class ExamBridge(QObject):
                 page_size = max(1, min(100, int(page_size)))
                 offset = (page - 1) * page_size
 
-                query = query.order_by(
-                    Question.year.desc(),
-                    Question.subject_id.asc(),
-                    Question.question_number.asc()
-                ).offset(offset).limit(page_size)
+                query = (
+                    query.order_by(
+                        Question.year.desc(),
+                        Question.subject_id.asc(),
+                        Question.question_number.asc(),
+                    )
+                    .offset(offset)
+                    .limit(page_size)
+                )
 
                 questions = list(db.scalars(query).unique().all())
 
                 items = []
                 for q in questions:
                     sorted_options = sorted(q.options, key=lambda o: o.position)
-                    correct_opt = next((o for o in sorted_options if o.is_correct), None)
-                    items.append({
-                        "id": q.id,
-                        "year": q.year,
-                        "subject_id": q.subject_id,
-                        "subject_name": q.subject.name if q.subject else "Unknown",
-                        "question_number": q.question_number,
-                        "text": q.text,
-                        "explanation": q.explanation,
-                        "options": [
-                            {
-                                "id": opt.id,
-                                "label": opt.label,
-                                "position": opt.position,
-                                "text": opt.text,
-                                "is_correct": opt.is_correct,
-                            }
-                            for opt in sorted_options
-                        ],
-                        "correct_label": correct_opt.label if correct_opt else "",
-                    })
+                    correct_opt = next(
+                        (o for o in sorted_options if o.is_correct), None
+                    )
+                    items.append(
+                        {
+                            "id": q.id,
+                            "year": q.year,
+                            "subject_id": q.subject_id,
+                            "subject_name": q.subject.name if q.subject else "Unknown",
+                            "question_number": q.question_number,
+                            "text": q.text,
+                            "explanation": q.explanation,
+                            "options": [
+                                {
+                                    "id": opt.id,
+                                    "label": opt.label,
+                                    "position": opt.position,
+                                    "text": opt.text,
+                                    "is_correct": opt.is_correct,
+                                }
+                                for opt in sorted_options
+                            ],
+                            "correct_label": correct_opt.label if correct_opt else "",
+                        }
+                    )
 
-                total_pages = (total_count + page_size - 1) // page_size if total_count > 0 else 1
+                total_pages = (
+                    (total_count + page_size - 1) // page_size if total_count > 0 else 1
+                )
 
-                return json.dumps({
-                    "success": True,
-                    "questions": items,
-                    "total": total_count,
-                    "page": page,
-                    "page_size": page_size,
-                    "total_pages": total_pages,
-                })
+                return json.dumps(
+                    {
+                        "success": True,
+                        "questions": items,
+                        "total": total_count,
+                        "page": page,
+                        "page_size": page_size,
+                        "total_pages": total_pages,
+                    }
+                )
         except Exception as exc:
             return self._error(exc)
 
@@ -1669,9 +1838,13 @@ class ExamBridge(QObject):
             expl = str(explanation or "").strip() if explanation else None
 
             if not q_text:
-                return json.dumps({"success": False, "error": "Question text is required."})
+                return json.dumps(
+                    {"success": False, "error": "Question text is required."}
+                )
             if not c_label:
-                return json.dumps({"success": False, "error": "Please select the correct option."})
+                return json.dumps(
+                    {"success": False, "error": "Please select the correct option."}
+                )
 
             try:
                 options_list = json.loads(options_json or "[]")
@@ -1679,12 +1852,16 @@ class ExamBridge(QObject):
                 return json.dumps({"success": False, "error": "Invalid options data."})
 
             if not options_list or len(options_list) < 2:
-                return json.dumps({"success": False, "error": "At least 2 options are required."})
+                return json.dumps(
+                    {"success": False, "error": "At least 2 options are required."}
+                )
 
             with SessionLocal() as db:
                 subject = db.get(Subject, s_id)
                 if not subject:
-                    return json.dumps({"success": False, "error": "Subject does not exist."})
+                    return json.dumps(
+                        {"success": False, "error": "Subject does not exist."}
+                    )
 
                 existing = db.scalar(
                     select(Question).where(
@@ -1694,10 +1871,12 @@ class ExamBridge(QObject):
                     )
                 )
                 if existing:
-                    return json.dumps({
-                        "success": False,
-                        "error": f"Question {q_num} already exists for {subject.name} ({y}). Please choose another question number."
-                    })
+                    return json.dumps(
+                        {
+                            "success": False,
+                            "error": f"Question {q_num} already exists for {subject.name} ({y}). Please choose another question number.",
+                        }
+                    )
 
                 question = Question(
                     subject_id=s_id,
@@ -1711,9 +1890,11 @@ class ExamBridge(QObject):
                 db.flush()
 
                 for idx, opt_item in enumerate(options_list, start=1):
-                    label = str(opt_item.get("label", "")).strip().upper() or chr(64 + idx)
+                    label = str(opt_item.get("label", "")).strip().upper() or chr(
+                        64 + idx
+                    )
                     opt_text = str(opt_item.get("text", "")).strip()
-                    is_corr = (label == c_label)
+                    is_corr = label == c_label
 
                     option = Option(
                         question_id=question.id,
@@ -1727,11 +1908,13 @@ class ExamBridge(QObject):
                 db.commit()
                 db.refresh(question)
 
-                return json.dumps({
-                    "success": True,
-                    "question_id": question.id,
-                    "message": f"Question {q_num} created successfully.",
-                })
+                return json.dumps(
+                    {
+                        "success": True,
+                        "question_id": question.id,
+                        "message": f"Question {q_num} created successfully.",
+                    }
+                )
         except Exception as exc:
             return self._error(exc)
 
@@ -1758,9 +1941,13 @@ class ExamBridge(QObject):
             expl = str(explanation or "").strip() if explanation else None
 
             if not q_text:
-                return json.dumps({"success": False, "error": "Question text is required."})
+                return json.dumps(
+                    {"success": False, "error": "Question text is required."}
+                )
             if not c_label:
-                return json.dumps({"success": False, "error": "Please select the correct option."})
+                return json.dumps(
+                    {"success": False, "error": "Please select the correct option."}
+                )
 
             try:
                 options_list = json.loads(options_json or "[]")
@@ -1768,12 +1955,16 @@ class ExamBridge(QObject):
                 return json.dumps({"success": False, "error": "Invalid options data."})
 
             if not options_list or len(options_list) < 2:
-                return json.dumps({"success": False, "error": "At least 2 options are required."})
+                return json.dumps(
+                    {"success": False, "error": "At least 2 options are required."}
+                )
 
             with SessionLocal() as db:
                 question = db.get(Question, q_id)
                 if not question:
-                    return json.dumps({"success": False, "error": "Question not found."})
+                    return json.dumps(
+                        {"success": False, "error": "Question not found."}
+                    )
 
                 dup = db.scalar(
                     select(Question).where(
@@ -1784,10 +1975,12 @@ class ExamBridge(QObject):
                     )
                 )
                 if dup:
-                    return json.dumps({
-                        "success": False,
-                        "error": f"Question {q_num} already exists for this subject and year."
-                    })
+                    return json.dumps(
+                        {
+                            "success": False,
+                            "error": f"Question {q_num} already exists for this subject and year.",
+                        }
+                    )
 
                 question.year = y
                 question.subject_id = s_id
@@ -1800,9 +1993,11 @@ class ExamBridge(QObject):
                 db.flush()
 
                 for idx, opt_item in enumerate(options_list, start=1):
-                    label = str(opt_item.get("label", "")).strip().upper() or chr(64 + idx)
+                    label = str(opt_item.get("label", "")).strip().upper() or chr(
+                        64 + idx
+                    )
                     opt_text = str(opt_item.get("text", "")).strip()
-                    is_corr = (label == c_label)
+                    is_corr = label == c_label
 
                     option = Option(
                         question_id=question.id,
@@ -1815,11 +2010,13 @@ class ExamBridge(QObject):
 
                 db.commit()
 
-                return json.dumps({
-                    "success": True,
-                    "question_id": question.id,
-                    "message": f"Question {q_num} updated successfully.",
-                })
+                return json.dumps(
+                    {
+                        "success": True,
+                        "question_id": question.id,
+                        "message": f"Question {q_num} updated successfully.",
+                    }
+                )
         except Exception as exc:
             return self._error(exc)
 
@@ -1830,15 +2027,19 @@ class ExamBridge(QObject):
             with SessionLocal() as db:
                 question = db.get(Question, int(question_id))
                 if not question:
-                    return json.dumps({"success": False, "error": "Question not found."})
+                    return json.dumps(
+                        {"success": False, "error": "Question not found."}
+                    )
 
                 db.delete(question)
                 db.commit()
 
-                return json.dumps({
-                    "success": True,
-                    "message": "Question deleted successfully.",
-                })
+                return json.dumps(
+                    {
+                        "success": True,
+                        "message": "Question deleted successfully.",
+                    }
+                )
         except Exception as exc:
             return self._error(exc)
 
@@ -1866,13 +2067,18 @@ class ExamBridge(QObject):
             import re
             import time
             from app.services.reportlab_report_service import ReportlabReportService
+
             base_dir = Path(__file__).resolve().parents[2]
             logo_path = base_dir / "app" / "web" / "images" / "al-mumeen.ico"
             if not logo_path.exists():
                 logo_path = base_dir / "app" / "web" / "images" / "alayande.png"
-            report_service = ReportlabReportService(logo_path=logo_path if logo_path.exists() else None)
+            report_service = ReportlabReportService(
+                logo_path=logo_path if logo_path.exists() else None
+            )
 
-            if isinstance(result_or_id, int) or (isinstance(result_or_id, str) and result_or_id.isdigit()):
+            if isinstance(result_or_id, int) or (
+                isinstance(result_or_id, str) and result_or_id.isdigit()
+            ):
                 with SessionLocal() as db:
                     service = ExamService(db)
                     result_data = service.get_result(int(result_or_id))
@@ -1884,17 +2090,31 @@ class ExamBridge(QObject):
             reports_dir = base_dir / "data" / "reports"
             reports_dir.mkdir(parents=True, exist_ok=True)
 
-            student_name = result_data.get("student_full_name") or result_data.get("student_name") or "Student"
-            safe_name = re.sub(r'[^a-zA-Z0-9_-]', '_', str(student_name)).strip('_') or "student"
-            filename = suggested_filename or f"Result_{safe_name}_{result_data.get('year', '')}_{int(time.time())}.pdf"
+            student_name = (
+                result_data.get("student_full_name")
+                or result_data.get("student_name")
+                or "Student"
+            )
+            safe_name = (
+                re.sub(r"[^a-zA-Z0-9_-]", "_", str(student_name)).strip("_")
+                or "student"
+            )
+            filename = (
+                suggested_filename
+                or f"Result_{safe_name}_{result_data.get('year', '')}_{int(time.time())}.pdf"
+            )
             output_path = reports_dir / filename
 
             if hasattr(report_service, "generate_exam_result_pdf"):
-                pdf_path = report_service.generate_exam_result_pdf(output_path, result_data)
+                pdf_path = report_service.generate_exam_result_pdf(
+                    output_path, result_data
+                )
             elif hasattr(report_service, "generate_exam_result"):
                 pdf_path = report_service.generate_exam_result(result_data)
             else:
-                raise AttributeError("ReportlabReportService missing generate_exam_result_pdf")
+                raise AttributeError(
+                    "ReportlabReportService missing generate_exam_result_pdf"
+                )
 
             try:
                 if hasattr(os, "startfile"):
@@ -1902,12 +2122,14 @@ class ExamBridge(QObject):
             except Exception as err:
                 print("Could not auto-open PDF:", err)
 
-            return json.dumps({
-                "success": True,
-                "path": str(pdf_path),
-                "name": Path(pdf_path).name,
-                "message": f"Result PDF saved to {pdf_path}",
-            })
+            return json.dumps(
+                {
+                    "success": True,
+                    "path": str(pdf_path),
+                    "name": Path(pdf_path).name,
+                    "message": f"Result PDF saved to {pdf_path}",
+                }
+            )
         except Exception as exc:
             return self._error(exc)
 
@@ -1919,6 +2141,7 @@ class ExamBridge(QObject):
             target = getattr(self, "_web_view", None) or getattr(self, "_window", None)
             if target is not None:
                 from PySide6.QtPrintSupport import QPrintDialog, QPrinter
+
                 printer = QPrinter(QPrinter.PrinterMode.HighResolution)
                 dialog = QPrintDialog(printer, target)
                 dialog.setWindowTitle(f"Print {title}")
@@ -1926,8 +2149,12 @@ class ExamBridge(QObject):
                     target.page().print(printer, lambda ok: None)
                     return json.dumps({"success": True, "printed": True})
                 else:
-                    return json.dumps({"success": False, "cancelled": True, "printed": False})
-            return json.dumps({"success": False, "error": "Web view reference not set."})
+                    return json.dumps(
+                        {"success": False, "cancelled": True, "printed": False}
+                    )
+            return json.dumps(
+                {"success": False, "error": "Web view reference not set."}
+            )
         except Exception as exc:
             return self._error(exc)
 
@@ -1937,14 +2164,23 @@ class ExamBridge(QObject):
         try:
             if hasattr(self, "_window") and self._window is not None:
                 from PySide6.QtPrintSupport import QPrintDialog, QPrinter
+
                 printer = QPrinter(QPrinter.PrinterMode.HighResolution)
                 dialog = QPrintDialog(printer, self._window)
                 dialog.setWindowTitle("Print CBT Examination Document")
                 if dialog.exec() == QPrintDialog.DialogCode.Accepted:
                     self._window.page().print(printer, lambda ok: None)
-                    return json.dumps({"success": True, "message": "Print job sent to printer."})
+                    return json.dumps(
+                        {"success": True, "message": "Print job sent to printer."}
+                    )
                 else:
-                    return json.dumps({"success": False, "cancelled": True, "message": "Print cancelled."})
+                    return json.dumps(
+                        {
+                            "success": False,
+                            "cancelled": True,
+                            "message": "Print cancelled.",
+                        }
+                    )
             return json.dumps({"success": False, "error": "Window reference not set."})
         except Exception as exc:
             return self._error(exc)
@@ -1955,21 +2191,28 @@ class ExamBridge(QObject):
         try:
             import re
             import time
+
             history_json = self.get_student_history(student_name)
             data = json.loads(history_json)
             if not data.get("success"):
                 return history_json
 
             from app.services.reportlab_report_service import ReportlabReportService
+
             base_dir = Path(__file__).resolve().parents[2]
             logo_path = base_dir / "app" / "web" / "images" / "al-mumeen.ico"
             if not logo_path.exists():
                 logo_path = base_dir / "app" / "web" / "images" / "alayande.png"
-            report_service = ReportlabReportService(logo_path=logo_path if logo_path.exists() else None)
+            report_service = ReportlabReportService(
+                logo_path=logo_path if logo_path.exists() else None
+            )
 
             reports_dir = base_dir / "data" / "reports"
             reports_dir.mkdir(parents=True, exist_ok=True)
-            safe_name = re.sub(r'[^a-zA-Z0-9_-]', '_', str(student_name)).strip('_') or "student"
+            safe_name = (
+                re.sub(r"[^a-zA-Z0-9_-]", "_", str(student_name)).strip("_")
+                or "student"
+            )
             output_path = reports_dir / f"History_{safe_name}_{int(time.time())}.pdf"
 
             if hasattr(report_service, "generate_student_history_pdf"):
@@ -1985,7 +2228,9 @@ class ExamBridge(QObject):
                     user_info=data.get("user_info"),
                 )
             else:
-                raise AttributeError("ReportlabReportService missing generate_student_history_pdf")
+                raise AttributeError(
+                    "ReportlabReportService missing generate_student_history_pdf"
+                )
 
             try:
                 if hasattr(os, "startfile"):
@@ -1993,11 +2238,170 @@ class ExamBridge(QObject):
             except Exception as open_err:
                 print("Could not auto-open PDF:", open_err)
 
-            return json.dumps({
-                "success": True,
-                "path": str(pdf_path),
-                "name": Path(pdf_path).name,
-                "message": f"Student history transcript PDF saved to {pdf_path}",
-            })
+            return json.dumps(
+                {
+                    "success": True,
+                    "path": str(pdf_path),
+                    "name": Path(pdf_path).name,
+                    "message": f"Student history transcript PDF saved to {pdf_path}",
+                }
+            )
         except Exception as exc:
             return self._error(exc)
+
+    # ========================================================
+    #   AI TUTOR INCLUSION
+    # ========================================================
+
+    @Slot(
+        str,
+        str,
+        str,
+        str,
+        str,
+        str,
+        result=str,
+    )
+    def ask_ai_tutor(
+        self,
+        subject,
+        question,
+        options_json,
+        correct_answer,
+        student_answer,
+        explanation,
+    ):
+        try:
+            # --------------------------------------------------
+            # Parse options coming from JavaScript
+            # --------------------------------------------------
+
+            try:
+                options = json.loads(options_json or "[]")
+            except json.JSONDecodeError:
+                options = []
+
+            if not isinstance(options, list):
+                options = []
+
+            # --------------------------------------------------
+            # Build FastAPI payload
+            # --------------------------------------------------
+
+            payload = {
+                "subject": str(subject or ""),
+                "question": str(question or ""),
+                "options": options,
+                "correct_answer": str(correct_answer or ""),
+                "student_answer": str(student_answer or ""),
+                "explanation": str(explanation or ""),
+            }
+
+            print(
+                "AI Tutor payload:",
+                json.dumps(
+                    payload,
+                    ensure_ascii=False,
+                ),
+            )
+
+            # --------------------------------------------------
+            # Call FastAPI
+            # --------------------------------------------------
+
+            response = requests.post(
+                "http://127.0.0.1:8000/api/v1/tutor/ask",
+                json=payload,
+                timeout=120,
+            )
+
+            # --------------------------------------------------
+            # Handle HTTP errors while preserving FastAPI detail
+            # --------------------------------------------------
+
+            if not response.ok:
+                try:
+                    error_data = response.json()
+                except Exception:
+                    error_data = {"detail": response.text}
+
+                print(
+                    "AI Tutor HTTP error:",
+                    response.status_code,
+                    error_data,
+                )
+
+                return json.dumps(
+                    {
+                        "success": False,
+                        "error": (
+                            error_data.get(
+                                "detail",
+                                "AI Tutor request failed.",
+                            )
+                            if isinstance(
+                                error_data,
+                                dict,
+                            )
+                            else str(error_data)
+                        ),
+                        "status_code": response.status_code,
+                    },
+                    ensure_ascii=False,
+                )
+
+            # --------------------------------------------------
+            # Parse FastAPI response
+            # --------------------------------------------------
+
+            data = response.json()
+
+            print(
+                "AI Tutor response:",
+                json.dumps(
+                    data,
+                    ensure_ascii=False,
+                ),
+            )
+
+            # --------------------------------------------------
+            # IMPORTANT:
+            # Slot result=str requires a STRING.
+            # --------------------------------------------------
+
+            return json.dumps(
+                data,
+                ensure_ascii=False,
+            )
+
+        except requests.exceptions.Timeout:
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": ("AI Tutor request timed out."),
+                },
+                ensure_ascii=False,
+            )
+
+        except requests.exceptions.ConnectionError:
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": ("Could not connect to the AI Tutor API."),
+                },
+                ensure_ascii=False,
+            )
+
+        except Exception as exc:
+            print(
+                "AI Tutor bridge error:",
+                repr(exc),
+            )
+
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": str(exc),
+                },
+                ensure_ascii=False,
+            )

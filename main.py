@@ -1,25 +1,4 @@
-# from pathlib import Path
-# base_dir = Path(__file__).parent
-
-# # Import sys so we can pass command-line arguments to the Qt application
-# # and exit the program cleanly when the window closes.
-# import sys
-
-# # Import QApplication.
-# # This creates and manages the main desktop application.
-# from PySide6.QtWidgets import QApplication
-
-# # Import QWebEngineView.
-# # This is the desktop browser component that will display our HTML page.
-# from PySide6.QtWebEngineWidgets import QWebEngineView
-
-# # Import QUrl.
-# # QUrl allows us to convert our local HTML file path into a URL
-# # that Qt WebEngine can understand.
-# from PySide6.QtCore import QUrl
-
-# from PySide6.QtGui import QIconimport sys
-
+import ctypes
 from pathlib import Path
 
 
@@ -32,11 +11,11 @@ from PySide6.QtWebChannel import QWebChannel  # pyright: ignore[reportMissingImp
 from app.bridge.exam_bridge import ExamBridge
 from app.bridge.question_import_bridge import QuestionImportBridge
 
+
 from app.services.pdf_processor import PDFProcessor
 
 base_dir = Path(__file__).parent
 
-import ctypes
 
 # Tells Windows to use the script's distinct AppUserModelID for taskbar grouping
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("al-mumeen.cbt.v1")
@@ -45,6 +24,10 @@ ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("al-mumeen.cbt.v1"
 # This is the main function of our application.
 def main():
     import sys
+    from dotenv import load_dotenv
+
+    load_dotenv(".env")
+
     from app.database.database import init_database
 
     init_database()
@@ -130,7 +113,7 @@ def main():
     window.loadFinished.connect(lambda _ok: reattach())
 
     # Set the title that appears on the Windows window.
-    window.setWindowTitle("Al-Mumeen CBT")
+    window.setWindowTitle("Mock CBT")
 
     # Set the initial size of the application window.
     # The first value is width and the second is height.
