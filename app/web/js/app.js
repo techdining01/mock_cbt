@@ -2,6 +2,8 @@ document.addEventListener("alpine:init", () => {
 
     console.log("Alpine initialized.");
 
+   
+
     Alpine.data("examApp", () => ({
 
         // =========================================================
@@ -147,17 +149,23 @@ document.addEventListener("alpine:init", () => {
         tutorEncouragement: "",
         tutorFollowUp: "",
         tutorQuestion: null,
+        tutorResponse: null,
 
+        tutorSpeaking: false,
+        tutorPaused: false,
+        tutorAvatarState: "idle",
 
+        tutorSpeechSupported: false,
+        tutorSpeechUtterance: null,
+        tutorVoices: [],
+        tutorSelectedVoice: null,
+
+       
         // =========================================================
         // AI TUTOR UI
         // =========================================================
 
-        tutorLoading: false,
-        tutorError: "",
-        tutorResponse: null,
-        showTutorModal: false,
-
+      
         // =========================================================
         // HELPER FUNCTIONS
         // =========================================================
@@ -4281,15 +4289,16 @@ document.addEventListener("alpine:init", () => {
 
                 if (!window.examBridge || typeof window.examBridge.ask_ai_tutor !== "function") {
                     this.tutorError = "AI Tutor bridge is not available.";
-                    this.showTutorModal = true;
+                    this.showTutor = true;
                     return;
                 }
 
                 this.tutorLoading = true;
                 this.tutorError = "";
                 this.tutorResponse = null;
-                this.showTutorModal = true;
-                this.tutorQuestion = question;
+                this.showTutor = true;
+                this.tutorQuestion = question;                
+
                 document.body.classList.add("overflow-hidden");
 
                 const optionsJson = JSON.stringify(
@@ -4312,6 +4321,8 @@ document.addEventListener("alpine:init", () => {
                                 this.tutorError = data.error || "AI Tutor did not return a successful response.";
                             } else {
                                 this.tutorResponse = data;
+                                this.tutorAvatarState = "idle";
+                                this.tutorSpeaking = false;
                             }
                         } catch (error) {
                             console.error("AI Tutor error:", error);
@@ -4319,17 +4330,41 @@ document.addEventListener("alpine:init", () => {
                         } finally {
                             this.tutorLoading = false;
                         }
-                    }
-                );
+                    }   
+                );     
+                              
             },
+            
+                // =========================================================
+                // AI TUTOR AVATAR
+                // =========================================================
 
+                setTutorAvatarState(state) {
+                    this.tutorAvatarState = state;
+                },
+
+                startTutorSpeaking() {
+                    this.tutorSpeaking = true;
+                    this.tutorAvatarState = "speaking";
+                },
+
+                stopTutorSpeaking() {
+                    this.tutorSpeaking = false;
+                    this.tutorAvatarState = "idle";
+                },
+
+                closeTutor() {
+                    this.stopTutorSpeech();
+
+                    this.tutorOpen = false;
+                },
 
             // =========================================================
             // CLOSE AI TUTOR
             // =========================================================
 
             closeAITutor() {
-                this.showTutorModal = false;
+                this.showTutor = false;
                 document.body.classList.remove("overflow-hidden");
             },
 
@@ -4348,7 +4383,213 @@ document.addEventListener("alpine:init", () => {
             );
         },
 
-        
+
+        // =========================================================
+        // AI TUTOR — TEXT TO SPEECH
+        // =========================================================
+
+        initTutorSpeech() {
+            if (
+                typeof window === "undefined" ||
+                !("speechSynthesis" in window) ||
+                !("SpeechSynthesisUtterance" in window)
+            ) {
+                this.tutorSpeechSupported = false;
+                return;
+            }
+
+            this.tutorSpeechSupported = true;
+
+            const loadVoices = () => {
+                this.tutorVoices = window.speechSynthesis.getVoices();
+
+                if (!this.tutorSelectedVoice && this.tutorVoices.length) {
+                    this.tutorSelectedVoice =
+                        this.getPreferredTutorVoice(this.tutorVoices);
+                }
+            };
+
+            loadVoices();
+
+            if ("onvoiceschanged" in window.speechSynthesis) {
+                window.speechSynthesis.onvoiceschanged = loadVoices;
+            }
+        },
+
+
+        getPreferredTutorVoice(voices) {
+            if (!Array.isArray(voices) || !voices.length) {
+                return null;
+            }
+
+            // Prefer an English voice.
+            const englishVoice = voices.find(
+                voice =>
+                    typeof voice.lang === "string" &&
+                    voice.lang.toLowerCase().startsWith("en")
+            );
+
+            return englishVoice || voices[0];
+        },
+
+
+        getTutorSpeechText() {
+            if (!this.tutorResponse) {
+                return "";
+            }
+
+            const parts = [];
+
+            if (this.tutorResponse.greeting) {
+                parts.push(this.tutorResponse.greeting);
+            }
+
+            if (this.tutorResponse.explanation) {
+                parts.push(this.tutorResponse.explanation);
+            }
+
+            if (Array.isArray(this.tutorResponse.steps)) {
+                this.tutorResponse.steps.forEach(
+                    (step, index) => {
+                        if (step) {
+                            parts.push(
+                                `Step ${index + 1}. ${step}`
+                            );
+                        }
+                    }
+                );
+            }
+
+            if (this.tutorResponse.hint) {
+                parts.push(
+                    `Hint. ${this.tutorResponse.hint}`
+                );
+            }
+
+            if (this.tutorResponse.encouragement) {
+                parts.push(
+                    this.tutorResponse.encouragement
+                );
+            }
+
+            if (this.tutorResponse.follow_up_question) {
+                parts.push(
+                    `Think about this. ${this.tutorResponse.follow_up_question}`
+                );
+            }
+
+            return parts
+                .filter(Boolean)
+                .join(". ");
+        },
+
+
+        speakTutorResponse() {
+            if (!this.tutorSpeechSupported) {
+                this.tutorError =
+                    "Text-to-speech is not available on this computer.";
+                return;
+            }
+
+            const text = this.getTutorSpeechText();
+
+            if (!text.trim()) {
+                return;
+            }
+
+            // Stop anything currently speaking.
+            window.speechSynthesis.cancel();
+
+            const utterance =
+                new SpeechSynthesisUtterance(text);
+
+            utterance.lang = "en-US";
+            utterance.rate = 0.92;
+            utterance.pitch = 1.05;
+            utterance.volume = 1;
+
+            if (this.tutorSelectedVoice) {
+                utterance.voice =
+                    this.tutorSelectedVoice;
+            }
+
+            utterance.onstart = () => {
+                this.tutorSpeaking = true;
+                this.tutorPaused = false;
+                this.tutorAvatarState = "speaking";
+            };
+
+            utterance.onend = () => {
+                this.tutorSpeaking = false;
+                this.tutorPaused = false;
+                this.tutorAvatarState = "idle";
+                this.tutorSpeechUtterance = null;
+            };
+
+            utterance.onerror = (event) => {
+                console.error(
+                    "AI Tutor TTS error:",
+                    event
+                );
+
+                this.tutorSpeaking = false;
+                this.tutorPaused = false;
+                this.tutorAvatarState = "idle";
+                this.tutorSpeechUtterance = null;
+
+                this.tutorError =
+                    "The tutor could not play the speech.";
+            };
+
+            this.tutorSpeechUtterance = utterance;
+
+            window.speechSynthesis.speak(
+                utterance
+            );
+        },
+
+
+        pauseTutorSpeech() {
+            if (
+                !this.tutorSpeechSupported ||
+                !window.speechSynthesis.speaking
+            ) {
+                return;
+            }
+
+            window.speechSynthesis.pause();
+
+            this.tutorPaused = true;
+            this.tutorAvatarState = "idle";
+        },
+
+
+        resumeTutorSpeech() {
+            if (
+                !this.tutorSpeechSupported ||
+                !window.speechSynthesis.paused
+            ) {
+                return;
+            }
+
+            window.speechSynthesis.resume();
+
+            this.tutorPaused = false;
+            this.tutorSpeaking = true;
+            this.tutorAvatarState = "speaking";
+        },
+
+
+        stopTutorSpeech() {
+            if (this.tutorSpeechSupported) {
+                window.speechSynthesis.cancel();
+            }
+
+            this.tutorSpeaking = false;
+            this.tutorPaused = false;
+            this.tutorAvatarState = "idle";
+            this.tutorSpeechUtterance = null;
+        },
 
         // =========================================================
         // CLEANUP

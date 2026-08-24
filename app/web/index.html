@@ -13,6 +13,28 @@
         href="css/app.css"
     >
 
+    <!-- ========================================================= -->
+        <!-- AI TUTOR AVATAR -->
+   <!-- ========================================================= -->
+
+    <style>
+
+        .tutor-avatar-speaking {
+            animation: tutorAvatarSpeaking 0.8s ease-in-out infinite alternate;
+        }
+
+        @keyframes tutorAvatarSpeaking {
+            from {
+                transform: translateY(0) scale(1);
+            }
+
+            to {
+                transform: translateY(-3px) scale(1.025);
+            }
+        }
+
+    </style>
+
     <script src="js/chart.umd.min.js"></script>
 
     <script
@@ -1714,6 +1736,8 @@
 
     </template>
 
+    /*
+
 
     <!-- =========================================================
          RESULT
@@ -2052,7 +2076,7 @@
      AI TUTOR MODAL
      ========================================================= -->
 
-    <template x-if="showTutorModal">
+    <template x-if="showTutor">
 
         <div
             class="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto p-3 sm:p-5"
@@ -2091,7 +2115,10 @@
 
                         <div class="flex items-center gap-3 min-w-0">
                             <div class="h-11 w-11 shrink-0 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-xl">
-                                👩‍🏫
+                                <img
+                                    src="/app/web/images/ai_tutor_avatar.png"
+                                    alt="AI Tutor"
+                                >
                             </div>
                             <div class="min-w-0">
                                 <h2 id="ai-tutor-title" class="text-lg sm:text-xl font-black text-slate-900">AI Tutor</h2>
@@ -2283,44 +2310,29 @@
                             ============================================= -->
 
                         <template x-if="tutorLoading">
+                        <div class="flex flex-col items-center justify-center py-6">
 
                             <div
-                                class="rounded-2xl
-                                    border border-indigo-200
+                                class="w-36 h-36 rounded-full
                                     bg-indigo-50
-                                    p-8
-                                    text-center"
+                                    border-4 border-white
+                                    shadow-lg
+                                    flex items-center justify-center
+                                    animate-pulse"
                             >
-
-                                <div
-                                    class="mx-auto h-10 w-10
-                                        rounded-full
-                                        border-4
-                                        border-indigo-200
-                                        border-t-indigo-600
-                                        animate-spin"
-                                ></div>
-
-                                <p
-                                    class="mt-4
-                                        text-sm
-                                        font-bold
-                                        text-indigo-900"
+                                <img
+                                    src="images/ai_tutor_avatar.png"
+                                    alt="AI Tutor thinking"
+                                    class="w-full h-full object-cover"
                                 >
-                                    AI Tutor is thinking...
-                                </p>
-
-                                <p
-                                    class="mt-1
-                                        text-xs
-                                        text-indigo-700"
-                                >
-                                    Preparing an explanation for this question.
-                                </p>
-
                             </div>
 
-                        </template>
+                            <p class="mt-4 text-sm font-semibold text-indigo-700">
+                                Your tutor is thinking...
+                            </p>
+
+                        </div>
+                    </template>
 
 
                         <!-- =============================================
@@ -2388,7 +2400,140 @@
 
                         </template>
 
+                        <!-- =========================================================
+                            AI TUTOR AVATAR
+                            ========================================================= -->
+                        <div class="flex justify-center py-4">
 
+                            <div
+                                class="relative w-36 h-36 sm:w-44 sm:h-44
+                                    rounded-full
+                                    bg-gradient-to-b from-indigo-50 to-blue-100
+                                    border-4 border-white
+                                    shadow-xl
+                                    flex items-center justify-center
+                                    overflow-hidden"
+                                :class="{
+                                    'animate-pulse': tutorAvatarState === 'thinking',
+                                    'tutor-avatar-speaking': tutorAvatarState === 'speaking'
+                                }"
+                            >
+
+                                <!-- AVATAR -->
+                                <img
+                                    src="images/ai_tutor_avatar.png"
+                                    alt="AI Tutor"
+                                    class="w-full h-full object-cover"
+                                >
+
+                                <!-- SPEAKING INDICATOR -->
+                                <div
+                                    x-show="tutorAvatarState === 'speaking'"
+                                    x-transition
+                                    class="absolute bottom-2 left-1/2 -translate-x-1/2
+                                        px-3 py-1 rounded-full
+                                        bg-indigo-600 text-white
+                                        text-[10px] font-bold
+                                        shadow-lg"
+                                >
+                                    Speaking...
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                            <!-- =========================================================
+                            AI TUTOR SPEECH CONTROLS
+                            ========================================================= -->
+                        <div
+                            class="flex flex-wrap items-center justify-center gap-2"
+                            x-show="tutorSpeechSupported && tutorResponse"
+                        >
+                            <!-- SPEAK -->
+                            <button
+                                type="button"
+                                @click="speakTutorResponse()"
+                                x-show="!tutorSpeaking && !tutorPaused"
+                                class="inline-flex items-center gap-2
+                                    px-4 py-2.5
+                                    rounded-xl
+                                    bg-indigo-600
+                                    text-white
+                                    text-sm
+                                    font-bold
+                                    shadow-sm
+                                    hover:bg-indigo-700
+                                    active:scale-95
+                                    transition"
+                            >
+                                🔊
+                                <span>Speak</span>
+                            </button>
+
+                            <!-- PAUSE -->
+                            <button
+                                type="button"
+                                @click="pauseTutorSpeech()"
+                                x-show="tutorSpeaking && !tutorPaused"
+                                class="inline-flex items-center gap-2
+                                    px-4 py-2.5
+                                    rounded-xl
+                                    bg-amber-500
+                                    text-white
+                                    text-sm
+                                    font-bold
+                                    shadow-sm
+                                    hover:bg-amber-600
+                                    active:scale-95
+                                    transition"
+                            >
+                                ⏸
+                                <span>Pause</span>
+                            </button>
+
+                            <!-- RESUME -->
+                            <button
+                                type="button"
+                                @click="resumeTutorSpeech()"
+                                x-show="tutorPaused"
+                                class="inline-flex items-center gap-2
+                                    px-4 py-2.5
+                                    rounded-xl
+                                    bg-emerald-600
+                                    text-white
+                                    text-sm
+                                    font-bold
+                                    shadow-sm
+                                    hover:bg-emerald-700
+                                    active:scale-95
+                                    transition"
+                            >
+                                ▶
+                                <span>Resume</span>
+                            </button>
+
+                            <!-- STOP -->
+                            <button
+                                type="button"
+                                @click="stopTutorSpeech()"
+                                x-show="tutorSpeaking || tutorPaused"
+                                class="inline-flex items-center gap-2
+                                    px-4 py-2.5
+                                    rounded-xl
+                                    bg-slate-700
+                                    text-white
+                                    text-sm
+                                    font-bold
+                                    shadow-sm
+                                    hover:bg-slate-800
+                                    active:scale-95
+                                    transition"
+                            >
+                                ⏹
+                                <span>Stop</span>
+                            </button>
+                        </div>
                         <!-- =============================================
                             AI RESPONSE
                             ============================================= -->
@@ -2862,331 +3007,7 @@
                 </div>
             </div>
 
-                     
-            <!-- =====================================================
-                AI TUTOR
-            ====================================================== -->
-
-           <template x-if="showTutor">
-
-            <div
-                class="fixed inset-0 z-[100] flex items-center justify-center
-                    bg-black/50 p-4"
-            >
-
-                <div
-                    class="flex max-h-[90vh] w-full max-w-2xl flex-col
-                        overflow-hidden rounded-2xl bg-white shadow-2xl"
-                >
-
-                    <!-- Header -->
-                    <div
-                        class="flex items-center justify-between
-                            border-b border-gray-200 px-5 py-4"
-                    >
-
-                        <div class="flex items-center gap-3">
-
-                            <div
-                                class="flex h-11 w-11 items-center
-                                    justify-center rounded-full
-                                    bg-indigo-100 text-xl"
-                            >
-                                <img
-                                    src="/app/web/images/school_logo.png"
-                                    alt="AI Tutor"
-                                    class="h-7 w-7"
-                                >
-                            </div>
-
-                            <div>
-
-                                <h2
-                                    class="font-semibold text-gray-900"
-                                >
-                                    AI Tutor
-                                </h2>
-
-                                <p
-                                    class="text-xs text-gray-500"
-                                >
-                                    Let's understand the question
-                                </p>
-
-                            </div>
-
-                        </div>
-
-                        <button
-                            type="button"
-                            @click="closeAITutor()"
-                            class="rounded-lg p-2 text-gray-500
-                                hover:bg-gray-100 hover:text-gray-700"
-                        >
-                            ✕
-                        </button>
-
-                    </div>
-
-
-                    <!-- Question -->
-                    <div
-                        x-show="tutorQuestion"
-                        class="border-b border-gray-100
-                            bg-gray-50 px-5 py-4"
-                    >
-
-                        <p
-                            class="text-sm font-medium leading-6 text-gray-800"
-                            x-text="tutorQuestion ? tutorQuestion.text : ''"
-                        ></p>
-
-                    </div>
-
-
-                    <!-- Body -->
-                    <div
-                        class="flex-1 overflow-y-auto px-5 py-6"
-                    >
-
-                        <!-- Provider -->
-                        <div
-                            x-show="tutorProvider"
-                            class="mb-4 flex items-center gap-2"
-                        >
-
-                            <span
-                                class="inline-flex items-center rounded-full
-                                    bg-indigo-50 px-3 py-1 text-xs
-                                    font-medium text-indigo-700"
-                                x-text="
-                                    tutorProvider === 'ollama'
-                                        ? '🖥️ AI Tutor · Offline'
-                                        : tutorProvider === 'gemini'
-                                            ? '✨ AI Tutor · Gemini'
-                                            : '🤖 AI Tutor'
-                                "
-                            ></span>
-
-                        </div>
-
-
-                        <!-- Loading -->
-                        <div
-                            x-show="tutorLoading"
-                            class="flex items-center gap-3"
-                        >
-
-                            <div
-                                class="h-5 w-5 animate-spin rounded-full
-                                    border-2 border-current
-                                    border-t-transparent"
-                            ></div>
-
-                            <span class="text-sm text-gray-600">
-                                AI Tutor is thinking...
-                            </span>
-
-                        </div>
-
-
-                        <!-- Error -->
-                        <div
-                            x-show="tutorError && !tutorLoading"
-                            class="rounded-lg border border-red-200
-                                bg-red-50 p-4 text-sm text-red-700"
-                            x-text="tutorError"
-                        ></div>
-
-
-                        <!-- Answer -->
-                        <div
-                            x-show="tutorAnswer && !tutorLoading"
-                            class="space-y-5"
-                        >
-
-                            <!-- Greeting -->
-                            <section
-                                x-show="tutorGreeting"
-                            >
-
-                                <p
-                                    class="text-sm font-medium
-                                        leading-6 text-gray-800"
-                                    x-text="tutorGreeting"
-                                ></p>
-
-                            </section>
-
-
-                            <!-- Explanation -->
-                            <section
-                                x-show="tutorExplanation"
-                            >
-
-                                <h4
-                                    class="mb-2 text-sm font-semibold
-                                        text-gray-900"
-                                >
-                                    Explanation
-                                </h4>
-
-                                <p
-                                    class="text-sm leading-6 text-gray-700"
-                                    x-text="tutorExplanation"
-                                ></p>
-
-                            </section>
-
-
-                            <!-- Steps -->
-                            <section
-                                x-show="
-                                    Array.isArray(tutorSteps)
-                                    && tutorSteps.length > 0
-                                "
-                            >
-
-                                <h4
-                                    class="mb-2 text-sm font-semibold
-                                        text-gray-900"
-                                >
-                                    Step by step
-                                </h4>
-
-                                <ol class="space-y-2">
-
-                                    <template
-                                        x-for="
-                                            (step, index)
-                                            in tutorSteps
-                                        "
-                                        :key="index"
-                                    >
-
-                                        <li
-                                            class="flex gap-3 text-sm
-                                                leading-6 text-gray-700"
-                                        >
-
-                                            <span
-                                                class="flex h-6 w-6 shrink-0
-                                                    items-center justify-center
-                                                    rounded-full bg-gray-100
-                                                    text-xs font-semibold"
-                                                x-text="index + 1"
-                                            ></span>
-
-                                            <span
-                                                x-text="step"
-                                            ></span>
-
-                                        </li>
-
-                                    </template>
-
-                                </ol>
-
-                            </section>
-
-
-                            <!-- Hint -->
-                            <section
-                                x-show="tutorHint"
-                                class="rounded-lg bg-amber-50 p-4"
-                            >
-
-                                <h4
-                                    class="mb-1 text-sm font-semibold
-                                        text-amber-800"
-                                >
-                                    Hint
-                                </h4>
-
-                                <p
-                                    class="text-sm leading-6 text-amber-900"
-                                    x-text="tutorHint"
-                                ></p>
-
-                            </section>
-
-
-                            <!-- Encouragement -->
-                            <section
-                                x-show="tutorEncouragement"
-                                class="rounded-lg bg-emerald-50 p-4"
-                            >
-
-                                <p
-                                    class="text-sm leading-6 text-emerald-800"
-                                    x-text="tutorEncouragement"
-                                ></p>
-
-                            </section>
-
-
-                            <!-- Follow-up -->
-                            <section
-                                x-show="tutorFollowUp"
-                                class="rounded-lg bg-blue-50 p-4"
-                            >
-
-                                <h4
-                                    class="mb-1 text-sm font-semibold
-                                        text-blue-800"
-                                >
-                                    Check your understanding
-                                </h4>
-
-                                <p
-                                    class="text-sm leading-6 text-blue-900"
-                                    x-text="tutorFollowUp"
-                                ></p>
-
-                            </section>
-
-                        </div>
-
-
-                        <!-- Nothing yet -->
-                        <div
-                            x-show="
-                                !tutorLoading
-                                && !tutorError
-                                && !tutorAnswer
-                            "
-                            class="py-10 text-center text-sm
-                                text-gray-500"
-                        >
-                            Ask the AI Tutor to explain this question.
-                        </div>
-
-                    </div>
-
-
-                    <!-- Footer -->
-                    <div
-                        class="border-t border-gray-200 px-5 py-4"
-                    >
-
-                        <button
-                            type="button"
-                            @click="closeAITutor()"
-                            class="w-full rounded-xl border
-                                border-gray-300 px-4 py-3
-                                text-sm font-semibold text-gray-700
-                                hover:bg-gray-50"
-                        >
-                            Close
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </template>
+       
             
             <div class="p-6 overflow-y-auto" style="max-height: calc(90vh - 200px);">
                 <div class="overflow-x-auto" id="history-print-area">
