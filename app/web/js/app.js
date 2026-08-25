@@ -162,9 +162,29 @@ document.addEventListener("alpine:init", () => {
 
        
         // =========================================================
-        // AI TUTOR UI
+        // AI TUTOR SPEECH ANALYZERNODE.
+        //  
+        // i followed this pipeline since window.speechSynthesis does not expose its 
+        // generated audio stream to JavaScript, so an AnalyserNode cannot
+        //  actually listen to that speech. 
+        // 
+        // AI response → local TTS audio → <audio> → Web Audio AnalyserNode
+        //   → spectral analysis → viseme/mouth state → avatar ... (Idrees note. It matters when revisited)
         // =========================================================
 
+        tutorAudio: null,
+        tutorAudioContext: null,
+        tutorAnalyser: null,
+        tutorAudioSource: null,
+        tutorAudioData: null,
+
+        tutorLipSyncFrame: null,
+        tutorAudioURL: null,
+
+        tutorViseme: "closed",
+        tutorMouthOpen: 0,
+
+        tutorAudioReady: false,
       
         // =========================================================
         // HELPER FUNCTIONS
@@ -3824,6 +3844,7 @@ document.addEventListener("alpine:init", () => {
         },
 
         viewStudentHistory(studentName) {
+            // Student Exam Records tab history button - loads exam history using student's full name
             showToast(`Loading history for ${studentName}...`, "info");
             this.selectedStudentName = studentName;
             
@@ -3854,35 +3875,10 @@ document.addEventListener("alpine:init", () => {
             );
         },
 
-        viewUserHistory(username) {
-            showToast(`Loading history for ${username}...`, "info");
-            this.selectedStudentName = username;
-            
-            if (!window.examBridge || typeof window.examBridge.get_student_history !== "function") {
-                showToast("Bridge not available for student history", "error");
-                this.setError("Student history is not available.");
-                return;
-            }
-
-            window.examBridge.get_student_history(
-                username,
-                (response) => {
-                    try {
-                        const data = this.parseBridgeResponse(response);
-                        if (data.success) {
-                            this.studentHistory = data.history || [];
-                            this.showStudentHistory = true;
-                            showToast(`Loaded ${this.studentHistory.length} history records`, "success");
-                        } else {
-                            showToast(data.error || "Unable to load student history", "error");
-                            this.setError(data.error || "Unable to load student history.");
-                        }
-                    } catch (error) {
-                        showToast("Failed to load student history", "error");
-                        this.setError("Failed to load student history.");
-                    }
-                }
-            );
+        viewUserHistory(fullName) {
+            // User Accounts tab history button - delegates to same function as Student Exam Records
+            // Both now use full_name to ensure consistent data loading
+            this.viewStudentHistory(fullName);
         },
 
         deleteStudent(studentName) {
@@ -4279,94 +4275,378 @@ document.addEventListener("alpine:init", () => {
         },
 
         // =========================================================
-        // AI TUTOR
+        // GENERAL KNOWLEDGE CHAT
         // =========================================================
 
-            askAITutor(question) {
+        showChat: false,
+        chatMessages: [],
+        chatInput: "",
+        chatLoading: false,
+        chatError: "",
+        chatProvider: "",
+
+        openGeneralKnowledge() {
+            this.showChat = true;
+            this.chatError = "";
+            if (!this.chatMessages.length) {
+                this.chatMessages = [{
+                    role: "assistant",
+                    content: "Hello! I'm your AI companion. Ask me anything — education, history, technology, religion, lifestyle, career, or just life in general. I'm here to help you grow! 🌟"
+                }];
+            }
+            this.$nextTick(() => {
+                const el = document.getElementById("chat-messages");
+                if (el) el.scrollTop = el.scrollHeight;
+                const input = document.getElementById("chat-input");
+                if (input) input.focus();
+            });
+        },
+
+        closeChat() {
+            this.showChat = false;
+        },
+
+        refreshChat() {
+            this.chatMessages = [{
+                role: "assistant",
+                content: "Hello! I'm your AI companion. Ask me anything — education, history, technology, religion, lifestyle, career, or just life in general. I'm here to help you grow! 🌟"
+            }];
+            this.chatError = "";
+            this.chatProvider = "";
+            this.$nextTick(() => {
+                const el = document.getElementById("chat-messages");
+                if (el) el.scrollTop = el.scrollHeight;
+                const input = document.getElementById("chat-input");
+                if (input) input.focus();
+            });
+        },
+
+        _scrollChatToBottom() {
+            this.$nextTick(() => {
+                const el = document.getElementById("chat-messages");
+                if (el) el.scrollTop = el.scrollHeight;
+            });
+        },
+
+        async sendChatMessage() {
+            const text = (this.chatInput || "").trim();
+            if (!text || this.chatLoading) return;
+
+            this.chatInput = "";
+            this.chatError = "";
+            this.chatMessages.push({ role: "user", content: text });
+            this.chatLoading = true;
+            this._scrollChatToBottom();
+
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 45000);
+
+            try {
+                const response = await fetch("http://127.0.0.1:8000/api/v1/tutor/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    signal: controller.signal,
+                    body: JSON.stringify({
+                        message: text,
+                        history: this.chatMessages.slice(-20).map(m => ({
+                            role: m.role,
+                            content: m.content,
+                        })),
+                    }),
+                });
+
+                if (!response.ok) {
+                    const err = await response.json().catch(() => ({}));
+                    throw new Error(err.detail || `Request failed (${response.status})`);
+                }
+
+                const data = await response.json();
+                this.chatProvider = data.provider || "";
+                this.chatMessages.push({ role: "assistant", content: data.reply || "" });
+
+            } catch (err) {
+                if (err.name === "AbortError") {
+                    this.chatError = "Request timed out. The AI service may be unavailable. Please try again.";
+                } else {
+                    this.chatError = err.message || "Unable to reach the AI. Please try again.";
+                }
+            } finally {
+                clearTimeout(timeout);
+                this.chatLoading = false;
+                this._scrollChatToBottom();
+                this.$nextTick(() => {
+                    const input = document.getElementById("chat-input");
+                    if (input) input.focus();
+                });
+            }
+        },
+
+        chatInputKeydown(event) {
+            if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                this.sendChatMessage();
+            }
+        },
+
+        async askAITutor(question) {
+
                 if (!question) {
                     return;
                 }
 
-                if (!window.examBridge || typeof window.examBridge.ask_ai_tutor !== "function") {
-                    this.tutorError = "AI Tutor bridge is not available.";
-                    this.showTutor = true;
+                // Prevent duplicate requests while one is already running
+                if (this.tutorLoading) {
                     return;
                 }
 
                 this.tutorLoading = true;
-                this.tutorError = "";
-                this.tutorResponse = null;
+
+                // Open the existing tutor modal immediately
                 this.showTutor = true;
-                this.tutorQuestion = question;                
 
-                document.body.classList.add("overflow-hidden");
+                // Store question for retry
+                this.tutorQuestion = question;
 
-                const optionsJson = JSON.stringify(
-                    Array.isArray(question.options)
-                        ? question.options.map(o => ({ label: o.label || "", text: o.text || "" }))
-                        : []
+                // Clear previous response while the new request is loading
+                this.tutorResponse = null;
+
+                try {
+
+                    const response = await fetch(
+                        "http://127.0.0.1:8000/api/v1/tutor/ask",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+
+                            body: JSON.stringify({
+                                subject: question.subject_name || "",
+
+                                question: question.text || "",
+
+                                options: Array.isArray(question.options)
+                                    ? question.options.map(option => ({
+                                        label: option.label || "",
+                                        text: option.text || "",
+                                    }))
+                                    : [],
+
+                                correct_answer: this.getCorrectOption(question)?.text || "",
+
+                                student_answer: this.getStudentOption(question)?.text || "",
+
+                                explanation: question.explanation || "",
+                            }),
+                        }
+                    );
+
+                    if (!response.ok) {
+
+                        let errorMessage =
+                            `AI Tutor request failed (${response.status})`;
+
+                        try {
+                            const errorData = await response.json();
+
+                            if (errorData?.detail) {
+                                errorMessage = errorData.detail;
+                            }
+                        } catch (_) {
+                            // Ignore invalid error JSON
+                        }
+
+                        throw new Error(errorMessage);
+                    }
+
+                    const data = await response.json();
+
+                    if (!data || data.success !== true) {
+                        throw new Error(
+                            data?.detail ||
+                            "AI Tutor returned an invalid response."
+                        );
+                    }
+
+                    // Store the complete structured response
+                    this.tutorResponse = data;
+
+                } catch (error) {
+
+                    console.error("AI Tutor error:", error);
+
+                    this.tutorResponse = {
+                        success: false,
+                        answer: "",
+                        greeting: "",
+                        explanation: "",
+                        steps: [],
+                        hint: "",
+                        encouragement: "",
+                        follow_up_question: "",
+                        error:
+                            error?.message ||
+                            "Unable to connect to the AI Tutor.",
+                    };
+
+                } finally {
+
+                    // IMPORTANT:
+                    // This always runs whether Gemini succeeds,
+                    // Ollama succeeds, or all providers fail.
+                    this.tutorLoading = false;
+                }
+        },
+
+        // =========================================================
+        // AI TUTOR AVATAR
+        // =========================================================
+
+        setTutorAvatarState(state) {
+            this.tutorAvatarState = state;
+        },
+
+        startTutorSpeaking() {
+            this.tutorSpeaking = true;
+            this.tutorAvatarState = "speaking";
+        },
+
+        stopTutorSpeaking() {
+            this.tutorSpeaking = false;
+            this.tutorAvatarState = "idle";
+        },
+
+        // =========================================================
+        // CLOSE AI TUTOR
+        // =========================================================
+
+        closeAITutor() {
+            this.stopTutorSpeech();
+            this.showTutor = false;
+            document.body.classList.remove("overflow-hidden");
+        },
+
+        // ===========Newly adopted pipeline========================
+        // AI TUTOR SPEECH
+        // =========================================================
+
+        async speakTutorResponse() {
+
+            if (!this.tutorResponse) {
+                return;
+            }
+
+            const text =
+                this.getTutorSpeechText();
+
+            if (!text.trim()) {
+                return;
+            }
+
+            this.tutorError = "";
+
+            const loaded =
+                await this.loadTutorAudio(
+                    text
                 );
 
-                window.examBridge.ask_ai_tutor(
-                    question.subject_name || "",
-                    question.text || "",
-                    optionsJson,
-                    this.getCorrectOption(question)?.text || "",
-                    this.getStudentOption(question)?.text || "",
-                    question.explanation || "",
-                    (response) => {
-                        try {
-                            const data = this.parseBridgeResponse(response);
-                            if (!data.success) {
-                                this.tutorError = data.error || "AI Tutor did not return a successful response.";
-                            } else {
-                                this.tutorResponse = data;
-                                this.tutorAvatarState = "idle";
-                                this.tutorSpeaking = false;
-                            }
-                        } catch (error) {
-                            console.error("AI Tutor error:", error);
-                            this.tutorError = error?.message || "Unable to connect to AI Tutor.";
-                        } finally {
-                            this.tutorLoading = false;
-                        }
-                    }   
-                );     
-                              
-            },
-            
-                // =========================================================
-                // AI TUTOR AVATAR
-                // =========================================================
+            if (!loaded) {
+                return;
+            }
 
-                setTutorAvatarState(state) {
-                    this.tutorAvatarState = state;
-                },
+            try {
 
-                startTutorSpeaking() {
+                if (
+                    this.tutorAudioContext &&
+                    this.tutorAudioContext.state === "suspended"
+                ) {
+                    await this.tutorAudioContext.resume();
+                }
+
+                this.tutorSpeaking = true;
+                this.tutorPaused = false;
+                this.tutorAvatarState = "speaking";
+
+                this.tutorAudio.onplay = () => {
+
                     this.tutorSpeaking = true;
-                    this.tutorAvatarState = "speaking";
-                },
+                    this.tutorPaused = false;
+                    this.tutorAvatarState =
+                        "speaking";
 
-                stopTutorSpeaking() {
+                    // Small delay to ensure audio is actually playing before starting lip sync
+                    setTimeout(() => {
+                        if (this.tutorSpeaking && !this.tutorAudio.paused) {
+                            this.startTutorLipSync();
+                        }
+                    }, 100);
+                };
+
+                this.tutorAudio.onpause = () => {
+
+                    if (
+                        this.tutorAudio &&
+                        !this.tutorAudio.ended
+                    ) {
+
+                        this.tutorPaused = true;
+                        this.tutorSpeaking = false;
+                        this.tutorAvatarState =
+                            "idle";
+
+                        this.stopTutorLipSync();
+                    }
+                };
+
+                this.tutorAudio.onended = () => {
+
                     this.tutorSpeaking = false;
-                    this.tutorAvatarState = "idle";
-                },
+                    this.tutorPaused = false;
+                    this.tutorAvatarState =
+                        "idle";
 
-                closeTutor() {
-                    this.stopTutorSpeech();
+                    this.stopTutorLipSync();
+                };
 
-                    this.tutorOpen = false;
-                },
+                this.tutorAudio.onerror = (event) => {
 
-            // =========================================================
-            // CLOSE AI TUTOR
-            // =========================================================
+                    console.error(
+                        "Tutor audio playback error:",
+                        event
+                    );
 
-            closeAITutor() {
-                this.showTutor = false;
-                document.body.classList.remove("overflow-hidden");
-            },
+                    this.tutorSpeaking = false;
+                    this.tutorPaused = false;
+                    this.tutorAvatarState =
+                        "idle";
+
+                    this.stopTutorLipSync();
+
+                    this.tutorError =
+                        "The tutor speech could not be played.";
+                };
+
+                await this.tutorAudio.play();
+
+            } catch (error) {
+
+                console.error(
+                    "Tutor speech playback error:",
+                    error
+                );
+
+                this.tutorSpeaking = false;
+                this.tutorPaused = false;
+                this.tutorAvatarState =
+                    "idle";
+
+                this.stopTutorLipSync();
+
+                this.tutorError =
+                    "Unable to play tutor speech.";
+            }
+        },
 
         // =========================================================
         // RETRY AI TUTOR
@@ -4484,113 +4764,605 @@ document.addEventListener("alpine:init", () => {
         },
 
 
-        speakTutorResponse() {
-            if (!this.tutorSpeechSupported) {
-                this.tutorError =
-                    "Text-to-speech is not available on this computer.";
+        // =========================================================
+        // AI TUTOR — AUDIO LIP SYNC
+        // =========================================================
+
+        initTutorLipSync() {
+
+            if (this.tutorAudioContext) {
                 return;
             }
 
-            const text = this.getTutorSpeechText();
+            try {
 
-            if (!text.trim()) {
-                return;
-            }
+                const AudioContext =
+                    window.AudioContext ||
+                    window.webkitAudioContext;
 
-            // Stop anything currently speaking.
-            window.speechSynthesis.cancel();
+                if (!AudioContext) {
+                    console.warn(
+                        "Web Audio API is not available."
+                    );
+                    return;
+                }
 
-            const utterance =
-                new SpeechSynthesisUtterance(text);
+                this.tutorAudioContext =
+                    new AudioContext();
 
-            utterance.lang = "en-US";
-            utterance.rate = 0.92;
-            utterance.pitch = 1.05;
-            utterance.volume = 1;
+                this.tutorAnalyser =
+                    this.tutorAudioContext.createAnalyser();
 
-            if (this.tutorSelectedVoice) {
-                utterance.voice =
-                    this.tutorSelectedVoice;
-            }
+                this.tutorAnalyser.fftSize = 2048;
 
-            utterance.onstart = () => {
-                this.tutorSpeaking = true;
-                this.tutorPaused = false;
-                this.tutorAvatarState = "speaking";
-            };
+                this.tutorAnalyser.smoothingTimeConstant = 0.55;
 
-            utterance.onend = () => {
-                this.tutorSpeaking = false;
-                this.tutorPaused = false;
-                this.tutorAvatarState = "idle";
-                this.tutorSpeechUtterance = null;
-            };
+                this.tutorAudioData =
+                    new Uint8Array(
+                        this.tutorAnalyser.frequencyBinCount
+                    );
 
-            utterance.onerror = (event) => {
+            } catch (error) {
+
                 console.error(
-                    "AI Tutor TTS error:",
-                    event
+                    "Tutor lip-sync initialization failed:",
+                    error
                 );
 
-                this.tutorSpeaking = false;
-                this.tutorPaused = false;
-                this.tutorAvatarState = "idle";
-                this.tutorSpeechUtterance = null;
+            }
+        },
+
+        // =================================
+        // Load Tutor Audio
+        // =================================
+
+        async loadTutorAudio(text) {
+
+            if (!text || !text.trim()) {
+                return false;
+            }
+
+            this.stopTutorSpeech();
+
+            this.initTutorLipSync();
+
+            try {
+
+                if (
+                    this.tutorAudioContext &&
+                    this.tutorAudioContext.state === "suspended"
+                ) {
+                    await this.tutorAudioContext.resume();
+                }
+
+                const response = await fetch(
+                    "http://127.0.0.1:8000/api/v1/tutor/speak",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            text: text,
+                        }),
+                    }
+                );
+                
+                if (!response.ok) {
+
+                    throw new Error(
+                        `TTS request failed: HTTP ${response.status}`
+                    );
+
+                }
+
+                const audioBlob =
+                    await response.blob();
+
+                if (this.tutorAudioURL) {
+
+                    URL.revokeObjectURL(
+                        this.tutorAudioURL
+                    );
+
+                    this.tutorAudioURL = null;
+                }
+
+                this.tutorAudioURL =
+                    URL.createObjectURL(
+                        audioBlob
+                    );
+
+                this.tutorAudio =
+                    new Audio();
+
+                this.tutorAudio.preload = "auto";
+
+                this.tutorAudio.src =
+                    this.tutorAudioURL;
+
+                this.tutorAudio.volume = 1;
+
+                await new Promise(
+                    (resolve, reject) => {
+
+                        this.tutorAudio.oncanplaythrough =
+                            resolve;
+
+                        this.tutorAudio.onerror =
+                            () => reject(
+                                new Error(
+                                    "Tutor audio could not be loaded."
+                                )
+                            );
+
+                        this.tutorAudio.load();
+
+                    }
+                );
+
+                this.connectTutorAudio();
+
+                return true;
+
+            } catch (error) {
+
+                console.error(
+                    "Tutor audio loading error:",
+                    error
+                );
 
                 this.tutorError =
-                    "The tutor could not play the speech.";
+                    "The tutor speech could not be generated.";
+
+                return false;
+            }
+        },
+
+
+        // ====================================
+        // Connect the audio to the analyser
+        // ====================================
+
+        connectTutorAudio() {
+
+            if (
+                !this.tutorAudio ||
+                !this.tutorAudioContext ||
+                !this.tutorAnalyser
+            ) {
+                return;
+            }
+
+            try {
+
+                // Disconnect previous source if it exists
+                if (this.tutorAudioSource) {
+                    try { this.tutorAudioSource.disconnect(); } catch (_) {}
+                    this.tutorAudioSource = null;
+                }
+
+                // Each new Audio() element needs its own MediaElementSource
+                this.tutorAudioSource =
+                    this.tutorAudioContext.createMediaElementSource(
+                        this.tutorAudio
+                    );
+
+                this.tutorAudioSource.connect(this.tutorAnalyser);
+                this.tutorAnalyser.connect(this.tutorAudioContext.destination);
+
+                this.tutorAudioReady = true;
+
+            } catch (error) {
+                console.error("Tutor audio analyser connection failed:", error);
+                // Still mark ready so audio plays even without lip sync
+                this.tutorAudioReady = true;
+            }
+        },
+
+
+        // ========================================
+        // Frequency-band analysis
+        // =========================================
+
+        analyseTutorAudio() {
+
+            if (
+                !this.tutorAnalyser ||
+                !this.tutorAudioData
+            ) {
+                return;
+            }
+
+            this.tutorAnalyser.getByteFrequencyData(
+                this.tutorAudioData
+            );
+
+            const sampleRate =
+                this.tutorAudioContext.sampleRate;
+
+            const fftSize =
+                this.tutorAnalyser.fftSize;
+
+            const binWidth =
+                sampleRate / fftSize;
+
+            const energy = (
+                minHz,
+                maxHz
+            ) => {
+
+                const start =
+                    Math.max(
+                        0,
+                        Math.floor(minHz / binWidth)
+                    );
+
+                const end =
+                    Math.min(
+                        this.tutorAudioData.length - 1,
+                        Math.ceil(maxHz / binWidth)
+                    );
+
+                if (end <= start) {
+                    return 0;
+                }
+
+                let total = 0;
+
+                for (
+                    let i = start;
+                    i <= end;
+                    i++
+                ) {
+
+                    total +=
+                        this.tutorAudioData[i];
+                }
+
+                return (
+                    total /
+                    ((end - start + 1) * 255)
+                );
             };
 
-            this.tutorSpeechUtterance = utterance;
+            const low =
+                energy(80, 300);
 
-            window.speechSynthesis.speak(
-                utterance
+            const mid =
+                energy(300, 1200);
+
+            const high =
+                energy(1200, 4000);
+
+            const veryHigh =
+                energy(4000, 8000);
+
+            const overall =
+                (low * 0.25) +
+                (mid * 0.40) +
+                (high * 0.25) +
+                (veryHigh * 0.10);
+
+            this.updateTutorViseme({
+                low,
+                mid,
+                high,
+                veryHigh,
+                overall,
+            });
+        },
+
+
+        // =========================================================
+        // VISEMO ESTIMATOR
+        // =========================================================
+
+        updateTutorViseme({
+            low,
+            mid,
+            high,
+            veryHigh,
+            overall,
+        }) {
+
+            if (!this.tutorSpeaking) {
+                this.setTutorViseme(
+                    "closed",
+                    0
+                );
+
+                return;
+            }
+
+            const mouthOpen =
+                Math.min(
+                    1,
+                    Math.max(
+                        0,
+                        (overall - 0.015) * 3.5
+                    )
+                );
+
+            this.tutorMouthOpen =
+                this.smoothTutorValue(
+                    this.tutorMouthOpen,
+                    mouthOpen,
+                    0.45
+                );
+
+            let viseme;
+
+            /*
+            * Approximate acoustic mouth categories.
+            *
+            * This is not pretending to recover exact
+            * phonemes from the waveform.
+            *
+            * It identifies useful speech shapes:
+            *
+            * closed
+            * narrow
+            * open
+            * wide
+            * rounded
+            */
+
+            if (overall < 0.015) {
+
+                viseme = "closed";
+
+            } else if (
+                mouthOpen < 0.15
+            ) {
+
+                viseme = "narrow";
+
+            } else if (
+                low > mid * 1.15 &&
+                low > high * 1.25
+            ) {
+
+                viseme = "rounded";
+
+            } else if (
+                high > mid * 1.10 &&
+                high > low * 1.05
+            ) {
+
+                viseme = "wide";
+
+            } else if (
+                mouthOpen > 0.65
+            ) {
+
+                viseme = "open";
+
+            } else {
+
+                viseme = "mid";
+            }
+
+            this.setTutorViseme(
+                viseme,
+                this.tutorMouthOpen
             );
         },
 
 
+        // ========================================================
+        // SMOOTHING THE MOUTH
+        // =========================================================
+        
+        smoothTutorValue(
+            current,
+            target,
+            amount = 0.35
+        ) {
+
+            return (
+                current +
+                ((target - current) * amount)
+            );
+        },
+
+
+        // ===========================================
+        // DECLARING VISEME
+        // ==================finally==================
+
+        setTutorViseme(
+            viseme,
+            amount = 0
+        ) {
+
+            this.tutorViseme = viseme;
+
+            this.tutorMouthOpen =
+                Math.max(
+                    0,
+                    Math.min(
+                        1,
+                        amount
+                    )
+                );
+        },
+
+
+        // ================================================
+        // START THE ANALYSIS LOOP
+        // ===============speech in action==================
+
+        startTutorLipSync() {
+
+            this.stopTutorLipSync();
+
+            const tick = () => {
+
+                if (
+                    !this.tutorAudio ||
+                    this.tutorAudio.paused ||
+                    this.tutorAudio.ended
+                ) {
+
+                    this.setTutorViseme(
+                        "closed",
+                        0
+                    );
+
+                    return;
+                }
+
+                this.analyseTutorAudio();
+
+                this.tutorLipSyncFrame =
+                    requestAnimationFrame(
+                        tick
+                    );
+            };
+
+            this.tutorLipSyncFrame =
+                requestAnimationFrame(
+                    tick
+                );
+        },
+
+        // ================================================
+        // STOP THE ANALYSIS LOOP
+        // ===============speech OVER==================
+
+        stopTutorLipSync() {
+
+            if (this.tutorLipSyncFrame) {
+
+                cancelAnimationFrame(
+                    this.tutorLipSyncFrame
+                );
+
+                this.tutorLipSyncFrame =
+                    null;
+            }
+
+            this.setTutorViseme(
+                "closed",
+                0
+            );
+        },
+
+        // =========================================
+        // PAUSE TUTOR SPEECH
+        // =======================================
+
         pauseTutorSpeech() {
+
             if (
-                !this.tutorSpeechSupported ||
-                !window.speechSynthesis.speaking
+                !this.tutorAudio ||
+                this.tutorAudio.paused
             ) {
                 return;
             }
 
-            window.speechSynthesis.pause();
+            this.tutorAudio.pause();
 
+            this.tutorSpeaking = false;
             this.tutorPaused = true;
             this.tutorAvatarState = "idle";
+
+            this.stopTutorLipSync();
         },
 
+        // ==============================================
+        // RESUME TUTOR SPEECH
+        // ==============================================
 
-        resumeTutorSpeech() {
+        async resumeTutorSpeech() {
+
             if (
-                !this.tutorSpeechSupported ||
-                !window.speechSynthesis.paused
+                !this.tutorAudio ||
+                !this.tutorAudio.paused ||
+                this.tutorAudio.ended
             ) {
                 return;
             }
 
-            window.speechSynthesis.resume();
+            try {
 
-            this.tutorPaused = false;
-            this.tutorSpeaking = true;
-            this.tutorAvatarState = "speaking";
+                if (
+                    this.tutorAudioContext &&
+                    this.tutorAudioContext.state === "suspended"
+                ) {
+                    await this.tutorAudioContext.resume();
+                }
+
+                await this.tutorAudio.play();
+
+                this.tutorSpeaking = true;
+                this.tutorPaused = false;
+                this.tutorAvatarState =
+                    "speaking";
+
+                this.startTutorLipSync();
+
+            } catch (error) {
+
+                console.error(
+                    "Tutor resume error:",
+                    error
+                );
+            }
         },
 
 
+        // =============================================
+        // STOP TUTOR SPEECH
+        // =============================================
+
         stopTutorSpeech() {
-            if (this.tutorSpeechSupported) {
-                window.speechSynthesis.cancel();
+
+            if (this.tutorAudio) {
+
+                try {
+                    this.tutorAudio.pause();
+                } catch (_) {}
+
+                try {
+                    this.tutorAudio.currentTime = 0;
+                } catch (_) {}
             }
+
+            this.stopTutorLipSync();
 
             this.tutorSpeaking = false;
             this.tutorPaused = false;
             this.tutorAvatarState = "idle";
-            this.tutorSpeechUtterance = null;
+
+            if (this.tutorAudioURL) {
+
+                URL.revokeObjectURL(
+                    this.tutorAudioURL
+                );
+
+                this.tutorAudioURL = null;
+            }
+
+            this.tutorAudio = null;
         },
 
+        // ================================
+        // CLOSE TUTOR SPEECH NEWLY ADOPTED
+        // ================================
+
+        closeTutor() {
+            this.stopTutorSpeech();
+
+            this.showTutor = false;
+
+            document.body.classList.remove(
+                "overflow-hidden"
+            );
+        },
+
+        
         // =========================================================
         // CLEANUP
         // =========================================================

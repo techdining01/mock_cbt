@@ -74,6 +74,21 @@ class OllamaProvider(AIProvider):
 
         return self._parse_response(raw)
 
+    async def chat(self, prompt: str) -> str:
+        payload = {
+            "model": self.model,
+            "prompt": prompt,
+            "stream": False,
+            "options": {"temperature": 0.7},
+        }
+        async with httpx.AsyncClient(timeout=self.timeout) as client:
+            response = await client.post(
+                f"{self.base_url}/api/generate",
+                json=payload,
+            )
+            response.raise_for_status()
+        return response.json().get("response", "").strip()
+
     def _build_prompt(
         self,
         request: TutorRequest,
@@ -122,22 +137,31 @@ Instructions:
 7. Do not invent facts.
 8. Do not change the supplied correct answer.
 
+IMPORTANT: For the "steps" field:
+- Only include actual, meaningful step-by-step reasoning if the question requires it (mathematics, calculations, logical reasoning, etc.)
+- Each step should be a complete, clear explanation of one part of the solution
+- Example of good steps: ["First, identify the formula needed", "Substitute the given values into the formula", "Calculate the result step by step", "Verify the answer makes sense"]
+- If the question does NOT require step-by-step reasoning, return an empty array: []
+- NEVER use placeholder text like "step one", "step two" - either give real steps or return []
+
+CRITICAL: You MUST provide content for ALL fields. Do not leave any field empty:
+- "greeting": Always provide a short, friendly greeting appropriate for the context
+- "explanation": Always provide a clear, detailed explanation of the answer
+- "steps": provide meaningful step-by-step reasoning in an array
+- "hint": Provide a helpful memory aid or tip related to the question
+- "encouragement": Always provide encouraging words appropriate for the student's performance
+- "follow_up_question": Always provide a thought-provoking follow-up question to deepen understanding
+
 Return ONLY valid JSON with exactly these fields:
 
 {{
     "greeting": "short friendly greeting",
     "explanation": "clear explanation",
-    "steps": ["step one", "step two"],
-    "hint": "",
-    "encouragement": "",
-    "follow_up_question": ""
+    "steps": [],
+    "hint": "helpful memory aid or tip",
+    "encouragement": "encouraging words",
+    "follow_up_question": "thought-provoking follow-up question"
 }}
-
-Rules for optional fields:
-- "steps": include ONLY if the question requires step-by-step reasoning (e.g. maths, calculations). Otherwise return an empty array [].
-- "hint": include ONLY if there is a genuinely useful memory aid. Otherwise return "".
-- "encouragement": include ONLY if the student answered incorrectly or did not answer. Otherwise return "".
-- "follow_up_question": include ONLY if a meaningful follow-up exists. Otherwise return "".
 """
 
     @staticmethod

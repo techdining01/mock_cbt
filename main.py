@@ -4,6 +4,7 @@ from pathlib import Path
 
 from PySide6.QtWidgets import QApplication  # pyright: ignore[reportMissingImports]
 from PySide6.QtWebEngineWidgets import QWebEngineView  # pyright: ignore[reportMissingImports]
+from PySide6.QtWebEngineCore import QWebEngineSettings  # pyright: ignore[reportMissingImports]
 from PySide6.QtCore import QUrl, QTimer  # pyright: ignore[reportMissingImports]
 from PySide6.QtGui import QIcon  # pyright: ignore[reportMissingImports]
 
@@ -15,6 +16,26 @@ from app.bridge.question_import_bridge import QuestionImportBridge
 from app.services.pdf_processor import PDFProcessor
 
 base_dir = Path(__file__).parent
+
+
+def start_ai_tutor_server():
+    import asyncio
+    import sys
+    import uvicorn
+    from app.ai_tutor.main import app as tutor_app
+
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
+    config = uvicorn.Config(
+        tutor_app,
+        host="127.0.0.1",
+        port=8000,
+        log_level="warning",
+        loop="asyncio",
+    )
+    server = uvicorn.Server(config)
+    loop.run_until_complete(server.serve())
 
 
 # Tells Windows to use the script's distinct AppUserModelID for taskbar grouping
@@ -31,6 +52,10 @@ def main():
     from app.database.database import init_database
 
     init_database()
+
+    import threading
+    server_thread = threading.Thread(target=start_ai_tutor_server, daemon=True)
+    server_thread.start()
     # Create the Qt application.
     # sys.argv contains any arguments passed when starting the program.
     app = QApplication(sys.argv)
@@ -53,9 +78,19 @@ def main():
     if icon_file.exists():
         app.setWindowIcon(QIcon(str(icon_file)))
 
+    # Allow file:// pages to fetch http://127.0.0.1 (needed for AI Tutor API)
+    import sys as _sys
+    if "--disable-web-security" not in _sys.argv:
+        _sys.argv.append("--disable-web-security")
+
     # Create our desktop browser window.
     # This will eventually display our HTML + Tailwind + Alpine.js interface.
     window = QWebEngineView()
+
+    # Allow local file pages to make requests to remote/local HTTP URLs
+    settings = window.settings()
+    settings.setAttribute(QWebEngineSettings.WebAttribute.LocalContentCanAccessRemoteUrls, True)
+    settings.setAttribute(QWebEngineSettings.WebAttribute.LocalContentCanAccessFileUrls, True)
 
     # Set the web view on the exam bridge for PDF export functionality
     exam_bridge.set_web_view(window)
@@ -117,7 +152,7 @@ def main():
 
     # Set the initial size of the application window.
     # The first value is width and the second is height.
-    window.resize(1024, 768)
+    window.resize(800, 600)
 
     # Build the full path to index.html.
     html_file = base_dir / "app" / "web" / "index.html"

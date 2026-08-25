@@ -28,52 +28,56 @@ class AIProviderManager:
 
         for provider in self.providers:
             if not provider.available:
-                logger.info(
-                    "Skipping unavailable provider: %s",
-                    provider.name,
-                )
-                print(
-                    f"AI provider '{provider.name}' failed:",
-                    repr(last_error) if last_error else "No error information available.",
-                )
-
+                logger.info("Skipping unavailable provider: %s", provider.name)
                 continue
 
             try:
-                logger.info(
-                    "Trying AI provider: %s",
-                    provider.name,
-                )
-
                 result = await provider.ask_tutor(request)
-
                 validated = validate_tutor_result(result)
-
-                logger.info(
-                    "AI provider succeeded: %s",
-                    provider.name,
-                )
-
-                return (
-                    provider.name,
-                    validated.model_dump(),
-                )
+                logger.info("AI provider succeeded: %s", provider.name)
+                return (provider.name, validated.model_dump())
 
             except Exception as exc:
                 last_error = exc
-
-                logger.warning(
-                    "AI provider failed: %s - %s",
-                    provider.name,
-                    exc,
-                )
-
+                # Log specific error types for better debugging
+                error_type = type(exc).__name__
+                logger.warning("AI provider failed: %s - %s (%s)", provider.name, exc, error_type)
+                # Continue to next provider instead of immediately failing
                 continue
 
         if last_error is not None:
             raise RuntimeError("All AI providers failed.") from last_error
-
         raise RuntimeError("No AI providers are available.")
+
+    async def chat(
+        self,
+        prompt: str,
+    ) -> tuple[str, str]:
+        """Send a plain-text prompt and return (provider_name, reply_text)."""
+
+        last_error: Exception | None = None
+
+        for provider in self.providers:
+            if not provider.available:
+                logger.info("Skipping unavailable chat provider: %s", provider.name)
+                continue
+
+            try:
+                reply = await provider.chat(prompt)
+                logger.info("Chat provider succeeded: %s", provider.name)
+                return (provider.name, reply)
+
+            except Exception as exc:
+                last_error = exc
+                # Log specific error types for better debugging
+                error_type = type(exc).__name__
+                logger.warning("Chat provider failed: %s - %s (%s)", provider.name, exc, error_type)
+                # Continue to next provider instead of immediately failing
+                continue
+
+        if last_error is not None:
+            raise RuntimeError("All chat providers failed.") from last_error
+        raise RuntimeError("No chat providers are available.")
 
     def health(self) -> dict:
 

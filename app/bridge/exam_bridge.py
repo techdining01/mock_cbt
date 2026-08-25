@@ -19,7 +19,7 @@ from app.services.pdf_processor import PDFProcessor
 from app.services.auth_service import AuthService
 
 
-from app.ai_tutor.services.tutor_service import TutorService
+# from app.ai_tutor.services.tutor_service import TutorService
 
 
 class ExamBridge(QObject):
@@ -1086,12 +1086,14 @@ class ExamBridge(QObject):
             with SessionLocal() as db:
                 from sqlalchemy import or_
 
-                query = select(ExamSession)
+                # Only count completed exam sessions for consistency with student history
+                query = select(ExamSession).where(ExamSession.is_completed == True)
                 if search_name and search_name.strip():
                     search_pattern = f"%{search_name.strip()}%"
                     query = query.where(ExamSession.student_name.like(search_pattern))
 
-                query = query.order_by(ExamSession.started_at.desc())
+                # Order by completed_at to show most recent completed exams
+                query = query.order_by(ExamSession.completed_at.desc())
                 sessions = list(db.scalars(query).all())
 
                 # Group by student name
@@ -1106,17 +1108,18 @@ class ExamBridge(QObject):
                             "last_exam_datetime": None,
                         }
                     students_dict[name]["session_count"] += 1
+                    # Use completed_at for last exam date since we're filtering completed sessions
                     if students_dict[name]["last_exam_datetime"] is None or (
-                        session.started_at
-                        and session.started_at
+                        session.completed_at
+                        and session.completed_at
                         > students_dict[name]["last_exam_datetime"]
                     ):
                         students_dict[name]["last_exam"] = (
-                            session.started_at.strftime("%d-%m-%Y %H:%M:%S")
-                            if session.started_at
+                            session.completed_at.strftime("%d-%m-%Y %H:%M:%S")
+                            if session.completed_at
                             else None
                         )
-                        students_dict[name]["last_exam_datetime"] = session.started_at
+                        students_dict[name]["last_exam_datetime"] = session.completed_at
 
                 # Remove datetime field before JSON serialization
                 for student_data in students_dict.values():

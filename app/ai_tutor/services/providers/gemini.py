@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import os
 
@@ -23,6 +24,8 @@ class GeminiProvider(AIProvider):
             "gemini-3.6-flash",
         )
 
+        self.timeout = float(os.getenv("GEMINI_TIMEOUT", "8"))
+
         self.client = None
 
         if self.api_key:
@@ -34,7 +37,10 @@ class GeminiProvider(AIProvider):
 
     @property
     def available(self) -> bool:
-        return self.client is not None
+        # Check if client is initialized and API key exists
+        # We don't check connectivity here to avoid blocking initialization
+        # Connectivity will be tested during actual usage with proper timeout
+        return self.client is not None and self.api_key is not None
 
     async def ask_tutor(
         self,
@@ -53,14 +59,29 @@ class GeminiProvider(AIProvider):
             options_text=options_text,
         )
 
-        response = await self.client.aio.models.generate_content(
-            model=self.model,
-            contents=prompt,
+        response = await asyncio.wait_for(
+            self.client.aio.models.generate_content(
+                model=self.model,
+                contents=prompt,
+            ),
+            timeout=self.timeout,
         )
 
         raw = response.text.strip()
 
         return self._parse_response(raw)
+
+    async def chat(self, prompt: str) -> str:
+        if not self.available:
+            raise RuntimeError("Gemini provider is not configured.")
+        response = await asyncio.wait_for(
+            self.client.aio.models.generate_content(
+                model=self.model,
+                contents=prompt,
+            ),
+            timeout=self.timeout,
+        )
+        return response.text.strip()
 
     def _build_prompt(
         self,
@@ -116,20 +137,32 @@ If the student selected the wrong answer:
 If the question requires reasoning,
 explain the reasoning step by step.
 
+IMPORTANT: For the "steps" field:
+- Only include actual, meaningful step-by-step reasoning if the question requires it (mathematics, calculations, logical reasoning, etc.)
+- Each step should be a complete, clear explanation of one part of the solution
+- Example of good steps: ["First, identify the formula needed", "Substitute the given values into the formula", "Calculate the result step by step", "Verify the answer makes sense"]
+- If the question does NOT require step-by-step reasoning, return an empty array: []
+- NEVER use placeholder text like "step one", "step two" - either give real steps or return []
+
+CRITICAL: You MUST provide content for ALL fields. Do not leave any field empty:
+- "greeting": Always provide a short, friendly greeting appropriate for the context
+- "explanation": Always provide a clear, detailed explanation of the answer
+- "steps": provide meaningful step-by-step reasoning in an array 
+- "hint": Always provide a helpful memory aid or tip related to the question
+- "encouragement": Always provide encouraging words appropriate for the student's performance
+- "follow_up_question": Always provide a thought-provoking follow-up question to deepen understanding
+
 Return ONLY valid JSON.
 
 Use exactly this structure:
 
 {{
-    "greeting": "...",
-    "explanation": "...",
-    "steps": [
-        "...",
-        "..."
-    ],
-    "hint": "...",
-    "encouragement": "...",
-    "follow_up_question": "..."
+    "greeting": "short friendly greeting",
+    "explanation": "clear explanation",
+    "steps": [],
+    "hint": "helpful memory aid or tip",
+    "encouragement": "encouraging words",
+    "follow_up_question": "thought-provoking follow-up question"
 }}
 """
 

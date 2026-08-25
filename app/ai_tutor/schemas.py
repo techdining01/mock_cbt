@@ -75,3 +75,44 @@ class TutorResponse(BaseModel):
     encouragement: str = ""
 
     follow_up_question: str = ""
+
+
+class TutorSpeakRequest(BaseModel):
+    text: str
+
+    @field_validator("text")
+    @classmethod
+    def validate_text(
+        cls,
+        value: str,
+    ) -> str:
+        value = value.strip()
+
+        if not value:
+            raise ValueError("Text cannot be empty.")
+
+        return value
+
+
+class ChatMessage(BaseModel):
+    role: str  # "user" | "assistant"
+    content: str
+
+
+class ChatRequest(BaseModel):
+    message: str
+    history: list[ChatMessage] = Field(default_factory=list)
+
+    @field_validator("message")
+    @classmethod
+    def validate_message(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("Message cannot be empty.")
+        return value
+
+
+class ChatResponse(BaseModel):
+    success: bool
+    reply: str
+    provider: str = ""

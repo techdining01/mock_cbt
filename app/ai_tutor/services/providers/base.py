@@ -17,8 +17,10 @@ class AIProvider(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def ask_tutor(
-        self,
-        request: TutorRequest,
-    ) -> dict:
+    async def ask_tutor(self, request: TutorRequest) -> dict:
         raise NotImplementedError
+
+    @abstractmethod
+    async def chat(self, prompt: str) -> str:
+        """Plain-text chat. Providers may override for efficiency."""
+        raise NotImplementedError(f"{self.name} does not support chat()")
