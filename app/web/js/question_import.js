@@ -154,6 +154,9 @@ function renderReviewEmptyState(
 
 function getImportSettings() {
 
+    const examBodySelect = document.getElementById("importExamBodySelect");
+    const exam_body = (examBodySelect?.value || "JAMB").trim().toUpperCase();
+
     const year =
         Number.parseInt(
             importYearInput?.value || "",
@@ -191,6 +194,7 @@ function getImportSettings() {
     }
 
     return {
+        exam_body,
         year,
         subject,
     };
@@ -1955,6 +1959,9 @@ function collectReviewData() {
     }
 
     return {
+        exam_body:
+            settings.exam_body || "JAMB",
+
         year:
             settings.year,
 
@@ -2128,6 +2135,159 @@ function showImportToast(
 }
 
 
+let ocrProgressTimer = null;
+let ocrStepTimer = null;
+
+function renderOcrLoadingState(subject = "Questions", year = "", examBody = "JAMB") {
+    if (!reviewContent) {
+        return;
+    }
+
+    // Add scanning laser effect to document view if available
+    const docArea = document.getElementById("documentArea");
+    if (docArea && !docArea.querySelector(".document-scanning-overlay")) {
+        const overlay = document.createElement("div");
+        overlay.className = "document-scanning-overlay";
+        overlay.innerHTML = '<div class="document-scanning-laser"></div>';
+        docArea.appendChild(overlay);
+    }
+
+    reviewContent.innerHTML = `
+        <div class="ocr-loader-container">
+            <div class="ocr-scanner-card">
+                <!-- Visual Document Scanner with Laser Beam -->
+                <div class="ocr-doc-mockup">
+                    <div class="ocr-laser-beam"></div>
+                    <div class="ocr-laser-glow"></div>
+                    <div class="ocr-skeleton-line title"></div>
+                    <div class="ocr-skeleton-line"></div>
+                    <div class="ocr-skeleton-line medium"></div>
+                    <div class="ocr-skeleton-line"></div>
+                    <div class="ocr-skeleton-line short"></div>
+                    <div class="ocr-skeleton-line"></div>
+                    <div class="ocr-skeleton-line medium"></div>
+                </div>
+
+                <div class="ocr-title-badge">
+                    <span class="ocr-spinner-dot"></span>
+                    <span>OCR Engine Active</span>
+                </div>
+
+                <h3 class="ocr-card-heading">
+                    Converting PDF to Questions
+                </h3>
+                <p class="ocr-card-subheading">
+                    Analyzing <b>${escapeHtml(subject)}</b> (${escapeHtml(String(year))} ${escapeHtml(examBody)}) with AI vision & layout parsing.
+                </p>
+
+                <!-- Progress Bar -->
+                <div class="ocr-progress-box">
+                    <div class="ocr-progress-labels">
+                        <span id="ocrStatusLabel">Pre-processing document pages...</span>
+                        <span id="ocrPercentLabel">15%</span>
+                    </div>
+                    <div class="ocr-progress-track">
+                        <div id="ocrProgressFill" class="ocr-progress-fill" style="width: 15%;"></div>
+                    </div>
+                </div>
+
+                <!-- Pipeline Stages -->
+                <div class="ocr-steps-list">
+                    <div class="ocr-step-item active" id="ocrStep1">
+                        <span class="ocr-step-bullet">1</span>
+                        <span>Pre-processing PDF & page rasterization</span>
+                    </div>
+                    <div class="ocr-step-item" id="ocrStep2">
+                        <span class="ocr-step-bullet">2</span>
+                        <span>Optical Character Recognition (OCR) Engine</span>
+                    </div>
+                    <div class="ocr-step-item" id="ocrStep3">
+                        <span class="ocr-step-bullet">3</span>
+                        <span>Parsing question stems, options (A–D) & keys</span>
+                    </div>
+                    <div class="ocr-step-item" id="ocrStep4">
+                        <span class="ocr-step-bullet">4</span>
+                        <span>Structuring question bank review cards</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Animate progress smoothly
+    let currentPct = 15;
+    const progressFill = document.getElementById("ocrProgressFill");
+    const percentLabel = document.getElementById("ocrPercentLabel");
+    const statusLabel = document.getElementById("ocrStatusLabel");
+
+    if (ocrProgressTimer) {
+        clearInterval(ocrProgressTimer);
+    }
+    if (ocrStepTimer) {
+        clearInterval(ocrStepTimer);
+    }
+
+    ocrProgressTimer = setInterval(() => {
+        if (currentPct < 90) {
+            currentPct += Math.floor(Math.random() * 5) + 2;
+            if (currentPct > 90) currentPct = 90;
+            if (progressFill) progressFill.style.width = `${currentPct}%`;
+            if (percentLabel) percentLabel.textContent = `${currentPct}%`;
+        }
+    }, 450);
+
+    // Sequence stages
+    ocrStepTimer = setTimeout(() => {
+        const step1 = document.getElementById("ocrStep1");
+        const step2 = document.getElementById("ocrStep2");
+        if (step1 && step2) {
+            step1.classList.remove("active");
+            step1.classList.add("completed");
+            step1.querySelector(".ocr-step-bullet").textContent = "✓";
+            step2.classList.add("active");
+            if (statusLabel) statusLabel.textContent = "Running Optical Character Recognition...";
+        }
+
+        setTimeout(() => {
+            const step3 = document.getElementById("ocrStep3");
+            if (step2 && step3) {
+                step2.classList.remove("active");
+                step2.classList.add("completed");
+                step2.querySelector(".ocr-step-bullet").textContent = "✓";
+                step3.classList.add("active");
+                if (statusLabel) statusLabel.textContent = "Extracting question options & answers...";
+            }
+
+            setTimeout(() => {
+                const step4 = document.getElementById("ocrStep4");
+                if (step3 && step4) {
+                    step3.classList.remove("active");
+                    step3.classList.add("completed");
+                    step3.querySelector(".ocr-step-bullet").textContent = "✓";
+                    step4.classList.add("active");
+                    if (statusLabel) statusLabel.textContent = "Finalizing question structure...";
+                }
+            }, 1800);
+        }, 2000);
+    }, 1200);
+}
+
+function stopOcrLoadingState() {
+    if (ocrProgressTimer) {
+        clearInterval(ocrProgressTimer);
+        ocrProgressTimer = null;
+    }
+    if (ocrStepTimer) {
+        clearTimeout(ocrStepTimer);
+        ocrStepTimer = null;
+    }
+    const overlay = document.querySelector(".document-scanning-overlay");
+    if (overlay) {
+        overlay.remove();
+    }
+}
+
+
 /* ============================================================
 //  EXTRACT QUESTION BUTTON
 ============================================================ */ 
@@ -2156,11 +2316,16 @@ function triggerAutoExtraction() {
         "Running OCR and extracting questions..."
     );
 
+    // Show the OCR loading template
+    renderOcrLoadingState(settings.subject, settings.year, settings.exam_body);
+
     bridge.extract_questions(
         settings.year,
         settings.subject,
 
         function(response) {
+
+            stopOcrLoadingState();
 
             const result =
                 JSON.parse(response);
@@ -2174,6 +2339,11 @@ function triggerAutoExtraction() {
 
                 setStatus(
                     "Extraction failed. Please verify the document is readable."
+                );
+
+                renderReviewEmptyState(
+                    "Extraction Failed",
+                    result.error || "Please verify the document is clear and readable."
                 );
 
                 extractionInProgress = false;
@@ -2206,6 +2376,11 @@ function triggerAutoExtraction() {
 
             setStatus(
                 `${result.questions.length} questions extracted.`
+            );
+
+            showImportToast(
+                `OCR extraction completed: ${result.questions.length} questions recognized.`,
+                "success"
             );
 
             extractionInProgress = false;

@@ -13,10 +13,11 @@ from PySide6.QtWidgets import QFileDialog
 from sqlalchemy import select, func
 
 from app.database.database import SessionLocal
-from app.database.models import ExamSession, User, Subject, Question, Option
+from app.database.models import ExamSession, User, Subject, Question, Option, AppSettings
 from app.services.exam_service import ExamService
 from app.services.pdf_processor import PDFProcessor
 from app.services.auth_service import AuthService
+from app.services.settings_service import SettingsService
 
 
 # from app.ai_tutor.services.tutor_service import TutorService
@@ -65,30 +66,44 @@ class ExamBridge(QObject):
             return None, f"Unable to load PDF report service: {exc}"
 
         try:
-            base_dir = Path(__file__).resolve().parents[2]
-            logo_path = base_dir / "app" / "web" / "images" / "alayande.png"
-            logo = logo_path if logo_path.exists() else None
-            return ReportlabReportService(logo_path=logo), None
+            return ReportlabReportService(), None
         except Exception as exc:
             return None, f"Failed to initialise PDF report service: {exc}"
 
     # ========================================================
-    # YEARS
+    # YEARS & EXAM BODIES
     # ========================================================
 
+    @Slot(str, result=str)
     @Slot(result=str)
-    def get_years(self):
-
+    def get_years(self, exam_body: str = ""):
         try:
             with SessionLocal() as db:
                 service = ExamService(db)
-
-                years = service.get_available_years()
+                years = service.get_available_years(exam_body=exam_body if exam_body else None)
 
                 return json.dumps(
                     {
                         "success": True,
                         "years": years,
+                        "exam_body": exam_body,
+                    }
+                )
+
+        except Exception as exc:
+            return self._error(exc)
+
+    @Slot(result=str)
+    def get_exam_bodies(self):
+        try:
+            with SessionLocal() as db:
+                service = ExamService(db)
+                bodies = service.get_available_exam_bodies()
+
+                return json.dumps(
+                    {
+                        "success": True,
+                        "exam_bodies": bodies,
                     }
                 )
 
@@ -99,22 +114,28 @@ class ExamBridge(QObject):
     # SUBJECTS
     # ========================================================
 
+    @Slot(int, str, result=str)
     @Slot(int, result=str)
     def get_subjects_for_year(
         self,
         year: int,
+        exam_body: str = "",
     ):
 
         try:
             with SessionLocal() as db:
                 service = ExamService(db)
 
-                subjects = service.get_subjects_for_year(int(year))
+                subjects = service.get_subjects_for_year(
+                    int(year),
+                    exam_body=exam_body if exam_body else None,
+                )
 
                 return json.dumps(
                     {
                         "success": True,
                         "subjects": subjects,
+                        "exam_body": exam_body,
                     }
                 )
 
@@ -125,6 +146,7 @@ class ExamBridge(QObject):
     # CREATE
     # ========================================================
 
+    @Slot(int, "QVariant", int, str, str, result=str)
     @Slot(int, "QVariant", int, str, result=str)
     def create_exam(
         self,
@@ -132,10 +154,12 @@ class ExamBridge(QObject):
         subject_ids,
         duration_minutes: int,
         student_name: str = "",
+        exam_body: str = "JAMB",
     ):
 
         try:
             subject_ids = [int(value) for value in subject_ids]
+            chosen_body = (exam_body or "JAMB").upper().strip()
 
             with SessionLocal() as db:
                 service = ExamService(db)
@@ -166,6 +190,7 @@ class ExamBridge(QObject):
                     duration_minutes=int(duration_minutes),
                     student_name=full_student_name,
                     user_id=user_id,
+                    exam_body=chosen_body,
                 )
 
                 db.commit()
@@ -174,6 +199,7 @@ class ExamBridge(QObject):
                     {
                         "success": True,
                         "exam_id": exam.id,
+                        "exam_body": getattr(exam, "exam_body", chosen_body),
                         "student_name": full_student_name,
                     }
                 )
@@ -505,38 +531,7 @@ class ExamBridge(QObject):
         except Exception as exc:
             return self._error(exc)
 
-    # ========================================================
-    # GENERATE RESULT PDF (REPORTLAB)
-    # ========================================================
 
-    @Slot(int, result=str)
-    def generate_result_pdf_reportlab(self, exam_id: int):
-        """Generates a professional PDF result transcript using ReportLab."""
-        try:
-            with SessionLocal() as db:
-                service = ExamService(db)
-                result = service.get_result(int(exam_id))
-
-            from app.services.reportlab_report_service import ReportlabReportService
-
-            report_service = ReportlabReportService()
-            pdf_path = report_service.generate(result)
-
-            try:
-                if hasattr(os, "startfile"):
-                    os.startfile(pdf_path)
-            except Exception as open_err:
-                print("Could not auto-open PDF:", open_err)
-
-            return json.dumps(
-                {
-                    "success": True,
-                    "path": str(pdf_path),
-                    "message": f"Result PDF saved successfully to {pdf_path}",
-                }
-            )
-        except Exception as exc:
-            return self._error(exc)
 
     # ========================================================
     # GENERATE STUDENT HISTORY PDF (REPORTLAB)
@@ -557,6 +552,11 @@ class ExamBridge(QObject):
                 return self._error("No history data provided for PDF generation.")
 
             sname = str(student_name or "Student").strip() or "Student"
+
+            # Get app settings for PDF customization
+            with SessionLocal() as db:
+                settings_service = SettingsService(db)
+                app_settings = settings_service.get_settings()
 
             safe_name = (
                 "".join(c for c in sname if c.isalnum() or c in (" ", "_", "-")).strip()
@@ -579,7 +579,12 @@ class ExamBridge(QObject):
             output = Path(file_path)
             report_service = ReportlabReportService()
             pdf_path = report_service.generate_student_history(
-                sname, history, output_path=output
+                sname,
+                history,
+                output_path=output,
+                school_name=app_settings.school_name,
+                school_address=app_settings.school_address,
+                school_logo_path=app_settings.school_logo_path,
             )
 
             try:
@@ -1416,6 +1421,143 @@ class ExamBridge(QObject):
         except Exception as exc:
             return self._error(exc)
 
+    # ========================================================
+    # APP SETTINGS
+    # ========================================================
+
+    @Slot(result=str)
+    def get_app_settings(self):
+        """Get application settings (school name, logo, address, theme)."""
+        try:
+            with SessionLocal() as db:
+                settings_service = SettingsService(db)
+                settings = settings_service.get_settings()
+
+                return json.dumps({
+                    "success": True,
+                    "settings": {
+                        "school_name": settings.school_name,
+                        "school_address": settings.school_address,
+                        "school_logo_path": settings.school_logo_path,
+                        "theme": settings.theme,
+                    }
+                })
+        except Exception as exc:
+            return self._error(exc)
+
+    @Slot(str, str, str, str, result=str)
+    def update_app_settings(
+        self,
+        school_name: str,
+        school_address: str,
+        school_logo_path: str,
+        theme: str,
+    ):
+        """Update application settings (admin only)."""
+        try:
+            if not self._current_user or self._current_user.role != "admin":
+                return json.dumps(
+                    {"success": False, "error": "Access denied. Admin only."}
+                )
+
+            with SessionLocal() as db:
+                settings_service = SettingsService(db)
+
+                # Parse optional fields
+                school_name_parsed = school_name if school_name else None
+                school_address_parsed = school_address if school_address else None
+                theme_parsed = theme if theme else None
+
+                # Handle logo upload - save base64 to file
+                school_logo_path_parsed = None
+                if school_logo_path and school_logo_path.startswith("data:image"):
+                    import base64
+                    import time
+                    from pathlib import Path
+
+                    # Extract base64 data
+                    header, encoded = school_logo_path.split(",", 1)
+                    data = base64.b64decode(encoded)
+
+                    # Determine file extension from header
+                    if "png" in header:
+                        ext = ".png"
+                    elif "jpeg" in header or "jpg" in header:
+                        ext = ".jpg"
+                    elif "ico" in header:
+                        ext = ".ico"
+                    elif "webp" in header:
+                        ext = ".webp"
+                    else:
+                        ext = ".png"
+
+                    # Save to images directory
+                    images_dir = Path(__file__).resolve().parents[2] / "app" / "web" / "images"
+                    images_dir.mkdir(parents=True, exist_ok=True)
+                    logo_file = images_dir / f"school_logo_custom{ext}"
+
+                    with open(logo_file, "wb") as f:
+                        f.write(data)
+
+                    school_logo_path_parsed = f"images/school_logo_custom{ext}?v={int(time.time())}"
+                elif school_logo_path:
+                    school_logo_path_parsed = school_logo_path
+
+                settings = settings_service.update_settings(
+                    school_name=school_name_parsed,
+                    school_address=school_address_parsed,
+                    school_logo_path=school_logo_path_parsed,
+                    theme=theme_parsed,
+                )
+
+                return json.dumps({
+                    "success": True,
+                    "settings": {
+                        "school_name": settings.school_name,
+                        "school_address": settings.school_address,
+                        "school_logo_path": settings.school_logo_path,
+                        "theme": settings.theme,
+                    }
+                })
+        except Exception as exc:
+            return self._error(exc)
+
+    @Slot(result=str)
+    def backup_database(self):
+        """Creates a backup of the SQLite database file."""
+        if not self._current_user or self._current_user.role != "admin":
+            return self._error("Only admins can backup the database.")
+
+        try:
+            from app.database.database import engine
+            from sqlalchemy import inspect
+            import shutil
+            from datetime import datetime
+
+            # Get database file path from engine
+            db_url = str(engine.url)
+            if not db_url.startswith("sqlite:///"):
+                return self._error("Backup only supported for SQLite databases.")
+
+            db_path = db_url.replace("sqlite:///", "")
+
+            # Create backup filename with timestamp
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            backup_dir = Path(db_path).parent / "backups"
+            backup_dir.mkdir(parents=True, exist_ok=True)
+            backup_path = backup_dir / f"cbt_backup_{timestamp}.db"
+
+            # Copy database file
+            shutil.copy2(db_path, backup_path)
+
+            return json.dumps({
+                "success": True,
+                "backup_path": str(backup_path),
+                "message": f"Database backed up to {backup_path}",
+            })
+        except Exception as exc:
+            return self._error(exc)
+
     @Slot(result=str)
     def get_all_users(self):
         if not self._current_user or self._current_user.role != "admin":
@@ -1679,22 +1821,26 @@ class ExamBridge(QObject):
     # MANUAL QUESTION MANAGEMENT
     # ========================================================
 
+    @Slot(int, int, str, result=str)
     @Slot(int, int, result=str)
-    def get_next_question_number(self, year: int, subject_id: int):
-        """Get the next suggested question number for a subject and year."""
+    def get_next_question_number(self, year: int, subject_id: int, exam_body: str = "JAMB"):
+        """Get the next suggested question number for an exam body, subject and year."""
         try:
+            chosen_body = (exam_body or "JAMB").upper().strip()
             with SessionLocal() as db:
                 max_num = db.scalar(
                     select(func.max(Question.question_number)).where(
+                        Question.exam_body == chosen_body,
                         Question.year == int(year),
                         Question.subject_id == int(subject_id),
                     )
                 )
                 next_num = (max_num or 0) + 1
-                return json.dumps({"success": True, "next_number": next_num})
+                return json.dumps({"success": True, "next_number": next_num, "exam_body": chosen_body})
         except Exception as exc:
             return self._error(exc)
 
+    @Slot(str, str, str, int, int, str, result=str)
     @Slot(str, str, str, int, int, result=str)
     def get_questions_by_filter(
         self,
@@ -1703,8 +1849,9 @@ class ExamBridge(QObject):
         search_query: str = "",
         page: int = 1,
         page_size: int = 10,
+        exam_body_str: str = "",
     ):
-        """Get questions filtered by year, subject, and search query with pagination."""
+        """Get questions filtered by exam body, year, subject, and search query with pagination."""
         try:
             with SessionLocal() as db:
                 from sqlalchemy.orm import joinedload
@@ -1712,6 +1859,13 @@ class ExamBridge(QObject):
                 query = select(Question).options(
                     joinedload(Question.subject), joinedload(Question.options)
                 )
+
+                if (
+                    exam_body_str
+                    and str(exam_body_str).strip()
+                    and str(exam_body_str).strip() != "all"
+                ):
+                    query = query.where(Question.exam_body == str(exam_body_str).strip().upper())
 
                 if (
                     year_str
@@ -1735,6 +1889,12 @@ class ExamBridge(QObject):
                     )
 
                 count_query = select(func.count(Question.id))
+                if (
+                    exam_body_str
+                    and str(exam_body_str).strip()
+                    and str(exam_body_str).strip() != "all"
+                ):
+                    count_query = count_query.where(Question.exam_body == str(exam_body_str).strip().upper())
                 if (
                     year_str
                     and str(year_str).strip()
@@ -1764,6 +1924,7 @@ class ExamBridge(QObject):
 
                 query = (
                     query.order_by(
+                        Question.exam_body.asc(),
                         Question.year.desc(),
                         Question.subject_id.asc(),
                         Question.question_number.asc(),
@@ -1783,6 +1944,7 @@ class ExamBridge(QObject):
                     items.append(
                         {
                             "id": q.id,
+                            "exam_body": getattr(q, "exam_body", "JAMB") or "JAMB",
                             "year": q.year,
                             "subject_id": q.subject_id,
                             "subject_name": q.subject.name if q.subject else "Unknown",
@@ -1820,6 +1982,7 @@ class ExamBridge(QObject):
         except Exception as exc:
             return self._error(exc)
 
+    @Slot(int, int, int, str, str, str, str, str, result=str)
     @Slot(int, int, int, str, str, str, str, result=str)
     def create_question_manual(
         self,
@@ -1830,9 +1993,11 @@ class ExamBridge(QObject):
         options_json: str,
         correct_label: str,
         explanation: str = "",
+        exam_body: str = "JAMB",
     ):
         """Create a new question manually with flexible options (A, B, C, D, E, etc.)."""
         try:
+            chosen_body = (exam_body or "JAMB").upper().strip()
             y = int(year)
             s_id = int(subject_id)
             q_num = int(question_number)
@@ -1868,6 +2033,7 @@ class ExamBridge(QObject):
 
                 existing = db.scalar(
                     select(Question).where(
+                        Question.exam_body == chosen_body,
                         Question.subject_id == s_id,
                         Question.year == y,
                         Question.question_number == q_num,
@@ -1877,11 +2043,12 @@ class ExamBridge(QObject):
                     return json.dumps(
                         {
                             "success": False,
-                            "error": f"Question {q_num} already exists for {subject.name} ({y}). Please choose another question number.",
+                            "error": f"Question {q_num} already exists for {chosen_body} - {subject.name} ({y}). Please choose another question number.",
                         }
                     )
 
                 question = Question(
+                    exam_body=chosen_body,
                     subject_id=s_id,
                     year=y,
                     question_number=q_num,
@@ -1915,12 +2082,14 @@ class ExamBridge(QObject):
                     {
                         "success": True,
                         "question_id": question.id,
-                        "message": f"Question {q_num} created successfully.",
+                        "exam_body": question.exam_body,
+                        "message": f"Question {q_num} ({chosen_body}) created successfully.",
                     }
                 )
         except Exception as exc:
             return self._error(exc)
 
+    @Slot(int, int, int, int, str, str, str, str, str, result=str)
     @Slot(int, int, int, int, str, str, str, str, result=str)
     def update_question_manual(
         self,
@@ -1932,9 +2101,11 @@ class ExamBridge(QObject):
         options_json: str,
         correct_label: str,
         explanation: str = "",
+        exam_body: str = "JAMB",
     ):
         """Update an existing question and its options."""
         try:
+            chosen_body = (exam_body or "JAMB").upper().strip()
             q_id = int(question_id)
             y = int(year)
             s_id = int(subject_id)
@@ -1971,6 +2142,7 @@ class ExamBridge(QObject):
 
                 dup = db.scalar(
                     select(Question).where(
+                        Question.exam_body == chosen_body,
                         Question.subject_id == s_id,
                         Question.year == y,
                         Question.question_number == q_num,
@@ -1981,10 +2153,11 @@ class ExamBridge(QObject):
                     return json.dumps(
                         {
                             "success": False,
-                            "error": f"Question {q_num} already exists for this subject and year.",
+                            "error": f"Question {q_num} already exists for {chosen_body} - this subject and year.",
                         }
                     )
 
+                question.exam_body = chosen_body
                 question.year = y
                 question.subject_id = s_id
                 question.question_number = q_num
@@ -2017,6 +2190,7 @@ class ExamBridge(QObject):
                     {
                         "success": True,
                         "question_id": question.id,
+                        "exam_body": question.exam_body,
                         "message": f"Question {q_num} updated successfully.",
                     }
                 )
@@ -2071,25 +2245,25 @@ class ExamBridge(QObject):
             import time
             from app.services.reportlab_report_service import ReportlabReportService
 
-            base_dir = Path(__file__).resolve().parents[2]
-            logo_path = base_dir / "app" / "web" / "images" / "al-mumeen.ico"
-            if not logo_path.exists():
-                logo_path = base_dir / "app" / "web" / "images" / "alayande.png"
-            report_service = ReportlabReportService(
-                logo_path=logo_path if logo_path.exists() else None
-            )
+            with SessionLocal() as db:
+                settings_service = SettingsService(db)
+                app_settings = settings_service.get_settings()
 
-            if isinstance(result_or_id, int) or (
-                isinstance(result_or_id, str) and result_or_id.isdigit()
-            ):
-                with SessionLocal() as db:
+                if isinstance(result_or_id, int) or (
+                    isinstance(result_or_id, str) and result_or_id.isdigit()
+                ):
                     service = ExamService(db)
                     result_data = service.get_result(int(result_or_id))
-            elif isinstance(result_or_id, str):
-                result_data = json.loads(result_or_id)
-            else:
-                result_data = result_or_id
+                elif isinstance(result_or_id, str):
+                    result_data = json.loads(result_or_id)
+                else:
+                    result_data = result_or_id
 
+            report_service = ReportlabReportService(
+                logo_path=app_settings.school_logo_path
+            )
+
+            base_dir = Path(__file__).resolve().parents[2]
             reports_dir = base_dir / "data" / "reports"
             reports_dir.mkdir(parents=True, exist_ok=True)
 
@@ -2106,18 +2280,17 @@ class ExamBridge(QObject):
                 suggested_filename
                 or f"Result_{safe_name}_{result_data.get('year', '')}_{int(time.time())}.pdf"
             )
+            if not filename.lower().endswith(".pdf"):
+                filename += ".pdf"
             output_path = reports_dir / filename
 
-            if hasattr(report_service, "generate_exam_result_pdf"):
-                pdf_path = report_service.generate_exam_result_pdf(
-                    output_path, result_data
-                )
-            elif hasattr(report_service, "generate_exam_result"):
-                pdf_path = report_service.generate_exam_result(result_data)
-            else:
-                raise AttributeError(
-                    "ReportlabReportService missing generate_exam_result_pdf"
-                )
+            pdf_path = report_service.generate(
+                result_data,
+                output_path=output_path,
+                school_name=app_settings.school_name,
+                school_address=app_settings.school_address,
+                school_logo_path=app_settings.school_logo_path,
+            )
 
             try:
                 if hasattr(os, "startfile"):
@@ -2202,14 +2375,15 @@ class ExamBridge(QObject):
 
             from app.services.reportlab_report_service import ReportlabReportService
 
-            base_dir = Path(__file__).resolve().parents[2]
-            logo_path = base_dir / "app" / "web" / "images" / "al-mumeen.ico"
-            if not logo_path.exists():
-                logo_path = base_dir / "app" / "web" / "images" / "alayande.png"
+            with SessionLocal() as db:
+                settings_service = SettingsService(db)
+                app_settings = settings_service.get_settings()
+
             report_service = ReportlabReportService(
-                logo_path=logo_path if logo_path.exists() else None
+                logo_path=app_settings.school_logo_path
             )
 
+            base_dir = Path(__file__).resolve().parents[2]
             reports_dir = base_dir / "data" / "reports"
             reports_dir.mkdir(parents=True, exist_ok=True)
             safe_name = (
@@ -2218,22 +2392,15 @@ class ExamBridge(QObject):
             )
             output_path = reports_dir / f"History_{safe_name}_{int(time.time())}.pdf"
 
-            if hasattr(report_service, "generate_student_history_pdf"):
-                pdf_path = report_service.generate_student_history_pdf(
-                    output_path=output_path,
-                    student_name=data.get("student_name", student_name),
-                    history=data.get("history", []),
-                )
-            elif hasattr(report_service, "generate_student_history"):
-                pdf_path = report_service.generate_student_history(
-                    student_name=data.get("student_name", student_name),
-                    sessions=data.get("history", []),
-                    user_info=data.get("user_info"),
-                )
-            else:
-                raise AttributeError(
-                    "ReportlabReportService missing generate_student_history_pdf"
-                )
+            pdf_path = report_service.generate_student_history(
+                student_name=data.get("student_name", student_name),
+                sessions=data.get("history", []),
+                user_info=data.get("user_info"),
+                output_path=output_path,
+                school_name=app_settings.school_name,
+                school_address=app_settings.school_address,
+                school_logo_path=app_settings.school_logo_path,
+            )
 
             try:
                 if hasattr(os, "startfile"):
@@ -2246,7 +2413,7 @@ class ExamBridge(QObject):
                     "success": True,
                     "path": str(pdf_path),
                     "name": Path(pdf_path).name,
-                    "message": f"Student history transcript PDF saved to {pdf_path}",
+                    "message": f"Student history PDF saved to {pdf_path}",
                 }
             )
         except Exception as exc:

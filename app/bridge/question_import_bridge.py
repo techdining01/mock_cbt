@@ -627,16 +627,20 @@ class QuestionImportBridge(QObject):
             if "subjects" not in data:
                 raise ValueError("Subject data is required.")
 
+            exam_body = (data.get("exam_body") or "JAMB").upper().strip()
+            data["exam_body"] = exam_body
+
             self.import_data = data
 
             with SessionLocal() as db:
                 importer = QuestionImporter(db)
-                result = importer.import_data(data)
+                result = importer.import_data(data, default_exam_body=exam_body)
 
             return self._success(
                 {
                     "imported": result.get("imported", 0),
                     "skipped": result.get("skipped", 0),
+                    "exam_body": exam_body,
                 }
             )
 
@@ -662,22 +666,24 @@ class QuestionImportBridge(QObject):
             payload = json.loads(payload_json)
 
             year = int(payload["year"])
-
+            exam_body = (payload.get("exam_body") or "JAMB").upper().strip()
             subjects = payload["subjects"]
 
             data = {
                 "year": year,
+                "exam_body": exam_body,
                 "subjects": subjects,
             }
 
             with SessionLocal() as db:
                 importer = QuestionImporter(db)
 
-                result = importer.import_data(data)
+                result = importer.import_data(data, default_exam_body=exam_body)
 
             return self._success(
                 {
                     "result": result,
+                    "exam_body": exam_body,
                 }
             )
 

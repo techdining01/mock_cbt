@@ -7,15 +7,28 @@ wheels/
 *.egg-info
 
 # Virtual environments
-.venv
+.venv/
 .env
 */**/cbt.sqlite3
 cbt.sqlite3
 waec_2002.json
 node_modules/
 data/
+old_files/*
 old_files/
 import_questions.py
 question_data/waec_2002.json
 test_registration_and_manual_questions.py
 create_admin.py
+LICENSING_SETUP.md
+app/services/licensing/*
+generate_license.py
+license_private_key.pem
+license_public_key.pem
+excluded_files
+seed_exam.py
+import_waec_2002.py
+seed_exam_2.py
+build.bat
+build.sh
+shipping_tree

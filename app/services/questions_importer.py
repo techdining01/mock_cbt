@@ -69,6 +69,7 @@ class QuestionImporter:
     def import_data(
         self,
         data: dict[str, Any],
+        default_exam_body: str = "JAMB",
     ) -> dict[str, int]:
         """
         Import already-loaded question-bank data.
@@ -77,6 +78,7 @@ class QuestionImporter:
         self._validate_document(data)
 
         year = data["year"]
+        exam_body = (data.get("exam_body") or default_exam_body or "JAMB").upper().strip()
 
         imported = 0
         skipped = 0
@@ -93,6 +95,7 @@ class QuestionImporter:
                         subject=subject,
                         year=year,
                         question_data=question_data,
+                        exam_body=exam_body,
                     )
 
                     if created:
@@ -109,6 +112,8 @@ class QuestionImporter:
         return {
             "imported": imported,
             "skipped": skipped,
+            "exam_body": exam_body,
+            "year": year,
         }
 
     # ========================================================
@@ -182,6 +187,7 @@ class QuestionImporter:
         subject: Subject,
         year: int,
         question_data: dict[str, Any],
+        exam_body: str = "JAMB",
     ) -> bool:
         """
         Import one question.
@@ -203,10 +209,11 @@ class QuestionImporter:
         question_number = normalized_question["question_number"]
 
         # ----------------------------------------------------
-        # Check for an existing question.
+        # Check for an existing question with same body, subject, year, number
         # ----------------------------------------------------
 
         statement = select(Question).where(
+            Question.exam_body == exam_body,
             Question.subject_id == subject.id,
             Question.year == year,
             Question.question_number == question_number,
@@ -222,6 +229,7 @@ class QuestionImporter:
         # ----------------------------------------------------
 
         question = Question(
+            exam_body=exam_body,
             subject=subject,
             year=year,
             question_number=question_number,

@@ -53,6 +53,7 @@ class ExamService:
         duration_minutes: int,
         student_name: str | None = None,
         user_id: int | None = None,
+        exam_body: str = "JAMB",
     ) -> ExamSession:
 
         if not subject_ids:
@@ -62,18 +63,21 @@ class ExamService:
             raise ExamServiceError("Exam duration must be greater than zero.")
 
         subject_ids = list(dict.fromkeys(subject_ids))
+        normalized_body = (exam_body or "JAMB").upper().strip()
 
         subjects = self._get_selected_subjects(
             year=year,
             subject_ids=subject_ids,
+            exam_body=normalized_body,
         )
 
         if len(subjects) != len(subject_ids):
             raise ExamServiceError(
-                "One or more selected subjects have no questions for this year."
+                f"One or more selected subjects have no questions for {normalized_body} {year}."
             )
 
         exam = ExamSession(
+            exam_body=normalized_body,
             year=year,
             student_name=student_name,
             user_id=user_id,
@@ -90,10 +94,11 @@ class ExamService:
             questions = self._get_questions(
                 year=year,
                 subject_id=subject.id,
+                exam_body=normalized_body,
             )
 
             if not questions:
-                raise ExamServiceError(f"No questions found for {subject.name}.")
+                raise ExamServiceError(f"No questions found for {subject.name} in {normalized_body} {year}.")
 
             exam_subject = ExamSubject(
                 exam_session_id=exam.id,
@@ -137,6 +142,7 @@ class ExamService:
         self,
         year: int,
         subject_ids: list[int],
+        exam_body: str = "JAMB",
     ) -> list[Subject]:
 
         statement = (
@@ -148,6 +154,7 @@ class ExamService:
             .where(
                 Subject.id.in_(subject_ids),
                 Question.year == year,
+                Question.exam_body == exam_body,
                 Question.is_active.is_(True),
                 Subject.is_active.is_(True),
             )
@@ -172,6 +179,7 @@ class ExamService:
         self,
         year: int,
         subject_id: int,
+        exam_body: str = "JAMB",
     ) -> list[Question]:
 
         statement = (
@@ -179,6 +187,7 @@ class ExamService:
             .where(
                 Question.year == year,
                 Question.subject_id == subject_id,
+                Question.exam_body == exam_body,
                 Question.is_active.is_(True),
             )
             .options(joinedload(Question.options))
@@ -596,6 +605,7 @@ class ExamService:
 
         return {
             "exam_id": exam.id,
+            "exam_body": getattr(exam, "exam_body", "JAMB") or "JAMB",
             "student_name": full_name,
             "student_full_name": full_name,
             "username": exam.user.username if exam.user else None,
@@ -620,13 +630,37 @@ class ExamService:
 
     def get_available_years(
         self,
+        exam_body: str | None = None,
     ) -> list[int]:
 
-        rows = (
-            self.db.query(Question.year).distinct().order_by(Question.year.asc()).all()
-        )
+        query = self.db.query(Question.year).distinct().filter(Question.is_active.is_(True))
+        if exam_body:
+            query = query.filter(Question.exam_body == exam_body.upper().strip())
+
+        rows = query.order_by(Question.year.desc()).all()
 
         return [row[0] for row in rows]
+
+    # ========================================================
+    # AVAILABLE EXAM BODIES
+    # ========================================================
+
+    def get_available_exam_bodies(self) -> list[str]:
+        """Return list of distinct exam bodies configured or present in DB."""
+        known_bodies = ["JAMB", "WAEC", "NECO", "NABTEB", "BECE", "SCHOOL"]
+        db_bodies = [
+            row[0].upper()
+            for row in self.db.query(Question.exam_body).distinct().all()
+            if row[0]
+        ]
+        # Union while preserving known order
+        combined = []
+        for body in known_bodies:
+            combined.append(body)
+        for body in db_bodies:
+            if body not in combined:
+                combined.append(body)
+        return combined
 
     # ========================================================
     # SUBJECTS FOR YEAR
@@ -635,9 +669,10 @@ class ExamService:
     def get_subjects_for_year(
         self,
         year: int,
+        exam_body: str | None = None,
     ) -> list[dict]:
 
-        rows = (
+        query = (
             self.db.query(
                 Subject.id,
                 Subject.name,
@@ -652,7 +687,13 @@ class ExamService:
                 Question.is_active.is_(True),
                 Subject.is_active.is_(True),
             )
-            .group_by(
+        )
+
+        if exam_body:
+            query = query.filter(Question.exam_body == exam_body.upper().strip())
+
+        rows = (
+            query.group_by(
                 Subject.id,
                 Subject.name,
             )

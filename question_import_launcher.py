@@ -29,7 +29,7 @@ def main():
     channel.registerObject("questionImportBridge", import_bridge)
 
     # Set the icon
-    app.setWindowIcon(QIcon(str(base_dir / "app" / "web" / "images" / "alayande.png")))
+    app.setWindowIcon(QIcon(str(base_dir / "app" / "web" / "images" / "company_logo.ico")))
 
     # Create the browser window
     window = QWebEngineView()
@@ -41,7 +41,7 @@ def main():
     window.setWindowTitle("Question Import")
 
     # Set the initial size
-    window.resize(1200, 800)
+    window.resize(800, 600)
 
     # Build the full path to question_import.html
     html_file = base_dir / "app" / "web" / "question_import.html"

@@ -78,11 +78,11 @@ class AuthService:
         password: Optional[str] = None,
     ) -> User:
         """Update an existing user."""
-        
+
         user = self.db.scalar(select(User).where(User.id == user_id))
         if not user:
             raise ValueError("User not found")
-        
+
         if full_name is not None:
             user.full_name = full_name
         if role is not None:
@@ -95,10 +95,10 @@ class AuthService:
             user.is_active = is_active
         if password is not None:
             user.password = self.hash_password(password)
-        
+
         self.db.commit()
         self.db.refresh(user)
-        
+
         return user
 
     def delete_user(self, user_id: int) -> bool:

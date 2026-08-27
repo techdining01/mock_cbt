@@ -13,6 +13,8 @@ from app.database.models import (
     ExamSubject,
     ExamQuestion,
     StudentAnswer,
+    ProductLicense,
+    LicenseActivation,
 )
 
 Base.metadata.create_all(bind=engine)

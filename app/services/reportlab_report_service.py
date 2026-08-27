@@ -28,12 +28,55 @@ class ReportlabReportService:
     """
 
     def __init__(self, logo_path: Path | str | None = None):
-        if logo_path:
-            self.logo_path = Path(logo_path)
-        else:
-            base_dir = Path(__file__).resolve().parents[2]
-            default_logo = base_dir / "app" / "web" / "images" / "school_logo.png"
-            self.logo_path = default_logo if default_logo.exists() else None
+        self.logo_path = self._resolve_logo_path(logo_path)
+
+    def _resolve_logo_path(self, logo_input: Path | str | None = None) -> Path | None:
+        """Resolves school logo image path from multiple possible relative or absolute locations."""
+        base_dir = Path(__file__).resolve().parents[2]
+
+        # 1. If explicit path/string provided
+        if logo_input:
+            if isinstance(logo_input, str) and logo_input.startswith("data:image"):
+                try:
+                    import base64
+                    import tempfile
+                    header, encoded = logo_input.split(",", 1)
+                    ext = ".png" if "png" in header else ".jpg"
+                    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=ext)
+                    tmp.write(base64.b64decode(encoded))
+                    tmp.close()
+                    return Path(tmp.name)
+                except Exception:
+                    pass
+
+            cleaned_str = str(logo_input).split("?")[0].strip()
+            if cleaned_str:
+                candidates = [
+                    Path(cleaned_str),
+                    base_dir / cleaned_str,
+                    base_dir / "app" / "web" / cleaned_str,
+                    base_dir / "app" / "web" / "images" / Path(cleaned_str).name,
+                ]
+                for c in candidates:
+                    if c.exists() and c.is_file():
+                        return c
+
+        # 2. Check self.logo_path if set
+        if hasattr(self, "logo_path") and self.logo_path and Path(self.logo_path).exists():
+            return Path(self.logo_path)
+
+        # 3. Fallback candidates in app/web/images
+        fallback_candidates = [
+            base_dir / "app" / "web" / "images" / "school_logo_custom.png",
+            base_dir / "app" / "web" / "images" / "school_logo_custom.jpg",
+            base_dir / "app" / "web" / "images" / "school_logo.png",
+            base_dir / "app" / "web" / "images" / "school_logo.ico",
+        ]
+        for fb in fallback_candidates:
+            if fb.exists() and fb.is_file():
+                return fb
+
+        return None
 
     def _get_grade_and_remark(self, percentage: float) -> tuple[str, str, colors.Color]:
         """Returns grade letter, descriptive remark, and badge color."""
@@ -49,14 +92,33 @@ class ReportlabReportService:
         else:
             return "F", "NEEDS IMPROVEMENT", colors.HexColor("#b91c1c")
 
-    def generate(self, result: Dict[str, Any], output_path: str | Path | None = None) -> str:
+    def generate(
+        self,
+        result: Dict[str, Any],
+        output_path: str | Path | None = None,
+        school_name: str | None = None,
+        school_address: str | None = None,
+        school_logo_path: str | Path | None = None,
+    ) -> str:
         """
         Builds the PDF result sheet and saves it to output_path.
         Returns the absolute string path to the generated PDF.
+
+        Args:
+            result: Exam result data dictionary
+            output_path: Path to save the PDF (optional)
+            school_name: School/institution name (optional)
+            school_address: School address (optional)
+            school_logo_path: Path to school logo image (optional)
         """
         student_name = str(result.get("student_name") or result.get("student_full_name") or "Candidate").strip()
         safe_student_name = "".join(c if c.isalnum() else "_" for c in student_name)[:30]
         year = result.get("year", datetime.now().year)
+
+        # Use provided settings or defaults
+        school_name = school_name or "LLS Computer-Based Testing (CBT) Software"
+        school_address = school_address or ""
+        school_logo_path = self._resolve_logo_path(school_logo_path)
 
         if not output_path:
             # Default to user's Downloads or Documents directory
@@ -178,21 +240,31 @@ class ReportlabReportService:
         )
 
         story = []
+        raw_body = str(result.get("exam_body") or "JAMB").upper().strip()
+        if raw_body in ["SCHOOL", "PROPRIETARY"]:
+            body_display = "School Internal Examination"
+            exam_title_badge = "SCHOOL INTERNAL EXAMINATION"
+        else:
+            body_display = f"{raw_body} Mock"
+            exam_title_badge = f"{raw_body} MOCK"
 
         # ========================================================
         # 1. HEADER SECTION (Logo + Title)
         # ========================================================
         header_table_data = []
-        if self.logo_path and self.logo_path.exists():
+        if school_logo_path and school_logo_path.exists():
             try:
-                logo_img = Image(str(self.logo_path), width=58, height=58)
+                logo_img = Image(str(school_logo_path), width=58, height=58)
                 header_text = [
-                    Paragraph("MOCK CBT EXAMINATION SYSTEM", title_style),
+                    Paragraph(school_name.upper(), title_style),
                     Spacer(1, 2),
-                    Paragraph("OFFICIAL CANDIDATE EXAMINATION TRANSCRIPT", subtitle_style),
+                    Paragraph(f"OFFICIAL {exam_title_badge} EXAMINATION TRANSCRIPT", subtitle_style),
                     Spacer(1, 2),
-                    Paragraph(f"Academic Assessment · Year: {year}", institution_meta),
+                    Paragraph(f"Assessment Body: {body_display} · Academic Assessment Year: {year}", institution_meta),
                 ]
+                if school_address:
+                    header_text.append(Spacer(1, 1))
+                    header_text.append(Paragraph(school_address, institution_meta))
                 header_table_data.append([logo_img, header_text])
                 header_table = Table(header_table_data, colWidths=[68, 454])
                 header_table.setStyle(
@@ -203,15 +275,21 @@ class ReportlabReportService:
                 )
                 story.append(header_table)
             except Exception:
-                story.append(Paragraph("MOCK CBT EXAMINATION SYSTEM", title_style))
+                story.append(Paragraph(school_name.upper(), title_style))
                 story.append(Spacer(1, 2))
-                story.append(Paragraph("OFFICIAL CANDIDATE EXAMINATION TRANSCRIPT", subtitle_style))
+                story.append(Paragraph(f"OFFICIAL {exam_title_badge} EXAMINATION TRANSCRIPT", subtitle_style))
+                if school_address:
+                    story.append(Spacer(1, 2))
+                    story.append(Paragraph(school_address, institution_meta))
         else:
-            story.append(Paragraph("MOCK CBT EXAMINATION SYSTEM", title_style))
+            story.append(Paragraph(school_name.upper(), title_style))
             story.append(Spacer(1, 2))
-            story.append(Paragraph("OFFICIAL CANDIDATE EXAMINATION TRANSCRIPT", subtitle_style))
+            story.append(Paragraph(f"OFFICIAL {exam_title_badge} EXAMINATION TRANSCRIPT", subtitle_style))
             story.append(Spacer(1, 2))
-            story.append(Paragraph(f"Academic Assessment · Examination Year: {year}", institution_meta))
+            story.append(Paragraph(f"Assessment Body: {body_display} · Academic Assessment Year: {year}", institution_meta))
+            if school_address:
+                story.append(Spacer(1, 1))
+                story.append(Paragraph(school_address, institution_meta))
 
         story.append(Spacer(1, 10))
         story.append(HRFlowable(width="100%", thickness=2, color=primary_color, spaceAfter=12))
@@ -237,10 +315,10 @@ class ReportlabReportService:
                 Paragraph(exam_session_id, cell_bold),
             ],
             [
+                Paragraph("<b>Assessment Type:</b>", cell_style),
+                Paragraph(f"<font color='#2563eb'><b>{body_display} Exam</b></font>", cell_bold),
                 Paragraph("<b>Exam Year:</b>", cell_style),
-                Paragraph(str(year), cell_style),
-                Paragraph("<b>Date Generated:</b>", cell_style),
-                Paragraph(current_date_str, cell_style),
+                Paragraph(str(year), cell_bold),
             ],
         ]
 
@@ -379,10 +457,33 @@ class ReportlabReportService:
 
         subj_table.setStyle(TableStyle(table_styles))
         story.append(subj_table)
-        story.append(Spacer(1, 24))
+        # ========================================================
+        # 5. LEGAL DISCLAIMER & PRACTICE NOTICE
+        # ========================================================
+        disclaimer_text = (
+            f"<b>LEGAL NOTICE & DISCLAIMER:</b> This document is an unofficial simulated mock practice transcript "
+            f"generated by {school_name} for candidate preparatory and academic diagnostic assessment purposes only. "
+            f"It is not an official result certificate issued by JAMB, WAEC, NECO, NABTEB, or any statutory examination councils."
+        )
+        disclaimer_box = Table(
+            [[Paragraph(f"<font size='7' color='#475569'>{disclaimer_text}</font>", cell_style)]],
+            colWidths=[522],
+        )
+        disclaimer_box.setStyle(
+            TableStyle([
+                ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#f1f5f9")),
+                ("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e1")),
+                ("TOPPADDING", (0, 0), (-1, -1), 5),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+                ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+            ])
+        )
+        story.append(disclaimer_box)
+        story.append(Spacer(1, 12))
 
         # ========================================================
-        # 5. AUTHENTICATION & SIGNOFF FOOTER
+        # 6. AUTHENTICATION & SIGNOFF FOOTER
         # ========================================================
         footer_data = [
             [
@@ -394,7 +495,7 @@ class ReportlabReportService:
                 Spacer(1, 10),
             ],
             [
-                Paragraph("<font size='7' color='#64748b'>This result transcript was generated automatically by the CBT Examination Engine. Any alteration invalidates this document.</font>", ParagraphStyle("Fine", parent=styles["Normal"], alignment=TA_CENTER)),
+                Paragraph("<font size='7' color='#64748b'>Certified Mock CBT Examination Transcript · Any alteration invalidates this document.</font>", ParagraphStyle("Fine", parent=styles["Normal"], alignment=TA_LEFT)),
                 Paragraph(f"<font size='7' color='#64748b'>Generated: {current_date_str}</font>", ParagraphStyle("FineR", parent=styles["Normal"], alignment=TA_RIGHT)),
             ]
         ]
@@ -409,7 +510,7 @@ class ReportlabReportService:
         )
 
         story.append(KeepTogether([
-            HRFlowable(width="100%", thickness=1, color=colors.HexColor("#cbd5e1"), spaceAfter=14),
+            HRFlowable(width="100%", thickness=1, color=colors.HexColor("#cbd5e1"), spaceAfter=10),
             footer_table,
         ]))
 
@@ -421,9 +522,18 @@ class ReportlabReportService:
         self,
         output_path: str | Path,
         result: dict,
+        school_name: str | None = None,
+        school_address: str | None = None,
+        school_logo_path: str | Path | None = None,
     ) -> Path:
         """Alias for generate() to maintain compatibility with existing code."""
-        return Path(self.generate(result, output_path=output_path))
+        return Path(self.generate(
+            result,
+            output_path=output_path,
+            school_name=school_name,
+            school_address=school_address,
+            school_logo_path=school_logo_path,
+        ))
 
     def generate_student_history(
         self,
@@ -431,12 +541,29 @@ class ReportlabReportService:
         sessions: list[dict],
         user_info: dict | None = None,
         output_path: str | Path | None = None,
+        school_name: str | None = None,
+        school_address: str | None = None,
+        school_logo_path: str | Path | None = None,
     ) -> str:
         """
         Builds a comprehensive multi-exam historical transcript for a student.
+
+        Args:
+            student_name: Student's name
+            sessions: List of exam session dictionaries
+            user_info: Additional user information (optional)
+            output_path: Path to save the PDF (optional)
+            school_name: School/institution name (optional)
+            school_address: School address (optional)
+            school_logo_path: Path to school logo image (optional)
         """
         student_display = str(student_name or "Student").strip()
         safe_name = "".join(c if c.isalnum() else "_" for c in student_display)[:30]
+
+        # Use provided settings or defaults
+        school_name = school_name or "Mock CBT Examination"
+        school_address = school_address or ""
+        school_logo_path = self._resolve_logo_path(school_logo_path)
 
         if not output_path:
             downloads_dir = Path(os.environ.get("USERPROFILE", ".")) / "Downloads"
@@ -477,27 +604,38 @@ class ReportlabReportService:
         story = []
 
         # 1. Header
-        if self.logo_path and self.logo_path.exists():
+        if school_logo_path and school_logo_path.exists():
             try:
-                logo_img = Image(str(self.logo_path), width=54, height=54)
+                logo_img = Image(str(school_logo_path), width=54, height=54)
                 header_text = [
-                    Paragraph("MOCK CBT EXAMINATION SYSTEM", title_style),
+                    Paragraph(school_name.upper(), title_style),
                     Spacer(1, 2),
                     Paragraph("STUDENT COMPREHENSIVE EXAMINATION HISTORY", subtitle_style),
                     Spacer(1, 2),
                     Paragraph("Cumulative Academic Performance Record", meta_style),
                 ]
+                if school_address:
+                    header_text.append(Spacer(1, 1))
+                    header_text.append(Paragraph(school_address, meta_style))
                 h_table = Table([[logo_img, header_text]], colWidths=[64, 458])
                 h_table.setStyle(TableStyle([("VALIGN", (0, 0), (-1, -1), "MIDDLE")]))
                 story.append(h_table)
             except Exception:
-                story.append(Paragraph("MOCK CBT EXAMINATION SYSTEM", title_style))
+                story.append(Paragraph(school_name.upper(), title_style))
                 story.append(Spacer(1, 2))
                 story.append(Paragraph("STUDENT COMPREHENSIVE EXAMINATION HISTORY", subtitle_style))
+                if school_address:
+                    story.append(Spacer(1, 2))
+                    story.append(Paragraph(school_address, meta_style))
         else:
-            story.append(Paragraph("MOCK CBT EXAMINATION SYSTEM", title_style))
+            story.append(Paragraph(school_name.upper(), title_style))
             story.append(Spacer(1, 2))
             story.append(Paragraph("STUDENT COMPREHENSIVE EXAMINATION HISTORY", subtitle_style))
+            story.append(Spacer(1, 2))
+            story.append(Paragraph("Cumulative Academic Performance Record", meta_style))
+            if school_address:
+                story.append(Spacer(1, 1))
+                story.append(Paragraph(school_address, meta_style))
 
         story.append(Spacer(1, 8))
         story.append(HRFlowable(width="100%", thickness=2, color=primary_color, spaceAfter=10))

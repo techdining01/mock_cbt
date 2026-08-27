@@ -21,6 +21,7 @@ document.addEventListener("alpine:init", () => {
         showLoginModal: false,
         loginUsername: "",
         loginPassword: "",
+        showLoginPassword: false,
 
         // Student identity & verification state
         studentUsername: "",
@@ -28,6 +29,7 @@ document.addEventListener("alpine:init", () => {
         currentUserStudent: null,
         checkingUsername: false,
         showStudentRegisterModal: false,
+        showStudentRegisterPassword: false,
         studentRegisterForm: {
             role: "student",
             username: "",
@@ -51,6 +53,7 @@ document.addEventListener("alpine:init", () => {
         userRoleFilter: "all",
         userClassFilter: "all",
         showUserModal: false,
+        showUserPassword: false,
         userModalMode: "create",
         editingUserId: null,
         userForm: {
@@ -61,6 +64,22 @@ document.addEventListener("alpine:init", () => {
             student_class: "",
             admission_year: "",
             is_active: true,
+        },
+
+        // App settings (admin only)
+        appSettings: {
+            school_name: "Mock CBT Examination",
+            school_address: "",
+            school_logo_path: "",
+            theme: "light",
+        },
+        logoVersion: Date.now(),
+        showSettingsModal: false,
+        settingsForm: {
+            school_name: "",
+            school_address: "",
+            school_logo_path: "",
+            theme: "light",
         },
         userCurrentPage: 1,
         userItemsPerPage: 10,
@@ -90,6 +109,7 @@ document.addEventListener("alpine:init", () => {
         },
 
         // Question Bank & Manual Entry State
+        qbExamBodyFilter: "all",
         qbYearFilter: "all",
         qbSubjectFilter: "all",
         qbSearchQuery: "",
@@ -104,6 +124,7 @@ document.addEventListener("alpine:init", () => {
         questionModalMode: "create", // 'create' | 'edit'
         editingQuestionId: null,
         questionForm: {
+            exam_body: "JAMB",
             year: 2026,
             subject_id: "",
             question_number: 1,
@@ -121,9 +142,18 @@ document.addEventListener("alpine:init", () => {
         questionToDelete: null,
 
         // =========================================================
-        // DATABASE / SELECTION STATE
+        // DATABASE / SELECTION STATE & MULTI-EXAM BODY
         // =========================================================
 
+        selectedExamBody: "JAMB", // 'JAMB' | 'WAEC' | 'NECO' | 'NABTEB' | 'BECE' | 'SCHOOL'
+        examBodies: [
+            { id: "JAMB", name: "JAMB (UTME)", desc: "Unified Tertiary Matriculation Mock", badge: "JAMB", color: "blue" },
+            { id: "WAEC", name: "WAEC (SSCE)", desc: "West African Senior School Certificate Mock", badge: "WAEC", color: "emerald" },
+            { id: "NECO", name: "NECO (SSCE)", desc: "National Examinations Council Mock", badge: "NECO", color: "indigo" },
+            { id: "NABTEB", name: "NABTEB", desc: "National Business & Technical Exams Mock", badge: "NABTEB", color: "amber" },
+            { id: "BECE", name: "BECE / Junior WAEC", desc: "Basic Education Certificate Mock", badge: "BECE", color: "rose" },
+            { id: "SCHOOL", name: "School Proprietary", desc: "Internal school continuous assessment & terminal exams", badge: "SCHOOL", color: "purple" }
+        ],
         years: [],
         subjects: [],
         selectedYear: null,
@@ -252,6 +282,7 @@ document.addEventListener("alpine:init", () => {
 
         openStudentRegisterModal(usernamePrefill) {
             const yr = this.selectedYear || new Date().getFullYear();
+            this.showStudentRegisterPassword = false;
             this.studentRegisterForm = {
                 role: "student",
                 username: (usernamePrefill || this.studentUsername || "").trim(),
@@ -408,6 +439,11 @@ document.addEventListener("alpine:init", () => {
         // =========================================================
 
         init() {
+            // Apply saved theme immediately on init
+            try {
+                const savedTheme = localStorage.getItem('cbt_theme') || 'light';
+                this.applyTheme(savedTheme);
+            } catch (e) {}
 
             this.loading = true;
             this.loadingMessage = "Initializing...";
@@ -741,6 +777,7 @@ document.addEventListener("alpine:init", () => {
                 this.qbSearchQuery ? this.qbSearchQuery.trim() : "",
                 this.qbPage,
                 this.qbPageSize,
+                this.qbExamBodyFilter === "all" ? "" : String(this.qbExamBodyFilter),
                 (res) => {
                     this.qbLoading = false;
                     try {
@@ -766,10 +803,12 @@ document.addEventListener("alpine:init", () => {
             }
             const defaultYear = this.qbYearFilter !== "all" ? Number(this.qbYearFilter) : (this.selectedYear || new Date().getFullYear());
             const defaultSubject = this.qbSubjectFilter !== "all" ? Number(this.qbSubjectFilter) : (this.allSubjects.length ? this.allSubjects[0].id : "");
+            const defaultBody = this.qbExamBodyFilter !== "all" ? this.qbExamBodyFilter : (this.selectedExamBody || "JAMB");
 
             this.questionModalMode = "create";
             this.editingQuestionId = null;
             this.questionForm = {
+                exam_body: defaultBody,
                 year: defaultYear,
                 subject_id: defaultSubject,
                 question_number: 1,
@@ -801,6 +840,7 @@ document.addEventListener("alpine:init", () => {
             window.examBridge.get_next_question_number(
                 Number(this.questionForm.year),
                 Number(this.questionForm.subject_id),
+                this.questionForm.exam_body || "JAMB",
                 (res) => {
                     try {
                         const data = this.parseBridgeResponse(res);
@@ -838,6 +878,7 @@ document.addEventListener("alpine:init", () => {
             this.questionModalMode = "edit";
             this.editingQuestionId = q.id;
             this.questionForm = {
+                exam_body: q.exam_body || "JAMB",
                 year: q.year,
                 subject_id: q.subject_id,
                 question_number: q.question_number,
@@ -876,6 +917,7 @@ document.addEventListener("alpine:init", () => {
             }
 
             const optionsJson = JSON.stringify(f.options);
+            const examBody = f.exam_body || "JAMB";
 
             if (this.questionModalMode === "create") {
                 window.examBridge.create_question_manual(
@@ -886,11 +928,12 @@ document.addEventListener("alpine:init", () => {
                     optionsJson,
                     f.correct_label,
                     f.explanation ? f.explanation.trim() : "",
+                    examBody,
                     (res) => {
                         try {
                             const data = this.parseBridgeResponse(res);
                             if (data.success) {
-                                showToast(`Question ${f.question_number} saved successfully!`, "success");
+                                showToast(`Question ${f.question_number} (${examBody}) saved successfully!`, "success");
                                 this.loadQuestionBank();
                                 this.loadYears();
                                 if (addAnother) {
@@ -919,6 +962,7 @@ document.addEventListener("alpine:init", () => {
                     optionsJson,
                     f.correct_label,
                     f.explanation ? f.explanation.trim() : "",
+                    examBody,
                     (res) => {
                         try {
                             const data = this.parseBridgeResponse(res);
@@ -978,6 +1022,7 @@ document.addEventListener("alpine:init", () => {
                 console.log("examBridge is ready.");
                 this.loadYears();
                 this.loadAllSubjects();
+                this.loadAppSettings();
                 return;
             }
 
@@ -988,6 +1033,31 @@ document.addEventListener("alpine:init", () => {
         },
 
         // =========================================================
+        // SELECT EXAM BODY
+        // =========================================================
+
+        selectExamBody(body) {
+            if (!body) return;
+            const b = String(body).toUpperCase().trim();
+            if (this.selectedExamBody === b && this.years.length > 0) return;
+            this.selectedExamBody = b;
+            this.selectedYear = null;
+            this.selectedSubjectIds = [];
+            this.subjects = [];
+
+            // Preset recommended default duration based on exam body
+            if (b === "JAMB") {
+                this.durationMinutes = 120;
+            } else if (b === "BECE") {
+                this.durationMinutes = 60;
+            } else if (b === "WAEC" || b === "NECO" || b === "NABTEB") {
+                this.durationMinutes = 90;
+            }
+
+            this.loadYears();
+        },
+
+        // =========================================================
         // LOAD YEARS
         // =========================================================
 
@@ -995,8 +1065,9 @@ document.addEventListener("alpine:init", () => {
 
             this.loading = true;
 
+            const bodyName = this.selectedExamBody || "examination";
             this.loadingMessage =
-                "Loading examination years...";
+                `Loading ${bodyName} examination years...`;
 
             this.error = null;
 
@@ -1015,6 +1086,7 @@ document.addEventListener("alpine:init", () => {
 
 
             window.examBridge.get_years(
+                this.selectedExamBody || "JAMB",
                 (response) => {
 
                     try {
@@ -1046,9 +1118,16 @@ document.addEventListener("alpine:init", () => {
 
 
                         console.log(
-                            "Available years:",
+                            "Available years for",
+                            this.selectedExamBody,
+                            ":",
                             this.years
                         );
+
+                        // Auto-select latest year if available and none selected
+                        if (this.years.length > 0 && !this.selectedYear) {
+                            this.selectYear(this.years[0]);
+                        }
 
                     }
                     catch (error) {
@@ -1123,6 +1202,7 @@ document.addEventListener("alpine:init", () => {
 
             window.examBridge.get_subjects_for_year(
                 Number(year),
+                this.selectedExamBody || "JAMB",
                 (response) => {
 
                     try {
@@ -1172,6 +1252,7 @@ document.addEventListener("alpine:init", () => {
 
                         console.log(
                             "Subjects for",
+                            this.selectedExamBody,
                             year,
                             this.subjects
                         );
@@ -1183,13 +1264,6 @@ document.addEventListener("alpine:init", () => {
                             "Subject response error:",
                             error
                         );
-
-                        this.subjectsLoading = false;
-
-                        this.setError(
-                            "Invalid response received while loading subjects."
-                        );
-
                     }
 
                 }
@@ -1365,12 +1439,13 @@ document.addEventListener("alpine:init", () => {
         },
 
         _doCreateExam(year, subjectIds, duration, name) {
-
+            const chosenBody = this.selectedExamBody || "JAMB";
             window.examBridge.create_exam(
                 year,
                 subjectIds,
                 duration,
                 name,
+                chosenBody,
                 (response) => {
 
                     try {
@@ -3968,6 +4043,10 @@ document.addEventListener("alpine:init", () => {
                 </tr>`;
             }).join('');
 
+            const logoUrl = this.getSchoolLogoUrl();
+            const schoolName = this.appSettings.school_name || 'Mock CBT Examination';
+            const schoolAddress = this.appSettings.school_address || '';
+
             const html = `
                 <html>
                 <head>
@@ -3975,9 +4054,14 @@ document.addEventListener("alpine:init", () => {
                     <style>
                         * { box-sizing: border-box; }
                         body { font-family: Arial, sans-serif; padding: 30px; margin: 0; color: #1f2937; }
-                        h1 { margin: 0 0 20px 0; font-size: 22px; color: #1e3a8a; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px; }
-                        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
-                        th, td { border: 1px solid #e5e7eb; padding: 10px 8px; vertical-align: top; }
+                        .header-wrap { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; border-bottom: 2px solid #e5e7eb; padding-bottom: 14px; }
+                        .logo-img { height: 60px; width: 60px; object-fit: contain; }
+                        .school-title { font-size: 20px; font-weight: 800; color: #1e3a8a; text-transform: uppercase; margin: 0; }
+                        .school-addr { font-size: 11px; color: #64748b; margin-top: 2px; }
+                        .doc-type { font-size: 13px; font-weight: 700; color: #2563eb; text-transform: uppercase; margin-top: 4px; }
+                        h1 { margin: 15px 0 10px 0; font-size: 18px; color: #0f172a; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
+                        th, td { border: 1px solid #e5e7eb; padding: 9px 8px; vertical-align: top; }
                         th { background-color: #1e3a8a; color: white; text-align: left; font-weight: 600; }
                         th:nth-child(2), th:nth-child(4), th:nth-child(5) { text-align: center; }
                         @media print {
@@ -3987,7 +4071,15 @@ document.addEventListener("alpine:init", () => {
                     </style>
                 </head>
                 <body>
-                    <h1>Result History: ${this.escapeHtml(this.selectedStudentName || 'Student')}</h1>
+                    <div class="header-wrap">
+                        <img src="${logoUrl}" class="logo-img" alt="School Logo" onerror="this.style.display='none'">
+                        <div>
+                            <div class="school-title">${this.escapeHtml(schoolName)}</div>
+                            ${schoolAddress ? `<div class="school-addr">${this.escapeHtml(schoolAddress)}</div>` : ''}
+                            <div class="doc-type">Official Candidate Examination Transcript</div>
+                        </div>
+                    </div>
+                    <h1>Candidate: <strong>${this.escapeHtml(this.selectedStudentName || 'Student')}</strong></h1>
                     <table>
                         <thead>
                             <tr>
@@ -4080,7 +4172,7 @@ document.addEventListener("alpine:init", () => {
             }
 
             const method = this.userModalMode === 'create' ? 'create_user' : 'update_user';
-            const args = this.userModalMode === 'create' 
+            const args = this.userModalMode === 'create'
                 ? [
                     this.userForm.username,
                     this.userForm.password,
@@ -4120,6 +4212,7 @@ document.addEventListener("alpine:init", () => {
         editUser(user) {
             this.userModalMode = 'edit';
             this.editingUserId = user.id;
+            this.showUserPassword = false;
             this.userForm = {
                 username: user.username,
                 password: "",
@@ -4128,6 +4221,7 @@ document.addEventListener("alpine:init", () => {
                 student_class: user.student_class || "",
                 admission_year: user.admission_year || "",
                 is_active: user.is_active,
+                logo_path: user.logo_path || "",
             };
             this.showUserModal = true;
         },
@@ -4166,6 +4260,7 @@ document.addEventListener("alpine:init", () => {
         },
 
         resetUserForm() {
+            this.showUserPassword = false;
             this.userForm = {
                 username: "",
                 password: "",
@@ -4176,6 +4271,158 @@ document.addEventListener("alpine:init", () => {
                 is_active: true,
             };
             this.editingUserId = null;
+        },
+
+        // =========================================================
+        // APP SETTINGS
+        // =========================================================
+
+        getSchoolLogoUrl() {
+            if (this.appSettings && this.appSettings.school_logo_path) {
+                const path = this.appSettings.school_logo_path;
+                if (path.startsWith("data:image")) return path;
+                return path.includes("?") ? path : `${path}?v=${this.logoVersion}`;
+            }
+            return "images/school_logo.png";
+        },
+
+        loadAppSettings() {
+            if (!window.examBridge || typeof window.examBridge.get_app_settings !== "function") {
+                console.warn("App settings bridge not available");
+                return;
+            }
+
+            window.examBridge.get_app_settings((response) => {
+                try {
+                    const data = this.parseBridgeResponse(response);
+                    if (data.success) {
+                        this.appSettings = data.settings;
+                        this.settingsForm = { ...data.settings };
+                        this.logoVersion = Date.now();
+                        this.applyTheme(data.settings.theme);
+                    }
+                } catch (error) {
+                    console.error("Failed to load app settings:", error);
+                }
+            });
+        },
+
+        openSettingsModal() {
+            this.settingsForm = { ...this.appSettings };
+            this.showSettingsModal = true;
+        },
+
+        saveSettings() {
+            if (!window.examBridge || typeof window.examBridge.update_app_settings !== "function") {
+                showToast("Settings not available", "error");
+                return;
+            }
+
+            window.examBridge.update_app_settings(
+                this.settingsForm.school_name,
+                this.settingsForm.school_address,
+                this.settingsForm.school_logo_path,
+                this.settingsForm.theme,
+                (response) => {
+                    try {
+                        const data = this.parseBridgeResponse(response);
+                        if (data.success) {
+                            this.appSettings = data.settings;
+                            this.logoVersion = Date.now();
+                            this.showSettingsModal = false;
+                            this.applyTheme(data.settings.theme);
+                            showToast("Settings saved successfully", "success");
+                        } else {
+                            showToast(data.error || "Failed to save settings", "error");
+                        }
+                    } catch (error) {
+                        console.error("Save settings error:", error);
+                        showToast("Failed to save settings", "error");
+                    }
+                }
+            );
+        },
+
+        handleSettingsLogoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Check file size (max 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                showToast("Logo file must be less than 2MB", "error");
+                event.target.value = "";
+                return;
+            }
+
+            // Check file type
+            if (!file.type.startsWith("image/")) {
+                showToast("Logo must be an image file", "error");
+                event.target.value = "";
+                return;
+            }
+
+            // Read file and convert to base64 for preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                this.settingsForm.school_logo_path = e.target.result;
+                this.logoVersion = Date.now();
+            };
+            reader.readAsDataURL(file);
+        },
+
+        applyTheme(theme) {
+            const currentTheme = theme || 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            if (this.appSettings) {
+                this.appSettings.theme = currentTheme;
+            }
+            try {
+                localStorage.setItem('cbt_theme', currentTheme);
+            } catch (e) {}
+        },
+
+        toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme') || (this.appSettings && this.appSettings.theme) || 'light';
+            const next = current === 'dark' ? 'light' : 'dark';
+            this.applyTheme(next);
+            if (this.settingsForm) {
+                this.settingsForm.theme = next;
+            }
+            if (this.currentUser && this.currentUser.role === 'admin' && window.examBridge && typeof window.examBridge.update_app_settings === 'function') {
+                window.examBridge.update_app_settings(
+                    this.appSettings.school_name,
+                    this.appSettings.school_address,
+                    this.appSettings.school_logo_path,
+                    next,
+                    () => {}
+                );
+            }
+            showToast(`Switched to ${next === 'dark' ? 'Dark' : 'Light'} Mode`, 'info');
+        },
+
+        backupDatabase() {
+            if (!window.examBridge || typeof window.examBridge.backup_database !== "function") {
+                showToast("Backup not available", "error");
+                return;
+            }
+
+            if (!confirm("Are you sure you want to create a database backup?")) {
+                return;
+            }
+
+            window.examBridge.backup_database((response) => {
+                try {
+                    const data = this.parseBridgeResponse(response);
+                    if (data.success) {
+                        showToast(`Database backed up to ${data.backup_path}`, "success");
+                    } else {
+                        showToast(data.error || "Backup failed", "error");
+                    }
+                } catch (error) {
+                    console.error("Backup error:", error);
+                    showToast("Backup failed", "error");
+                }
+            });
         },
 
         // =========================================================
