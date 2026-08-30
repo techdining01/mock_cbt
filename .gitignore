@@ -21,7 +21,6 @@ question_data/waec_2002.json
 test_registration_and_manual_questions.py
 create_admin.py
 LICENSING_SETUP.md
-app/services/licensing/*
 generate_license.py
 license_private_key.pem
 license_public_key.pem
@@ -31,4 +30,6 @@ import_waec_2002.py
 seed_exam_2.py
 build.bat
 build.sh
-shipping_tree
+shipping-tree
+.git/
+.gitignore

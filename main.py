@@ -13,7 +13,6 @@ from PySide6.QtWebChannel import QWebChannel  # pyright: ignore[reportMissingImp
 from app.bridge.exam_bridge import ExamBridge
 from app.bridge.question_import_bridge import QuestionImportBridge
 
-
 from app.services.pdf_processor import PDFProcessor
 
 base_dir = Path(__file__).parent
