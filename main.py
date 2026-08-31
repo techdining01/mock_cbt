@@ -1,4 +1,4 @@
-import ctypes
+﻿import ctypes
 import os
 from pathlib import Path
 import time
@@ -68,7 +68,7 @@ def check_license() -> bool:
         from app.services.licensing.client import LicenseClient
 
         # Get license server URL from environment or use default
-        license_server_url = os.getenv("LICENSE_SERVER_URL", "http://127.0.0.1:8000")
+        license_server_url = os.getenv("LICENSE_SERVER_URL", "https://lls-cbt-activator.onrender.com")
 
         client = LicenseClient(license_server_url=license_server_url)
 
@@ -143,7 +143,7 @@ def main():
         from app.services.licensing.client import LicenseClient
         from app.ui.license_activation_dialog import show_activation_dialog
 
-        license_server_url = os.getenv("LICENSE_SERVER_URL", "http://127.0.0.1:8000")
+        license_server_url = os.getenv("LICENSE_SERVER_URL", "https://lls-cbt-activator.onrender.com")
         license_client = LicenseClient(license_server_url=license_server_url)
 
         # Show activation dialog
@@ -211,44 +211,19 @@ def main():
             print("Native print handler error:", err)
 
     window.page().printRequested.connect(handle_print_requested)
-
-    # ---- CRITICAL: Attach the channel BEFORE setUrl() so that qt.webChannelTransport
-    # is injected into the main page AND all same-origin sub-frame documents (iframes)
-    # as soon as each page loads. When attached after setUrl, sub-frames sometimes
-    # miss the transport injection.
-    window.page().setWebChannel(channel)
-
-    # Re-attach the channel to the top-level page after every load to cover any
-    # scenario where it was dropped during navigation, screen changes, or iframe
-    # creation. Iframes inside QWebEngineView share the QWebChannel transport of
-    # their top-level page when the channel is installed before the sub-frame
-    # document is created; the parent-then-standalone fallback strategy in
-    # question_import.html handles the case where the timing is off.
-    _reattach_counter = [0]
-
     def reattach():
         try:
             window.page().setWebChannel(channel)
         except Exception:
             pass
 
-    fast_timer = QTimer(window)
-    fast_counter = [30]
+    # Reattach on every page load (covers navigation and iframe creation)
+    window.loadFinished.connect(lambda _ok: reattach())
 
-    def _fast_tick():
-        reattach()
-        fast_counter[0] -= 1
-        if fast_counter[0] <= 0:
-            fast_timer.stop()
-
-    fast_timer.timeout.connect(_fast_tick)
-    fast_timer.start(250)
-
+    # Slow periodic reattach for iframes that load after the main page
     slow_timer = QTimer(window)
     slow_timer.timeout.connect(reattach)
     slow_timer.start(2000)
-
-    window.loadFinished.connect(lambda _ok: reattach())
 
     # Set the title and icon that appears on the Windows window.
     window.setWindowTitle("LLS CBT")
@@ -280,3 +255,5 @@ def main():
 # If it is, call our main() function.
 if __name__ == "__main__":
     main()
+
+

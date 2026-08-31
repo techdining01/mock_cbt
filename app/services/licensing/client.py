@@ -223,7 +223,7 @@ EwIDAQAB
         
         # Basic time manipulation check: if current system time is before activation time
         # that's suspicious (clock moved backwards)
-        last_validated = datetime.fromisoformat(local_license.get("last_validated", "2000-01-01"))
+        last_validated = datetime.fromisoformat(local_license.get("last_validated", "2026-09-20"))
         if datetime.now() < last_validated:
             return {
                 "success": False,

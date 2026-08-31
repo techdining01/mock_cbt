@@ -17,22 +17,8 @@ echo [1/4] Installing build requirements...
 echo [2/4] Compiling core application to native C (.pyd)...
 %PYTHON_EXE% -c "from setuptools import setup; from Cython.Build import cythonize; import glob; setup(ext_modules=cythonize(glob.glob('app/**/*.py', recursive=True), compiler_directives={'language_level': '3'}))" build_ext --inplace
 
-echo [3/4] Packaging standalone bundle with PyInstaller...
-%PYTHON_EXE% -m PyInstaller ^
-    --noconfirm ^
-    --onedir ^
-    --windowed ^
-    --name "LLS-CBT" ^
-    --icon "app/web/images/company_logo.ico" ^
-    --add-data "app/web;app/web" ^
-    --add-data "data;data" ^
-    --collect-all "pyside6" ^
-    --hidden-import "sqlalchemy" ^
-    --hidden-import "cryptography" ^
-    --hidden-import "pydantic" ^
-    --collect-all "uvicorn" ^
-    --collect-all "fastapi" ^
-    main.py
+echo [3/4] Packaging standalone bundle with PyInstaller (using LLS-CBT.spec)...
+%PYTHON_EXE% -m PyInstaller LLS-CBT.spec --noconfirm
 
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] Build failed.
@@ -45,4 +31,3 @@ echo [4/4] Build finished successfully!
 echo Distribution bundle created at: dist\LLS-CBT\
 echo.
 pause
-

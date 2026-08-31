@@ -63922,7 +63922,7 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
  *             # --------------------------------------------------
  * 
  *             response = requests.post(             # <<<<<<<<<<<<<<
- *                 "http://127.0.0.1:8000/api/v1/tutor/ask",
+ *                 "http://:8000/api/v1/tutor/ask",
  *                 json=payload,
 */
   {

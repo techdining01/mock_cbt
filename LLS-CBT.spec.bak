@@ -3,14 +3,12 @@ from PyInstaller.utils.hooks import collect_all
 
 datas = [('app/web', 'app/web'), ('data', 'data')]
 binaries = []
-hiddenimports = ['sqlalchemy', 'cryptography', 'pydantic', 'ssl', '_ssl', 'hashlib', '_hashlib', 'certifi', 'requests', 'charset_normalizer', 'idna', 'urllib3']
+hiddenimports = ['sqlalchemy', 'cryptography', 'pydantic']
 tmp_ret = collect_all('pyside6')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 tmp_ret = collect_all('uvicorn')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 tmp_ret = collect_all('fastapi')
-datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
-tmp_ret = collect_all('certifi')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 
 
