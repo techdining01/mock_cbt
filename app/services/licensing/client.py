@@ -78,6 +78,7 @@ EwIDAQAB
             Dictionary with activation result
         """
         try:
+            import time
             # Prepare activation request
             payload = {
                 "product_key": product_key,
@@ -90,14 +91,23 @@ EwIDAQAB
                 }
             }
             
-            # Call activation API
-            response = requests.post(
-                f"{self.license_server_url}/api/license/activate",
-                json=payload,
-                timeout=30
-            )
+            # Call activation API (with retries for local server startup)
+            max_retries = 3
+            response = None
+            for attempt in range(max_retries):
+                try:
+                    response = requests.post(
+                        f"{self.license_server_url}/api/license/activate",
+                        json=payload,
+                        timeout=15
+                    )
+                    break
+                except (requests.ConnectionError, requests.Timeout) as conn_err:
+                    if attempt == max_retries - 1:
+                        raise conn_err
+                    time.sleep(0.5)
             
-            if response.status_code == 200:
+            if response and response.status_code == 200:
                 result = response.json()
                 
                 # Save license locally
@@ -117,7 +127,7 @@ EwIDAQAB
                     "expiry_date": result["expiry_date"]
                 }
             else:
-                error_detail = response.json().get("detail", "Unknown error")
+                error_detail = response.json().get("detail", "Unknown error") if response else "No response"
                 return {
                     "success": False,
                     "message": f"Activation failed: {error_detail}"

@@ -92,6 +92,22 @@ def check_license() -> bool:
         return False
 
 
+def wait_for_server(url: str = "http://127.0.0.1:8000", timeout: float = 3.0) -> bool:
+    """Wait for the local backend server to bind and respond before sending requests."""
+    import time
+    import requests
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        try:
+            r = requests.get(f"{url}/", timeout=0.5)
+            if r.status_code in [200, 404]:
+                return True
+        except Exception:
+            pass
+        time.sleep(0.1)
+    return False
+
+
 # This is the main function of our application.
 def main():
     import sys
@@ -107,6 +123,9 @@ def main():
     import threading
     server_thread = threading.Thread(target=start_ai_tutor_server, daemon=True)
     server_thread.start()
+    
+    # Ensure local server is listening on port 8000 before license validation/activation
+    wait_for_server("http://127.0.0.1:8000", timeout=3.0)
     
     # Create the Qt application first (needed for activation dialog)
     app = QApplication(sys.argv)
@@ -190,37 +209,19 @@ def main():
     # miss the transport injection.
     window.page().setWebChannel(channel)
 
-    # Re-attach the channel to the top-level page after every load to cover any
-    # scenario where it was dropped during navigation, screen changes, or iframe
-    # creation. Iframes inside QWebEngineView share the QWebChannel transport of
-    # their top-level page when the channel is installed before the sub-frame
-    # document is created; the parent-then-standalone fallback strategy in
-    # question_import.html handles the case where the timing is off.
-    _reattach_counter = [0]
-
     def reattach():
         try:
             window.page().setWebChannel(channel)
         except Exception:
             pass
 
-    fast_timer = QTimer(window)
-    fast_counter = [30]
+    # Reattach on every page load (covers navigation and iframe creation)
+    window.loadFinished.connect(lambda _ok: reattach())
 
-    def _fast_tick():
-        reattach()
-        fast_counter[0] -= 1
-        if fast_counter[0] <= 0:
-            fast_timer.stop()
-
-    fast_timer.timeout.connect(_fast_tick)
-    fast_timer.start(250)
-
+    # Slow periodic reattach for iframes that load after the main page
     slow_timer = QTimer(window)
     slow_timer.timeout.connect(reattach)
     slow_timer.start(2000)
-
-    window.loadFinished.connect(lambda _ok: reattach())
 
     # Set the title and icon that appears on the Windows window.
     window.setWindowTitle("LLS CBT")
