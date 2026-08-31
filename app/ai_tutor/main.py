@@ -1,13 +1,23 @@
-from fastapi import FastAPI
+﻿from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 
+from app.database.database import init_database
 from app.ai_tutor.router import router
 from app.services.licensing.api import router as license_router
 
-from fastapi.middleware.cors import CORSMiddleware
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Ensure all tables and seed records exist on startup
+    init_database()
+    yield
+
 
 app = FastAPI(
-    title="LLC-CBT AI Tutor",
+    title="LLS-CBT AI Tutor & Licensing API",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 app.include_router(router)
@@ -23,8 +33,7 @@ app.add_middleware(
 
 @app.get("/")
 async def root():
-
     return {
         "success": True,
-        "service": "LLC-CBT AI Tutor API",
+        "service": "LLS-CBT AI Tutor & Licensing API",
     }
