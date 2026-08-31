@@ -13,7 +13,7 @@ wheels/
 cbt.sqlite3
 waec_2002.json
 node_modules/
-data/
+
 old_files/*
 old_files/
 import_questions.py
