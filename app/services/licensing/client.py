@@ -1,4 +1,4 @@
-import json
+﻿import json
 import os
 from pathlib import Path
 from typing import Dict, Any, Optional
@@ -77,6 +77,13 @@ EwIDAQAB
         Returns:
             Dictionary with activation result
         """
+        # Clean the product key: strip dashes, spaces and fix base64 padding
+        clean_key = product_key.strip().replace("-", "").replace(" ", "").replace("\r", "").replace("\n", "")
+        missing_padding = len(clean_key) % 4
+        if missing_padding:
+            clean_key += "=" * (4 - missing_padding)
+        product_key = clean_key
+
         try:
             # Prepare activation request
             payload = {
