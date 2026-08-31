@@ -6,7 +6,7 @@ from app.services.licensing.api import router as license_router
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
-    title="CBT AI Tutor",
+    title="LLC-CBT AI Tutor",
     version="1.0.0",
 )
 
@@ -26,5 +26,5 @@ async def root():
 
     return {
         "success": True,
-        "service": "Mock CBT AI Tutor API",
+        "service": "LLC-CBT AI Tutor API",
     }

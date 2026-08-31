@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: cbt-api-server
+    runtime: python
+    buildCommand: pip install -r requirements.txt && python create_tables.py
+    startCommand: uvicorn app.ai_tutor.main:app --host 0.0.0.0 --port $PORT
+    plan: free
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: LICENSE_PUBLIC_KEY
+        sync: false
+      - key: LICENSE_PRIVATE_KEY
+        sync: false

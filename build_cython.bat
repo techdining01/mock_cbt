@@ -30,6 +30,8 @@ echo [3/4] Packaging standalone bundle with PyInstaller...
     --hidden-import "sqlalchemy" ^
     --hidden-import "cryptography" ^
     --hidden-import "pydantic" ^
+    --collect-all "uvicorn" ^
+    --collect-all "fastapi" ^
     main.py
 
 if %ERRORLEVEL% NEQ 0 (

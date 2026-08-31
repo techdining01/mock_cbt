@@ -17,7 +17,7 @@ load_dotenv(Path(__file__).resolve().parent.parent.parent.parent / ".env")
 class LicenseClient:
     """Client-side license validation and management."""
     
-    def __init__(self, license_server_url: str = "http://127.0.0.1:8000"):
+    def __init__(self, license_server_url: str = "https://lls-cbt-activator.onrender.com"):
         """
         Initialize the license client.
         
@@ -25,7 +25,7 @@ class LicenseClient:
             license_server_url: URL of the license activation server
         """
         self.license_server_url = license_server_url
-        self.license_file_path = Path.home() / ".mock_cbt_license.json"
+        self.license_file_path = Path.home() / ".lls_cbt_license.json"
         self.public_key_pem = self._load_public_key()
         self.crypto = LicenseCrypto(public_key_pem=self.public_key_pem)
         self.machine_fingerprint = MachineFingerprint.get_machine_id()

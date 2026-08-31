@@ -1,6 +1,8 @@
 import ctypes
 import os
 from pathlib import Path
+import time
+import requests
 
 
 from PySide6.QtWidgets import QApplication  # pyright: ignore[reportMissingImports]
@@ -20,7 +22,6 @@ base_dir = Path(__file__).parent
 
 def start_ai_tutor_server():
     import asyncio
-    import sys
     import uvicorn
     from app.ai_tutor.main import app as tutor_app
 
@@ -39,50 +40,66 @@ def start_ai_tutor_server():
 
 
 # Tells Windows to use the script's distinct AppUserModelID for taskbar grouping
-ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("logiclanesolutions.cbt.v1")
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(
+    "logiclanesolutions.cbt.v1"
+)
+
+
+def wait_for_server(url="http://127.0.0.1:8000", max_retries=10, delay=0.5) -> bool:
+    """Wait for the local FastAPI background server to become reachable."""
+    for _ in range(max_retries):
+        try:
+            res = requests.get(f"{url}/", timeout=1)
+            if res.status_code == 200:
+                return True
+        except requests.RequestException:
+            time.sleep(delay)
+    return False
 
 
 def check_license() -> bool:
     """
     Check if the application is properly licensed.
-    
+
     Returns:
         True if licensed, False otherwise
     """
     try:
         from app.services.licensing.client import LicenseClient
-        
+
         # Get license server URL from environment or use default
         license_server_url = os.getenv("LICENSE_SERVER_URL", "http://127.0.0.1:8000")
-        
+
         client = LicenseClient(license_server_url=license_server_url)
-        
+
         # Check if already licensed
         if client.is_licensed():
             print("License validated successfully.")
             return True
-        
+
         # Check if we should skip license check (development mode)
         if os.getenv("SKIP_LICENSE_CHECK") == "true":
             print("License check skipped (development mode)")
             return True
-        
+
         # Try to activate if license key is provided via environment
         license_key = os.getenv("PRODUCT_KEY")
         if license_key:
             print(f"Attempting to activate license with environment key...")
             result = client.activate_license(license_key)
-            
+
             if result["success"]:
-                print(f"License activated successfully. Remaining credits: {result['remaining_credits']}")
+                print(
+                    f"License activated successfully. Remaining credits: {result['remaining_credits']}"
+                )
                 return True
             else:
                 print(f"License activation failed: {result['message']}")
                 # Fall through to show activation dialog
-        
+
         # No valid license found - will show activation dialog in main()
         return False
-        
+
     except Exception as e:
         print(f"License check error: {e}")
         # For development, you might want to continue anyway
@@ -102,35 +119,40 @@ def main():
     from app.database.database import init_database
 
     init_database()
-    
+
     # Start local backend server thread (handles licensing and AI tutor APIs)
     import threading
+
     server_thread = threading.Thread(target=start_ai_tutor_server, daemon=True)
     server_thread.start()
-    
+
+    # Wait until FastAPI has finished binding to port 8000
+    print("Starting background API service...")
+    wait_for_server("http://127.0.0.1:8000", max_retries=10, delay=0.5)
+
     # Create the Qt application first (needed for activation dialog)
     app = QApplication(sys.argv)
-    
+
     # Check license before starting application
     license_valid = check_license()
-    
+
     if not license_valid:
         print("License validation failed. Showing activation dialog...")
-        
+
         # Import license components
         from app.services.licensing.client import LicenseClient
         from app.ui.license_activation_dialog import show_activation_dialog
-        
+
         license_server_url = os.getenv("LICENSE_SERVER_URL", "http://127.0.0.1:8000")
         license_client = LicenseClient(license_server_url=license_server_url)
-        
+
         # Show activation dialog
         activation_success = show_activation_dialog(license_client)
-        
+
         if not activation_success:
             print("License activation cancelled or failed. Exiting application.")
             sys.exit(1)
-        
+
         print("License activated successfully. Starting application...")
     # Qt application was already created earlier for license check
 
@@ -155,6 +177,7 @@ def main():
 
     # Allow file:// pages to fetch http://127.0.0.1 (needed for AI Tutor API)
     import sys as _sys
+
     if "--disable-web-security" not in _sys.argv:
         _sys.argv.append("--disable-web-security")
 
@@ -164,8 +187,12 @@ def main():
 
     # Allow local file pages to make requests to remote/local HTTP URLs
     settings = window.settings()
-    settings.setAttribute(QWebEngineSettings.WebAttribute.LocalContentCanAccessRemoteUrls, True)
-    settings.setAttribute(QWebEngineSettings.WebAttribute.LocalContentCanAccessFileUrls, True)
+    settings.setAttribute(
+        QWebEngineSettings.WebAttribute.LocalContentCanAccessRemoteUrls, True
+    )
+    settings.setAttribute(
+        QWebEngineSettings.WebAttribute.LocalContentCanAccessFileUrls, True
+    )
 
     # Set the web view on the exam bridge for PDF export functionality
     exam_bridge.set_web_view(window)
@@ -174,6 +201,7 @@ def main():
     def handle_print_requested():
         try:
             from PySide6.QtPrintSupport import QPrintDialog, QPrinter
+
             printer = QPrinter(QPrinter.PrinterMode.HighResolution)
             dialog = QPrintDialog(printer, window)
             dialog.setWindowTitle("Print CBT Document")
