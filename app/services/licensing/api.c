@@ -1673,8 +1673,9 @@ struct __pyx_defaults;
 struct __pyx_obj_9licensing_3api___pyx_scope_struct__activate_license;
 struct __pyx_obj_9licensing_3api___pyx_scope_struct_1_validate_license;
 struct __pyx_obj_9licensing_3api___pyx_scope_struct_2_deactivate_license;
+struct __pyx_obj_9licensing_3api___pyx_scope_struct_3_register_license;
 
-/* "licensing/api.py":83
+/* "licensing/api.py":136
  * 
  * 
  * @router.post("/activate", response_model=ActivationResponse)             # <<<<<<<<<<<<<<
@@ -1688,14 +1689,17 @@ struct __pyx_defaults {
 
 struct __pyx_obj_9licensing_3api___pyx_scope_struct__activate_license {
   PyObject_HEAD
-  PyObject *__pyx_v_activation_count;
+  PyObject *__pyx_v_active_machine_count;
+  PyObject *__pyx_v_clean_key;
   PyObject *__pyx_v_crypto;
-  PyObject *__pyx_v_days_since_creation;
   PyObject *__pyx_v_db;
   PyObject *__pyx_v_e;
   PyObject *__pyx_v_existing_activation;
+  PyObject *__pyx_v_expiry_dt;
+  PyObject *__pyx_v_initial_credits;
   PyObject *__pyx_v_license_data;
   PyObject *__pyx_v_license_record;
+  PyObject *__pyx_v_max_allowed;
   PyObject *__pyx_v_new_activation;
   PyObject *__pyx_v_public_key_pem;
   PyObject *__pyx_v_request;
@@ -1703,7 +1707,7 @@ struct __pyx_obj_9licensing_3api___pyx_scope_struct__activate_license {
 };
 
 
-/* "licensing/api.py":217
+/* "licensing/api.py":270
  * 
  * 
  * @router.post("/validate", response_model=ValidationResponse)             # <<<<<<<<<<<<<<
@@ -1713,10 +1717,10 @@ struct __pyx_obj_9licensing_3api___pyx_scope_struct__activate_license {
 struct __pyx_obj_9licensing_3api___pyx_scope_struct_1_validate_license {
   PyObject_HEAD
   PyObject *__pyx_v_activation;
+  PyObject *__pyx_v_clean_key;
   PyObject *__pyx_v_crypto;
   PyObject *__pyx_v_db;
   PyObject *__pyx_v_e;
-  PyObject *__pyx_v_elapsed_days;
   PyObject *__pyx_v_license_data;
   PyObject *__pyx_v_license_record;
   PyObject *__pyx_v_public_key_pem;
@@ -1725,7 +1729,7 @@ struct __pyx_obj_9licensing_3api___pyx_scope_struct_1_validate_license {
 };
 
 
-/* "licensing/api.py":335
+/* "licensing/api.py":348
  * 
  * 
  * @router.post("/deactivate", response_model=DeactivationResponse)             # <<<<<<<<<<<<<<
@@ -1735,9 +1739,33 @@ struct __pyx_obj_9licensing_3api___pyx_scope_struct_1_validate_license {
 struct __pyx_obj_9licensing_3api___pyx_scope_struct_2_deactivate_license {
   PyObject_HEAD
   PyObject *__pyx_v_activation;
+  PyObject *__pyx_v_clean_key;
   PyObject *__pyx_v_db;
   PyObject *__pyx_v_e;
   PyObject *__pyx_v_license_record;
+  PyObject *__pyx_v_request;
+};
+
+
+/* "licensing/api.py":395
+ * 
+ * 
+ * @router.post("/register", response_model=RegisterLicenseResponse)             # <<<<<<<<<<<<<<
+ * async def register_license(
+ *     request: RegisterLicenseRequest,
+*/
+struct __pyx_obj_9licensing_3api___pyx_scope_struct_3_register_license {
+  PyObject_HEAD
+  PyObject *__pyx_v_clean_key;
+  PyObject *__pyx_v_crypto;
+  PyObject *__pyx_v_db;
+  PyObject *__pyx_v_e;
+  PyObject *__pyx_v_existing;
+  PyObject *__pyx_v_expected_secret;
+  PyObject *__pyx_v_expiry_dt;
+  PyObject *__pyx_v_license_data;
+  PyObject *__pyx_v_license_record;
+  PyObject *__pyx_v_public_key_pem;
   PyObject *__pyx_v_request;
 };
 
@@ -2069,6 +2097,100 @@ static CYTHON_INLINE int __Pyx_ParseKeywords(
 static void __Pyx_RaiseArgtupleInvalid(const char* func_name, int exact,
     Py_ssize_t num_min, Py_ssize_t num_max, Py_ssize_t num_found);
 
+/* ArgTypeTestError.export */
+static void __Pyx_ArgTypeError(PyObject *obj, PyTypeObject *type, const char *name, int exact);
+
+/* ArgTypeTest.proto */
+static CYTHON_INLINE int __Pyx_ArgTypeTest(PyObject *obj, PyTypeObject *type, int none_allowed, const char *name, int exact);
+
+/* FormatTypeName.proto (used by RaiseErrorWithObjectType1) */
+#if CYTHON_COMPILING_IN_LIMITED_API && __PYX_LIMITED_VERSION_HEX >= 0x030d0000
+typedef PyObject *__Pyx_TypeName;
+#define __Pyx_FMT_TYPENAME "%N"
+#define __Pyx_PyType_GetFullyQualifiedName(tp) Py_NewRef((PyObject*)tp)
+#define __Pyx_DECREF_TypeName(obj) Py_DECREF(obj)
+#elif CYTHON_COMPILING_IN_LIMITED_API
+typedef PyObject *__Pyx_TypeName;
+#define __Pyx_FMT_TYPENAME "%U"
+#define __Pyx_DECREF_TypeName(obj) Py_XDECREF(obj)
+static __Pyx_TypeName __Pyx_PyType_GetFullyQualifiedName(PyTypeObject* tp);
+#else  // !LIMITED_API
+typedef const char *__Pyx_TypeName;
+#define __Pyx_FMT_TYPENAME "%.200s"
+#define __Pyx_PyType_GetFullyQualifiedName(tp) ((tp)->tp_name)
+#define __Pyx_DECREF_TypeName(obj)
+#endif
+
+/* RaiseErrorWithObjectType1.proto (used by RaiseUnexpectedTypeError) */
+#define __Pyx_RaiseTypeErrorWithObjectType1(message, arg, obj) __Pyx_RaiseErrorWithObjectType1(PyExc_TypeError, message, arg, obj)
+#define __Pyx_RaiseErrorWithObjectType1(exc_type, message, arg, obj) __Pyx_RaiseErrorWithType1(exc_type, message, arg, Py_TYPE(obj))
+CYTHON_UNUSED
+static void __Pyx_RaiseErrorWithType1(PyObject* exc_type, const char* message, const char *arg, PyTypeObject *type_obj);
+
+/* RaiseUnexpectedTypeError.proto */
+CYTHON_UNUSED
+static int __Pyx_RaiseUnexpectedTypeError(const char *expected, PyObject *obj);
+
+/* ModInt[Py_ssize_t].proto */
+static CYTHON_INLINE Py_ssize_t __Pyx_mod_Py_ssize_t(Py_ssize_t, Py_ssize_t, int b_is_constant);
+
+/* pybuiltin_invalid.export */
+static void __Pyx_PyBuiltin_Invalid(PyObject *obj, const char *builtin_type_name, const char *argname);
+
+/* pyint_simplify.proto */
+static CYTHON_INLINE int __Pyx_PyInt_FromNumber(PyObject **number_var, const char *argname, int accept_none);
+
+/* PyLongBinop.proto */
+#if !CYTHON_COMPILING_IN_PYPY
+static CYTHON_INLINE PyObject* __Pyx_PyLong_SubtractCObj(PyObject *op1, PyObject *op2, long intval, int inplace, int zerodivision_check);
+#else
+#define __Pyx_PyLong_SubtractCObj(op1, op2, intval, inplace, zerodivision_check)\
+    (inplace ? PyNumber_InPlaceSubtract(op1, op2) : PyNumber_Subtract(op1, op2))
+#endif
+
+/* PySequenceMultiply.proto */
+#define __Pyx_PySequence_Multiply_Left(mul, seq)  __Pyx_PySequence_Multiply(seq, mul)
+#if !CYTHON_USE_TYPE_SLOTS
+#define  __Pyx_PySequence_Multiply PySequence_Repeat
+#else
+static CYTHON_INLINE PyObject* __Pyx_PySequence_Multiply(PyObject *seq, Py_ssize_t mul);
+#endif
+
+/* UnicodeConcatInPlace.proto */
+# if CYTHON_COMPILING_IN_CPYTHON
+    #if CYTHON_REFNANNY
+        #define __Pyx_PyUnicode_ConcatInPlace(left, right, unsafe_shared) __Pyx_PyUnicode_ConcatInPlaceImpl(&left, right, unsafe_shared, __pyx_refnanny)
+    #else
+        #define __Pyx_PyUnicode_ConcatInPlace(left, right, unsafe_shared) __Pyx_PyUnicode_ConcatInPlaceImpl(&left, right, unsafe_shared)
+    #endif
+    #define __Pyx_PyUnicode_Concat__Pyx_ReferenceSharing_DefinitelyUniqueInPlace(left, right) __Pyx_PyUnicode_ConcatInPlace(left, right, __Pyx_ReferenceSharing_DefinitelyUnique)
+    #define __Pyx_PyUnicode_Concat__Pyx_ReferenceSharing_OwnStrongReferenceInPlace(left, right) __Pyx_PyUnicode_ConcatInPlace(left, right, __Pyx_ReferenceSharing_OwnStrongReference)
+    #define __Pyx_PyUnicode_Concat__Pyx_ReferenceSharing_FunctionArgumentInPlace(left, right) __Pyx_PyUnicode_ConcatInPlace(left, right, __Pyx_ReferenceSharing_FunctionArgument)
+    #define __Pyx_PyUnicode_Concat__Pyx_ReferenceSharing_SharedReferenceInPlace(left, right) __Pyx_PyUnicode_ConcatInPlace(left, right, __Pyx_ReferenceSharing_SharedReference)
+    static CYTHON_INLINE PyObject *__Pyx_PyUnicode_ConcatInPlaceImpl(PyObject **p_left, PyObject *right, int unsafe_shared
+        #if CYTHON_REFNANNY
+        , void* __pyx_refnanny
+        #endif
+    );
+#else
+#define __Pyx_PyUnicode_Concat__Pyx_ReferenceSharing_DefinitelyUniqueInPlace __Pyx_PyUnicode_Concat
+#define __Pyx_PyUnicode_Concat__Pyx_ReferenceSharing_OwnStrongReferenceInPlace __Pyx_PyUnicode_Concat
+#define __Pyx_PyUnicode_Concat__Pyx_ReferenceSharing_FunctionArgumentInPlace __Pyx_PyUnicode_Concat
+#define __Pyx_PyUnicode_Concat__Pyx_ReferenceSharing_SharedReferenceInPlace __Pyx_PyUnicode_Concat
+#endif
+#define __Pyx_PyUnicode_Concat__Pyx_ReferenceSharing_DefinitelyUniqueInPlaceSafe(left, right)\
+    ((unlikely((left) == Py_None) || unlikely((right) == Py_None)) ?\
+    PyNumber_InPlaceAdd(left, right) : __Pyx_PyUnicode_Concat__Pyx_ReferenceSharing_DefinitelyUniqueInPlace(left, right))
+#define __Pyx_PyUnicode_Concat__Pyx_ReferenceSharing_OwnStrongReferenceInPlaceSafe(left, right)\
+    ((unlikely((left) == Py_None) || unlikely((right) == Py_None)) ?\
+    PyNumber_InPlaceAdd(left, right) : __Pyx_PyUnicode_Concat__Pyx_ReferenceSharing_OwnStrongReferenceInPlace(left, right))
+#define __Pyx_PyUnicode_Concat__Pyx_ReferenceSharing_FunctionArgumentInPlaceSafe(left, right)\
+    ((unlikely((left) == Py_None) || unlikely((right) == Py_None)) ?\
+    PyNumber_InPlaceAdd(left, right) : __Pyx_PyUnicode_Concat__Pyx_ReferenceSharing_FunctionArgumentInPlace(left, right))
+#define __Pyx_PyUnicode_Concat__Pyx_ReferenceSharing_SharedReferenceInPlaceSafe(left, right)\
+    ((unlikely((left) == Py_None) || unlikely((right) == Py_None)) ?\
+    PyNumber_InPlaceAdd(left, right) : __Pyx_PyUnicode_Concat__Pyx_ReferenceSharing_SharedReferenceInPlace(left, right))
+
 /* PyThreadStateGet.proto (used by PyErrFetchRestore) */
 #if CYTHON_FAST_THREAD_STATE
 #define __Pyx_PyThreadState_declare  PyThreadState *__pyx_tstate;
@@ -2185,7 +2307,14 @@ static PyObject *__Pyx__GetModuleGlobalName(PyObject *name, PY_UINT64_T *dict_ve
 static CYTHON_INLINE PyObject *__Pyx__GetModuleGlobalName(PyObject *name);
 #endif
 
-/* PyObjectVectorcallKwds.proto */
+/* PyObjectFastCallMethod.proto */
+#if CYTHON_VECTORCALL
+#define __Pyx_PyObject_FastCallMethod(name, args, nargsf) PyObject_VectorcallMethod(name, args, nargsf, NULL)
+#else
+static PyObject *__Pyx_PyObject_FastCallMethod(PyObject *name, PyObject *const *args, size_t nargsf);
+#endif
+
+/* PyObjectVectorcallKwds.proto (used by PyObjectVectorcallMethodKwds) */
 #if CYTHON_VECTORCALL
 #define __Pyx_Object_VectorcallKwds PyObject_Vectorcall
 CYTHON_UNUSED static int __Pyx_CheckVectorcallKwarg(PyObject *kwnames, Py_ssize_t i);
@@ -2195,11 +2324,11 @@ CYTHON_UNUSED static PyObject *__Pyx_MakeKwargDict(PyObject **keys, PyObject **v
 CYTHON_UNUSED static int __Pyx_CheckVectorcallKwarg(PyObject **kwnames, Py_ssize_t i);
 #endif
 
-/* PyObjectFastCallMethod.proto */
+/* PyObjectVectorcallMethodKwds.proto */
 #if CYTHON_VECTORCALL
-#define __Pyx_PyObject_FastCallMethod(name, args, nargsf) PyObject_VectorcallMethod(name, args, nargsf, NULL)
+#define __Pyx_Object_VectorcallMethodKwds PyObject_VectorcallMethod
 #else
-static PyObject *__Pyx_PyObject_FastCallMethod(PyObject *name, PyObject *const *args, size_t nargsf);
+static PyObject *__Pyx_Object_VectorcallMethodKwds(PyObject *name, PyObject *const *args, size_t nargsf, PyObject *kwnames);
 #endif
 
 /* GetTopmostException.proto (used by SaveResetException) */
@@ -2250,6 +2379,81 @@ static CYTHON_INLINE void __Pyx_ExceptionSwap(PyObject **type, PyObject **value,
 /* PyObjectCompare.proto */
 static CYTHON_INLINE PyObject* __Pyx_PyObject_CompareEq_object_object(PyObject *op1, PyObject *op2, int pyop);
 
+/* PyFrozenDict.proto (used by DictGetItem) */
+#if CYTHON_COMPILING_IN_LIMITED_API
+#define __Pyx_PyFrozenDict_TypePtr  ((PyTypeObject*) __pyx_mstate_global->__Pyx_PyFrozenDictType)
+#define __Pyx_PyFrozenDict_New(it)  __Pyx__PyFrozenDict_New(__pyx_mstate_global->__Pyx_PyFrozenDictType, it)
+static CYTHON_INLINE PyObject* __Pyx__PyFrozenDict_New(PyObject* frozendict_type, PyObject* it);
+#define __Pyx_PyFrozenDict_NewEmpty()  __Pyx_PyFrozenDict_New(NULL)
+#define __Pyx_PyFrozenDict_Check(obj)  PyObject_TypeCheck((obj), __Pyx_PyFrozenDict_TypePtr)
+#define __Pyx_PyFrozenDict_CheckExact(obj)  Py_IS_TYPE((obj), __Pyx_PyFrozenDict_TypePtr)
+#define __Pyx_PyAnyDict_Check(obj)   __Pyx__PyAnyDict_Check(obj, __Pyx_PyFrozenDict_TypePtr)
+static CYTHON_INLINE int __Pyx__PyAnyDict_Check(PyObject *obj, PyTypeObject* frozendict_type) {
+    return PyObject_TypeCheck(obj, &PyDict_Type) || PyObject_TypeCheck(obj, frozendict_type);
+}
+#define __Pyx_PyAnyDict_CheckExact(obj)  __Pyx__PyAnyDict_CheckExact(obj, __Pyx_PyFrozenDict_TypePtr)
+static CYTHON_INLINE int __Pyx__PyAnyDict_CheckExact(PyObject *obj, PyTypeObject* frozendict_type) {
+    return Py_IS_TYPE(obj, &PyDict_Type) || Py_IS_TYPE(obj, frozendict_type);
+}
+#elif PY_VERSION_HEX >= 0x030f00a6 ||\
+    (defined(PyFrozenDict_Check) && defined(PyAnyDict_Check) && defined(PyFrozenDict_New))
+#define __Pyx_PyFrozenDict_TypePtr  (&PyFrozenDict_Type)
+#define __Pyx_PyFrozenDict_New(it)  PyFrozenDict_New(it)
+#define __Pyx_PyFrozenDict_NewEmpty()  PyFrozenDict_New(NULL)
+#define __Pyx_PyFrozenDict_Check(obj)  PyFrozenDict_Check(obj)
+#define __Pyx_PyFrozenDict_CheckExact(obj)  PyFrozenDict_CheckExact(obj)
+#define __Pyx_PyAnyDict_Check(obj)  PyAnyDict_Check(obj)
+#define __Pyx_PyAnyDict_CheckExact(obj)  PyAnyDict_CheckExact(obj)
+#else
+#define __Pyx_PyFrozenDict_TypePtr  (&PyDict_Type)
+static CYTHON_INLINE PyObject* __Pyx_PyFrozenDict_New(PyObject* it) {
+    if (!it) {
+        return PyDict_New();
+    } else if (PyDict_Check(it)) {
+        return PyDict_Copy(it);
+    } else {
+        PyObject *dict = PyDict_New();
+        if (!dict) return NULL;
+        PyObject *result = PyNumber_InPlaceOr(dict, it);
+        Py_DECREF(dict);
+        return result;
+    }
+}
+#define __Pyx_PyFrozenDict_NewEmpty()  PyDict_New()
+#define __Pyx_PyFrozenDict_Check(obj)  PyDict_Check(obj)
+#define __Pyx_PyFrozenDict_CheckExact(obj)  PyDict_CheckExact(obj)
+#define __Pyx_PyAnyDict_Check(obj)  PyDict_Check(obj)
+#define __Pyx_PyAnyDict_CheckExact(obj)  PyDict_CheckExact(obj)
+#endif
+
+/* DictGetItem.proto */
+#if !CYTHON_COMPILING_IN_PYPY
+static PyObject *__Pyx_PyDict_GetItem(PyObject *d, PyObject* key);
+#define __Pyx_PyObject_Dict_GetItem(obj, name)\
+    (likely(__Pyx_PyAnyDict_CheckExact(obj)) ?\
+     __Pyx_PyDict_GetItem(obj, name) : PyObject_GetItem(obj, name))
+#else
+#define __Pyx_PyDict_GetItem(d, key) PyObject_GetItem(d, key)
+#define __Pyx_PyObject_Dict_GetItem(obj, name)  PyObject_GetItem(obj, name)
+#endif
+
+/* RaiseErrorWithObjectTypes.proto (used by PyNumberBinop) */
+#define __Pyx_RaiseErrorWithObjectTypes1(exc_type, message, arg, obj1, obj2) __Pyx_RaiseErrorWithTypes1(exc_type, message, arg, Py_TYPE(obj1), Py_TYPE(obj2))
+#define __Pyx_RaiseTypeErrorWithObjectTypes(message, obj1, obj2) __Pyx_RaiseTypeErrorWithTypes(message, Py_TYPE(obj1), Py_TYPE(obj2))
+#define __Pyx_RaiseTypeErrorWithTypes(message, type_obj1, type_obj2) __Pyx_RaiseErrorWithTypes1(PyExc_TypeError, "%.1s" message, "", type_obj1, type_obj2)
+CYTHON_UNUSED
+static void __Pyx_RaiseErrorWithTypes1(PyObject* exc_type, const char *message, const char *arg, PyTypeObject *type_obj1, PyTypeObject *type_obj2);
+
+/* PyNumberBinop.proto */
+#if CYTHON_COMPILING_IN_PYPY || CYTHON_COMPILING_IN_GRAAL || CYTHON_COMPILING_IN_LIMITED_API
+#define __Pyx_PyNumber_Add_object_object(op1, op2)  PyNumber_Add(op1, op2)
+#define __Pyx_PyNumber_InPlaceAdd_object_object(op1, op2)  PyNumber_InPlaceAdd(op1, op2)
+#else
+#define __Pyx_PyNumber_Add_object_object(op1, op2)  __Pyx__PyNumber_Add_object_object(op1, op2, 0)
+#define __Pyx_PyNumber_InPlaceAdd_object_object(op1, op2)  __Pyx__PyNumber_Add_object_object(op1, op2, 1)
+static CYTHON_INLINE PyObject* __Pyx__PyNumber_Add_object_object(PyObject *op1, PyObject *op2, int inplace);
+#endif
+
 /* PyObjectCompare.proto */
 static CYTHON_INLINE int __Pyx_PyObject_CompareBoolLt_object_object(PyObject *op1, PyObject *op2, int pyop);
 
@@ -2269,47 +2473,6 @@ static CYTHON_INLINE int __Pyx_PyObject_CompareBoolLt_object_object(PyObject *op
         likely(PyUnicode_CheckExact(s)) ? (Py_INCREF(s), s) :\
         PyObject_Format(s, f))
 #endif
-
-/* FormatTypeName.proto (used by RaiseErrorWithObjectTypes) */
-#if CYTHON_COMPILING_IN_LIMITED_API && __PYX_LIMITED_VERSION_HEX >= 0x030d0000
-typedef PyObject *__Pyx_TypeName;
-#define __Pyx_FMT_TYPENAME "%N"
-#define __Pyx_PyType_GetFullyQualifiedName(tp) Py_NewRef((PyObject*)tp)
-#define __Pyx_DECREF_TypeName(obj) Py_DECREF(obj)
-#elif CYTHON_COMPILING_IN_LIMITED_API
-typedef PyObject *__Pyx_TypeName;
-#define __Pyx_FMT_TYPENAME "%U"
-#define __Pyx_DECREF_TypeName(obj) Py_XDECREF(obj)
-static __Pyx_TypeName __Pyx_PyType_GetFullyQualifiedName(PyTypeObject* tp);
-#else  // !LIMITED_API
-typedef const char *__Pyx_TypeName;
-#define __Pyx_FMT_TYPENAME "%.200s"
-#define __Pyx_PyType_GetFullyQualifiedName(tp) ((tp)->tp_name)
-#define __Pyx_DECREF_TypeName(obj)
-#endif
-
-/* RaiseErrorWithObjectTypes.proto (used by PyNumberBinop) */
-#define __Pyx_RaiseErrorWithObjectTypes1(exc_type, message, arg, obj1, obj2) __Pyx_RaiseErrorWithTypes1(exc_type, message, arg, Py_TYPE(obj1), Py_TYPE(obj2))
-#define __Pyx_RaiseTypeErrorWithObjectTypes(message, obj1, obj2) __Pyx_RaiseTypeErrorWithTypes(message, Py_TYPE(obj1), Py_TYPE(obj2))
-#define __Pyx_RaiseTypeErrorWithTypes(message, type_obj1, type_obj2) __Pyx_RaiseErrorWithTypes1(PyExc_TypeError, "%.1s" message, "", type_obj1, type_obj2)
-CYTHON_UNUSED
-static void __Pyx_RaiseErrorWithTypes1(PyObject* exc_type, const char *message, const char *arg, PyTypeObject *type_obj1, PyTypeObject *type_obj2);
-
-/* PyNumberBinop.proto */
-#if CYTHON_COMPILING_IN_PYPY || CYTHON_COMPILING_IN_GRAAL || CYTHON_COMPILING_IN_LIMITED_API
-#define __Pyx_PyNumber_Subtract_object_object(op1, op2)  PyNumber_Subtract(op1, op2)
-#define __Pyx_PyNumber_InPlaceSubtract_object_object(op1, op2)  PyNumber_InPlaceSubtract(op1, op2)
-#else
-#define __Pyx_PyNumber_Subtract_object_object(op1, op2)  __Pyx__PyNumber_Subtract_object_object(op1, op2, 0)
-#define __Pyx_PyNumber_InPlaceSubtract_object_object(op1, op2)  __Pyx__PyNumber_Subtract_object_object(op1, op2, 1)
-static CYTHON_INLINE PyObject* __Pyx__PyNumber_Subtract_object_object(PyObject *op1, PyObject *op2, int inplace);
-#endif
-
-/* PyObjectCompare.proto */
-static CYTHON_INLINE int __Pyx_PyObject_CompareBoolGt_object_int(PyObject *op1, PyObject *op2, int pyop);
-
-/* PyObjectCompare.proto */
-static CYTHON_INLINE int __Pyx_PyObject_CompareBoolLe_object_int(PyObject *op1, PyObject *op2, int pyop);
 
 /* PyObjectDelAttr.proto (used by PyObjectSetAttrStr) */
 #if CYTHON_COMPILING_IN_LIMITED_API && __PYX_LIMITED_VERSION_HEX < 0x030d0000
@@ -2337,6 +2500,9 @@ static CYTHON_INLINE int __Pyx_PyObject_CompareBoolGe_object_int(PyObject *op1, 
 /* JoinPyUnicode.export */
 static PyObject* __Pyx_PyUnicode_Join(PyObject** values, Py_ssize_t value_count, Py_ssize_t result_ulength, int kind);
 
+/* PyObjectCompare.proto */
+static CYTHON_INLINE int __Pyx_PyObject_CompareBoolLe_object_int(PyObject *op1, PyObject *op2, int pyop);
+
 /* PyLongBinop.proto */
 #if !CYTHON_COMPILING_IN_PYPY
 static CYTHON_INLINE PyObject* __Pyx_PyLong_SubtractObjC(PyObject *op1, PyObject *op2, long intval, int inplace, int zerodivision_check);
@@ -2358,36 +2524,6 @@ static CYTHON_INLINE PyObject* __Pyx_PyLong_AddObjC(PyObject *op1, PyObject *op2
 #define __Pyx_PyLong_AddObjC(op1, op2, intval, inplace, zerodivision_check)\
     (inplace ? PyNumber_InPlaceAdd(op1, op2) : PyNumber_Add(op1, op2))
 #endif
-
-/* HasAttr.proto (used by ImportImpl) */
-#if __PYX_LIMITED_VERSION_HEX >= 0x030d0000
-#define __Pyx_HasAttr(o, n)  PyObject_HasAttrWithError(o, n)
-#else
-static CYTHON_INLINE int __Pyx_HasAttr(PyObject *, PyObject *);
-#endif
-
-/* TupleOrListFromArrayImpl.proto (used by ListFromArray) */
-CYTHON_UNUSED static PyObject *
-__Pyx_PyList_FromArray(PyObject *const *src, Py_ssize_t n);
-
-/* ListFromArray.proto (used by ImportImpl) */
-
-
-/* ImportImpl.export */
-static PyObject *__Pyx__Import(PyObject *name, PyObject *const *imported_names, Py_ssize_t len_imported_names, PyObject *qualname, PyObject *moddict, int level);
-
-/* Import.proto */
-static CYTHON_INLINE PyObject *__Pyx_Import(PyObject *name, PyObject *const *imported_names, Py_ssize_t len_imported_names, PyObject *qualname, int level);
-
-/* RaiseErrorWithObjectType1.proto (used by RaiseUnexpectedTypeError) */
-#define __Pyx_RaiseTypeErrorWithObjectType1(message, arg, obj) __Pyx_RaiseErrorWithObjectType1(PyExc_TypeError, message, arg, obj)
-#define __Pyx_RaiseErrorWithObjectType1(exc_type, message, arg, obj) __Pyx_RaiseErrorWithType1(exc_type, message, arg, Py_TYPE(obj))
-CYTHON_UNUSED
-static void __Pyx_RaiseErrorWithType1(PyObject* exc_type, const char* message, const char *arg, PyTypeObject *type_obj);
-
-/* RaiseUnexpectedTypeError.proto */
-CYTHON_UNUSED
-static int __Pyx_RaiseUnexpectedTypeError(const char *expected, PyObject *obj);
 
 /* AllocateExtensionType.proto */
 static PyObject *__Pyx_AllocateExtensionType(PyTypeObject *t, int is_final);
@@ -2445,6 +2581,26 @@ static int __Pyx_validate_bases_tuple(const char *type_name, int has_dictoffset,
 
 /* PyType_Ready.export */
 CYTHON_UNUSED static int __Pyx_PyType_Ready(PyTypeObject *t);
+
+/* HasAttr.proto (used by ImportImpl) */
+#if __PYX_LIMITED_VERSION_HEX >= 0x030d0000
+#define __Pyx_HasAttr(o, n)  PyObject_HasAttrWithError(o, n)
+#else
+static CYTHON_INLINE int __Pyx_HasAttr(PyObject *, PyObject *);
+#endif
+
+/* TupleOrListFromArrayImpl.proto (used by ListFromArray) */
+CYTHON_UNUSED static PyObject *
+__Pyx_PyList_FromArray(PyObject *const *src, Py_ssize_t n);
+
+/* ListFromArray.proto (used by ImportImpl) */
+
+
+/* ImportImpl.export */
+static PyObject *__Pyx__Import(PyObject *name, PyObject *const *imported_names, Py_ssize_t len_imported_names, PyObject *qualname, PyObject *moddict, int level);
+
+/* Import.proto */
+static CYTHON_INLINE PyObject *__Pyx_Import(PyObject *name, PyObject *const *imported_names, Py_ssize_t len_imported_names, PyObject *qualname, int level);
 
 /* ImportFrom.export */
 static PyObject* __Pyx_ImportFrom(PyObject* module, PyObject* name);
@@ -2669,13 +2825,6 @@ static void __Pyx_AddTraceback(const char *funcname, int c_line,
 #define __Pyx_HAS_GCC_DIAGNOSTIC
 #endif
 
-/* PyObjectVectorcallMethodKwds.proto (used by CIntToPy) */
-#if CYTHON_VECTORCALL
-#define __Pyx_Object_VectorcallMethodKwds PyObject_VectorcallMethod
-#else
-static PyObject *__Pyx_Object_VectorcallMethodKwds(PyObject *name, PyObject *const *args, size_t nargsf, PyObject *kwnames);
-#endif
-
 /* CIntToPy.proto */
 static CYTHON_INLINE PyObject* __Pyx_PyLong_From_long(long value);
 
@@ -2882,13 +3031,16 @@ int __pyx_module_is_main_licensing__api = 0;
 /* #### Code section: global_var ### */
 /* #### Code section: string_decls ### */
 /* #### Code section: decls ### */
-static PyObject *__pyx_pf_9licensing_3api_11__defaults__(CYTHON_UNUSED PyObject *__pyx_self); /* proto */
-static PyObject *__pyx_pf_9licensing_3api_activate_license(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_request, PyObject *__pyx_v_db); /* proto */
-static PyObject *__pyx_pf_9licensing_3api_13__defaults__(CYTHON_UNUSED PyObject *__pyx_self); /* proto */
-static PyObject *__pyx_pf_9licensing_3api_3validate_license(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_request, PyObject *__pyx_v_db); /* proto */
-static PyObject *__pyx_pf_9licensing_3api_15__defaults__(CYTHON_UNUSED PyObject *__pyx_self); /* proto */
-static PyObject *__pyx_pf_9licensing_3api_6deactivate_license(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_request, PyObject *__pyx_v_db); /* proto */
-static PyObject *__pyx_pf_9licensing_3api_9_get_public_key(CYTHON_UNUSED PyObject *__pyx_self); /* proto */
+static PyObject *__pyx_pf_9licensing_3api__clean_product_key(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_product_key); /* proto */
+static PyObject *__pyx_pf_9licensing_3api_2_get_public_key(CYTHON_UNUSED PyObject *__pyx_self); /* proto */
+static PyObject *__pyx_pf_9licensing_3api_16__defaults__(CYTHON_UNUSED PyObject *__pyx_self); /* proto */
+static PyObject *__pyx_pf_9licensing_3api_4activate_license(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_request, PyObject *__pyx_v_db); /* proto */
+static PyObject *__pyx_pf_9licensing_3api_18__defaults__(CYTHON_UNUSED PyObject *__pyx_self); /* proto */
+static PyObject *__pyx_pf_9licensing_3api_7validate_license(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_request, PyObject *__pyx_v_db); /* proto */
+static PyObject *__pyx_pf_9licensing_3api_20__defaults__(CYTHON_UNUSED PyObject *__pyx_self); /* proto */
+static PyObject *__pyx_pf_9licensing_3api_10deactivate_license(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_request, PyObject *__pyx_v_db); /* proto */
+static PyObject *__pyx_pf_9licensing_3api_22__defaults__(CYTHON_UNUSED PyObject *__pyx_self); /* proto */
+static PyObject *__pyx_pf_9licensing_3api_13register_license(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_request, PyObject *__pyx_v_db); /* proto */
 static PyObject *__pyx_tp_new__initialisation_9licensing_3api___pyx_defaults(PyObject *o, 
 #if CYTHON_VECTORCALL_TPNEW
     PyObject *const *args, Py_ssize_t nargs, PyObject *kwnames
@@ -2981,6 +3133,29 @@ static PyObject *__pyx_tp_new_9licensing_3api___pyx_scope_struct_2_deactivate_li
 #if CYTHON_VECTORCALL_TPNEW
 static PyObject *__pyx_tp_vectorcall_9licensing_3api___pyx_scope_struct_2_deactivate_license(PyObject *t, PyObject *const *args, size_t nargsf, PyObject *kwnames); /*proto*/
 #endif
+static PyObject *__pyx_tp_new__initialisation_9licensing_3api___pyx_scope_struct_3_register_license(PyObject *o, 
+#if CYTHON_VECTORCALL_TPNEW
+    PyObject *const *args, Py_ssize_t nargs, PyObject *kwnames
+#else
+    PyObject *a, PyObject *k
+#endif
+); /*proto*/
+static PyObject *__pyx_tp_new_vectorcall_9licensing_3api___pyx_scope_struct_3_register_license(PyTypeObject *t, 
+#if CYTHON_VECTORCALL_TPNEW
+    PyObject *const *args, Py_ssize_t nargs, PyObject *kwnames
+#else
+    PyObject *a, PyObject *k
+#endif
+); /*proto*/
+#if CYTHON_VECTORCALL_TPNEW
+static PyObject *__pyx_tp_new_9licensing_3api___pyx_scope_struct_3_register_license(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+#endif
+#if !CYTHON_VECTORCALL_TPNEW
+#define __pyx_tp_new_9licensing_3api___pyx_scope_struct_3_register_license __pyx_tp_new_vectorcall_9licensing_3api___pyx_scope_struct_3_register_license
+#endif
+#if CYTHON_VECTORCALL_TPNEW
+static PyObject *__pyx_tp_vectorcall_9licensing_3api___pyx_scope_struct_3_register_license(PyObject *t, PyObject *const *args, size_t nargsf, PyObject *kwnames); /*proto*/
+#endif
 /* #### Code section: late_includes ### */
 /* #### Code section: module_state ### */
 /* SmallCodeConfig */
@@ -3008,18 +3183,26 @@ namespace {
     PyObject *__pyx_type_9licensing_3api___pyx_scope_struct__activate_license;
     PyObject *__pyx_type_9licensing_3api___pyx_scope_struct_1_validate_license;
     PyObject *__pyx_type_9licensing_3api___pyx_scope_struct_2_deactivate_license;
+    PyObject *__pyx_type_9licensing_3api___pyx_scope_struct_3_register_license;
     PyTypeObject *__pyx_ptype_9licensing_3api___pyx_defaults;
     PyTypeObject *__pyx_ptype_9licensing_3api___pyx_scope_struct__activate_license;
     PyTypeObject *__pyx_ptype_9licensing_3api___pyx_scope_struct_1_validate_license;
     PyTypeObject *__pyx_ptype_9licensing_3api___pyx_scope_struct_2_deactivate_license;
+    PyTypeObject *__pyx_ptype_9licensing_3api___pyx_scope_struct_3_register_license;
     __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_items;
     __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_pop;
     __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_values;
-    PyObject *__pyx_tuple[12];
-    PyObject *__pyx_codeobj_tab[4];
-    PyObject *__pyx_string_tab[194];
-    PyObject *__pyx_number_tab[7];
+    __Pyx_CachedCFunction __pyx_umethod_PyUnicode_Type__strip;
+    PyObject *__pyx_tuple[22];
+    PyObject *__pyx_codeobj_tab[6];
+    PyObject *__pyx_string_tab[241];
+    PyObject *__pyx_number_tab[9];
 /* #### Code section: module_state_contents ### */
+/* PyFrozenDict.module_state_decls */
+#if CYTHON_COMPILING_IN_LIMITED_API
+PyObject *__Pyx_PyFrozenDictType;
+#endif
+
 
 #if CYTHON_USE_FREELISTS
 struct __pyx_obj_9licensing_3api___pyx_scope_struct__activate_license *__pyx_freelist_9licensing_3api___pyx_scope_struct__activate_license[8];
@@ -3034,6 +3217,11 @@ int __pyx_freecount_9licensing_3api___pyx_scope_struct_1_validate_license;
 #if CYTHON_USE_FREELISTS
 struct __pyx_obj_9licensing_3api___pyx_scope_struct_2_deactivate_license *__pyx_freelist_9licensing_3api___pyx_scope_struct_2_deactivate_license[8];
 int __pyx_freecount_9licensing_3api___pyx_scope_struct_2_deactivate_license;
+#endif
+
+#if CYTHON_USE_FREELISTS
+struct __pyx_obj_9licensing_3api___pyx_scope_struct_3_register_license *__pyx_freelist_9licensing_3api___pyx_scope_struct_3_register_license[8];
+int __pyx_freecount_9licensing_3api___pyx_scope_struct_3_register_license;
 #endif
 /* CommonTypesMetaclass.module_state_decls */
 PyTypeObject *__pyx_CommonTypesMetaclassType;
@@ -3087,206 +3275,255 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #endif
 /* #### Code section: constant_name_defines ### */
 #define __pyx_kp_u__3 __pyx_string_tab[0]
-#define __pyx_kp_u_different_machines_Maximum_allo __pyx_string_tab[1]
-#define __pyx_kp_u_BEGIN_PUBLIC_KEY_MIIBIjANBgkqhk __pyx_string_tab[2]
-#define __pyx_kp_u__2 __pyx_string_tab[3]
-#define __pyx_kp_u_activate __pyx_string_tab[4]
-#define __pyx_kp_u_api_license __pyx_string_tab[5]
-#define __pyx_kp_u_deactivate __pyx_string_tab[6]
-#define __pyx_kp_u_validate __pyx_string_tab[7]
-#define __pyx_kp_u_ __pyx_string_tab[8]
-#define __pyx_kp_u_Activation_ID_to_deactivate __pyx_string_tab[9]
-#define __pyx_kp_u_Activation_failed __pyx_string_tab[10]
-#define __pyx_kp_u_Activation_has_been_deactivated __pyx_string_tab[11]
-#define __pyx_kp_u_Activation_is_already_deactivate __pyx_string_tab[12]
-#define __pyx_kp_u_Activation_not_found __pyx_string_tab[13]
-#define __pyx_kp_u_Additional_machine_info __pyx_string_tab[14]
-#define __pyx_kp_u_Current_machine_fingerprint __pyx_string_tab[15]
-#define __pyx_kp_u_Deactivation_failed __pyx_string_tab[16]
-#define __pyx_kp_u_Dict_str_Any __pyx_string_tab[17]
-#define __pyx_kp_u_Dict_str_Any_None __pyx_string_tab[18]
-#define __pyx_kp_u_Invalid_product_key __pyx_string_tab[19]
-#define __pyx_kp_u_License_activated_successfully __pyx_string_tab[20]
-#define __pyx_kp_u_License_already_activated_on __pyx_string_tab[21]
-#define __pyx_kp_u_License_deactivated_successfully __pyx_string_tab[22]
-#define __pyx_kp_u_License_has_been_deactivated __pyx_string_tab[23]
-#define __pyx_kp_u_License_has_expired_on __pyx_string_tab[24]
-#define __pyx_kp_u_License_is_valid __pyx_string_tab[25]
-#define __pyx_kp_u_License_not_found __pyx_string_tab[26]
-#define __pyx_kp_u_License_not_found_in_database __pyx_string_tab[27]
-#define __pyx_kp_u_License_reactivated_successfully __pyx_string_tab[28]
-#define __pyx_kp_u_License_validity_period_exceeded __pyx_string_tab[29]
-#define __pyx_kp_u_Machine_fingerprint_hash __pyx_string_tab[30]
-#define __pyx_kp_u_Machine_fingerprint_mismatch __pyx_string_tab[31]
-#define __pyx_kp_u_No_activation_credits_remaining __pyx_string_tab[32]
-#define __pyx_kp_u_Previous_activation_ID __pyx_string_tab[33]
-#define __pyx_kp_u_Reason_for_deactivation __pyx_string_tab[34]
-#define __pyx_kp_u_Request_model_for_license_activa __pyx_string_tab[35]
-#define __pyx_kp_u_Request_model_for_license_deacti __pyx_string_tab[36]
-#define __pyx_kp_u_Request_model_for_license_valida __pyx_string_tab[37]
-#define __pyx_kp_u_Response_model_for_deactivation __pyx_string_tab[38]
-#define __pyx_kp_u_Response_model_for_license_valid __pyx_string_tab[39]
-#define __pyx_kp_u_Response_model_for_successful_ac __pyx_string_tab[40]
-#define __pyx_kp_u_The_product_key_to_activate __pyx_string_tab[41]
-#define __pyx_kp_u_The_product_key_to_deactivate __pyx_string_tab[42]
-#define __pyx_kp_u_The_product_key_to_validate __pyx_string_tab[43]
-#define __pyx_kp_u_User_email_for_support_and_track __pyx_string_tab[44]
-#define __pyx_kp_u_User_name_for_support __pyx_string_tab[45]
-#define __pyx_kp_u_User_requested_deactivation __pyx_string_tab[46]
-#define __pyx_kp_u_Validation_failed __pyx_string_tab[47]
-#define __pyx_kp_u_app_services_licensing_api_py __pyx_string_tab[48]
-#define __pyx_kp_u_disable __pyx_string_tab[49]
-#define __pyx_kp_u_enable __pyx_string_tab[50]
-#define __pyx_kp_u_gc __pyx_string_tab[51]
-#define __pyx_kp_u_int_None __pyx_string_tab[52]
-#define __pyx_kp_u_isenabled __pyx_string_tab[53]
-#define __pyx_kp_u_license_public_key_pem __pyx_string_tab[54]
-#define __pyx_kp_u_public_key_pem_2 __pyx_string_tab[55]
-#define __pyx_n_u_APIRouter __pyx_string_tab[56]
-#define __pyx_n_u_ActivationRequest __pyx_string_tab[57]
-#define __pyx_n_u_ActivationResponse __pyx_string_tab[58]
-#define __pyx_n_u_Any __pyx_string_tab[59]
-#define __pyx_n_u_BaseModel __pyx_string_tab[60]
-#define __pyx_n_u_DeactivationRequest __pyx_string_tab[61]
-#define __pyx_n_u_DeactivationResponse __pyx_string_tab[62]
-#define __pyx_n_u_Depends __pyx_string_tab[63]
-#define __pyx_n_u_Dict __pyx_string_tab[64]
-#define __pyx_n_u_Field __pyx_string_tab[65]
-#define __pyx_n_u_HTTPException __pyx_string_tab[66]
-#define __pyx_n_u_LICENSE_PUBLIC_KEY __pyx_string_tab[67]
-#define __pyx_n_u_LicenseActivation __pyx_string_tab[68]
-#define __pyx_n_u_LicenseCrypto __pyx_string_tab[69]
-#define __pyx_n_u_MachineFingerprint __pyx_string_tab[70]
-#define __pyx_n_u_Path __pyx_string_tab[71]
-#define __pyx_n_u_ProductLicense __pyx_string_tab[72]
-#define __pyx_n_u_Session __pyx_string_tab[73]
-#define __pyx_n_u_ValidationRequest __pyx_string_tab[74]
-#define __pyx_n_u_ValidationResponse __pyx_string_tab[75]
-#define __pyx_n_u_Pyx_PyDict_NextRef __pyx_string_tab[76]
-#define __pyx_n_u_annotate __pyx_string_tab[77]
-#define __pyx_n_u_annotations __pyx_string_tab[78]
-#define __pyx_n_u_doc __pyx_string_tab[79]
-#define __pyx_n_u_file __pyx_string_tab[80]
-#define __pyx_n_u_func __pyx_string_tab[81]
-#define __pyx_n_u_main __pyx_string_tab[82]
-#define __pyx_n_u_metaclass __pyx_string_tab[83]
-#define __pyx_n_u_module __pyx_string_tab[84]
-#define __pyx_n_u_mro_entries __pyx_string_tab[85]
-#define __pyx_n_u_name __pyx_string_tab[86]
-#define __pyx_n_u_prepare __pyx_string_tab[87]
-#define __pyx_n_u_qualname __pyx_string_tab[88]
-#define __pyx_n_u_test __pyx_string_tab[89]
-#define __pyx_n_u_get_public_key __pyx_string_tab[90]
-#define __pyx_n_u_is_coroutine __pyx_string_tab[91]
-#define __pyx_n_u_activate_license __pyx_string_tab[92]
-#define __pyx_n_u_activated_at __pyx_string_tab[93]
-#define __pyx_n_u_activation __pyx_string_tab[94]
-#define __pyx_n_u_activation_count __pyx_string_tab[95]
-#define __pyx_n_u_activation_id __pyx_string_tab[96]
-#define __pyx_n_u_add __pyx_string_tab[97]
-#define __pyx_n_u_app_database_database __pyx_string_tab[98]
-#define __pyx_n_u_app_database_models __pyx_string_tab[99]
-#define __pyx_n_u_app_services_licensing_crypto __pyx_string_tab[100]
-#define __pyx_n_u_app_services_licensing_machine_f __pyx_string_tab[101]
-#define __pyx_n_u_asyncio_coroutines __pyx_string_tab[102]
-#define __pyx_n_u_bool __pyx_string_tab[103]
-#define __pyx_n_u_cline_in_traceback __pyx_string_tab[104]
-#define __pyx_n_u_close __pyx_string_tab[105]
-#define __pyx_n_u_commit __pyx_string_tab[106]
-#define __pyx_n_u_count __pyx_string_tab[107]
-#define __pyx_n_u_created_at __pyx_string_tab[108]
-#define __pyx_n_u_credits __pyx_string_tab[109]
-#define __pyx_n_u_credits_restored __pyx_string_tab[110]
-#define __pyx_n_u_crypto __pyx_string_tab[111]
-#define __pyx_n_u_datetime __pyx_string_tab[112]
-#define __pyx_n_u_days __pyx_string_tab[113]
-#define __pyx_n_u_days_since_creation __pyx_string_tab[114]
-#define __pyx_n_u_db __pyx_string_tab[115]
-#define __pyx_n_u_deactivate_license __pyx_string_tab[116]
-#define __pyx_n_u_deactivated_at __pyx_string_tab[117]
-#define __pyx_n_u_deactivation_reason __pyx_string_tab[118]
-#define __pyx_n_u_default __pyx_string_tab[119]
-#define __pyx_n_u_default_factory __pyx_string_tab[120]
-#define __pyx_n_u_description __pyx_string_tab[121]
-#define __pyx_n_u_detail __pyx_string_tab[122]
-#define __pyx_n_u_e __pyx_string_tab[123]
-#define __pyx_n_u_elapsed_days __pyx_string_tab[124]
-#define __pyx_n_u_embedded_key __pyx_string_tab[125]
-#define __pyx_n_u_existing_activation __pyx_string_tab[126]
-#define __pyx_n_u_exists __pyx_string_tab[127]
-#define __pyx_n_u_expiry_date __pyx_string_tab[128]
-#define __pyx_n_u_fastapi __pyx_string_tab[129]
-#define __pyx_n_u_filter __pyx_string_tab[130]
-#define __pyx_n_u_first __pyx_string_tab[131]
-#define __pyx_n_u_get_db __pyx_string_tab[132]
-#define __pyx_n_u_getenv __pyx_string_tab[133]
-#define __pyx_n_u_id __pyx_string_tab[134]
-#define __pyx_n_u_int __pyx_string_tab[135]
-#define __pyx_n_u_is_active __pyx_string_tab[136]
-#define __pyx_n_u_is_valid __pyx_string_tab[137]
-#define __pyx_n_u_isoformat __pyx_string_tab[138]
-#define __pyx_n_u_items __pyx_string_tab[139]
-#define __pyx_n_u_key_file __pyx_string_tab[140]
-#define __pyx_n_u_last_validated __pyx_string_tab[141]
-#define __pyx_n_u_license_data __pyx_string_tab[142]
-#define __pyx_n_u_license_id __pyx_string_tab[143]
-#define __pyx_n_u_license_record __pyx_string_tab[144]
-#define __pyx_n_u_licensing __pyx_string_tab[145]
-#define __pyx_n_u_licensing_api __pyx_string_tab[146]
-#define __pyx_n_u_machine_fingerprint __pyx_string_tab[147]
-#define __pyx_n_u_machine_info __pyx_string_tab[148]
-#define __pyx_n_u_message __pyx_string_tab[149]
-#define __pyx_n_u_new_activation __pyx_string_tab[150]
-#define __pyx_n_u_next __pyx_string_tab[151]
-#define __pyx_n_u_now __pyx_string_tab[152]
-#define __pyx_n_u_os __pyx_string_tab[153]
-#define __pyx_n_u_parent __pyx_string_tab[154]
-#define __pyx_n_u_pathlib __pyx_string_tab[155]
-#define __pyx_n_u_pop __pyx_string_tab[156]
-#define __pyx_n_u_post __pyx_string_tab[157]
-#define __pyx_n_u_prefix __pyx_string_tab[158]
-#define __pyx_n_u_product_key __pyx_string_tab[159]
-#define __pyx_n_u_public_key __pyx_string_tab[160]
-#define __pyx_n_u_public_key_pem __pyx_string_tab[161]
-#define __pyx_n_u_pydantic __pyx_string_tab[162]
-#define __pyx_n_u_query __pyx_string_tab[163]
-#define __pyx_n_u_read_text __pyx_string_tab[164]
-#define __pyx_n_u_reason __pyx_string_tab[165]
-#define __pyx_n_u_refresh __pyx_string_tab[166]
-#define __pyx_n_u_remaining_credits __pyx_string_tab[167]
-#define __pyx_n_u_request __pyx_string_tab[168]
-#define __pyx_n_u_resolve __pyx_string_tab[169]
-#define __pyx_n_u_response_model __pyx_string_tab[170]
-#define __pyx_n_u_return __pyx_string_tab[171]
-#define __pyx_n_u_rollback __pyx_string_tab[172]
-#define __pyx_n_u_root_key_file __pyx_string_tab[173]
-#define __pyx_n_u_router __pyx_string_tab[174]
-#define __pyx_n_u_send __pyx_string_tab[175]
-#define __pyx_n_u_server_now __pyx_string_tab[176]
-#define __pyx_n_u_server_timestamp __pyx_string_tab[177]
-#define __pyx_n_u_setdefault __pyx_string_tab[178]
-#define __pyx_n_u_sqlalchemy_orm __pyx_string_tab[179]
-#define __pyx_n_u_status_code __pyx_string_tab[180]
-#define __pyx_n_u_str __pyx_string_tab[181]
-#define __pyx_n_u_success __pyx_string_tab[182]
-#define __pyx_n_u_tags __pyx_string_tab[183]
-#define __pyx_n_u_throw __pyx_string_tab[184]
-#define __pyx_n_u_typing __pyx_string_tab[185]
-#define __pyx_n_u_user_email __pyx_string_tab[186]
-#define __pyx_n_u_user_name __pyx_string_tab[187]
-#define __pyx_n_u_validate_license __pyx_string_tab[188]
-#define __pyx_n_u_value __pyx_string_tab[189]
-#define __pyx_n_u_values __pyx_string_tab[190]
-#define __pyx_n_u_verify_product_key __pyx_string_tab[191]
-#define __pyx_kp_b_iso88591__4 __pyx_string_tab[192]
-#define __pyx_kp_b_iso88591_7_1_q_q_t1IXRq_xwa_xz_D_G7_1_G1 __pyx_string_tab[193]
+#define __pyx_kp_u__6 __pyx_string_tab[1]
+#define __pyx_kp_u__5 __pyx_string_tab[2]
+#define __pyx_kp_u__4 __pyx_string_tab[3]
+#define __pyx_kp_u_machine_s_Maximum_allowed __pyx_string_tab[4]
+#define __pyx_kp_u__2 __pyx_string_tab[5]
+#define __pyx_kp_u_BEGIN_PUBLIC_KEY_MIIBIjANBgkqhk __pyx_string_tab[6]
+#define __pyx_kp_u__8 __pyx_string_tab[7]
+#define __pyx_kp_u_activate __pyx_string_tab[8]
+#define __pyx_kp_u_api_license __pyx_string_tab[9]
+#define __pyx_kp_u_deactivate __pyx_string_tab[10]
+#define __pyx_kp_u_register __pyx_string_tab[11]
+#define __pyx_kp_u_validate __pyx_string_tab[12]
+#define __pyx_kp_u_1_0_0 __pyx_string_tab[13]
+#define __pyx_kp_u__7 __pyx_string_tab[14]
+#define __pyx_kp_u_ __pyx_string_tab[15]
+#define __pyx_kp_u_Activation_ID_to_deactivate __pyx_string_tab[16]
+#define __pyx_kp_u_Activation_failed __pyx_string_tab[17]
+#define __pyx_kp_u_Activation_is_already_deactivate __pyx_string_tab[18]
+#define __pyx_kp_u_Activation_not_found __pyx_string_tab[19]
+#define __pyx_kp_u_Activation_record_not_found_or_i __pyx_string_tab[20]
+#define __pyx_kp_u_Additional_machine_info __pyx_string_tab[21]
+#define __pyx_kp_u_Admin_secret_for_authorization __pyx_string_tab[22]
+#define __pyx_kp_u_Current_machine_fingerprint __pyx_string_tab[23]
+#define __pyx_kp_u_Days_until_expiry __pyx_string_tab[24]
+#define __pyx_kp_u_Deactivation_failed __pyx_string_tab[25]
+#define __pyx_kp_u_Dict_str_Any __pyx_string_tab[26]
+#define __pyx_kp_u_Invalid_admin_secret __pyx_string_tab[27]
+#define __pyx_kp_u_Invalid_product_key_signature __pyx_string_tab[28]
+#define __pyx_kp_u_Invalid_product_key __pyx_string_tab[29]
+#define __pyx_kp_u_LLS_CBT __pyx_string_tab[30]
+#define __pyx_kp_u_License_activated_successfully __pyx_string_tab[31]
+#define __pyx_kp_u_License_already_activated_on __pyx_string_tab[32]
+#define __pyx_kp_u_License_already_registered __pyx_string_tab[33]
+#define __pyx_kp_u_License_deactivated_successfully __pyx_string_tab[34]
+#define __pyx_kp_u_License_expired_on __pyx_string_tab[35]
+#define __pyx_kp_u_License_has_been_deactivated __pyx_string_tab[36]
+#define __pyx_kp_u_License_has_expired_on __pyx_string_tab[37]
+#define __pyx_kp_u_License_is_valid __pyx_string_tab[38]
+#define __pyx_kp_u_License_not_found __pyx_string_tab[39]
+#define __pyx_kp_u_License_not_found_or_deactivated __pyx_string_tab[40]
+#define __pyx_kp_u_License_reactivated_successfully __pyx_string_tab[41]
+#define __pyx_kp_u_License_registered_successfully __pyx_string_tab[42]
+#define __pyx_kp_u_Machine_fingerprint_hash __pyx_string_tab[43]
+#define __pyx_kp_u_Machine_fingerprint_mismatch __pyx_string_tab[44]
+#define __pyx_kp_u_No_activation_credits_remaining __pyx_string_tab[45]
+#define __pyx_kp_u_Note_that_Cython_is_deliberately __pyx_string_tab[46]
+#define __pyx_kp_u_Number_of_activation_credits __pyx_string_tab[47]
+#define __pyx_kp_u_Optional_Dict_str_Any __pyx_string_tab[48]
+#define __pyx_kp_u_Optional_int __pyx_string_tab[49]
+#define __pyx_kp_u_Previous_activation_ID __pyx_string_tab[50]
+#define __pyx_kp_u_Product_name __pyx_string_tab[51]
+#define __pyx_kp_u_Product_version __pyx_string_tab[52]
+#define __pyx_kp_u_Reason_for_deactivation __pyx_string_tab[53]
+#define __pyx_kp_u_Registration_failed __pyx_string_tab[54]
+#define __pyx_kp_u_Request_model_for_license_activa __pyx_string_tab[55]
+#define __pyx_kp_u_Request_model_for_license_deacti __pyx_string_tab[56]
+#define __pyx_kp_u_Request_model_for_license_valida __pyx_string_tab[57]
+#define __pyx_kp_u_Request_model_for_registering_a __pyx_string_tab[58]
+#define __pyx_kp_u_Response_model_for_deactivation __pyx_string_tab[59]
+#define __pyx_kp_u_Response_model_for_license_regis __pyx_string_tab[60]
+#define __pyx_kp_u_Response_model_for_license_valid __pyx_string_tab[61]
+#define __pyx_kp_u_Response_model_for_successful_ac __pyx_string_tab[62]
+#define __pyx_kp_u_The_product_key_to_activate __pyx_string_tab[63]
+#define __pyx_kp_u_The_product_key_to_deactivate __pyx_string_tab[64]
+#define __pyx_kp_u_The_product_key_to_register __pyx_string_tab[65]
+#define __pyx_kp_u_The_product_key_to_validate __pyx_string_tab[66]
+#define __pyx_kp_u_User_email_for_support_and_track __pyx_string_tab[67]
+#define __pyx_kp_u_User_name_for_support __pyx_string_tab[68]
+#define __pyx_kp_u_User_requested_deactivation __pyx_string_tab[69]
+#define __pyx_kp_u_Validation_failed __pyx_string_tab[70]
+#define __pyx_kp_u_add_note __pyx_string_tab[71]
+#define __pyx_kp_u_app_services_licensing_api_py __pyx_string_tab[72]
+#define __pyx_kp_u_disable __pyx_string_tab[73]
+#define __pyx_kp_u_enable __pyx_string_tab[74]
+#define __pyx_kp_u_gc __pyx_string_tab[75]
+#define __pyx_kp_u_isenabled __pyx_string_tab[76]
+#define __pyx_kp_u_license_public_key_pem __pyx_string_tab[77]
+#define __pyx_kp_u_public_key_pem __pyx_string_tab[78]
+#define __pyx_kp_u_utf_8 __pyx_string_tab[79]
+#define __pyx_n_u_APIRouter __pyx_string_tab[80]
+#define __pyx_n_u_ActivationRequest __pyx_string_tab[81]
+#define __pyx_n_u_ActivationResponse __pyx_string_tab[82]
+#define __pyx_n_u_Any __pyx_string_tab[83]
+#define __pyx_n_u_BaseModel __pyx_string_tab[84]
+#define __pyx_n_u_DeactivationRequest __pyx_string_tab[85]
+#define __pyx_n_u_DeactivationResponse __pyx_string_tab[86]
+#define __pyx_n_u_Depends __pyx_string_tab[87]
+#define __pyx_n_u_Dict __pyx_string_tab[88]
+#define __pyx_n_u_Field __pyx_string_tab[89]
+#define __pyx_n_u_HTTPException __pyx_string_tab[90]
+#define __pyx_n_u_LICENSE_ADMIN_SECRET __pyx_string_tab[91]
+#define __pyx_n_u_LICENSE_PUBLIC_KEY __pyx_string_tab[92]
+#define __pyx_n_u_LicenseActivation __pyx_string_tab[93]
+#define __pyx_n_u_LicenseCrypto __pyx_string_tab[94]
+#define __pyx_n_u_Optional __pyx_string_tab[95]
+#define __pyx_n_u_Path __pyx_string_tab[96]
+#define __pyx_n_u_ProductLicense __pyx_string_tab[97]
+#define __pyx_n_u_RegisterLicenseRequest __pyx_string_tab[98]
+#define __pyx_n_u_RegisterLicenseResponse __pyx_string_tab[99]
+#define __pyx_n_u_Session __pyx_string_tab[100]
+#define __pyx_n_u_ValidationRequest __pyx_string_tab[101]
+#define __pyx_n_u_ValidationResponse __pyx_string_tab[102]
+#define __pyx_n_u_Pyx_PyDict_NextRef __pyx_string_tab[103]
+#define __pyx_n_u_annotate __pyx_string_tab[104]
+#define __pyx_n_u_annotations __pyx_string_tab[105]
+#define __pyx_n_u_doc __pyx_string_tab[106]
+#define __pyx_n_u_file __pyx_string_tab[107]
+#define __pyx_n_u_func __pyx_string_tab[108]
+#define __pyx_n_u_main __pyx_string_tab[109]
+#define __pyx_n_u_metaclass __pyx_string_tab[110]
+#define __pyx_n_u_module __pyx_string_tab[111]
+#define __pyx_n_u_mro_entries __pyx_string_tab[112]
+#define __pyx_n_u_name __pyx_string_tab[113]
+#define __pyx_n_u_prepare __pyx_string_tab[114]
+#define __pyx_n_u_qualname __pyx_string_tab[115]
+#define __pyx_n_u_test __pyx_string_tab[116]
+#define __pyx_n_u_clean_product_key __pyx_string_tab[117]
+#define __pyx_n_u_get_public_key __pyx_string_tab[118]
+#define __pyx_n_u_is_coroutine __pyx_string_tab[119]
+#define __pyx_n_u_activate_license __pyx_string_tab[120]
+#define __pyx_n_u_activation __pyx_string_tab[121]
+#define __pyx_n_u_activation_id __pyx_string_tab[122]
+#define __pyx_n_u_active_machine_count __pyx_string_tab[123]
+#define __pyx_n_u_add __pyx_string_tab[124]
+#define __pyx_n_u_admin_secret __pyx_string_tab[125]
+#define __pyx_n_u_app_database_database __pyx_string_tab[126]
+#define __pyx_n_u_app_database_models __pyx_string_tab[127]
+#define __pyx_n_u_app_services_licensing_crypto __pyx_string_tab[128]
+#define __pyx_n_u_asyncio_coroutines __pyx_string_tab[129]
+#define __pyx_n_u_bool __pyx_string_tab[130]
+#define __pyx_n_u_clean __pyx_string_tab[131]
+#define __pyx_n_u_clean_key __pyx_string_tab[132]
+#define __pyx_n_u_cline_in_traceback __pyx_string_tab[133]
+#define __pyx_n_u_close __pyx_string_tab[134]
+#define __pyx_n_u_commit __pyx_string_tab[135]
+#define __pyx_n_u_count __pyx_string_tab[136]
+#define __pyx_n_u_credits __pyx_string_tab[137]
+#define __pyx_n_u_credits_restored __pyx_string_tab[138]
+#define __pyx_n_u_crypto __pyx_string_tab[139]
+#define __pyx_n_u_datetime __pyx_string_tab[140]
+#define __pyx_n_u_days __pyx_string_tab[141]
+#define __pyx_n_u_db __pyx_string_tab[142]
+#define __pyx_n_u_deactivate_license __pyx_string_tab[143]
+#define __pyx_n_u_deactivated_at __pyx_string_tab[144]
+#define __pyx_n_u_deactivation_reason __pyx_string_tab[145]
+#define __pyx_n_u_default __pyx_string_tab[146]
+#define __pyx_n_u_default_factory __pyx_string_tab[147]
+#define __pyx_n_u_description __pyx_string_tab[148]
+#define __pyx_n_u_detail __pyx_string_tab[149]
+#define __pyx_n_u_dumps __pyx_string_tab[150]
+#define __pyx_n_u_e __pyx_string_tab[151]
+#define __pyx_n_u_embedded_key __pyx_string_tab[152]
+#define __pyx_n_u_encoding __pyx_string_tab[153]
+#define __pyx_n_u_existing __pyx_string_tab[154]
+#define __pyx_n_u_existing_activation __pyx_string_tab[155]
+#define __pyx_n_u_exists __pyx_string_tab[156]
+#define __pyx_n_u_expected_secret __pyx_string_tab[157]
+#define __pyx_n_u_expiry __pyx_string_tab[158]
+#define __pyx_n_u_expiry_date __pyx_string_tab[159]
+#define __pyx_n_u_expiry_days __pyx_string_tab[160]
+#define __pyx_n_u_expiry_dt __pyx_string_tab[161]
+#define __pyx_n_u_fastapi __pyx_string_tab[162]
+#define __pyx_n_u_filter __pyx_string_tab[163]
+#define __pyx_n_u_first __pyx_string_tab[164]
+#define __pyx_n_u_fromisoformat __pyx_string_tab[165]
+#define __pyx_n_u_get __pyx_string_tab[166]
+#define __pyx_n_u_get_db __pyx_string_tab[167]
+#define __pyx_n_u_getenv __pyx_string_tab[168]
+#define __pyx_n_u_id __pyx_string_tab[169]
+#define __pyx_n_u_initial_credits __pyx_string_tab[170]
+#define __pyx_n_u_int __pyx_string_tab[171]
+#define __pyx_n_u_is_active __pyx_string_tab[172]
+#define __pyx_n_u_is_valid __pyx_string_tab[173]
+#define __pyx_n_u_isoformat __pyx_string_tab[174]
+#define __pyx_n_u_items __pyx_string_tab[175]
+#define __pyx_n_u_json __pyx_string_tab[176]
+#define __pyx_n_u_key_file __pyx_string_tab[177]
+#define __pyx_n_u_last_validated __pyx_string_tab[178]
+#define __pyx_n_u_license_data __pyx_string_tab[179]
+#define __pyx_n_u_license_id __pyx_string_tab[180]
+#define __pyx_n_u_license_metadata __pyx_string_tab[181]
+#define __pyx_n_u_license_record __pyx_string_tab[182]
+#define __pyx_n_u_licensing __pyx_string_tab[183]
+#define __pyx_n_u_licensing_api __pyx_string_tab[184]
+#define __pyx_n_u_machine_fingerprint __pyx_string_tab[185]
+#define __pyx_n_u_machine_info __pyx_string_tab[186]
+#define __pyx_n_u_max_allowed __pyx_string_tab[187]
+#define __pyx_n_u_message __pyx_string_tab[188]
+#define __pyx_n_u_metadata __pyx_string_tab[189]
+#define __pyx_n_u_missing __pyx_string_tab[190]
+#define __pyx_n_u_new_activation __pyx_string_tab[191]
+#define __pyx_n_u_next __pyx_string_tab[192]
+#define __pyx_n_u_now __pyx_string_tab[193]
+#define __pyx_n_u_os __pyx_string_tab[194]
+#define __pyx_n_u_parent __pyx_string_tab[195]
+#define __pyx_n_u_pathlib __pyx_string_tab[196]
+#define __pyx_n_u_pop __pyx_string_tab[197]
+#define __pyx_n_u_post __pyx_string_tab[198]
+#define __pyx_n_u_prefix __pyx_string_tab[199]
+#define __pyx_n_u_product __pyx_string_tab[200]
+#define __pyx_n_u_product_key __pyx_string_tab[201]
+#define __pyx_n_u_product_name __pyx_string_tab[202]
+#define __pyx_n_u_public_key __pyx_string_tab[203]
+#define __pyx_n_u_public_key_pem_2 __pyx_string_tab[204]
+#define __pyx_n_u_pydantic __pyx_string_tab[205]
+#define __pyx_n_u_query __pyx_string_tab[206]
+#define __pyx_n_u_read_text __pyx_string_tab[207]
+#define __pyx_n_u_reason __pyx_string_tab[208]
+#define __pyx_n_u_refresh __pyx_string_tab[209]
+#define __pyx_n_u_register_license __pyx_string_tab[210]
+#define __pyx_n_u_remaining_credits __pyx_string_tab[211]
+#define __pyx_n_u_request __pyx_string_tab[212]
+#define __pyx_n_u_resolve __pyx_string_tab[213]
+#define __pyx_n_u_response_model __pyx_string_tab[214]
+#define __pyx_n_u_return __pyx_string_tab[215]
+#define __pyx_n_u_rollback __pyx_string_tab[216]
+#define __pyx_n_u_root_key_file __pyx_string_tab[217]
+#define __pyx_n_u_router __pyx_string_tab[218]
+#define __pyx_n_u_send __pyx_string_tab[219]
+#define __pyx_n_u_server_now __pyx_string_tab[220]
+#define __pyx_n_u_setdefault __pyx_string_tab[221]
+#define __pyx_n_u_sqlalchemy_orm __pyx_string_tab[222]
+#define __pyx_n_u_status_code __pyx_string_tab[223]
+#define __pyx_n_u_str __pyx_string_tab[224]
+#define __pyx_n_u_strip __pyx_string_tab[225]
+#define __pyx_n_u_success __pyx_string_tab[226]
+#define __pyx_n_u_tags __pyx_string_tab[227]
+#define __pyx_n_u_throw __pyx_string_tab[228]
+#define __pyx_n_u_timedelta __pyx_string_tab[229]
+#define __pyx_n_u_typing __pyx_string_tab[230]
+#define __pyx_n_u_user_email __pyx_string_tab[231]
+#define __pyx_n_u_user_name __pyx_string_tab[232]
+#define __pyx_n_u_validate_license __pyx_string_tab[233]
+#define __pyx_n_u_value __pyx_string_tab[234]
+#define __pyx_n_u_values __pyx_string_tab[235]
+#define __pyx_n_u_verify_product_key __pyx_string_tab[236]
+#define __pyx_n_u_version __pyx_string_tab[237]
+#define __pyx_kp_b_iso88591__9 __pyx_string_tab[238]
+#define __pyx_kp_b_iso88591_7_1_q_q_t1IXRq_xwa_xz_1_D_G7_1 __pyx_string_tab[239]
+#define __pyx_kp_b_iso88591_HA_KvRxq_S_c_PSS_bbc_c_1_q_S_A __pyx_string_tab[240]
 #define __pyx_int_0 __pyx_number_tab[0]
 #define __pyx_int_1 __pyx_number_tab[1]
 #define __pyx_int_2 __pyx_number_tab[2]
-#define __pyx_int_400 __pyx_number_tab[3]
-#define __pyx_int_403 __pyx_number_tab[4]
-#define __pyx_int_404 __pyx_number_tab[5]
-#define __pyx_int_500 __pyx_number_tab[6]
+#define __pyx_int_4 __pyx_number_tab[3]
+#define __pyx_int_365 __pyx_number_tab[4]
+#define __pyx_int_400 __pyx_number_tab[5]
+#define __pyx_int_403 __pyx_number_tab[6]
+#define __pyx_int_404 __pyx_number_tab[7]
+#define __pyx_int_500 __pyx_number_tab[8]
 /* #### Code section: module_state_clear ### */
 #if CYTHON_USE_MODULE_STATE
 static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
@@ -3309,13 +3546,16 @@ static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_type_9licensing_3api___pyx_scope_struct_1_validate_license);
   Py_CLEAR(clear_module_state->__pyx_ptype_9licensing_3api___pyx_scope_struct_2_deactivate_license);
   Py_CLEAR(clear_module_state->__pyx_type_9licensing_3api___pyx_scope_struct_2_deactivate_license);
+  Py_CLEAR(clear_module_state->__pyx_ptype_9licensing_3api___pyx_scope_struct_3_register_license);
+  Py_CLEAR(clear_module_state->__pyx_type_9licensing_3api___pyx_scope_struct_3_register_license);
   Py_CLEAR(clear_module_state->__pyx_umethod_PyDict_Type_items.method);
   Py_CLEAR(clear_module_state->__pyx_umethod_PyDict_Type_pop.method);
   Py_CLEAR(clear_module_state->__pyx_umethod_PyDict_Type_values.method);
-  for (int i=0; i<12; ++i) { Py_CLEAR(clear_module_state->__pyx_tuple[i]); }
-  for (int i=0; i<4; ++i) { Py_CLEAR(clear_module_state->__pyx_codeobj_tab[i]); }
-  for (int i=0; i<194; ++i) { Py_CLEAR(clear_module_state->__pyx_string_tab[i]); }
-  for (int i=0; i<7; ++i) { Py_CLEAR(clear_module_state->__pyx_number_tab[i]); }
+  Py_CLEAR(clear_module_state->__pyx_umethod_PyUnicode_Type__strip.method);
+  for (int i=0; i<22; ++i) { Py_CLEAR(clear_module_state->__pyx_tuple[i]); }
+  for (int i=0; i<6; ++i) { Py_CLEAR(clear_module_state->__pyx_codeobj_tab[i]); }
+  for (int i=0; i<241; ++i) { Py_CLEAR(clear_module_state->__pyx_string_tab[i]); }
+  for (int i=0; i<9; ++i) { Py_CLEAR(clear_module_state->__pyx_number_tab[i]); }
 /* #### Code section: module_state_clear_contents ### */
 /* CommonTypesMetaclass.module_state_clear */
 Py_CLEAR(clear_module_state->__pyx_CommonTypesMetaclassType);
@@ -3350,13 +3590,16 @@ static CYTHON_SMALL_CODE int __pyx_m_traverse(PyObject *m, visitproc visit, void
   Py_VISIT(traverse_module_state->__pyx_type_9licensing_3api___pyx_scope_struct_1_validate_license);
   Py_VISIT(traverse_module_state->__pyx_ptype_9licensing_3api___pyx_scope_struct_2_deactivate_license);
   Py_VISIT(traverse_module_state->__pyx_type_9licensing_3api___pyx_scope_struct_2_deactivate_license);
+  Py_VISIT(traverse_module_state->__pyx_ptype_9licensing_3api___pyx_scope_struct_3_register_license);
+  Py_VISIT(traverse_module_state->__pyx_type_9licensing_3api___pyx_scope_struct_3_register_license);
   Py_VISIT(traverse_module_state->__pyx_umethod_PyDict_Type_items.method);
   Py_VISIT(traverse_module_state->__pyx_umethod_PyDict_Type_pop.method);
   Py_VISIT(traverse_module_state->__pyx_umethod_PyDict_Type_values.method);
-  for (int i=0; i<12; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_tuple[i]); }
-  for (int i=0; i<4; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_codeobj_tab[i]); }
-  for (int i=0; i<194; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_string_tab[i]); }
-  for (int i=0; i<7; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_number_tab[i]); }
+  Py_VISIT(traverse_module_state->__pyx_umethod_PyUnicode_Type__strip.method);
+  for (int i=0; i<22; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_tuple[i]); }
+  for (int i=0; i<6; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_codeobj_tab[i]); }
+  for (int i=0; i<241; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_string_tab[i]); }
+  for (int i=0; i<9; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_number_tab[i]); }
 /* #### Code section: module_state_traverse_contents ### */
 /* CommonTypesMetaclass.module_state_traverse */
 Py_VISIT(traverse_module_state->__pyx_CommonTypesMetaclassType);
@@ -3373,9 +3616,680 @@ return 0;
 }
 #endif
 /* #### Code section: module_code ### */
-static PyObject *__pyx_gb_9licensing_3api_2generator(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
-/* "licensing/api.py":83
+/* "licensing/api.py":96
+ * 
+ * 
+ * def _clean_product_key(product_key: str) -> str:             # <<<<<<<<<<<<<<
+ *     """Strip dashes, whitespace, and ensure proper Base64 padding."""
+ *     clean = product_key.strip().replace("-", "").replace(" ", "").replace("\r", "").replace("\n", "")
+*/
+
+/* Python wrapper */
+static PyObject *__pyx_pw_9licensing_3api_1_clean_product_key(PyObject *__pyx_self, 
+#if CYTHON_VECTORCALL
+PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
+#else
+PyObject *__pyx_args, PyObject *__pyx_kwds
+#endif
+); /*proto*/
+PyDoc_STRVAR(__pyx_doc_9licensing_3api__clean_product_key, "Strip dashes, whitespace, and ensure proper Base64 padding.");
+static PyMethodDef __pyx_mdef_9licensing_3api_1_clean_product_key = {"_clean_product_key", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9licensing_3api_1_clean_product_key, __Pyx_METH_FASTCALL|METH_KEYWORDS, __pyx_doc_9licensing_3api__clean_product_key};
+static PyObject *__pyx_pw_9licensing_3api_1_clean_product_key(PyObject *__pyx_self, 
+#if CYTHON_VECTORCALL
+PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
+#else
+PyObject *__pyx_args, PyObject *__pyx_kwds
+#endif
+) {
+  PyObject *__pyx_v_product_key = 0;
+  #if !CYTHON_VECTORCALL
+  CYTHON_UNUSED Py_ssize_t __pyx_nargs;
+  #endif
+  CYTHON_UNUSED PyObject *const *__pyx_kwvalues;
+  PyObject* values[1] = {0};
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("_clean_product_key (wrapper)", 0);
+  #if !CYTHON_VECTORCALL
+  #if CYTHON_ASSUME_SAFE_SIZE
+  __pyx_nargs = PyTuple_GET_SIZE(__pyx_args);
+  #else
+  __pyx_nargs = PyTuple_Size(__pyx_args); if (unlikely(__pyx_nargs < 0)) return NULL;
+  #endif
+  #endif
+  __pyx_kwvalues = __Pyx_KwValues_FASTCALL(__pyx_args, __pyx_nargs);
+  {
+    PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_product_key,0};
+    const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
+    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 96, __pyx_L3_error)
+    if (__pyx_kwds_len > 0) {
+      switch (__pyx_nargs) {
+        case  1:
+        values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 96, __pyx_L3_error)
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      const Py_ssize_t kwd_pos_args = __pyx_nargs;
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "_clean_product_key", 0) < (0)) __PYX_ERR(0, 96, __pyx_L3_error)
+      for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("_clean_product_key", 1, 1, 1, i); __PYX_ERR(0, 96, __pyx_L3_error) }
+      }
+    } else if (unlikely(__pyx_nargs != 1)) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 96, __pyx_L3_error)
+    }
+    __pyx_v_product_key = ((PyObject*)values[0]);
+  }
+  goto __pyx_L6_skip;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("_clean_product_key", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 96, __pyx_L3_error)
+  __pyx_L6_skip:;
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L3_error:;
+  for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
+    Py_XDECREF(values[__pyx_temp]);
+  }
+  __Pyx_AddTraceback("licensing.api._clean_product_key", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_product_key), (&PyUnicode_Type), 0, "product_key", 2))) __PYX_ERR(0, 96, __pyx_L1_error)
+  __pyx_r = __pyx_pf_9licensing_3api__clean_product_key(__pyx_self, __pyx_v_product_key);
+
+  /* function exit code */
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __pyx_r = NULL;
+  for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
+    Py_XDECREF(values[__pyx_temp]);
+  }
+  goto __pyx_L7_cleaned_up;
+  __pyx_L0:;
+  for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
+    Py_XDECREF(values[__pyx_temp]);
+  }
+  __pyx_L7_cleaned_up:;
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_9licensing_3api__clean_product_key(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_product_key) {
+  PyObject *__pyx_v_clean = NULL;
+  PyObject *__pyx_v_missing = NULL;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  Py_ssize_t __pyx_t_3;
+  int __pyx_t_4;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("_clean_product_key", 0);
+
+  /* "licensing/api.py":98
+ * def _clean_product_key(product_key: str) -> str:
+ *     """Strip dashes, whitespace, and ensure proper Base64 padding."""
+ *     clean = product_key.strip().replace("-", "").replace(" ", "").replace("\r", "").replace("\n", "")             # <<<<<<<<<<<<<<
+ *     missing = len(clean) % 4
+ *     if missing:
+*/
+  __pyx_t_1 = __Pyx_CallUnboundCMethod0(&__pyx_mstate_global->__pyx_umethod_PyUnicode_Type__strip, __pyx_v_product_key); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 98, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (!(likely(PyUnicode_CheckExact(__pyx_t_1)) || __Pyx_RaiseUnexpectedTypeError("str", __pyx_t_1))) __PYX_ERR(0, 98, __pyx_L1_error)
+  __pyx_t_2 = PyUnicode_Replace(((PyObject*)__pyx_t_1), __pyx_mstate_global->__pyx_kp_u__2, __pyx_mstate_global->__pyx_kp_u__3, -1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 98, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_1 = PyUnicode_Replace(((PyObject*)__pyx_t_2), __pyx_mstate_global->__pyx_kp_u__4, __pyx_mstate_global->__pyx_kp_u__3, -1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 98, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_2 = PyUnicode_Replace(((PyObject*)__pyx_t_1), __pyx_mstate_global->__pyx_kp_u__5, __pyx_mstate_global->__pyx_kp_u__3, -1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 98, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_1 = PyUnicode_Replace(((PyObject*)__pyx_t_2), __pyx_mstate_global->__pyx_kp_u__6, __pyx_mstate_global->__pyx_kp_u__3, -1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 98, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_v_clean = ((PyObject*)__pyx_t_1);
+  __pyx_t_1 = 0;
+
+  /* "licensing/api.py":99
+ *     """Strip dashes, whitespace, and ensure proper Base64 padding."""
+ *     clean = product_key.strip().replace("-", "").replace(" ", "").replace("\r", "").replace("\n", "")
+ *     missing = len(clean) % 4             # <<<<<<<<<<<<<<
+ *     if missing:
+ *         clean += "=" * (4 - missing)
+*/
+  __pyx_t_3 = __Pyx_PyUnicode_GET_LENGTH(__pyx_v_clean); if (unlikely(__pyx_t_3 == ((Py_ssize_t)-1))) __PYX_ERR(0, 99, __pyx_L1_error)
+  __pyx_t_1 = PyLong_FromSsize_t(__Pyx_mod_Py_ssize_t(__pyx_t_3, 4, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 99, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+
+  if (__Pyx_PyInt_FromNumber(&__pyx_t_1, NULL, 0) < (0)) __PYX_ERR(0, 99, __pyx_L1_error)
+  __pyx_v_missing = ((PyObject*)__pyx_t_1);
+  __pyx_t_1 = 0;
+
+  /* "licensing/api.py":100
+ *     clean = product_key.strip().replace("-", "").replace(" ", "").replace("\r", "").replace("\n", "")
+ *     missing = len(clean) % 4
+ *     if missing:             # <<<<<<<<<<<<<<
+ *         clean += "=" * (4 - missing)
+ *     return clean
+*/
+  {
+    Py_ssize_t __pyx_temp = __Pyx_PyLong_IsNonZero(__pyx_v_missing);
+    if (unlikely(((!CYTHON_USE_PYLONG_INTERNALS) && __pyx_temp < 0))) __PYX_ERR(0, 100, __pyx_L1_error)
+    __pyx_t_4 = (__pyx_temp != 0);
+  }
+
+  if (__pyx_t_4) {
+
+
+    /* "licensing/api.py":101
+ *     missing = len(clean) % 4
+ *     if missing:
+ *         clean += "=" * (4 - missing)             # <<<<<<<<<<<<<<
+ *     return clean
+ * 
+*/
+    __pyx_t_1 = __Pyx_PyLong_SubtractCObj(__pyx_mstate_global->__pyx_int_4, __pyx_v_missing, 4, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 101, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __pyx_t_3 = __Pyx_PyIndex_AsSsize_t(__pyx_t_1); if (unlikely((__pyx_t_3 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 101, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __pyx_t_1 = __Pyx_PySequence_Multiply(__pyx_mstate_global->__pyx_kp_u__7, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 101, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+
+    __pyx_t_2 = __Pyx_PyUnicode_Concat__Pyx_ReferenceSharing_OwnStrongReferenceInPlace(__pyx_v_clean, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 101, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __Pyx_DECREF_SET(__pyx_v_clean, ((PyObject*)__pyx_t_2));
+    __pyx_t_2 = 0;
+
+    /* "licensing/api.py":100
+ *     clean = product_key.strip().replace("-", "").replace(" ", "").replace("\r", "").replace("\n", "")
+ *     missing = len(clean) % 4
+ *     if missing:             # <<<<<<<<<<<<<<
+ *         clean += "=" * (4 - missing)
+ *     return clean
+*/
+  }
+
+  /* "licensing/api.py":102
+ *     if missing:
+ *         clean += "=" * (4 - missing)
+ *     return clean             # <<<<<<<<<<<<<<
+ * 
+ * 
+*/
+  {
+    PyObject *__pyx_temp;
+    {
+      __pyx_temp = __pyx_r;
+      __Pyx_INCREF(__pyx_v_clean);
+      __pyx_r = __pyx_v_clean;
+    }
+    __Pyx_XDECREF(__pyx_temp);
+  }
+  goto __pyx_L0;
+
+  /* "licensing/api.py":96
+ * 
+ * 
+ * def _clean_product_key(product_key: str) -> str:             # <<<<<<<<<<<<<<
+ *     """Strip dashes, whitespace, and ensure proper Base64 padding."""
+ *     clean = product_key.strip().replace("-", "").replace(" ", "").replace("\r", "").replace("\n", "")
+*/
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_AddTraceback("licensing.api._clean_product_key", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XDECREF(__pyx_v_clean);
+  __Pyx_XDECREF(__pyx_v_missing);
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "licensing/api.py":105
+ * 
+ * 
+ * def _get_public_key() -> str:             # <<<<<<<<<<<<<<
+ *     """Get the RSA public key for product key verification."""
+ *     public_key = os.getenv("LICENSE_PUBLIC_KEY")
+*/
+
+/* Python wrapper */
+static PyObject *__pyx_pw_9licensing_3api_3_get_public_key(PyObject *__pyx_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+PyDoc_STRVAR(__pyx_doc_9licensing_3api_2_get_public_key, "Get the RSA public key for product key verification.");
+static PyMethodDef __pyx_mdef_9licensing_3api_3_get_public_key = {"_get_public_key", (PyCFunction)__pyx_pw_9licensing_3api_3_get_public_key, METH_NOARGS, __pyx_doc_9licensing_3api_2_get_public_key};
+static PyObject *__pyx_pw_9licensing_3api_3_get_public_key(PyObject *__pyx_self, CYTHON_UNUSED PyObject *unused) {
+  CYTHON_UNUSED PyObject *const *__pyx_kwvalues;
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("_get_public_key (wrapper)", 0);
+  __pyx_kwvalues = __Pyx_KwValues_VARARGS(__pyx_args, __pyx_nargs);
+  __pyx_r = __pyx_pf_9licensing_3api_2_get_public_key(__pyx_self);
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_9licensing_3api_2_get_public_key(CYTHON_UNUSED PyObject *__pyx_self) {
+  PyObject *__pyx_v_public_key = NULL;
+  PyObject *__pyx_v_key_file = NULL;
+  PyObject *__pyx_v_root_key_file = NULL;
+  PyObject *__pyx_v_embedded_key = NULL;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  size_t __pyx_t_5;
+  int __pyx_t_6;
+  PyObject *__pyx_t_7 = NULL;
+  PyObject *__pyx_t_8 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("_get_public_key", 0);
+
+  /* "licensing/api.py":107
+ * def _get_public_key() -> str:
+ *     """Get the RSA public key for product key verification."""
+ *     public_key = os.getenv("LICENSE_PUBLIC_KEY")             # <<<<<<<<<<<<<<
+ *     if public_key:
+ *         return public_key
+*/
+  __pyx_t_2 = NULL;
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_os); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 107, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_getenv); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 107, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_5 = 1;
+  #if CYTHON_UNPACK_METHODS
+  if (unlikely(PyMethod_Check(__pyx_t_4))) {
+    __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_4);
+    assert(__pyx_t_2);
+    PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_4);
+    __Pyx_INCREF(__pyx_t_2);
+    __Pyx_INCREF(__pyx__function);
+    __Pyx_DECREF_SET(__pyx_t_4, __pyx__function);
+    __pyx_t_5 = 0;
+  }
+  #endif
+  {
+    PyObject *__pyx_callargs[2] = {__pyx_t_2, __pyx_mstate_global->__pyx_n_u_LICENSE_PUBLIC_KEY};
+    __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 107, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+  }
+  __pyx_v_public_key = __pyx_t_1;
+  __pyx_t_1 = 0;
+
+  /* "licensing/api.py":108
+ *     """Get the RSA public key for product key verification."""
+ *     public_key = os.getenv("LICENSE_PUBLIC_KEY")
+ *     if public_key:             # <<<<<<<<<<<<<<
+ *         return public_key
+ * 
+*/
+  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_v_public_key); if (unlikely((__pyx_t_6 < 0))) __PYX_ERR(0, 108, __pyx_L1_error)
+  if (__pyx_t_6) {
+
+
+    /* "licensing/api.py":109
+ *     public_key = os.getenv("LICENSE_PUBLIC_KEY")
+ *     if public_key:
+ *         return public_key             # <<<<<<<<<<<<<<
+ * 
+ *     key_file = Path(__file__).parent / "public_key.pem"
+*/
+    __pyx_t_1 = __pyx_v_public_key;
+    __Pyx_INCREF(__pyx_t_1);
+    if (!(likely(PyUnicode_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("str", __pyx_t_1))) __PYX_ERR(0, 109, __pyx_L1_error)
+    {
+      PyObject *__pyx_temp;
+      {
+        __pyx_temp = __pyx_r;
+        __pyx_r = ((PyObject*)__pyx_t_1);
+      }
+      __Pyx_XDECREF(__pyx_temp);
+    }
+    __pyx_t_1 = 0;
+    goto __pyx_L0;
+
+    /* "licensing/api.py":108
+ *     """Get the RSA public key for product key verification."""
+ *     public_key = os.getenv("LICENSE_PUBLIC_KEY")
+ *     if public_key:             # <<<<<<<<<<<<<<
+ *         return public_key
+ * 
+*/
+  }
+
+  /* "licensing/api.py":111
+ *         return public_key
+ * 
+ *     key_file = Path(__file__).parent / "public_key.pem"             # <<<<<<<<<<<<<<
+ *     if key_file.exists():
+ *         return key_file.read_text(encoding="utf-8")
+*/
+  __pyx_t_4 = NULL;
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_Path); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 111, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_file); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 111, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_5 = 1;
+  #if CYTHON_UNPACK_METHODS
+  if (unlikely(PyMethod_Check(__pyx_t_2))) {
+    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_2);
+    assert(__pyx_t_4);
+    PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_2);
+    __Pyx_INCREF(__pyx_t_4);
+    __Pyx_INCREF(__pyx__function);
+    __Pyx_DECREF_SET(__pyx_t_2, __pyx__function);
+    __pyx_t_5 = 0;
+  }
+  #endif
+  {
+    PyObject *__pyx_callargs[2] = {__pyx_t_4, __pyx_t_3};
+    __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_2, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 111, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+  }
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_parent); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 111, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_1 = __Pyx_PyNumber_Divide(__pyx_t_2, __pyx_mstate_global->__pyx_kp_u_public_key_pem); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 111, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_v_key_file = __pyx_t_1;
+  __pyx_t_1 = 0;
+
+  /* "licensing/api.py":112
+ * 
+ *     key_file = Path(__file__).parent / "public_key.pem"
+ *     if key_file.exists():             # <<<<<<<<<<<<<<
+ *         return key_file.read_text(encoding="utf-8")
+ * 
+*/
+  __pyx_t_2 = __pyx_v_key_file;
+  __Pyx_INCREF(__pyx_t_2);
+  __pyx_t_5 = 0;
+  {
+    PyObject *__pyx_callargs[2] = {__pyx_t_2, NULL};
+    __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_exists, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 112, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+  }
+  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_6 < 0))) __PYX_ERR(0, 112, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  if (__pyx_t_6) {
+
+
+    /* "licensing/api.py":113
+ *     key_file = Path(__file__).parent / "public_key.pem"
+ *     if key_file.exists():
+ *         return key_file.read_text(encoding="utf-8")             # <<<<<<<<<<<<<<
+ * 
+ *     root_key_file = Path(__file__).resolve().parent.parent.parent.parent / "license_public_key.pem"
+*/
+    __pyx_t_2 = __pyx_v_key_file;
+    __Pyx_INCREF(__pyx_t_2);
+    __pyx_t_5 = 0;
+    {
+      PyObject *__pyx_callargs[2] = {__pyx_t_2, __pyx_mstate_global->__pyx_kp_u_utf_8};
+      #if CYTHON_VECTORCALL
+      __pyx_t_3 = __pyx_mstate_global->__pyx_tuple[0];
+      if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 113, __pyx_L1_error)
+      __Pyx_INCREF(__pyx_t_3);
+      #else
+      {
+        PyObject *__pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_encoding};
+        __pyx_t_3 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 1);
+        if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 113, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_3);
+      }
+      #endif
+      __pyx_t_1 = __Pyx_Object_VectorcallMethodKwds((PyObject*)__pyx_mstate_global->__pyx_n_u_read_text, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_3);
+      __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 113, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_1);
+    }
+    if (!(likely(PyUnicode_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("str", __pyx_t_1))) __PYX_ERR(0, 113, __pyx_L1_error)
+    {
+      PyObject *__pyx_temp;
+      {
+        __pyx_temp = __pyx_r;
+        __pyx_r = ((PyObject*)__pyx_t_1);
+      }
+      __Pyx_XDECREF(__pyx_temp);
+    }
+    __pyx_t_1 = 0;
+    goto __pyx_L0;
+
+    /* "licensing/api.py":112
+ * 
+ *     key_file = Path(__file__).parent / "public_key.pem"
+ *     if key_file.exists():             # <<<<<<<<<<<<<<
+ *         return key_file.read_text(encoding="utf-8")
+ * 
+*/
+  }
+
+  /* "licensing/api.py":115
+ *         return key_file.read_text(encoding="utf-8")
+ * 
+ *     root_key_file = Path(__file__).resolve().parent.parent.parent.parent / "license_public_key.pem"             # <<<<<<<<<<<<<<
+ *     if root_key_file.exists():
+ *         return root_key_file.read_text(encoding="utf-8")
+*/
+  __pyx_t_4 = NULL;
+  __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_mstate_global->__pyx_n_u_Path); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 115, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_7);
+  __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_file); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 115, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_8);
+  __pyx_t_5 = 1;
+  #if CYTHON_UNPACK_METHODS
+  if (unlikely(PyMethod_Check(__pyx_t_7))) {
+    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_7);
+    assert(__pyx_t_4);
+    PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_7);
+    __Pyx_INCREF(__pyx_t_4);
+    __Pyx_INCREF(__pyx__function);
+    __Pyx_DECREF_SET(__pyx_t_7, __pyx__function);
+    __pyx_t_5 = 0;
+  }
+  #endif
+  {
+    PyObject *__pyx_callargs[2] = {__pyx_t_4, __pyx_t_8};
+    __pyx_t_2 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_7, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+    __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 115, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+  }
+  __pyx_t_3 = __pyx_t_2;
+  __Pyx_INCREF(__pyx_t_3);
+  __pyx_t_5 = 0;
+  {
+    PyObject *__pyx_callargs[2] = {__pyx_t_3, NULL};
+    __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_resolve, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 115, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+  }
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_parent); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 115, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_parent); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 115, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_parent); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 115, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_parent); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 115, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_2 = __Pyx_PyNumber_Divide(__pyx_t_1, __pyx_mstate_global->__pyx_kp_u_license_public_key_pem); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 115, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_v_root_key_file = __pyx_t_2;
+  __pyx_t_2 = 0;
+
+  /* "licensing/api.py":116
+ * 
+ *     root_key_file = Path(__file__).resolve().parent.parent.parent.parent / "license_public_key.pem"
+ *     if root_key_file.exists():             # <<<<<<<<<<<<<<
+ *         return root_key_file.read_text(encoding="utf-8")
+ * 
+*/
+  __pyx_t_1 = __pyx_v_root_key_file;
+  __Pyx_INCREF(__pyx_t_1);
+  __pyx_t_5 = 0;
+  {
+    PyObject *__pyx_callargs[2] = {__pyx_t_1, NULL};
+    __pyx_t_2 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_exists, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 116, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+  }
+  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely((__pyx_t_6 < 0))) __PYX_ERR(0, 116, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  if (__pyx_t_6) {
+
+
+    /* "licensing/api.py":117
+ *     root_key_file = Path(__file__).resolve().parent.parent.parent.parent / "license_public_key.pem"
+ *     if root_key_file.exists():
+ *         return root_key_file.read_text(encoding="utf-8")             # <<<<<<<<<<<<<<
+ * 
+ *     embedded_key = """-----BEGIN PUBLIC KEY-----
+*/
+    __pyx_t_1 = __pyx_v_root_key_file;
+    __Pyx_INCREF(__pyx_t_1);
+    __pyx_t_5 = 0;
+    {
+      PyObject *__pyx_callargs[2] = {__pyx_t_1, __pyx_mstate_global->__pyx_kp_u_utf_8};
+      #if CYTHON_VECTORCALL
+      __pyx_t_3 = __pyx_mstate_global->__pyx_tuple[0];
+      if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 117, __pyx_L1_error)
+      __Pyx_INCREF(__pyx_t_3);
+      #else
+      {
+        PyObject *__pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_encoding};
+        __pyx_t_3 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 1);
+        if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 117, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_3);
+      }
+      #endif
+      __pyx_t_2 = __Pyx_Object_VectorcallMethodKwds((PyObject*)__pyx_mstate_global->__pyx_n_u_read_text, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_3);
+      __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 117, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_2);
+    }
+    if (!(likely(PyUnicode_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None) || __Pyx_RaiseUnexpectedTypeError("str", __pyx_t_2))) __PYX_ERR(0, 117, __pyx_L1_error)
+    {
+      PyObject *__pyx_temp;
+      {
+        __pyx_temp = __pyx_r;
+        __pyx_r = ((PyObject*)__pyx_t_2);
+      }
+      __Pyx_XDECREF(__pyx_temp);
+    }
+    __pyx_t_2 = 0;
+    goto __pyx_L0;
+
+    /* "licensing/api.py":116
+ * 
+ *     root_key_file = Path(__file__).resolve().parent.parent.parent.parent / "license_public_key.pem"
+ *     if root_key_file.exists():             # <<<<<<<<<<<<<<
+ *         return root_key_file.read_text(encoding="utf-8")
+ * 
+*/
+  }
+
+  /* "licensing/api.py":119
+ *         return root_key_file.read_text(encoding="utf-8")
+ * 
+ *     embedded_key = """-----BEGIN PUBLIC KEY-----             # <<<<<<<<<<<<<<
+ * MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwq/XMIVF9N3D6QKfnac/
+ * 00ku5pidy2/a14YSRiJ1StEEusplVAjVgJo1C85uQm5aBTItDrPu6x0C79BzZF9w
+*/
+  __Pyx_INCREF(__pyx_mstate_global->__pyx_kp_u_BEGIN_PUBLIC_KEY_MIIBIjANBgkqhk);
+  __pyx_v_embedded_key = __pyx_mstate_global->__pyx_kp_u_BEGIN_PUBLIC_KEY_MIIBIjANBgkqhk;
+
+  /* "licensing/api.py":128
+ * EwIDAQAB
+ * -----END PUBLIC KEY-----"""
+ *     return embedded_key             # <<<<<<<<<<<<<<
+ * 
+ * 
+*/
+  {
+    PyObject *__pyx_temp;
+    {
+      __pyx_temp = __pyx_r;
+      __Pyx_INCREF(__pyx_v_embedded_key);
+      __pyx_r = __pyx_v_embedded_key;
+    }
+    __Pyx_XDECREF(__pyx_temp);
+  }
+  goto __pyx_L0;
+
+  /* "licensing/api.py":105
+ * 
+ * 
+ * def _get_public_key() -> str:             # <<<<<<<<<<<<<<
+ *     """Get the RSA public key for product key verification."""
+ *     public_key = os.getenv("LICENSE_PUBLIC_KEY")
+*/
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_7);
+  __Pyx_XDECREF(__pyx_t_8);
+  __Pyx_AddTraceback("licensing.api._get_public_key", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XDECREF(__pyx_v_public_key);
+  __Pyx_XDECREF(__pyx_v_key_file);
+  __Pyx_XDECREF(__pyx_v_root_key_file);
+  __Pyx_XDECREF(__pyx_v_embedded_key);
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+static PyObject *__pyx_gb_9licensing_3api_6generator(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
+
+/* "licensing/api.py":136
  * 
  * 
  * @router.post("/activate", response_model=ActivationResponse)             # <<<<<<<<<<<<<<
@@ -3383,7 +4297,7 @@ static PyObject *__pyx_gb_9licensing_3api_2generator(__pyx_CoroutineObject *__py
  *     request: ActivationRequest,
 */
 
-static PyObject *__pyx_pf_9licensing_3api_11__defaults__(CYTHON_UNUSED PyObject *__pyx_self) {
+static PyObject *__pyx_pf_9licensing_3api_16__defaults__(CYTHON_UNUSED PyObject *__pyx_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -3392,18 +4306,18 @@ static PyObject *__pyx_pf_9licensing_3api_11__defaults__(CYTHON_UNUSED PyObject 
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__defaults__", 0);
-  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 83, __pyx_L1_error)
+  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 136, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(__Pyx_CyFunction_Defaults(struct __pyx_defaults, __pyx_self)->arg0);
   __Pyx_GIVEREF(__Pyx_CyFunction_Defaults(struct __pyx_defaults, __pyx_self)->arg0);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 0, __Pyx_CyFunction_Defaults(struct __pyx_defaults, __pyx_self)->arg0) != (0)) __PYX_ERR(0, 83, __pyx_L1_error);
-  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 83, __pyx_L1_error)
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 0, __Pyx_CyFunction_Defaults(struct __pyx_defaults, __pyx_self)->arg0) != (0)) __PYX_ERR(0, 136, __pyx_L1_error);
+  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 136, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_GIVEREF(__pyx_t_1);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_1) != (0)) __PYX_ERR(0, 83, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_1) != (0)) __PYX_ERR(0, 136, __pyx_L1_error);
   __Pyx_INCREF(Py_None);
   __Pyx_GIVEREF(Py_None);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, Py_None) != (0)) __PYX_ERR(0, 83, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, Py_None) != (0)) __PYX_ERR(0, 136, __pyx_L1_error);
   __pyx_t_1 = 0;
   {
     PyObject *__pyx_temp;
@@ -3429,16 +4343,16 @@ static PyObject *__pyx_pf_9licensing_3api_11__defaults__(CYTHON_UNUSED PyObject 
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_9licensing_3api_1activate_license(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_9licensing_3api_5activate_license(PyObject *__pyx_self, 
 #if CYTHON_VECTORCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-PyDoc_STRVAR(__pyx_doc_9licensing_3api_activate_license, "\n    Activate a product key on a specific machine.\n    \n    This endpoint:\n    1. Verifies the product key signature\n    2. Checks if license exists and has credits\n    3. Checks if this machine already has an activation\n    4. Creates a new activation or reactivates existing one\n    5. Consumes one credit for new activations\n    ");
-static PyMethodDef __pyx_mdef_9licensing_3api_1activate_license = {"activate_license", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9licensing_3api_1activate_license, __Pyx_METH_FASTCALL|METH_KEYWORDS, __pyx_doc_9licensing_3api_activate_license};
-static PyObject *__pyx_pw_9licensing_3api_1activate_license(PyObject *__pyx_self, 
+PyDoc_STRVAR(__pyx_doc_9licensing_3api_4activate_license, "\n    Activate a product key on a specific machine.\n    \n    1. Verifies RSA-2048 cryptographic signature on the product key.\n    2. Auto-provisions the license in the server database if valid and not yet stored.\n    3. Checks license expiration and activation credits.\n    4. Handles machine fingerprint binding and deduction of credits.\n    ");
+static PyMethodDef __pyx_mdef_9licensing_3api_5activate_license = {"activate_license", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9licensing_3api_5activate_license, __Pyx_METH_FASTCALL|METH_KEYWORDS, __pyx_doc_9licensing_3api_4activate_license};
+static PyObject *__pyx_pw_9licensing_3api_5activate_license(PyObject *__pyx_self, 
 #if CYTHON_VECTORCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -3470,35 +4384,35 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_request,&__pyx_mstate_global->__pyx_n_u_db,0};
     struct __pyx_defaults *__pyx_dynamic_args = __Pyx_CyFunction_Defaults(struct __pyx_defaults, __pyx_self);
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 83, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 136, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 83, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 136, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 83, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 136, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "activate_license", 0) < (0)) __PYX_ERR(0, 83, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "activate_license", 0) < (0)) __PYX_ERR(0, 136, __pyx_L3_error)
       if (!values[1]) values[1] = __Pyx_NewRef(__pyx_dynamic_args->arg0);
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("activate_license", 0, 1, 2, i); __PYX_ERR(0, 83, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("activate_license", 0, 1, 2, i); __PYX_ERR(0, 136, __pyx_L3_error) }
       }
     } else {
       switch (__pyx_nargs) {
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 83, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 136, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 83, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 136, __pyx_L3_error)
         break;
         default: goto __pyx_L5_argtuple_error;
       }
@@ -3509,7 +4423,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("activate_license", 0, 1, 2, __pyx_nargs); __PYX_ERR(0, 83, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("activate_license", 0, 1, 2, __pyx_nargs); __PYX_ERR(0, 136, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -3520,7 +4434,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_9licensing_3api_activate_license(__pyx_self, __pyx_v_request, __pyx_v_db);
+  __pyx_r = __pyx_pf_9licensing_3api_4activate_license(__pyx_self, __pyx_v_request, __pyx_v_db);
 
   /* function exit code */
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
@@ -3530,7 +4444,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9licensing_3api_activate_license(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_request, PyObject *__pyx_v_db) {
+static PyObject *__pyx_pf_9licensing_3api_4activate_license(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_request, PyObject *__pyx_v_db) {
   struct __pyx_obj_9licensing_3api___pyx_scope_struct__activate_license *__pyx_cur_scope;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -3542,7 +4456,7 @@ static PyObject *__pyx_pf_9licensing_3api_activate_license(CYTHON_UNUSED PyObjec
   if (unlikely(!__pyx_cur_scope)) {
     __pyx_cur_scope = ((struct __pyx_obj_9licensing_3api___pyx_scope_struct__activate_license *)Py_None);
     __Pyx_INCREF(Py_None);
-    __PYX_ERR(0, 83, __pyx_L1_error)
+    __PYX_ERR(0, 136, __pyx_L1_error)
   } else {
     __Pyx_GOTREF((PyObject *)__pyx_cur_scope);
   }
@@ -3553,7 +4467,7 @@ static PyObject *__pyx_pf_9licensing_3api_activate_license(CYTHON_UNUSED PyObjec
   __Pyx_INCREF(__pyx_cur_scope->__pyx_v_db);
   __Pyx_GIVEREF(__pyx_cur_scope->__pyx_v_db);
   {
-    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_9licensing_3api_2generator, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[0]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_activate_license, __pyx_mstate_global->__pyx_n_u_activate_license, __pyx_mstate_global->__pyx_n_u_licensing_api); if (unlikely(!gen)) __PYX_ERR(0, 83, __pyx_L1_error)
+    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_9licensing_3api_6generator, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[0]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_activate_license, __pyx_mstate_global->__pyx_n_u_activate_license, __pyx_mstate_global->__pyx_n_u_licensing_api); if (unlikely(!gen)) __PYX_ERR(0, 136, __pyx_L1_error)
     __Pyx_DECREF(__pyx_cur_scope);
     __Pyx_RefNannyFinishContext();
     return (PyObject *) gen;
@@ -3569,7 +4483,7 @@ static PyObject *__pyx_pf_9licensing_3api_activate_license(CYTHON_UNUSED PyObjec
   return __pyx_r;
 }
 
-static PyObject *__pyx_gb_9licensing_3api_2generator(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
+static PyObject *__pyx_gb_9licensing_3api_6generator(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
 {
   struct __pyx_obj_9licensing_3api___pyx_scope_struct__activate_license *__pyx_cur_scope = ((struct __pyx_obj_9licensing_3api___pyx_scope_struct__activate_license *)__pyx_generator->closure);
   PyObject *__pyx_r = NULL;
@@ -3577,9 +4491,9 @@ static PyObject *__pyx_gb_9licensing_3api_2generator(__pyx_CoroutineObject *__py
   PyObject *__pyx_t_2 = NULL;
   PyObject *__pyx_t_3 = NULL;
   PyObject *__pyx_t_4 = NULL;
-  PyObject *__pyx_t_5 = NULL;
+  size_t __pyx_t_5;
   PyObject *__pyx_t_6 = NULL;
-  size_t __pyx_t_7;
+  PyObject *__pyx_t_7 = NULL;
   PyObject *__pyx_t_8 = NULL;
   PyObject *__pyx_t_9 = NULL;
   PyObject *__pyx_t_10 = NULL;
@@ -3600,13 +4514,11 @@ static PyObject *__pyx_gb_9licensing_3api_2generator(__pyx_CoroutineObject *__py
   int __pyx_t_25;
   int __pyx_t_26;
   PyObject *__pyx_t_27 = NULL;
-  PyObject *__pyx_t_28[3];
-  Py_ssize_t __pyx_t_29;
+  PyObject *__pyx_t_28 = NULL;
+  PyObject *__pyx_t_29 = NULL;
   PyObject *__pyx_t_30 = NULL;
-  PyObject *__pyx_t_31 = NULL;
-  PyObject *__pyx_t_32 = NULL;
-  PyObject *__pyx_t_33 = NULL;
-  PyObject *__pyx_t_34 = NULL;
+  PyObject *__pyx_t_31[4];
+  Py_ssize_t __pyx_t_32;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -3621,109 +4533,146 @@ static PyObject *__pyx_gb_9licensing_3api_2generator(__pyx_CoroutineObject *__py
   __pyx_L3_first_run:;
   if (unlikely(__pyx_sent_value != Py_None)) {
     if (unlikely(__pyx_sent_value)) PyErr_SetString(PyExc_TypeError, "can't send non-None value to a just-started coroutine");
-    __PYX_ERR(0, 83, __pyx_L1_error)
+    __PYX_ERR(0, 136, __pyx_L1_error)
   }
 
-  /* "licensing/api.py":98
- *     5. Consumes one credit for new activations
+  /* "licensing/api.py":149
+ *     4. Handles machine fingerprint binding and deduction of credits.
  *     """
+ *     clean_key = _clean_product_key(request.product_key)             # <<<<<<<<<<<<<<
+ * 
+ *     try:
+*/
+  __pyx_t_2 = NULL;
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_clean_product_key); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 149, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_product_key); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 149, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_5 = 1;
+  #if CYTHON_UNPACK_METHODS
+  if (unlikely(PyMethod_Check(__pyx_t_3))) {
+    __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_3);
+    assert(__pyx_t_2);
+    PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_3);
+    __Pyx_INCREF(__pyx_t_2);
+    __Pyx_INCREF(__pyx__function);
+    __Pyx_DECREF_SET(__pyx_t_3, __pyx__function);
+    __pyx_t_5 = 0;
+  }
+  #endif
+  {
+    PyObject *__pyx_callargs[2] = {__pyx_t_2, __pyx_t_4};
+    __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_3, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 149, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+  }
+  __Pyx_GIVEREF(__pyx_t_1);
+  __pyx_cur_scope->__pyx_v_clean_key = __pyx_t_1;
+  __pyx_t_1 = 0;
+
+  /* "licensing/api.py":151
+ *     clean_key = _clean_product_key(request.product_key)
+ * 
  *     try:             # <<<<<<<<<<<<<<
- *         # Load public key for verification (in production, load from secure config)
- *         # For now, we'll create a temporary crypto instance
+ *         public_key_pem = _get_public_key()
+ *         crypto = LicenseCrypto(public_key_pem=public_key_pem)
 */
   {
-    __Pyx_ExceptionSave(&__pyx_t_1, &__pyx_t_2, &__pyx_t_3);
-    __Pyx_XGOTREF(__pyx_t_1);
-    __Pyx_XGOTREF(__pyx_t_2);
-    __Pyx_XGOTREF(__pyx_t_3);
+    __Pyx_ExceptionSave(&__pyx_t_6, &__pyx_t_7, &__pyx_t_8);
+    __Pyx_XGOTREF(__pyx_t_6);
+    __Pyx_XGOTREF(__pyx_t_7);
+    __Pyx_XGOTREF(__pyx_t_8);
     /*try:*/ {
 
-      /* "licensing/api.py":102
- *         # For now, we'll create a temporary crypto instance
- *         # In production, you should have the public key stored securely
+      /* "licensing/api.py":152
+ * 
+ *     try:
  *         public_key_pem = _get_public_key()             # <<<<<<<<<<<<<<
  *         crypto = LicenseCrypto(public_key_pem=public_key_pem)
  * 
 */
-      __pyx_t_5 = NULL;
-      __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_get_public_key); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 102, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_6);
-      __pyx_t_7 = 1;
+      __pyx_t_3 = NULL;
+      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_get_public_key); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 152, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_4);
+      __pyx_t_5 = 1;
       #if CYTHON_UNPACK_METHODS
-      if (unlikely(PyMethod_Check(__pyx_t_6))) {
-        __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_6);
-        assert(__pyx_t_5);
-        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_6);
-        __Pyx_INCREF(__pyx_t_5);
+      if (unlikely(PyMethod_Check(__pyx_t_4))) {
+        __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_4);
+        assert(__pyx_t_3);
+        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_4);
+        __Pyx_INCREF(__pyx_t_3);
         __Pyx_INCREF(__pyx__function);
-        __Pyx_DECREF_SET(__pyx_t_6, __pyx__function);
-        __pyx_t_7 = 0;
+        __Pyx_DECREF_SET(__pyx_t_4, __pyx__function);
+        __pyx_t_5 = 0;
       }
       #endif
       {
-        PyObject *__pyx_callargs[2] = {__pyx_t_5, NULL};
-        __pyx_t_4 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_6, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 102, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_4);
+        PyObject *__pyx_callargs[2] = {__pyx_t_3, NULL};
+        __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 152, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_1);
       }
-      __Pyx_GIVEREF(__pyx_t_4);
-      __pyx_cur_scope->__pyx_v_public_key_pem = __pyx_t_4;
-      __pyx_t_4 = 0;
+      __Pyx_GIVEREF(__pyx_t_1);
+      __pyx_cur_scope->__pyx_v_public_key_pem = __pyx_t_1;
+      __pyx_t_1 = 0;
 
-      /* "licensing/api.py":103
- *         # In production, you should have the public key stored securely
+      /* "licensing/api.py":153
+ *     try:
  *         public_key_pem = _get_public_key()
  *         crypto = LicenseCrypto(public_key_pem=public_key_pem)             # <<<<<<<<<<<<<<
  * 
- *         # Verify and decode product key
+ *         # Cryptographically verify the product key
 */
-      __pyx_t_6 = NULL;
-      __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_LicenseCrypto); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 103, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_7 = 1;
+      __pyx_t_4 = NULL;
+      __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_LicenseCrypto); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 153, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __pyx_t_5 = 1;
       #if CYTHON_UNPACK_METHODS
-      if (unlikely(PyMethod_Check(__pyx_t_5))) {
-        __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_5);
-        assert(__pyx_t_6);
-        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_5);
-        __Pyx_INCREF(__pyx_t_6);
+      if (unlikely(PyMethod_Check(__pyx_t_3))) {
+        __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
+        assert(__pyx_t_4);
+        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_3);
+        __Pyx_INCREF(__pyx_t_4);
         __Pyx_INCREF(__pyx__function);
-        __Pyx_DECREF_SET(__pyx_t_5, __pyx__function);
-        __pyx_t_7 = 0;
+        __Pyx_DECREF_SET(__pyx_t_3, __pyx__function);
+        __pyx_t_5 = 0;
       }
       #endif
       {
-        PyObject *__pyx_callargs[2] = {__pyx_t_6, __pyx_cur_scope->__pyx_v_public_key_pem};
+        PyObject *__pyx_callargs[2] = {__pyx_t_4, __pyx_cur_scope->__pyx_v_public_key_pem};
         #if CYTHON_VECTORCALL
-        __pyx_t_8 = __pyx_mstate_global->__pyx_tuple[0];
-        if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 103, __pyx_L4_error)
-        __Pyx_INCREF(__pyx_t_8);
+        __pyx_t_2 = __pyx_mstate_global->__pyx_tuple[1];
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 153, __pyx_L4_error)
+        __Pyx_INCREF(__pyx_t_2);
         #else
         {
-          PyObject *__pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_public_key_pem};
-          __pyx_t_8 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 1);
-          if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 103, __pyx_L4_error)
-          __Pyx_GOTREF(__pyx_t_8);
+          PyObject *__pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_public_key_pem_2};
+          __pyx_t_2 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 1);
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 153, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_2);
         }
         #endif
-        __pyx_t_4 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_5, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_8);
-        __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-        __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 103, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_4);
+        __pyx_t_1 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_3, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_2);
+        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 153, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_1);
       }
-      __Pyx_GIVEREF(__pyx_t_4);
-      __pyx_cur_scope->__pyx_v_crypto = __pyx_t_4;
-      __pyx_t_4 = 0;
+      __Pyx_GIVEREF(__pyx_t_1);
+      __pyx_cur_scope->__pyx_v_crypto = __pyx_t_1;
+      __pyx_t_1 = 0;
 
-      /* "licensing/api.py":106
+      /* "licensing/api.py":156
  * 
- *         # Verify and decode product key
+ *         # Cryptographically verify the product key
  *         try:             # <<<<<<<<<<<<<<
- *             license_data = crypto.verify_product_key(request.product_key)
+ *             license_data = crypto.verify_product_key(clean_key)
  *         except ValueError as e:
 */
       {
@@ -3733,35 +4682,32 @@ static PyObject *__pyx_gb_9licensing_3api_2generator(__pyx_CoroutineObject *__py
         __Pyx_XGOTREF(__pyx_t_11);
         /*try:*/ {
 
-          /* "licensing/api.py":107
- *         # Verify and decode product key
+          /* "licensing/api.py":157
+ *         # Cryptographically verify the product key
  *         try:
- *             license_data = crypto.verify_product_key(request.product_key)             # <<<<<<<<<<<<<<
+ *             license_data = crypto.verify_product_key(clean_key)             # <<<<<<<<<<<<<<
  *         except ValueError as e:
  *             raise HTTPException(status_code=400, detail=f"Invalid product key: {str(e)}")
 */
-          __pyx_t_5 = __pyx_cur_scope->__pyx_v_crypto;
-          __Pyx_INCREF(__pyx_t_5);
-          __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_product_key); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 107, __pyx_L10_error)
-          __Pyx_GOTREF(__pyx_t_8);
-          __pyx_t_7 = 0;
+          __pyx_t_3 = __pyx_cur_scope->__pyx_v_crypto;
+          __Pyx_INCREF(__pyx_t_3);
+          __pyx_t_5 = 0;
           {
-            PyObject *__pyx_callargs[2] = {__pyx_t_5, __pyx_t_8};
-            __pyx_t_4 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_verify_product_key, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-            __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-            __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-            if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 107, __pyx_L10_error)
-            __Pyx_GOTREF(__pyx_t_4);
+            PyObject *__pyx_callargs[2] = {__pyx_t_3, __pyx_cur_scope->__pyx_v_clean_key};
+            __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_verify_product_key, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+            __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+            if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 157, __pyx_L10_error)
+            __Pyx_GOTREF(__pyx_t_1);
           }
-          __Pyx_GIVEREF(__pyx_t_4);
-          __pyx_cur_scope->__pyx_v_license_data = __pyx_t_4;
-          __pyx_t_4 = 0;
+          __Pyx_GIVEREF(__pyx_t_1);
+          __pyx_cur_scope->__pyx_v_license_data = __pyx_t_1;
+          __pyx_t_1 = 0;
 
-          /* "licensing/api.py":106
+          /* "licensing/api.py":156
  * 
- *         # Verify and decode product key
+ *         # Cryptographically verify the product key
  *         try:             # <<<<<<<<<<<<<<
- *             license_data = crypto.verify_product_key(request.product_key)
+ *             license_data = crypto.verify_product_key(clean_key)
  *         except ValueError as e:
 */
         }
@@ -3770,14 +4716,14 @@ static PyObject *__pyx_gb_9licensing_3api_2generator(__pyx_CoroutineObject *__py
         __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
         goto __pyx_L15_try_end;
         __pyx_L10_error:;
+        __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
         __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-        __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-        /* "licensing/api.py":108
+        /* "licensing/api.py":158
  *         try:
- *             license_data = crypto.verify_product_key(request.product_key)
+ *             license_data = crypto.verify_product_key(clean_key)
  *         except ValueError as e:             # <<<<<<<<<<<<<<
  *             raise HTTPException(status_code=400, detail=f"Invalid product key: {str(e)}")
  * 
@@ -3785,31 +4731,31 @@ static PyObject *__pyx_gb_9licensing_3api_2generator(__pyx_CoroutineObject *__py
         __pyx_t_12 = __Pyx_PyErr_ExceptionMatches(((PyObject *)(((PyTypeObject*)PyExc_ValueError))));
         if (__pyx_t_12) {
           __Pyx_AddTraceback("licensing.api.activate_license", __pyx_clineno, __pyx_lineno, __pyx_filename);
-          if (__Pyx_GetException(&__pyx_t_4, &__pyx_t_8, &__pyx_t_5) < 0) __PYX_ERR(0, 108, __pyx_L12_except_error)
-          __Pyx_XGOTREF(__pyx_t_4);
-          __Pyx_XGOTREF(__pyx_t_8);
-          __Pyx_XGOTREF(__pyx_t_5);
-          __Pyx_INCREF(__pyx_t_8);
-          __Pyx_GIVEREF(__pyx_t_8);
-          __pyx_cur_scope->__pyx_v_e = ((PyObject*)__pyx_t_8);
+          if (__Pyx_GetException(&__pyx_t_1, &__pyx_t_3, &__pyx_t_2) < 0) __PYX_ERR(0, 158, __pyx_L12_except_error)
+          __Pyx_XGOTREF(__pyx_t_1);
+          __Pyx_XGOTREF(__pyx_t_3);
+          __Pyx_XGOTREF(__pyx_t_2);
+          __Pyx_INCREF(__pyx_t_3);
+          __Pyx_GIVEREF(__pyx_t_3);
+          __pyx_cur_scope->__pyx_v_e = ((PyObject*)__pyx_t_3);
           /*try:*/ {
 
-            /* "licensing/api.py":109
- *             license_data = crypto.verify_product_key(request.product_key)
+            /* "licensing/api.py":159
+ *             license_data = crypto.verify_product_key(clean_key)
  *         except ValueError as e:
  *             raise HTTPException(status_code=400, detail=f"Invalid product key: {str(e)}")             # <<<<<<<<<<<<<<
  * 
  *         # Check if license exists in database
 */
             __pyx_t_13 = NULL;
-            __Pyx_GetModuleGlobalName(__pyx_t_14, __pyx_mstate_global->__pyx_n_u_HTTPException); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 109, __pyx_L21_error)
+            __Pyx_GetModuleGlobalName(__pyx_t_14, __pyx_mstate_global->__pyx_n_u_HTTPException); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 159, __pyx_L21_error)
             __Pyx_GOTREF(__pyx_t_14);
-            __pyx_t_15 = __Pyx_PyObject_Unicode(__pyx_cur_scope->__pyx_v_e); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 109, __pyx_L21_error)
+            __pyx_t_15 = __Pyx_PyObject_Unicode(__pyx_cur_scope->__pyx_v_e); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 159, __pyx_L21_error)
             __Pyx_GOTREF(__pyx_t_15);
-            __pyx_t_16 = __Pyx_PyUnicode_Concat(__pyx_mstate_global->__pyx_kp_u_Invalid_product_key, __pyx_t_15); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 109, __pyx_L21_error)
+            __pyx_t_16 = __Pyx_PyUnicode_Concat(__pyx_mstate_global->__pyx_kp_u_Invalid_product_key, __pyx_t_15); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 159, __pyx_L21_error)
             __Pyx_GOTREF(__pyx_t_16);
             __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
-            __pyx_t_7 = 1;
+            __pyx_t_5 = 1;
             #if CYTHON_UNPACK_METHODS
             if (unlikely(PyMethod_Check(__pyx_t_14))) {
               __pyx_t_13 = PyMethod_GET_SELF(__pyx_t_14);
@@ -3818,39 +4764,39 @@ static PyObject *__pyx_gb_9licensing_3api_2generator(__pyx_CoroutineObject *__py
               __Pyx_INCREF(__pyx_t_13);
               __Pyx_INCREF(__pyx__function);
               __Pyx_DECREF_SET(__pyx_t_14, __pyx__function);
-              __pyx_t_7 = 0;
+              __pyx_t_5 = 0;
             }
             #endif
             {
               PyObject *__pyx_callargs[3] = {__pyx_t_13, __pyx_mstate_global->__pyx_int_400, __pyx_t_16};
               #if CYTHON_VECTORCALL
-              __pyx_t_15 = __pyx_mstate_global->__pyx_tuple[1];
-              if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 109, __pyx_L21_error)
+              __pyx_t_15 = __pyx_mstate_global->__pyx_tuple[2];
+              if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 159, __pyx_L21_error)
               __Pyx_INCREF(__pyx_t_15);
               #else
               {
                 PyObject *__pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_status_code, __pyx_mstate_global->__pyx_n_u_detail};
                 __pyx_t_15 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
-                if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 109, __pyx_L21_error)
+                if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 159, __pyx_L21_error)
                 __Pyx_GOTREF(__pyx_t_15);
               }
               #endif
-              __pyx_t_6 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_14, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_15);
+              __pyx_t_4 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_14, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_15);
               __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
               __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
               __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
               __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-              if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 109, __pyx_L21_error)
-              __Pyx_GOTREF(__pyx_t_6);
+              if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 159, __pyx_L21_error)
+              __Pyx_GOTREF(__pyx_t_4);
             }
-            __Pyx_Raise(__pyx_t_6, 0, 0, 0);
-            __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-            __PYX_ERR(0, 109, __pyx_L21_error)
+            __Pyx_Raise(__pyx_t_4, 0, 0, 0);
+            __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+            __PYX_ERR(0, 159, __pyx_L21_error)
           }
 
-          /* "licensing/api.py":108
+          /* "licensing/api.py":158
  *         try:
- *             license_data = crypto.verify_product_key(request.product_key)
+ *             license_data = crypto.verify_product_key(clean_key)
  *         except ValueError as e:             # <<<<<<<<<<<<<<
  *             raise HTTPException(status_code=400, detail=f"Invalid product key: {str(e)}")
  * 
@@ -3864,7 +4810,7 @@ static PyObject *__pyx_gb_9licensing_3api_2generator(__pyx_CoroutineObject *__py
               __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
               __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
               __Pyx_XDECREF(__pyx_t_16); __pyx_t_16 = 0;
-              __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
+              __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
                __Pyx_ExceptionSwap(&__pyx_t_22, &__pyx_t_23, &__pyx_t_24);
               if ( unlikely(__Pyx_GetException(&__pyx_t_19, &__pyx_t_20, &__pyx_t_21) < 0)) __Pyx_ErrFetch(&__pyx_t_19, &__pyx_t_20, &__pyx_t_21);
               __Pyx_XGOTREF(__pyx_t_19);
@@ -3894,11 +4840,11 @@ static PyObject *__pyx_gb_9licensing_3api_2generator(__pyx_CoroutineObject *__py
         }
         goto __pyx_L12_except_error;
 
-        /* "licensing/api.py":106
+        /* "licensing/api.py":156
  * 
- *         # Verify and decode product key
+ *         # Cryptographically verify the product key
  *         try:             # <<<<<<<<<<<<<<
- *             license_data = crypto.verify_product_key(request.product_key)
+ *             license_data = crypto.verify_product_key(clean_key)
  *         except ValueError as e:
 */
         __pyx_L12_except_error:;
@@ -3910,206 +4856,581 @@ static PyObject *__pyx_gb_9licensing_3api_2generator(__pyx_CoroutineObject *__py
         __pyx_L15_try_end:;
       }
 
-      /* "licensing/api.py":112
+      /* "licensing/api.py":162
  * 
  *         # Check if license exists in database
  *         license_record = db.query(ProductLicense).filter(             # <<<<<<<<<<<<<<
- *             ProductLicense.product_key == request.product_key
+ *             ProductLicense.product_key == clean_key
  *         ).first()
 */
       __pyx_t_15 = __pyx_cur_scope->__pyx_v_db;
       __Pyx_INCREF(__pyx_t_15);
-      __Pyx_GetModuleGlobalName(__pyx_t_16, __pyx_mstate_global->__pyx_n_u_ProductLicense); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 112, __pyx_L4_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_16, __pyx_mstate_global->__pyx_n_u_ProductLicense); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 162, __pyx_L4_error)
       __Pyx_GOTREF(__pyx_t_16);
-      __pyx_t_7 = 0;
+      __pyx_t_5 = 0;
       {
         PyObject *__pyx_callargs[2] = {__pyx_t_15, __pyx_t_16};
-        __pyx_t_14 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_query, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __pyx_t_14 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_query, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
         __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
         __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
-        if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 112, __pyx_L4_error)
+        if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 162, __pyx_L4_error)
         __Pyx_GOTREF(__pyx_t_14);
       }
-      __pyx_t_6 = __pyx_t_14;
-      __Pyx_INCREF(__pyx_t_6);
+      __pyx_t_4 = __pyx_t_14;
+      __Pyx_INCREF(__pyx_t_4);
 
-      /* "licensing/api.py":113
+      /* "licensing/api.py":163
  *         # Check if license exists in database
  *         license_record = db.query(ProductLicense).filter(
- *             ProductLicense.product_key == request.product_key             # <<<<<<<<<<<<<<
+ *             ProductLicense.product_key == clean_key             # <<<<<<<<<<<<<<
  *         ).first()
  * 
 */
-      __Pyx_GetModuleGlobalName(__pyx_t_16, __pyx_mstate_global->__pyx_n_u_ProductLicense); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 113, __pyx_L4_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_16, __pyx_mstate_global->__pyx_n_u_ProductLicense); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 163, __pyx_L4_error)
       __Pyx_GOTREF(__pyx_t_16);
-      __pyx_t_15 = __Pyx_PyObject_GetAttrStr(__pyx_t_16, __pyx_mstate_global->__pyx_n_u_product_key); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 113, __pyx_L4_error)
+      __pyx_t_15 = __Pyx_PyObject_GetAttrStr(__pyx_t_16, __pyx_mstate_global->__pyx_n_u_product_key); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 163, __pyx_L4_error)
       __Pyx_GOTREF(__pyx_t_15);
       __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
-      __pyx_t_16 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_product_key); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 113, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_16);
-      __pyx_t_13 = __Pyx_PyObject_CompareEq_object_object(__pyx_t_15, __pyx_t_16, Py_EQ); __Pyx_XGOTREF(__pyx_t_13); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 113, __pyx_L4_error)
+      __pyx_t_16 = __Pyx_PyObject_CompareEq_object_object(__pyx_t_15, __pyx_cur_scope->__pyx_v_clean_key, Py_EQ); __Pyx_XGOTREF(__pyx_t_16); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 163, __pyx_L4_error)
       __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
-      __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
-      __pyx_t_7 = 0;
-      {
-        PyObject *__pyx_callargs[2] = {__pyx_t_6, __pyx_t_13};
-        __pyx_t_4 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_filter, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-        __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-        __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 112, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_4);
-      }
-      __pyx_t_8 = __pyx_t_4;
-      __Pyx_INCREF(__pyx_t_8);
-      __pyx_t_7 = 0;
-      {
-        PyObject *__pyx_callargs[2] = {__pyx_t_8, NULL};
-        __pyx_t_5 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_first, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-        if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 114, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_5);
-      }
-      __Pyx_GIVEREF(__pyx_t_5);
-      __pyx_cur_scope->__pyx_v_license_record = __pyx_t_5;
       __pyx_t_5 = 0;
+      {
+        PyObject *__pyx_callargs[2] = {__pyx_t_4, __pyx_t_16};
+        __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_filter, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+        __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
+        __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 162, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_1);
+      }
+      __pyx_t_3 = __pyx_t_1;
+      __Pyx_INCREF(__pyx_t_3);
+      __pyx_t_5 = 0;
+      {
+        PyObject *__pyx_callargs[2] = {__pyx_t_3, NULL};
+        __pyx_t_2 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_first, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 164, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_2);
+      }
+      __Pyx_GIVEREF(__pyx_t_2);
+      __pyx_cur_scope->__pyx_v_license_record = __pyx_t_2;
+      __pyx_t_2 = 0;
 
-      /* "licensing/api.py":116
- *         ).first()
+      /* "licensing/api.py":167
  * 
+ *         # If not present in database, auto-provision from cryptographically verified key data
  *         if not license_record:             # <<<<<<<<<<<<<<
- *             raise HTTPException(status_code=404, detail="License not found in database")
- * 
+ *             try:
+ *                 expiry_dt = datetime.fromisoformat(license_data["expiry"])
 */
-      __pyx_t_25 = __Pyx_PyObject_IsTrue(__pyx_cur_scope->__pyx_v_license_record); if (unlikely((__pyx_t_25 < 0))) __PYX_ERR(0, 116, __pyx_L4_error)
+      __pyx_t_25 = __Pyx_PyObject_IsTrue(__pyx_cur_scope->__pyx_v_license_record); if (unlikely((__pyx_t_25 < 0))) __PYX_ERR(0, 167, __pyx_L4_error)
       __pyx_t_26 = (!__pyx_t_25);
 
 
-      if (unlikely(__pyx_t_26)) {
+      if (__pyx_t_26) {
 
 
-        /* "licensing/api.py":117
- * 
+        /* "licensing/api.py":168
+ *         # If not present in database, auto-provision from cryptographically verified key data
  *         if not license_record:
- *             raise HTTPException(status_code=404, detail="License not found in database")             # <<<<<<<<<<<<<<
- * 
- *         # Check if license is active
+ *             try:             # <<<<<<<<<<<<<<
+ *                 expiry_dt = datetime.fromisoformat(license_data["expiry"])
+ *             except Exception:
 */
-        __pyx_t_4 = NULL;
-        __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_HTTPException); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 117, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_8);
-        __pyx_t_7 = 1;
+        {
+          __Pyx_ExceptionSave(&__pyx_t_11, &__pyx_t_10, &__pyx_t_9);
+          __Pyx_XGOTREF(__pyx_t_11);
+          __Pyx_XGOTREF(__pyx_t_10);
+          __Pyx_XGOTREF(__pyx_t_9);
+          /*try:*/ {
+
+            /* "licensing/api.py":169
+ *         if not license_record:
+ *             try:
+ *                 expiry_dt = datetime.fromisoformat(license_data["expiry"])             # <<<<<<<<<<<<<<
+ *             except Exception:
+ *                 expiry_dt = datetime.now() + timedelta(days=365)
+*/
+            __pyx_t_1 = NULL;
+            __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_datetime); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 169, __pyx_L28_error)
+            __Pyx_GOTREF(__pyx_t_3);
+            __pyx_t_14 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_fromisoformat); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 169, __pyx_L28_error)
+            __Pyx_GOTREF(__pyx_t_14);
+            __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+            __pyx_t_3 = __Pyx_PyObject_Dict_GetItem(__pyx_cur_scope->__pyx_v_license_data, __pyx_mstate_global->__pyx_n_u_expiry); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 169, __pyx_L28_error)
+            __Pyx_GOTREF(__pyx_t_3);
+            __pyx_t_5 = 1;
+            #if CYTHON_UNPACK_METHODS
+            if (unlikely(PyMethod_Check(__pyx_t_14))) {
+              __pyx_t_1 = PyMethod_GET_SELF(__pyx_t_14);
+              assert(__pyx_t_1);
+              PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_14);
+              __Pyx_INCREF(__pyx_t_1);
+              __Pyx_INCREF(__pyx__function);
+              __Pyx_DECREF_SET(__pyx_t_14, __pyx__function);
+              __pyx_t_5 = 0;
+            }
+            #endif
+            {
+              PyObject *__pyx_callargs[2] = {__pyx_t_1, __pyx_t_3};
+              __pyx_t_2 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_14, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+              __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+              __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+              __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+              if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 169, __pyx_L28_error)
+              __Pyx_GOTREF(__pyx_t_2);
+            }
+            __Pyx_GIVEREF(__pyx_t_2);
+            __pyx_cur_scope->__pyx_v_expiry_dt = __pyx_t_2;
+            __pyx_t_2 = 0;
+
+            /* "licensing/api.py":168
+ *         # If not present in database, auto-provision from cryptographically verified key data
+ *         if not license_record:
+ *             try:             # <<<<<<<<<<<<<<
+ *                 expiry_dt = datetime.fromisoformat(license_data["expiry"])
+ *             except Exception:
+*/
+          }
+          __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
+          __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
+          __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
+          goto __pyx_L33_try_end;
+          __pyx_L28_error:;
+          __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+          __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
+          __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
+          __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
+          __Pyx_XDECREF(__pyx_t_16); __pyx_t_16 = 0;
+          __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+          __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+          __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+
+          /* "licensing/api.py":170
+ *             try:
+ *                 expiry_dt = datetime.fromisoformat(license_data["expiry"])
+ *             except Exception:             # <<<<<<<<<<<<<<
+ *                 expiry_dt = datetime.now() + timedelta(days=365)
+ * 
+*/
+          __pyx_t_17 = __Pyx_PyErr_ExceptionMatches(((PyObject *)(((PyTypeObject*)PyExc_Exception))));
+          if (__pyx_t_17) {
+            __Pyx_AddTraceback("licensing.api.activate_license", __pyx_clineno, __pyx_lineno, __pyx_filename);
+            if (__Pyx_GetException(&__pyx_t_2, &__pyx_t_14, &__pyx_t_3) < 0) __PYX_ERR(0, 170, __pyx_L30_except_error)
+            __Pyx_XGOTREF(__pyx_t_2);
+            __Pyx_XGOTREF(__pyx_t_14);
+            __Pyx_XGOTREF(__pyx_t_3);
+
+            /* "licensing/api.py":171
+ *                 expiry_dt = datetime.fromisoformat(license_data["expiry"])
+ *             except Exception:
+ *                 expiry_dt = datetime.now() + timedelta(days=365)             # <<<<<<<<<<<<<<
+ * 
+ *             initial_credits = int(license_data.get("credits", 2))
+*/
+            __pyx_t_16 = NULL;
+            __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_datetime); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 171, __pyx_L30_except_error)
+            __Pyx_GOTREF(__pyx_t_4);
+            __pyx_t_15 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_now); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 171, __pyx_L30_except_error)
+            __Pyx_GOTREF(__pyx_t_15);
+            __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+            __pyx_t_5 = 1;
+            #if CYTHON_UNPACK_METHODS
+            if (unlikely(PyMethod_Check(__pyx_t_15))) {
+              __pyx_t_16 = PyMethod_GET_SELF(__pyx_t_15);
+              assert(__pyx_t_16);
+              PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_15);
+              __Pyx_INCREF(__pyx_t_16);
+              __Pyx_INCREF(__pyx__function);
+              __Pyx_DECREF_SET(__pyx_t_15, __pyx__function);
+              __pyx_t_5 = 0;
+            }
+            #endif
+            {
+              PyObject *__pyx_callargs[2] = {__pyx_t_16, NULL};
+              __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_15, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+              __Pyx_XDECREF(__pyx_t_16); __pyx_t_16 = 0;
+              __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
+              if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 171, __pyx_L30_except_error)
+              __Pyx_GOTREF(__pyx_t_1);
+            }
+            __pyx_t_16 = NULL;
+            __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_timedelta); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 171, __pyx_L30_except_error)
+            __Pyx_GOTREF(__pyx_t_4);
+            __pyx_t_5 = 1;
+            #if CYTHON_UNPACK_METHODS
+            if (unlikely(PyMethod_Check(__pyx_t_4))) {
+              __pyx_t_16 = PyMethod_GET_SELF(__pyx_t_4);
+              assert(__pyx_t_16);
+              PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_4);
+              __Pyx_INCREF(__pyx_t_16);
+              __Pyx_INCREF(__pyx__function);
+              __Pyx_DECREF_SET(__pyx_t_4, __pyx__function);
+              __pyx_t_5 = 0;
+            }
+            #endif
+            {
+              PyObject *__pyx_callargs[2] = {__pyx_t_16, __pyx_mstate_global->__pyx_int_365};
+              #if CYTHON_VECTORCALL
+              __pyx_t_13 = __pyx_mstate_global->__pyx_tuple[3];
+              if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 171, __pyx_L30_except_error)
+              __Pyx_INCREF(__pyx_t_13);
+              #else
+              {
+                PyObject *__pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_days};
+                __pyx_t_13 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 1);
+                if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 171, __pyx_L30_except_error)
+                __Pyx_GOTREF(__pyx_t_13);
+              }
+              #endif
+              __pyx_t_15 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_13);
+              __Pyx_XDECREF(__pyx_t_16); __pyx_t_16 = 0;
+              __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+              __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+              if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 171, __pyx_L30_except_error)
+              __Pyx_GOTREF(__pyx_t_15);
+            }
+            __pyx_t_4 = __Pyx_PyNumber_Add_object_object(__pyx_t_1, __pyx_t_15); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 171, __pyx_L30_except_error)
+            __Pyx_GOTREF(__pyx_t_4);
+            __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+            __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
+            __Pyx_XGOTREF(__pyx_cur_scope->__pyx_v_expiry_dt);
+            __Pyx_XDECREF_SET(__pyx_cur_scope->__pyx_v_expiry_dt, __pyx_t_4);
+            __Pyx_GIVEREF(__pyx_t_4);
+            __pyx_t_4 = 0;
+            __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+            __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
+            __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+            goto __pyx_L29_exception_handled;
+          }
+          goto __pyx_L30_except_error;
+
+          /* "licensing/api.py":168
+ *         # If not present in database, auto-provision from cryptographically verified key data
+ *         if not license_record:
+ *             try:             # <<<<<<<<<<<<<<
+ *                 expiry_dt = datetime.fromisoformat(license_data["expiry"])
+ *             except Exception:
+*/
+          __pyx_L30_except_error:;
+          __Pyx_XGIVEREF(__pyx_t_11);
+          __Pyx_XGIVEREF(__pyx_t_10);
+          __Pyx_XGIVEREF(__pyx_t_9);
+          __Pyx_ExceptionReset(__pyx_t_11, __pyx_t_10, __pyx_t_9);
+          goto __pyx_L4_error;
+          __pyx_L29_exception_handled:;
+          __Pyx_XGIVEREF(__pyx_t_11);
+          __Pyx_XGIVEREF(__pyx_t_10);
+          __Pyx_XGIVEREF(__pyx_t_9);
+          __Pyx_ExceptionReset(__pyx_t_11, __pyx_t_10, __pyx_t_9);
+          __pyx_L33_try_end:;
+        }
+
+        /* "licensing/api.py":173
+ *                 expiry_dt = datetime.now() + timedelta(days=365)
+ * 
+ *             initial_credits = int(license_data.get("credits", 2))             # <<<<<<<<<<<<<<
+ *             license_record = ProductLicense(
+ *                 product_key=clean_key,
+*/
+        __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_data, __pyx_mstate_global->__pyx_n_u_get); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 173, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_3);
+        __pyx_t_14 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_mstate_global->__pyx_tuple[4], NULL); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 173, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_14);
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+        __pyx_t_3 = __Pyx_PyNumber_Int(__pyx_t_14); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 173, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_3);
+        __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+        __Pyx_GIVEREF(__pyx_t_3);
+        __pyx_cur_scope->__pyx_v_initial_credits = ((PyObject*)__pyx_t_3);
+        __pyx_t_3 = 0;
+
+        /* "licensing/api.py":174
+ * 
+ *             initial_credits = int(license_data.get("credits", 2))
+ *             license_record = ProductLicense(             # <<<<<<<<<<<<<<
+ *                 product_key=clean_key,
+ *                 product_name=license_data.get("product", "LLS CBT"),
+*/
+        __pyx_t_14 = NULL;
+        __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_ProductLicense); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 174, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_2);
+
+        /* "licensing/api.py":176
+ *             license_record = ProductLicense(
+ *                 product_key=clean_key,
+ *                 product_name=license_data.get("product", "LLS CBT"),             # <<<<<<<<<<<<<<
+ *                 version=license_data.get("version", "1.0.0"),
+ *                 credits=initial_credits,
+*/
+        __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_data, __pyx_mstate_global->__pyx_n_u_get); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 176, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_4);
+        __pyx_t_15 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_mstate_global->__pyx_tuple[6], NULL); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 176, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_15);
+        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+
+        /* "licensing/api.py":177
+ *                 product_key=clean_key,
+ *                 product_name=license_data.get("product", "LLS CBT"),
+ *                 version=license_data.get("version", "1.0.0"),             # <<<<<<<<<<<<<<
+ *                 credits=initial_credits,
+ *                 expiry_date=expiry_dt,
+*/
+        __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_data, __pyx_mstate_global->__pyx_n_u_get); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 177, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_4);
+        __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_mstate_global->__pyx_tuple[7], NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 177, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+
+        /* "licensing/api.py":180
+ *                 credits=initial_credits,
+ *                 expiry_date=expiry_dt,
+ *                 license_metadata=json.dumps(license_data.get("metadata", {})) if license_data.get("metadata") else None,             # <<<<<<<<<<<<<<
+ *                 is_active=True
+ *             )
+*/
+        __pyx_t_16 = __pyx_cur_scope->__pyx_v_license_data;
+        __Pyx_INCREF(__pyx_t_16);
+        __pyx_t_5 = 0;
+        {
+          PyObject *__pyx_callargs[2] = {__pyx_t_16, __pyx_mstate_global->__pyx_n_u_metadata};
+          __pyx_t_13 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_get, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+          __Pyx_XDECREF(__pyx_t_16); __pyx_t_16 = 0;
+          if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 180, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_13);
+        }
+        __pyx_t_26 = __Pyx_PyObject_IsTrue(__pyx_t_13); if (unlikely((__pyx_t_26 < 0))) __PYX_ERR(0, 180, __pyx_L4_error)
+        __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+        if (__pyx_t_26) {
+          __pyx_t_16 = NULL;
+          __Pyx_GetModuleGlobalName(__pyx_t_27, __pyx_mstate_global->__pyx_n_u_json); if (unlikely(!__pyx_t_27)) __PYX_ERR(0, 180, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_27);
+          __pyx_t_28 = __Pyx_PyObject_GetAttrStr(__pyx_t_27, __pyx_mstate_global->__pyx_n_u_dumps); if (unlikely(!__pyx_t_28)) __PYX_ERR(0, 180, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_28);
+          __Pyx_DECREF(__pyx_t_27); __pyx_t_27 = 0;
+          __pyx_t_29 = __pyx_cur_scope->__pyx_v_license_data;
+          __Pyx_INCREF(__pyx_t_29);
+          __pyx_t_30 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_30)) __PYX_ERR(0, 180, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_30);
+          __pyx_t_5 = 0;
+          {
+            PyObject *__pyx_callargs[3] = {__pyx_t_29, __pyx_mstate_global->__pyx_n_u_metadata, __pyx_t_30};
+            __pyx_t_27 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_get, __pyx_callargs+__pyx_t_5, (3-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+            __Pyx_XDECREF(__pyx_t_29); __pyx_t_29 = 0;
+            __Pyx_DECREF(__pyx_t_30); __pyx_t_30 = 0;
+            if (unlikely(!__pyx_t_27)) __PYX_ERR(0, 180, __pyx_L4_error)
+            __Pyx_GOTREF(__pyx_t_27);
+          }
+          __pyx_t_5 = 1;
+          #if CYTHON_UNPACK_METHODS
+          if (unlikely(PyMethod_Check(__pyx_t_28))) {
+            __pyx_t_16 = PyMethod_GET_SELF(__pyx_t_28);
+            assert(__pyx_t_16);
+            PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_28);
+            __Pyx_INCREF(__pyx_t_16);
+            __Pyx_INCREF(__pyx__function);
+            __Pyx_DECREF_SET(__pyx_t_28, __pyx__function);
+            __pyx_t_5 = 0;
+          }
+          #endif
+          {
+            PyObject *__pyx_callargs[2] = {__pyx_t_16, __pyx_t_27};
+            __pyx_t_13 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_28, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+            __Pyx_XDECREF(__pyx_t_16); __pyx_t_16 = 0;
+            __Pyx_DECREF(__pyx_t_27); __pyx_t_27 = 0;
+            __Pyx_DECREF(__pyx_t_28); __pyx_t_28 = 0;
+            if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 180, __pyx_L4_error)
+            __Pyx_GOTREF(__pyx_t_13);
+          }
+          __pyx_t_4 = __pyx_t_13;
+          __pyx_t_13 = 0;
+        } else {
+          __Pyx_INCREF(Py_None);
+          __pyx_t_4 = Py_None;
+        }
+
+
+        /* "licensing/api.py":181
+ *                 expiry_date=expiry_dt,
+ *                 license_metadata=json.dumps(license_data.get("metadata", {})) if license_data.get("metadata") else None,
+ *                 is_active=True             # <<<<<<<<<<<<<<
+ *             )
+ *             db.add(license_record)
+*/
+        __pyx_t_5 = 1;
         #if CYTHON_UNPACK_METHODS
-        if (unlikely(PyMethod_Check(__pyx_t_8))) {
-          __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_8);
-          assert(__pyx_t_4);
-          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_8);
-          __Pyx_INCREF(__pyx_t_4);
+        if (unlikely(PyMethod_Check(__pyx_t_2))) {
+          __pyx_t_14 = PyMethod_GET_SELF(__pyx_t_2);
+          assert(__pyx_t_14);
+          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_2);
+          __Pyx_INCREF(__pyx_t_14);
           __Pyx_INCREF(__pyx__function);
-          __Pyx_DECREF_SET(__pyx_t_8, __pyx__function);
-          __pyx_t_7 = 0;
+          __Pyx_DECREF_SET(__pyx_t_2, __pyx__function);
+          __pyx_t_5 = 0;
         }
         #endif
         {
-          PyObject *__pyx_callargs[3] = {__pyx_t_4, __pyx_mstate_global->__pyx_int_404, __pyx_mstate_global->__pyx_kp_u_License_not_found_in_database};
+          PyObject *__pyx_callargs[8] = {__pyx_t_14, __pyx_cur_scope->__pyx_v_clean_key, __pyx_t_15, __pyx_t_1, __pyx_cur_scope->__pyx_v_initial_credits, __pyx_cur_scope->__pyx_v_expiry_dt, __pyx_t_4, Py_True};
           #if CYTHON_VECTORCALL
-          __pyx_t_14 = __pyx_mstate_global->__pyx_tuple[1];
-          if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 117, __pyx_L4_error)
-          __Pyx_INCREF(__pyx_t_14);
+          __pyx_t_13 = __pyx_mstate_global->__pyx_tuple[5];
+          if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 174, __pyx_L4_error)
+          __Pyx_INCREF(__pyx_t_13);
           #else
           {
-            PyObject *__pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_status_code, __pyx_mstate_global->__pyx_n_u_detail};
-            __pyx_t_14 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
-            if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 117, __pyx_L4_error)
-            __Pyx_GOTREF(__pyx_t_14);
+            PyObject *__pyx_temp[7] = {__pyx_mstate_global->__pyx_n_u_product_key, __pyx_mstate_global->__pyx_n_u_product_name, __pyx_mstate_global->__pyx_n_u_version, __pyx_mstate_global->__pyx_n_u_credits, __pyx_mstate_global->__pyx_n_u_expiry_date, __pyx_mstate_global->__pyx_n_u_license_metadata, __pyx_mstate_global->__pyx_n_u_is_active};
+            __pyx_t_13 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 7);
+            if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 174, __pyx_L4_error)
+            __Pyx_GOTREF(__pyx_t_13);
           }
           #endif
-          __pyx_t_5 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_8, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_14);
-          __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-          __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-          __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-          if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 117, __pyx_L4_error)
-          __Pyx_GOTREF(__pyx_t_5);
+          __pyx_t_3 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_2, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_13);
+          __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
+          __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
+          __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+          __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+          __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+          if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 174, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_3);
         }
-        __Pyx_Raise(__pyx_t_5, 0, 0, 0);
-        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __PYX_ERR(0, 117, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_cur_scope->__pyx_v_license_record);
+        __Pyx_DECREF_SET(__pyx_cur_scope->__pyx_v_license_record, __pyx_t_3);
+        __Pyx_GIVEREF(__pyx_t_3);
+        __pyx_t_3 = 0;
 
-        /* "licensing/api.py":116
- *         ).first()
+        /* "licensing/api.py":183
+ *                 is_active=True
+ *             )
+ *             db.add(license_record)             # <<<<<<<<<<<<<<
+ *             db.commit()
+ *             db.refresh(license_record)
+*/
+        __pyx_t_2 = __pyx_cur_scope->__pyx_v_db;
+        __Pyx_INCREF(__pyx_t_2);
+        __pyx_t_5 = 0;
+        {
+          PyObject *__pyx_callargs[2] = {__pyx_t_2, __pyx_cur_scope->__pyx_v_license_record};
+          __pyx_t_3 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_add, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+          __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+          if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 183, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_3);
+        }
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+
+        /* "licensing/api.py":184
+ *             )
+ *             db.add(license_record)
+ *             db.commit()             # <<<<<<<<<<<<<<
+ *             db.refresh(license_record)
  * 
+*/
+        __pyx_t_2 = __pyx_cur_scope->__pyx_v_db;
+        __Pyx_INCREF(__pyx_t_2);
+        __pyx_t_5 = 0;
+        {
+          PyObject *__pyx_callargs[2] = {__pyx_t_2, NULL};
+          __pyx_t_3 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_commit, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+          __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+          if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 184, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_3);
+        }
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+
+        /* "licensing/api.py":185
+ *             db.add(license_record)
+ *             db.commit()
+ *             db.refresh(license_record)             # <<<<<<<<<<<<<<
+ * 
+ *         # Check if license is active
+*/
+        __pyx_t_2 = __pyx_cur_scope->__pyx_v_db;
+        __Pyx_INCREF(__pyx_t_2);
+        __pyx_t_5 = 0;
+        {
+          PyObject *__pyx_callargs[2] = {__pyx_t_2, __pyx_cur_scope->__pyx_v_license_record};
+          __pyx_t_3 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_refresh, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+          __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+          if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 185, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_3);
+        }
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+
+        /* "licensing/api.py":167
+ * 
+ *         # If not present in database, auto-provision from cryptographically verified key data
  *         if not license_record:             # <<<<<<<<<<<<<<
- *             raise HTTPException(status_code=404, detail="License not found in database")
- * 
+ *             try:
+ *                 expiry_dt = datetime.fromisoformat(license_data["expiry"])
 */
       }
 
-      /* "licensing/api.py":120
+      /* "licensing/api.py":188
  * 
  *         # Check if license is active
  *         if not license_record.is_active:             # <<<<<<<<<<<<<<
  *             raise HTTPException(status_code=403, detail="License has been deactivated")
  * 
 */
-      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_is_active); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 120, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_26 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely((__pyx_t_26 < 0))) __PYX_ERR(0, 120, __pyx_L4_error)
-      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_is_active); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 188, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __pyx_t_26 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely((__pyx_t_26 < 0))) __PYX_ERR(0, 188, __pyx_L4_error)
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __pyx_t_25 = (!__pyx_t_26);
 
 
       if (unlikely(__pyx_t_25)) {
 
 
-        /* "licensing/api.py":121
+        /* "licensing/api.py":189
  *         # Check if license is active
  *         if not license_record.is_active:
  *             raise HTTPException(status_code=403, detail="License has been deactivated")             # <<<<<<<<<<<<<<
  * 
- *         # Check if license has expired (using server time, not client time)
+ *         # Check expiration (using server time)
 */
-        __pyx_t_8 = NULL;
-        __Pyx_GetModuleGlobalName(__pyx_t_14, __pyx_mstate_global->__pyx_n_u_HTTPException); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 121, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_14);
-        __pyx_t_7 = 1;
+        __pyx_t_2 = NULL;
+        __Pyx_GetModuleGlobalName(__pyx_t_13, __pyx_mstate_global->__pyx_n_u_HTTPException); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 189, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_13);
+        __pyx_t_5 = 1;
         #if CYTHON_UNPACK_METHODS
-        if (unlikely(PyMethod_Check(__pyx_t_14))) {
-          __pyx_t_8 = PyMethod_GET_SELF(__pyx_t_14);
-          assert(__pyx_t_8);
-          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_14);
-          __Pyx_INCREF(__pyx_t_8);
+        if (unlikely(PyMethod_Check(__pyx_t_13))) {
+          __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_13);
+          assert(__pyx_t_2);
+          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_13);
+          __Pyx_INCREF(__pyx_t_2);
           __Pyx_INCREF(__pyx__function);
-          __Pyx_DECREF_SET(__pyx_t_14, __pyx__function);
-          __pyx_t_7 = 0;
+          __Pyx_DECREF_SET(__pyx_t_13, __pyx__function);
+          __pyx_t_5 = 0;
         }
         #endif
         {
-          PyObject *__pyx_callargs[3] = {__pyx_t_8, __pyx_mstate_global->__pyx_int_403, __pyx_mstate_global->__pyx_kp_u_License_has_been_deactivated};
+          PyObject *__pyx_callargs[3] = {__pyx_t_2, __pyx_mstate_global->__pyx_int_403, __pyx_mstate_global->__pyx_kp_u_License_has_been_deactivated};
           #if CYTHON_VECTORCALL
-          __pyx_t_4 = __pyx_mstate_global->__pyx_tuple[1];
-          if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 121, __pyx_L4_error)
+          __pyx_t_4 = __pyx_mstate_global->__pyx_tuple[2];
+          if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 189, __pyx_L4_error)
           __Pyx_INCREF(__pyx_t_4);
           #else
           {
             PyObject *__pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_status_code, __pyx_mstate_global->__pyx_n_u_detail};
             __pyx_t_4 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
-            if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 121, __pyx_L4_error)
+            if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 189, __pyx_L4_error)
             __Pyx_GOTREF(__pyx_t_4);
           }
           #endif
-          __pyx_t_5 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_14, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_4);
-          __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
+          __pyx_t_3 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_13, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_4);
+          __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-          if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 121, __pyx_L4_error)
-          __Pyx_GOTREF(__pyx_t_5);
+          __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+          if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 189, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_3);
         }
-        __Pyx_Raise(__pyx_t_5, 0, 0, 0);
-        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __PYX_ERR(0, 121, __pyx_L4_error)
+        __Pyx_Raise(__pyx_t_3, 0, 0, 0);
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+        __PYX_ERR(0, 189, __pyx_L4_error)
 
-        /* "licensing/api.py":120
+        /* "licensing/api.py":188
  * 
  *         # Check if license is active
  *         if not license_record.is_active:             # <<<<<<<<<<<<<<
@@ -4118,134 +5439,134 @@ static PyObject *__pyx_gb_9licensing_3api_2generator(__pyx_CoroutineObject *__py
 */
       }
 
-      /* "licensing/api.py":125
- *         # Check if license has expired (using server time, not client time)
- *         # This prevents time manipulation attacks
+      /* "licensing/api.py":192
+ * 
+ *         # Check expiration (using server time)
  *         server_now = datetime.now()             # <<<<<<<<<<<<<<
  *         if license_record.expiry_date < server_now:
  *             raise HTTPException(
 */
-      __pyx_t_14 = NULL;
-      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_datetime); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 125, __pyx_L4_error)
+      __pyx_t_13 = NULL;
+      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_datetime); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 192, __pyx_L4_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_now); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 125, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_8);
+      __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_now); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 192, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_7 = 1;
+      __pyx_t_5 = 1;
       #if CYTHON_UNPACK_METHODS
-      if (unlikely(PyMethod_Check(__pyx_t_8))) {
-        __pyx_t_14 = PyMethod_GET_SELF(__pyx_t_8);
-        assert(__pyx_t_14);
-        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_8);
-        __Pyx_INCREF(__pyx_t_14);
+      if (unlikely(PyMethod_Check(__pyx_t_2))) {
+        __pyx_t_13 = PyMethod_GET_SELF(__pyx_t_2);
+        assert(__pyx_t_13);
+        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_2);
+        __Pyx_INCREF(__pyx_t_13);
         __Pyx_INCREF(__pyx__function);
-        __Pyx_DECREF_SET(__pyx_t_8, __pyx__function);
-        __pyx_t_7 = 0;
+        __Pyx_DECREF_SET(__pyx_t_2, __pyx__function);
+        __pyx_t_5 = 0;
       }
       #endif
       {
-        PyObject *__pyx_callargs[2] = {__pyx_t_14, NULL};
-        __pyx_t_5 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_8, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
-        __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-        if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 125, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_5);
+        PyObject *__pyx_callargs[2] = {__pyx_t_13, NULL};
+        __pyx_t_3 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_2, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
+        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 192, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_3);
       }
-      __Pyx_GIVEREF(__pyx_t_5);
-      __pyx_cur_scope->__pyx_v_server_now = __pyx_t_5;
-      __pyx_t_5 = 0;
+      __Pyx_GIVEREF(__pyx_t_3);
+      __pyx_cur_scope->__pyx_v_server_now = __pyx_t_3;
+      __pyx_t_3 = 0;
 
-      /* "licensing/api.py":126
- *         # This prevents time manipulation attacks
+      /* "licensing/api.py":193
+ *         # Check expiration (using server time)
  *         server_now = datetime.now()
  *         if license_record.expiry_date < server_now:             # <<<<<<<<<<<<<<
  *             raise HTTPException(
  *                 status_code=403,
 */
-      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_expiry_date); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 126, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_25 = __Pyx_PyObject_CompareBoolLt_object_object(__pyx_t_5, __pyx_cur_scope->__pyx_v_server_now, Py_LT); if (unlikely((__pyx_t_25 < 0))) __PYX_ERR(0, 126, __pyx_L4_error)
-      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_expiry_date); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 193, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __pyx_t_25 = __Pyx_PyObject_CompareBoolLt_object_object(__pyx_t_3, __pyx_cur_scope->__pyx_v_server_now, Py_LT); if (unlikely((__pyx_t_25 < 0))) __PYX_ERR(0, 193, __pyx_L4_error)
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       if (unlikely(__pyx_t_25)) {
 
 
-        /* "licensing/api.py":127
+        /* "licensing/api.py":194
  *         server_now = datetime.now()
  *         if license_record.expiry_date < server_now:
  *             raise HTTPException(             # <<<<<<<<<<<<<<
  *                 status_code=403,
  *                 detail=f"License has expired on {license_record.expiry_date.isoformat()}"
 */
-        __pyx_t_8 = NULL;
-        __Pyx_GetModuleGlobalName(__pyx_t_14, __pyx_mstate_global->__pyx_n_u_HTTPException); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 127, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_14);
+        __pyx_t_2 = NULL;
+        __Pyx_GetModuleGlobalName(__pyx_t_13, __pyx_mstate_global->__pyx_n_u_HTTPException); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 194, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_13);
 
-        /* "licensing/api.py":129
+        /* "licensing/api.py":196
  *             raise HTTPException(
  *                 status_code=403,
  *                 detail=f"License has expired on {license_record.expiry_date.isoformat()}"             # <<<<<<<<<<<<<<
  *             )
  * 
 */
-        __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_expiry_date); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 129, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_6);
-        __pyx_t_13 = __pyx_t_6;
-        __Pyx_INCREF(__pyx_t_13);
-        __pyx_t_7 = 0;
+        __pyx_t_15 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_expiry_date); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 196, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_15);
+        __pyx_t_1 = __pyx_t_15;
+        __Pyx_INCREF(__pyx_t_1);
+        __pyx_t_5 = 0;
         {
-          PyObject *__pyx_callargs[2] = {__pyx_t_13, NULL};
-          __pyx_t_4 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_isoformat, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-          __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
-          __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-          if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 129, __pyx_L4_error)
+          PyObject *__pyx_callargs[2] = {__pyx_t_1, NULL};
+          __pyx_t_4 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_isoformat, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+          __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+          __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
+          if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 196, __pyx_L4_error)
           __Pyx_GOTREF(__pyx_t_4);
         }
-        __pyx_t_6 = __Pyx_PyObject_FormatSimple(__pyx_t_4, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 129, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_6);
+        __pyx_t_15 = __Pyx_PyObject_FormatSimple(__pyx_t_4, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 196, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_15);
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __pyx_t_4 = __Pyx_PyUnicode_Concat(__pyx_mstate_global->__pyx_kp_u_License_has_expired_on, __pyx_t_6); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 129, __pyx_L4_error)
+        __pyx_t_4 = __Pyx_PyUnicode_Concat(__pyx_mstate_global->__pyx_kp_u_License_has_expired_on, __pyx_t_15); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 196, __pyx_L4_error)
         __Pyx_GOTREF(__pyx_t_4);
-        __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-        __pyx_t_7 = 1;
+        __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
+        __pyx_t_5 = 1;
         #if CYTHON_UNPACK_METHODS
-        if (unlikely(PyMethod_Check(__pyx_t_14))) {
-          __pyx_t_8 = PyMethod_GET_SELF(__pyx_t_14);
-          assert(__pyx_t_8);
-          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_14);
-          __Pyx_INCREF(__pyx_t_8);
+        if (unlikely(PyMethod_Check(__pyx_t_13))) {
+          __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_13);
+          assert(__pyx_t_2);
+          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_13);
+          __Pyx_INCREF(__pyx_t_2);
           __Pyx_INCREF(__pyx__function);
-          __Pyx_DECREF_SET(__pyx_t_14, __pyx__function);
-          __pyx_t_7 = 0;
+          __Pyx_DECREF_SET(__pyx_t_13, __pyx__function);
+          __pyx_t_5 = 0;
         }
         #endif
         {
-          PyObject *__pyx_callargs[3] = {__pyx_t_8, __pyx_mstate_global->__pyx_int_403, __pyx_t_4};
+          PyObject *__pyx_callargs[3] = {__pyx_t_2, __pyx_mstate_global->__pyx_int_403, __pyx_t_4};
           #if CYTHON_VECTORCALL
-          __pyx_t_6 = __pyx_mstate_global->__pyx_tuple[1];
-          if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 127, __pyx_L4_error)
-          __Pyx_INCREF(__pyx_t_6);
+          __pyx_t_15 = __pyx_mstate_global->__pyx_tuple[2];
+          if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 194, __pyx_L4_error)
+          __Pyx_INCREF(__pyx_t_15);
           #else
           {
             PyObject *__pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_status_code, __pyx_mstate_global->__pyx_n_u_detail};
-            __pyx_t_6 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
-            if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 127, __pyx_L4_error)
-            __Pyx_GOTREF(__pyx_t_6);
+            __pyx_t_15 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
+            if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 194, __pyx_L4_error)
+            __Pyx_GOTREF(__pyx_t_15);
           }
           #endif
-          __pyx_t_5 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_14, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_6);
-          __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
+          __pyx_t_3 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_13, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_15);
+          __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-          __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-          if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 127, __pyx_L4_error)
-          __Pyx_GOTREF(__pyx_t_5);
+          __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
+          __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+          if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 194, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_3);
         }
-        __Pyx_Raise(__pyx_t_5, 0, 0, 0);
-        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __PYX_ERR(0, 127, __pyx_L4_error)
+        __Pyx_Raise(__pyx_t_3, 0, 0, 0);
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+        __PYX_ERR(0, 194, __pyx_L4_error)
 
-        /* "licensing/api.py":126
- *         # This prevents time manipulation attacks
+        /* "licensing/api.py":193
+ *         # Check expiration (using server time)
  *         server_now = datetime.now()
  *         if license_record.expiry_date < server_now:             # <<<<<<<<<<<<<<
  *             raise HTTPException(
@@ -4253,1085 +5574,951 @@ static PyObject *__pyx_gb_9licensing_3api_2generator(__pyx_CoroutineObject *__py
 */
       }
 
-      /* "licensing/api.py":134
- *         # Additional time manipulation protection:
- *         # If the license was activated more than (expiry_days + 30) days ago, it's suspicious
- *         days_since_creation = (server_now - license_record.created_at).days             # <<<<<<<<<<<<<<
- *         if days_since_creation > 400:  # ~1 year + buffer
- *             raise HTTPException(
-*/
-      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_created_at); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 134, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_14 = __Pyx_PyNumber_Subtract_object_object(__pyx_cur_scope->__pyx_v_server_now, __pyx_t_5); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 134, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_14);
-      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_14, __pyx_mstate_global->__pyx_n_u_days); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 134, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_5);
-      __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-      __Pyx_GIVEREF(__pyx_t_5);
-      __pyx_cur_scope->__pyx_v_days_since_creation = __pyx_t_5;
-      __pyx_t_5 = 0;
-
-      /* "licensing/api.py":135
- *         # If the license was activated more than (expiry_days + 30) days ago, it's suspicious
- *         days_since_creation = (server_now - license_record.created_at).days
- *         if days_since_creation > 400:  # ~1 year + buffer             # <<<<<<<<<<<<<<
- *             raise HTTPException(
- *                 status_code=403,
-*/
-      __pyx_t_25 = __Pyx_PyObject_CompareBoolGt_object_int(__pyx_cur_scope->__pyx_v_days_since_creation, __pyx_mstate_global->__pyx_int_400, Py_GT); if (unlikely((__pyx_t_25 < 0))) __PYX_ERR(0, 135, __pyx_L4_error)
-      if (unlikely(__pyx_t_25)) {
-
-
-        /* "licensing/api.py":136
- *         days_since_creation = (server_now - license_record.created_at).days
- *         if days_since_creation > 400:  # ~1 year + buffer
- *             raise HTTPException(             # <<<<<<<<<<<<<<
- *                 status_code=403,
- *                 detail="License validity period exceeded. Please contact support."
-*/
-        __pyx_t_14 = NULL;
-        __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_HTTPException); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 136, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_6);
-        __pyx_t_7 = 1;
-        #if CYTHON_UNPACK_METHODS
-        if (unlikely(PyMethod_Check(__pyx_t_6))) {
-          __pyx_t_14 = PyMethod_GET_SELF(__pyx_t_6);
-          assert(__pyx_t_14);
-          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_6);
-          __Pyx_INCREF(__pyx_t_14);
-          __Pyx_INCREF(__pyx__function);
-          __Pyx_DECREF_SET(__pyx_t_6, __pyx__function);
-          __pyx_t_7 = 0;
-        }
-        #endif
-        {
-          PyObject *__pyx_callargs[3] = {__pyx_t_14, __pyx_mstate_global->__pyx_int_403, __pyx_mstate_global->__pyx_kp_u_License_validity_period_exceeded};
-          #if CYTHON_VECTORCALL
-          __pyx_t_4 = __pyx_mstate_global->__pyx_tuple[1];
-          if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 136, __pyx_L4_error)
-          __Pyx_INCREF(__pyx_t_4);
-          #else
-          {
-            PyObject *__pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_status_code, __pyx_mstate_global->__pyx_n_u_detail};
-            __pyx_t_4 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
-            if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 136, __pyx_L4_error)
-            __Pyx_GOTREF(__pyx_t_4);
-          }
-          #endif
-          __pyx_t_5 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_6, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_4);
-          __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
-          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-          if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 136, __pyx_L4_error)
-          __Pyx_GOTREF(__pyx_t_5);
-        }
-        __Pyx_Raise(__pyx_t_5, 0, 0, 0);
-        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __PYX_ERR(0, 136, __pyx_L4_error)
-
-        /* "licensing/api.py":135
- *         # If the license was activated more than (expiry_days + 30) days ago, it's suspicious
- *         days_since_creation = (server_now - license_record.created_at).days
- *         if days_since_creation > 400:  # ~1 year + buffer             # <<<<<<<<<<<<<<
- *             raise HTTPException(
- *                 status_code=403,
-*/
-      }
-
-      /* "licensing/api.py":142
+      /* "licensing/api.py":200
  * 
- *         # Check if license has credits
- *         if license_record.credits <= 0:             # <<<<<<<<<<<<<<
- *             raise HTTPException(status_code=403, detail="No activation credits remaining")
- * 
-*/
-      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_credits); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 142, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_25 = __Pyx_PyObject_CompareBoolLe_object_int(__pyx_t_5, __pyx_mstate_global->__pyx_int_0, Py_LE); if (unlikely((__pyx_t_25 < 0))) __PYX_ERR(0, 142, __pyx_L4_error)
-      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      if (unlikely(__pyx_t_25)) {
-
-
-        /* "licensing/api.py":143
- *         # Check if license has credits
- *         if license_record.credits <= 0:
- *             raise HTTPException(status_code=403, detail="No activation credits remaining")             # <<<<<<<<<<<<<<
- * 
- *         # Check if this machine already has an activation
-*/
-        __pyx_t_6 = NULL;
-        __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_HTTPException); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 143, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_4);
-        __pyx_t_7 = 1;
-        #if CYTHON_UNPACK_METHODS
-        if (unlikely(PyMethod_Check(__pyx_t_4))) {
-          __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_4);
-          assert(__pyx_t_6);
-          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_4);
-          __Pyx_INCREF(__pyx_t_6);
-          __Pyx_INCREF(__pyx__function);
-          __Pyx_DECREF_SET(__pyx_t_4, __pyx__function);
-          __pyx_t_7 = 0;
-        }
-        #endif
-        {
-          PyObject *__pyx_callargs[3] = {__pyx_t_6, __pyx_mstate_global->__pyx_int_403, __pyx_mstate_global->__pyx_kp_u_No_activation_credits_remaining};
-          #if CYTHON_VECTORCALL
-          __pyx_t_14 = __pyx_mstate_global->__pyx_tuple[1];
-          if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 143, __pyx_L4_error)
-          __Pyx_INCREF(__pyx_t_14);
-          #else
-          {
-            PyObject *__pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_status_code, __pyx_mstate_global->__pyx_n_u_detail};
-            __pyx_t_14 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
-            if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 143, __pyx_L4_error)
-            __Pyx_GOTREF(__pyx_t_14);
-          }
-          #endif
-          __pyx_t_5 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_14);
-          __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-          __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 143, __pyx_L4_error)
-          __Pyx_GOTREF(__pyx_t_5);
-        }
-        __Pyx_Raise(__pyx_t_5, 0, 0, 0);
-        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __PYX_ERR(0, 143, __pyx_L4_error)
-
-        /* "licensing/api.py":142
- * 
- *         # Check if license has credits
- *         if license_record.credits <= 0:             # <<<<<<<<<<<<<<
- *             raise HTTPException(status_code=403, detail="No activation credits remaining")
- * 
-*/
-      }
-
-      /* "licensing/api.py":146
- * 
- *         # Check if this machine already has an activation
+ *         # Check if this machine already has an active activation
  *         existing_activation = db.query(LicenseActivation).filter(             # <<<<<<<<<<<<<<
  *             LicenseActivation.license_id == license_record.id,
  *             LicenseActivation.machine_fingerprint == request.machine_fingerprint,
 */
-      __pyx_t_13 = __pyx_cur_scope->__pyx_v_db;
-      __Pyx_INCREF(__pyx_t_13);
-      __Pyx_GetModuleGlobalName(__pyx_t_16, __pyx_mstate_global->__pyx_n_u_LicenseActivation); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 146, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_16);
-      __pyx_t_7 = 0;
+      __pyx_t_1 = __pyx_cur_scope->__pyx_v_db;
+      __Pyx_INCREF(__pyx_t_1);
+      __Pyx_GetModuleGlobalName(__pyx_t_14, __pyx_mstate_global->__pyx_n_u_LicenseActivation); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 200, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_14);
+      __pyx_t_5 = 0;
       {
-        PyObject *__pyx_callargs[2] = {__pyx_t_13, __pyx_t_16};
-        __pyx_t_8 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_query, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
-        __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
-        if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 146, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_8);
+        PyObject *__pyx_callargs[2] = {__pyx_t_1, __pyx_t_14};
+        __pyx_t_2 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_query, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 200, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_2);
       }
-      __pyx_t_6 = __pyx_t_8;
-      __Pyx_INCREF(__pyx_t_6);
+      __pyx_t_4 = __pyx_t_2;
+      __Pyx_INCREF(__pyx_t_4);
 
-      /* "licensing/api.py":147
- *         # Check if this machine already has an activation
+      /* "licensing/api.py":201
+ *         # Check if this machine already has an active activation
  *         existing_activation = db.query(LicenseActivation).filter(
  *             LicenseActivation.license_id == license_record.id,             # <<<<<<<<<<<<<<
  *             LicenseActivation.machine_fingerprint == request.machine_fingerprint,
  *             LicenseActivation.is_valid == True
 */
-      __Pyx_GetModuleGlobalName(__pyx_t_16, __pyx_mstate_global->__pyx_n_u_LicenseActivation); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 147, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_16);
-      __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_16, __pyx_mstate_global->__pyx_n_u_license_id); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 147, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_13);
-      __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
-      __pyx_t_16 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_id); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 147, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_16);
-      __pyx_t_15 = __Pyx_PyObject_CompareEq_object_object(__pyx_t_13, __pyx_t_16, Py_EQ); __Pyx_XGOTREF(__pyx_t_15); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 147, __pyx_L4_error)
-      __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-      __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
+      __Pyx_GetModuleGlobalName(__pyx_t_14, __pyx_mstate_global->__pyx_n_u_LicenseActivation); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 201, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_14);
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_14, __pyx_mstate_global->__pyx_n_u_license_id); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 201, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_1);
+      __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+      __pyx_t_14 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_id); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 201, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_14);
+      __pyx_t_28 = __Pyx_PyObject_CompareEq_object_object(__pyx_t_1, __pyx_t_14, Py_EQ); __Pyx_XGOTREF(__pyx_t_28); if (unlikely(!__pyx_t_28)) __PYX_ERR(0, 201, __pyx_L4_error)
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
 
-      /* "licensing/api.py":148
+      /* "licensing/api.py":202
  *         existing_activation = db.query(LicenseActivation).filter(
  *             LicenseActivation.license_id == license_record.id,
  *             LicenseActivation.machine_fingerprint == request.machine_fingerprint,             # <<<<<<<<<<<<<<
  *             LicenseActivation.is_valid == True
  *         ).first()
 */
-      __Pyx_GetModuleGlobalName(__pyx_t_16, __pyx_mstate_global->__pyx_n_u_LicenseActivation); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 148, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_16);
-      __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_16, __pyx_mstate_global->__pyx_n_u_machine_fingerprint); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 148, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_13);
-      __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
-      __pyx_t_16 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_machine_fingerprint); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 148, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_16);
-      __pyx_t_27 = __Pyx_PyObject_CompareEq_object_object(__pyx_t_13, __pyx_t_16, Py_EQ); __Pyx_XGOTREF(__pyx_t_27); if (unlikely(!__pyx_t_27)) __PYX_ERR(0, 148, __pyx_L4_error)
-      __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-      __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
+      __Pyx_GetModuleGlobalName(__pyx_t_14, __pyx_mstate_global->__pyx_n_u_LicenseActivation); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 202, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_14);
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_14, __pyx_mstate_global->__pyx_n_u_machine_fingerprint); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 202, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_1);
+      __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+      __pyx_t_14 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_machine_fingerprint); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 202, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_14);
+      __pyx_t_27 = __Pyx_PyObject_CompareEq_object_object(__pyx_t_1, __pyx_t_14, Py_EQ); __Pyx_XGOTREF(__pyx_t_27); if (unlikely(!__pyx_t_27)) __PYX_ERR(0, 202, __pyx_L4_error)
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
 
-      /* "licensing/api.py":149
+      /* "licensing/api.py":203
  *             LicenseActivation.license_id == license_record.id,
  *             LicenseActivation.machine_fingerprint == request.machine_fingerprint,
  *             LicenseActivation.is_valid == True             # <<<<<<<<<<<<<<
  *         ).first()
  * 
 */
-      __Pyx_GetModuleGlobalName(__pyx_t_16, __pyx_mstate_global->__pyx_n_u_LicenseActivation); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 149, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_16);
-      __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_16, __pyx_mstate_global->__pyx_n_u_is_valid); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 149, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_13);
-      __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
-      __pyx_t_16 = PyObject_RichCompare(__pyx_t_13, Py_True, Py_EQ); __Pyx_XGOTREF(__pyx_t_16); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 149, __pyx_L4_error)
-      __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-      __pyx_t_7 = 0;
-      {
-        PyObject *__pyx_callargs[4] = {__pyx_t_6, __pyx_t_15, __pyx_t_27, __pyx_t_16};
-        __pyx_t_14 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_filter, __pyx_callargs+__pyx_t_7, (4-__pyx_t_7) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-        __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
-        __Pyx_DECREF(__pyx_t_27); __pyx_t_27 = 0;
-        __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
-        __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-        if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 146, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_14);
-      }
-      __pyx_t_4 = __pyx_t_14;
-      __Pyx_INCREF(__pyx_t_4);
-      __pyx_t_7 = 0;
-      {
-        PyObject *__pyx_callargs[2] = {__pyx_t_4, NULL};
-        __pyx_t_5 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_first, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-        if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 150, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_5);
-      }
-      __Pyx_GIVEREF(__pyx_t_5);
-      __pyx_cur_scope->__pyx_v_existing_activation = __pyx_t_5;
+      __Pyx_GetModuleGlobalName(__pyx_t_14, __pyx_mstate_global->__pyx_n_u_LicenseActivation); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 203, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_14);
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_14, __pyx_mstate_global->__pyx_n_u_is_valid); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 203, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_1);
+      __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+      __pyx_t_14 = PyObject_RichCompare(__pyx_t_1, Py_True, Py_EQ); __Pyx_XGOTREF(__pyx_t_14); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 203, __pyx_L4_error)
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       __pyx_t_5 = 0;
+      {
+        PyObject *__pyx_callargs[4] = {__pyx_t_4, __pyx_t_28, __pyx_t_27, __pyx_t_14};
+        __pyx_t_15 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_filter, __pyx_callargs+__pyx_t_5, (4-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+        __Pyx_DECREF(__pyx_t_28); __pyx_t_28 = 0;
+        __Pyx_DECREF(__pyx_t_27); __pyx_t_27 = 0;
+        __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 200, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_15);
+      }
+      __pyx_t_13 = __pyx_t_15;
+      __Pyx_INCREF(__pyx_t_13);
+      __pyx_t_5 = 0;
+      {
+        PyObject *__pyx_callargs[2] = {__pyx_t_13, NULL};
+        __pyx_t_3 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_first, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
+        __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
+        if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 204, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_3);
+      }
+      __Pyx_GIVEREF(__pyx_t_3);
+      __pyx_cur_scope->__pyx_v_existing_activation = __pyx_t_3;
+      __pyx_t_3 = 0;
 
-      /* "licensing/api.py":152
+      /* "licensing/api.py":206
  *         ).first()
  * 
  *         if existing_activation:             # <<<<<<<<<<<<<<
- *             # Reactivate existing activation (no credit consumed)
  *             existing_activation.last_validated = datetime.now()
+ *             existing_activation.is_valid = True
 */
-      __pyx_t_25 = __Pyx_PyObject_IsTrue(__pyx_cur_scope->__pyx_v_existing_activation); if (unlikely((__pyx_t_25 < 0))) __PYX_ERR(0, 152, __pyx_L4_error)
+      __pyx_t_25 = __Pyx_PyObject_IsTrue(__pyx_cur_scope->__pyx_v_existing_activation); if (unlikely((__pyx_t_25 < 0))) __PYX_ERR(0, 206, __pyx_L4_error)
       if (__pyx_t_25) {
 
 
-        /* "licensing/api.py":154
+        /* "licensing/api.py":207
+ * 
  *         if existing_activation:
- *             # Reactivate existing activation (no credit consumed)
  *             existing_activation.last_validated = datetime.now()             # <<<<<<<<<<<<<<
  *             existing_activation.is_valid = True
  *             existing_activation.deactivated_at = None
 */
-        __pyx_t_14 = NULL;
-        __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_datetime); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 154, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_4);
-        __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_now); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 154, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_8);
-        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __pyx_t_7 = 1;
+        __pyx_t_15 = NULL;
+        __Pyx_GetModuleGlobalName(__pyx_t_13, __pyx_mstate_global->__pyx_n_u_datetime); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 207, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_13);
+        __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_13, __pyx_mstate_global->__pyx_n_u_now); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 207, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_2);
+        __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+        __pyx_t_5 = 1;
         #if CYTHON_UNPACK_METHODS
-        if (unlikely(PyMethod_Check(__pyx_t_8))) {
-          __pyx_t_14 = PyMethod_GET_SELF(__pyx_t_8);
-          assert(__pyx_t_14);
-          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_8);
-          __Pyx_INCREF(__pyx_t_14);
+        if (unlikely(PyMethod_Check(__pyx_t_2))) {
+          __pyx_t_15 = PyMethod_GET_SELF(__pyx_t_2);
+          assert(__pyx_t_15);
+          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_2);
+          __Pyx_INCREF(__pyx_t_15);
           __Pyx_INCREF(__pyx__function);
-          __Pyx_DECREF_SET(__pyx_t_8, __pyx__function);
-          __pyx_t_7 = 0;
+          __Pyx_DECREF_SET(__pyx_t_2, __pyx__function);
+          __pyx_t_5 = 0;
         }
         #endif
         {
-          PyObject *__pyx_callargs[2] = {__pyx_t_14, NULL};
-          __pyx_t_5 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_8, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-          __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
-          __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-          if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 154, __pyx_L4_error)
-          __Pyx_GOTREF(__pyx_t_5);
+          PyObject *__pyx_callargs[2] = {__pyx_t_15, NULL};
+          __pyx_t_3 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_2, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+          __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
+          __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+          if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 207, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_3);
         }
-        if (__Pyx_PyObject_SetAttrStr(__pyx_cur_scope->__pyx_v_existing_activation, __pyx_mstate_global->__pyx_n_u_last_validated, __pyx_t_5) < (0)) __PYX_ERR(0, 154, __pyx_L4_error)
-        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+        if (__Pyx_PyObject_SetAttrStr(__pyx_cur_scope->__pyx_v_existing_activation, __pyx_mstate_global->__pyx_n_u_last_validated, __pyx_t_3) < (0)) __PYX_ERR(0, 207, __pyx_L4_error)
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-        /* "licensing/api.py":155
- *             # Reactivate existing activation (no credit consumed)
+        /* "licensing/api.py":208
+ *         if existing_activation:
  *             existing_activation.last_validated = datetime.now()
  *             existing_activation.is_valid = True             # <<<<<<<<<<<<<<
  *             existing_activation.deactivated_at = None
  *             existing_activation.deactivation_reason = None
 */
-        if (__Pyx_PyObject_SetAttrStr(__pyx_cur_scope->__pyx_v_existing_activation, __pyx_mstate_global->__pyx_n_u_is_valid, Py_True) < (0)) __PYX_ERR(0, 155, __pyx_L4_error)
+        if (__Pyx_PyObject_SetAttrStr(__pyx_cur_scope->__pyx_v_existing_activation, __pyx_mstate_global->__pyx_n_u_is_valid, Py_True) < (0)) __PYX_ERR(0, 208, __pyx_L4_error)
 
-        /* "licensing/api.py":156
+        /* "licensing/api.py":209
  *             existing_activation.last_validated = datetime.now()
  *             existing_activation.is_valid = True
  *             existing_activation.deactivated_at = None             # <<<<<<<<<<<<<<
  *             existing_activation.deactivation_reason = None
  *             db.commit()
 */
-        if (__Pyx_PyObject_SetAttrStr(__pyx_cur_scope->__pyx_v_existing_activation, __pyx_mstate_global->__pyx_n_u_deactivated_at, Py_None) < (0)) __PYX_ERR(0, 156, __pyx_L4_error)
+        if (__Pyx_PyObject_SetAttrStr(__pyx_cur_scope->__pyx_v_existing_activation, __pyx_mstate_global->__pyx_n_u_deactivated_at, Py_None) < (0)) __PYX_ERR(0, 209, __pyx_L4_error)
 
-        /* "licensing/api.py":157
+        /* "licensing/api.py":210
  *             existing_activation.is_valid = True
  *             existing_activation.deactivated_at = None
  *             existing_activation.deactivation_reason = None             # <<<<<<<<<<<<<<
  *             db.commit()
  * 
 */
-        if (__Pyx_PyObject_SetAttrStr(__pyx_cur_scope->__pyx_v_existing_activation, __pyx_mstate_global->__pyx_n_u_deactivation_reason, Py_None) < (0)) __PYX_ERR(0, 157, __pyx_L4_error)
+        if (__Pyx_PyObject_SetAttrStr(__pyx_cur_scope->__pyx_v_existing_activation, __pyx_mstate_global->__pyx_n_u_deactivation_reason, Py_None) < (0)) __PYX_ERR(0, 210, __pyx_L4_error)
 
-        /* "licensing/api.py":158
+        /* "licensing/api.py":211
  *             existing_activation.deactivated_at = None
  *             existing_activation.deactivation_reason = None
  *             db.commit()             # <<<<<<<<<<<<<<
  * 
  *             return ActivationResponse(
 */
-        __pyx_t_8 = __pyx_cur_scope->__pyx_v_db;
-        __Pyx_INCREF(__pyx_t_8);
-        __pyx_t_7 = 0;
+        __pyx_t_2 = __pyx_cur_scope->__pyx_v_db;
+        __Pyx_INCREF(__pyx_t_2);
+        __pyx_t_5 = 0;
         {
-          PyObject *__pyx_callargs[2] = {__pyx_t_8, NULL};
-          __pyx_t_5 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_commit, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-          __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-          if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 158, __pyx_L4_error)
-          __Pyx_GOTREF(__pyx_t_5);
+          PyObject *__pyx_callargs[2] = {__pyx_t_2, NULL};
+          __pyx_t_3 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_commit, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+          __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+          if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 211, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_3);
         }
-        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-        /* "licensing/api.py":160
+        /* "licensing/api.py":213
  *             db.commit()
  * 
  *             return ActivationResponse(             # <<<<<<<<<<<<<<
  *                 success=True,
- *                 message="License reactivated successfully on same machine",
+ *                 message="License reactivated successfully on this machine",
 */
-        __pyx_t_8 = NULL;
-        __Pyx_GetModuleGlobalName(__pyx_t_14, __pyx_mstate_global->__pyx_n_u_ActivationResponse); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 160, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_14);
+        __pyx_t_2 = NULL;
+        __Pyx_GetModuleGlobalName(__pyx_t_15, __pyx_mstate_global->__pyx_n_u_ActivationResponse); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 213, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_15);
 
-        /* "licensing/api.py":164
- *                 message="License reactivated successfully on same machine",
+        /* "licensing/api.py":217
+ *                 message="License reactivated successfully on this machine",
  *                 license_data=license_data,
  *                 remaining_credits=license_record.credits,             # <<<<<<<<<<<<<<
  *                 expiry_date=license_record.expiry_date.isoformat(),
  *                 activation_id=existing_activation.id
 */
-        __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_credits); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 164, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_4);
+        __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_credits); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 217, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_13);
 
-        /* "licensing/api.py":165
+        /* "licensing/api.py":218
  *                 license_data=license_data,
  *                 remaining_credits=license_record.credits,
  *                 expiry_date=license_record.expiry_date.isoformat(),             # <<<<<<<<<<<<<<
  *                 activation_id=existing_activation.id
  *             )
 */
-        __pyx_t_15 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_expiry_date); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 165, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_15);
-        __pyx_t_27 = __pyx_t_15;
+        __pyx_t_28 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_expiry_date); if (unlikely(!__pyx_t_28)) __PYX_ERR(0, 218, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_28);
+        __pyx_t_27 = __pyx_t_28;
         __Pyx_INCREF(__pyx_t_27);
-        __pyx_t_7 = 0;
+        __pyx_t_5 = 0;
         {
           PyObject *__pyx_callargs[2] = {__pyx_t_27, NULL};
-          __pyx_t_16 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_isoformat, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+          __pyx_t_14 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_isoformat, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_27); __pyx_t_27 = 0;
-          __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
-          if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 165, __pyx_L4_error)
-          __Pyx_GOTREF(__pyx_t_16);
+          __Pyx_DECREF(__pyx_t_28); __pyx_t_28 = 0;
+          if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 218, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_14);
         }
 
-        /* "licensing/api.py":166
+        /* "licensing/api.py":219
  *                 remaining_credits=license_record.credits,
  *                 expiry_date=license_record.expiry_date.isoformat(),
  *                 activation_id=existing_activation.id             # <<<<<<<<<<<<<<
  *             )
  * 
 */
-        __pyx_t_15 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_existing_activation, __pyx_mstate_global->__pyx_n_u_id); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 166, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_15);
-        __pyx_t_7 = 1;
+        __pyx_t_28 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_existing_activation, __pyx_mstate_global->__pyx_n_u_id); if (unlikely(!__pyx_t_28)) __PYX_ERR(0, 219, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_28);
+        __pyx_t_5 = 1;
         #if CYTHON_UNPACK_METHODS
-        if (unlikely(PyMethod_Check(__pyx_t_14))) {
-          __pyx_t_8 = PyMethod_GET_SELF(__pyx_t_14);
-          assert(__pyx_t_8);
-          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_14);
-          __Pyx_INCREF(__pyx_t_8);
+        if (unlikely(PyMethod_Check(__pyx_t_15))) {
+          __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_15);
+          assert(__pyx_t_2);
+          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_15);
+          __Pyx_INCREF(__pyx_t_2);
           __Pyx_INCREF(__pyx__function);
-          __Pyx_DECREF_SET(__pyx_t_14, __pyx__function);
-          __pyx_t_7 = 0;
+          __Pyx_DECREF_SET(__pyx_t_15, __pyx__function);
+          __pyx_t_5 = 0;
         }
         #endif
         {
-          PyObject *__pyx_callargs[7] = {__pyx_t_8, Py_True, __pyx_mstate_global->__pyx_kp_u_License_reactivated_successfully, __pyx_cur_scope->__pyx_v_license_data, __pyx_t_4, __pyx_t_16, __pyx_t_15};
+          PyObject *__pyx_callargs[7] = {__pyx_t_2, Py_True, __pyx_mstate_global->__pyx_kp_u_License_reactivated_successfully, __pyx_cur_scope->__pyx_v_license_data, __pyx_t_13, __pyx_t_14, __pyx_t_28};
           #if CYTHON_VECTORCALL
-          __pyx_t_27 = __pyx_mstate_global->__pyx_tuple[2];
-          if (unlikely(!__pyx_t_27)) __PYX_ERR(0, 160, __pyx_L4_error)
+          __pyx_t_27 = __pyx_mstate_global->__pyx_tuple[8];
+          if (unlikely(!__pyx_t_27)) __PYX_ERR(0, 213, __pyx_L4_error)
           __Pyx_INCREF(__pyx_t_27);
           #else
           {
             PyObject *__pyx_temp[6] = {__pyx_mstate_global->__pyx_n_u_success, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_n_u_license_data, __pyx_mstate_global->__pyx_n_u_remaining_credits, __pyx_mstate_global->__pyx_n_u_expiry_date, __pyx_mstate_global->__pyx_n_u_activation_id};
             __pyx_t_27 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 6);
-            if (unlikely(!__pyx_t_27)) __PYX_ERR(0, 160, __pyx_L4_error)
+            if (unlikely(!__pyx_t_27)) __PYX_ERR(0, 213, __pyx_L4_error)
             __Pyx_GOTREF(__pyx_t_27);
           }
           #endif
-          __pyx_t_5 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_14, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_27);
-          __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
-          __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
-          __Pyx_DECREF(__pyx_t_27); __pyx_t_27 = 0;
+          __pyx_t_3 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_15, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_27);
+          __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+          __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
           __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-          if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 160, __pyx_L4_error)
-          __Pyx_GOTREF(__pyx_t_5);
+          __Pyx_DECREF(__pyx_t_28); __pyx_t_28 = 0;
+          __Pyx_DECREF(__pyx_t_27); __pyx_t_27 = 0;
+          __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
+          if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 213, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_3);
         }
         {
           PyObject *__pyx_temp;
           {
             __pyx_temp = __pyx_r;
-            __pyx_r = __pyx_t_5;
+            __pyx_r = __pyx_t_3;
           }
           __Pyx_XDECREF(__pyx_temp);
         }
-        __pyx_t_5 = 0;
+        __pyx_t_3 = 0;
         goto __pyx_L8_try_return;
 
-        /* "licensing/api.py":152
+        /* "licensing/api.py":206
  *         ).first()
  * 
  *         if existing_activation:             # <<<<<<<<<<<<<<
- *             # Reactivate existing activation (no credit consumed)
  *             existing_activation.last_validated = datetime.now()
+ *             existing_activation.is_valid = True
 */
       }
 
-      /* "licensing/api.py":170
+      /* "licensing/api.py":223
  * 
- *         # Check if this key has been activated on too many different machines
- *         activation_count = db.query(LicenseActivation).filter(             # <<<<<<<<<<<<<<
+ *         # Check allowed machines vs total activations
+ *         max_allowed = int(license_data.get("credits", 2))             # <<<<<<<<<<<<<<
+ *         active_machine_count = db.query(LicenseActivation).filter(
+ *             LicenseActivation.license_id == license_record.id,
+*/
+      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_data, __pyx_mstate_global->__pyx_n_u_get); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 223, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __pyx_t_15 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_mstate_global->__pyx_tuple[4], NULL); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 223, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_15);
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      __pyx_t_3 = __Pyx_PyNumber_Int(__pyx_t_15); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 223, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
+      __Pyx_GIVEREF(__pyx_t_3);
+      __pyx_cur_scope->__pyx_v_max_allowed = ((PyObject*)__pyx_t_3);
+      __pyx_t_3 = 0;
+
+      /* "licensing/api.py":224
+ *         # Check allowed machines vs total activations
+ *         max_allowed = int(license_data.get("credits", 2))
+ *         active_machine_count = db.query(LicenseActivation).filter(             # <<<<<<<<<<<<<<
  *             LicenseActivation.license_id == license_record.id,
  *             LicenseActivation.is_valid == True
 */
-      __pyx_t_4 = __pyx_cur_scope->__pyx_v_db;
-      __Pyx_INCREF(__pyx_t_4);
-      __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_LicenseActivation); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 170, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_8);
-      __pyx_t_7 = 0;
+      __pyx_t_13 = __pyx_cur_scope->__pyx_v_db;
+      __Pyx_INCREF(__pyx_t_13);
+      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_LicenseActivation); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 224, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_2);
+      __pyx_t_5 = 0;
       {
-        PyObject *__pyx_callargs[2] = {__pyx_t_4, __pyx_t_8};
-        __pyx_t_16 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_query, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-        if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 170, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_16);
+        PyObject *__pyx_callargs[2] = {__pyx_t_13, __pyx_t_2};
+        __pyx_t_14 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_query, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
+        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 224, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_14);
       }
-      __pyx_t_15 = __pyx_t_16;
-      __Pyx_INCREF(__pyx_t_15);
+      __pyx_t_28 = __pyx_t_14;
+      __Pyx_INCREF(__pyx_t_28);
 
-      /* "licensing/api.py":171
- *         # Check if this key has been activated on too many different machines
- *         activation_count = db.query(LicenseActivation).filter(
+      /* "licensing/api.py":225
+ *         max_allowed = int(license_data.get("credits", 2))
+ *         active_machine_count = db.query(LicenseActivation).filter(
  *             LicenseActivation.license_id == license_record.id,             # <<<<<<<<<<<<<<
  *             LicenseActivation.is_valid == True
  *         ).count()
 */
-      __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_LicenseActivation); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 171, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_8);
-      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_license_id); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 171, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_4);
-      __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-      __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_id); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 171, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_8);
-      __pyx_t_6 = __Pyx_PyObject_CompareEq_object_object(__pyx_t_4, __pyx_t_8, Py_EQ); __Pyx_XGOTREF(__pyx_t_6); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 171, __pyx_L4_error)
-      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_LicenseActivation); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 225, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_2);
+      __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_license_id); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 225, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_13);
+      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+      __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_id); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 225, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_2);
+      __pyx_t_4 = __Pyx_PyObject_CompareEq_object_object(__pyx_t_13, __pyx_t_2, Py_EQ); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 225, __pyx_L4_error)
+      __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-      /* "licensing/api.py":172
- *         activation_count = db.query(LicenseActivation).filter(
+      /* "licensing/api.py":226
+ *         active_machine_count = db.query(LicenseActivation).filter(
  *             LicenseActivation.license_id == license_record.id,
  *             LicenseActivation.is_valid == True             # <<<<<<<<<<<<<<
  *         ).count()
  * 
 */
-      __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_LicenseActivation); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 172, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_8);
-      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_is_valid); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 172, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_4);
-      __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-      __pyx_t_8 = PyObject_RichCompare(__pyx_t_4, Py_True, Py_EQ); __Pyx_XGOTREF(__pyx_t_8); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 172, __pyx_L4_error)
-      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_7 = 0;
+      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_LicenseActivation); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 226, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_2);
+      __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_is_valid); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 226, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_13);
+      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+      __pyx_t_2 = PyObject_RichCompare(__pyx_t_13, Py_True, Py_EQ); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 226, __pyx_L4_error)
+      __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+      __pyx_t_5 = 0;
       {
-        PyObject *__pyx_callargs[3] = {__pyx_t_15, __pyx_t_6, __pyx_t_8};
-        __pyx_t_27 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_filter, __pyx_callargs+__pyx_t_7, (3-__pyx_t_7) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
-        __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-        __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-        __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
-        if (unlikely(!__pyx_t_27)) __PYX_ERR(0, 170, __pyx_L4_error)
+        PyObject *__pyx_callargs[3] = {__pyx_t_28, __pyx_t_4, __pyx_t_2};
+        __pyx_t_27 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_filter, __pyx_callargs+__pyx_t_5, (3-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_28); __pyx_t_28 = 0;
+        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+        if (unlikely(!__pyx_t_27)) __PYX_ERR(0, 224, __pyx_L4_error)
         __Pyx_GOTREF(__pyx_t_27);
       }
-      __pyx_t_14 = __pyx_t_27;
-      __Pyx_INCREF(__pyx_t_14);
-      __pyx_t_7 = 0;
-      {
-        PyObject *__pyx_callargs[2] = {__pyx_t_14, NULL};
-        __pyx_t_5 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_count, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
-        __Pyx_DECREF(__pyx_t_27); __pyx_t_27 = 0;
-        if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 173, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_5);
-      }
-      __Pyx_GIVEREF(__pyx_t_5);
-      __pyx_cur_scope->__pyx_v_activation_count = __pyx_t_5;
+      __pyx_t_15 = __pyx_t_27;
+      __Pyx_INCREF(__pyx_t_15);
       __pyx_t_5 = 0;
+      {
+        PyObject *__pyx_callargs[2] = {__pyx_t_15, NULL};
+        __pyx_t_3 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_count, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
+        __Pyx_DECREF(__pyx_t_27); __pyx_t_27 = 0;
+        if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 227, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_3);
+      }
+      __Pyx_GIVEREF(__pyx_t_3);
+      __pyx_cur_scope->__pyx_v_active_machine_count = __pyx_t_3;
+      __pyx_t_3 = 0;
 
-      /* "licensing/api.py":175
+      /* "licensing/api.py":229
  *         ).count()
  * 
- *         if activation_count >= 2:  # Allow activation on up to 2 different machines             # <<<<<<<<<<<<<<
+ *         if active_machine_count >= max_allowed:             # <<<<<<<<<<<<<<
  *             raise HTTPException(
  *                 status_code=403,
 */
-      __pyx_t_25 = __Pyx_PyObject_CompareBoolGe_object_int(__pyx_cur_scope->__pyx_v_activation_count, __pyx_mstate_global->__pyx_int_2, Py_GE); if (unlikely((__pyx_t_25 < 0))) __PYX_ERR(0, 175, __pyx_L4_error)
+      __pyx_t_25 = __Pyx_PyObject_CompareBoolGe_object_int(__pyx_cur_scope->__pyx_v_active_machine_count, __pyx_cur_scope->__pyx_v_max_allowed, Py_GE); if (unlikely((__pyx_t_25 < 0))) __PYX_ERR(0, 229, __pyx_L4_error)
       if (unlikely(__pyx_t_25)) {
 
 
-        /* "licensing/api.py":176
+        /* "licensing/api.py":230
  * 
- *         if activation_count >= 2:  # Allow activation on up to 2 different machines
+ *         if active_machine_count >= max_allowed:
  *             raise HTTPException(             # <<<<<<<<<<<<<<
  *                 status_code=403,
- *                 detail=f"License already activated on {activation_count} different machines. Maximum allowed: 2"
+ *                 detail=f"License already activated on {active_machine_count} machine(s). Maximum allowed: {max_allowed}"
 */
         __pyx_t_27 = NULL;
-        __Pyx_GetModuleGlobalName(__pyx_t_14, __pyx_mstate_global->__pyx_n_u_HTTPException); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 176, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_14);
+        __Pyx_GetModuleGlobalName(__pyx_t_15, __pyx_mstate_global->__pyx_n_u_HTTPException); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 230, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_15);
 
-        /* "licensing/api.py":178
+        /* "licensing/api.py":232
  *             raise HTTPException(
  *                 status_code=403,
- *                 detail=f"License already activated on {activation_count} different machines. Maximum allowed: 2"             # <<<<<<<<<<<<<<
+ *                 detail=f"License already activated on {active_machine_count} machine(s). Maximum allowed: {max_allowed}"             # <<<<<<<<<<<<<<
  *             )
  * 
 */
-        __pyx_t_16 = __Pyx_PyObject_FormatSimple(__pyx_cur_scope->__pyx_v_activation_count, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 178, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_16);
-        __pyx_t_28[0] = __pyx_mstate_global->__pyx_kp_u_License_already_activated_on;
-        __pyx_t_28[1] = __pyx_t_16;
-        __pyx_t_28[2] = __pyx_mstate_global->__pyx_kp_u_different_machines_Maximum_allo;
-        __pyx_t_29 = 68;
+        __pyx_t_14 = __Pyx_PyObject_FormatSimple(__pyx_cur_scope->__pyx_v_active_machine_count, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 232, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_14);
+        __pyx_t_2 = __Pyx_PyObject_FormatSimple(__pyx_cur_scope->__pyx_v_max_allowed, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 232, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_2);
+        __pyx_t_31[0] = __pyx_mstate_global->__pyx_kp_u_License_already_activated_on;
+        __pyx_t_31[1] = __pyx_t_14;
+        __pyx_t_31[2] = __pyx_mstate_global->__pyx_kp_u_machine_s_Maximum_allowed;
+        __pyx_t_31[3] = __pyx_t_2;
+        __pyx_t_32 = 59;
         #if __Pyx_PyUnicode_Join_CAN_USE_KIND_AND_LENGTH
-        __pyx_t_29 += __Pyx_PyUnicode_GET_LENGTH(__pyx_t_28[1]);
+        __pyx_t_32 += __Pyx_PyUnicode_GET_LENGTH(__pyx_t_31[1]) + __Pyx_PyUnicode_GET_LENGTH(__pyx_t_31[3]);
         #endif
         __pyx_t_17 = 0;
         #if __Pyx_PyUnicode_Join_CAN_USE_KIND_AND_LENGTH
-        __pyx_t_17 |= __Pyx_PyUnicode_KIND_04(__pyx_t_28[1]);
+        __pyx_t_17 |= __Pyx_PyUnicode_KIND_04(__pyx_t_31[1]) | __Pyx_PyUnicode_KIND_04(__pyx_t_31[3]);
         #endif
-        __pyx_t_8 = __Pyx_PyUnicode_Join(__pyx_t_28, 3, __pyx_t_29, __pyx_t_17);
-        if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 178, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_8);
-        __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
-        __pyx_t_7 = 1;
+        __pyx_t_4 = __Pyx_PyUnicode_Join(__pyx_t_31, 4, __pyx_t_32, __pyx_t_17);
+        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 232, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_4);
+        __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __pyx_t_5 = 1;
         #if CYTHON_UNPACK_METHODS
-        if (unlikely(PyMethod_Check(__pyx_t_14))) {
-          __pyx_t_27 = PyMethod_GET_SELF(__pyx_t_14);
+        if (unlikely(PyMethod_Check(__pyx_t_15))) {
+          __pyx_t_27 = PyMethod_GET_SELF(__pyx_t_15);
           assert(__pyx_t_27);
-          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_14);
+          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_15);
           __Pyx_INCREF(__pyx_t_27);
           __Pyx_INCREF(__pyx__function);
-          __Pyx_DECREF_SET(__pyx_t_14, __pyx__function);
-          __pyx_t_7 = 0;
+          __Pyx_DECREF_SET(__pyx_t_15, __pyx__function);
+          __pyx_t_5 = 0;
         }
         #endif
         {
-          PyObject *__pyx_callargs[3] = {__pyx_t_27, __pyx_mstate_global->__pyx_int_403, __pyx_t_8};
+          PyObject *__pyx_callargs[3] = {__pyx_t_27, __pyx_mstate_global->__pyx_int_403, __pyx_t_4};
           #if CYTHON_VECTORCALL
-          __pyx_t_16 = __pyx_mstate_global->__pyx_tuple[1];
-          if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 176, __pyx_L4_error)
-          __Pyx_INCREF(__pyx_t_16);
+          __pyx_t_2 = __pyx_mstate_global->__pyx_tuple[2];
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 230, __pyx_L4_error)
+          __Pyx_INCREF(__pyx_t_2);
           #else
           {
             PyObject *__pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_status_code, __pyx_mstate_global->__pyx_n_u_detail};
-            __pyx_t_16 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
-            if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 176, __pyx_L4_error)
-            __Pyx_GOTREF(__pyx_t_16);
+            __pyx_t_2 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
+            if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 230, __pyx_L4_error)
+            __Pyx_GOTREF(__pyx_t_2);
           }
           #endif
-          __pyx_t_5 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_14, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_16);
+          __pyx_t_3 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_15, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_2);
           __Pyx_XDECREF(__pyx_t_27); __pyx_t_27 = 0;
-          __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-          __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
-          __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-          if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 176, __pyx_L4_error)
-          __Pyx_GOTREF(__pyx_t_5);
+          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+          __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+          __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
+          if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 230, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_3);
         }
-        __Pyx_Raise(__pyx_t_5, 0, 0, 0);
-        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __PYX_ERR(0, 176, __pyx_L4_error)
+        __Pyx_Raise(__pyx_t_3, 0, 0, 0);
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+        __PYX_ERR(0, 230, __pyx_L4_error)
 
-        /* "licensing/api.py":175
+        /* "licensing/api.py":229
  *         ).count()
  * 
- *         if activation_count >= 2:  # Allow activation on up to 2 different machines             # <<<<<<<<<<<<<<
+ *         if active_machine_count >= max_allowed:             # <<<<<<<<<<<<<<
  *             raise HTTPException(
  *                 status_code=403,
 */
       }
 
-      /* "licensing/api.py":182
+      /* "licensing/api.py":235
+ *             )
  * 
- *         # Create new activation
+ *         if license_record.credits <= 0:             # <<<<<<<<<<<<<<
+ *             raise HTTPException(status_code=403, detail="No activation credits remaining for this license")
+ * 
+*/
+      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_credits); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 235, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __pyx_t_25 = __Pyx_PyObject_CompareBoolLe_object_int(__pyx_t_3, __pyx_mstate_global->__pyx_int_0, Py_LE); if (unlikely((__pyx_t_25 < 0))) __PYX_ERR(0, 235, __pyx_L4_error)
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      if (unlikely(__pyx_t_25)) {
+
+
+        /* "licensing/api.py":236
+ * 
+ *         if license_record.credits <= 0:
+ *             raise HTTPException(status_code=403, detail="No activation credits remaining for this license")             # <<<<<<<<<<<<<<
+ * 
+ *         # Consume one credit for new machine activation
+*/
+        __pyx_t_15 = NULL;
+        __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_HTTPException); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 236, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_2);
+        __pyx_t_5 = 1;
+        #if CYTHON_UNPACK_METHODS
+        if (unlikely(PyMethod_Check(__pyx_t_2))) {
+          __pyx_t_15 = PyMethod_GET_SELF(__pyx_t_2);
+          assert(__pyx_t_15);
+          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_2);
+          __Pyx_INCREF(__pyx_t_15);
+          __Pyx_INCREF(__pyx__function);
+          __Pyx_DECREF_SET(__pyx_t_2, __pyx__function);
+          __pyx_t_5 = 0;
+        }
+        #endif
+        {
+          PyObject *__pyx_callargs[3] = {__pyx_t_15, __pyx_mstate_global->__pyx_int_403, __pyx_mstate_global->__pyx_kp_u_No_activation_credits_remaining};
+          #if CYTHON_VECTORCALL
+          __pyx_t_4 = __pyx_mstate_global->__pyx_tuple[2];
+          if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 236, __pyx_L4_error)
+          __Pyx_INCREF(__pyx_t_4);
+          #else
+          {
+            PyObject *__pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_status_code, __pyx_mstate_global->__pyx_n_u_detail};
+            __pyx_t_4 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
+            if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 236, __pyx_L4_error)
+            __Pyx_GOTREF(__pyx_t_4);
+          }
+          #endif
+          __pyx_t_3 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_2, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_4);
+          __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
+          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+          __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+          if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 236, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_3);
+        }
+        __Pyx_Raise(__pyx_t_3, 0, 0, 0);
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+        __PYX_ERR(0, 236, __pyx_L4_error)
+
+        /* "licensing/api.py":235
+ *             )
+ * 
+ *         if license_record.credits <= 0:             # <<<<<<<<<<<<<<
+ *             raise HTTPException(status_code=403, detail="No activation credits remaining for this license")
+ * 
+*/
+      }
+
+      /* "licensing/api.py":239
+ * 
+ *         # Consume one credit for new machine activation
+ *         license_record.credits -= 1             # <<<<<<<<<<<<<<
+ * 
+ *         new_activation = LicenseActivation(
+*/
+      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_credits); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 239, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __pyx_t_2 = __Pyx_PyLong_SubtractObjC(__pyx_t_3, __pyx_mstate_global->__pyx_int_1, 1, 1, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 239, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_2);
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      if (__Pyx_PyObject_SetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_credits, __pyx_t_2) < (0)) __PYX_ERR(0, 239, __pyx_L4_error)
+      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+      /* "licensing/api.py":241
+ *         license_record.credits -= 1
+ * 
  *         new_activation = LicenseActivation(             # <<<<<<<<<<<<<<
  *             license_id=license_record.id,
- *             user_email=request.user_email,
+ *             machine_fingerprint=request.machine_fingerprint,
 */
-      __pyx_t_14 = NULL;
-      __Pyx_GetModuleGlobalName(__pyx_t_16, __pyx_mstate_global->__pyx_n_u_LicenseActivation); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 182, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_16);
+      __pyx_t_3 = NULL;
+      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_LicenseActivation); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 241, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_4);
 
-      /* "licensing/api.py":183
- *         # Create new activation
+      /* "licensing/api.py":242
+ * 
  *         new_activation = LicenseActivation(
  *             license_id=license_record.id,             # <<<<<<<<<<<<<<
- *             user_email=request.user_email,
- *             user_name=request.user_name,
-*/
-      __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_id); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 183, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_8);
-
-      /* "licensing/api.py":184
- *         new_activation = LicenseActivation(
- *             license_id=license_record.id,
- *             user_email=request.user_email,             # <<<<<<<<<<<<<<
- *             user_name=request.user_name,
  *             machine_fingerprint=request.machine_fingerprint,
-*/
-      __pyx_t_27 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_user_email); if (unlikely(!__pyx_t_27)) __PYX_ERR(0, 184, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_27);
-
-      /* "licensing/api.py":185
- *             license_id=license_record.id,
  *             user_email=request.user_email,
- *             user_name=request.user_name,             # <<<<<<<<<<<<<<
- *             machine_fingerprint=request.machine_fingerprint,
- *             machine_info=str(request.machine_info),
 */
-      __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_user_name); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 185, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_6);
-
-      /* "licensing/api.py":186
- *             user_email=request.user_email,
- *             user_name=request.user_name,
- *             machine_fingerprint=request.machine_fingerprint,             # <<<<<<<<<<<<<<
- *             machine_info=str(request.machine_info),
- *             activated_at=datetime.now(),
-*/
-      __pyx_t_15 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_machine_fingerprint); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 186, __pyx_L4_error)
+      __pyx_t_15 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_id); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 242, __pyx_L4_error)
       __Pyx_GOTREF(__pyx_t_15);
 
-      /* "licensing/api.py":187
+      /* "licensing/api.py":243
+ *         new_activation = LicenseActivation(
+ *             license_id=license_record.id,
+ *             machine_fingerprint=request.machine_fingerprint,             # <<<<<<<<<<<<<<
+ *             user_email=request.user_email,
  *             user_name=request.user_name,
- *             machine_fingerprint=request.machine_fingerprint,
- *             machine_info=str(request.machine_info),             # <<<<<<<<<<<<<<
- *             activated_at=datetime.now(),
- *             server_timestamp=datetime.now(),  # Server-trusted timestamp
 */
-      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_machine_info); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 187, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_13 = __Pyx_PyObject_Unicode(__pyx_t_4); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 187, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_13);
-      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+      __pyx_t_27 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_machine_fingerprint); if (unlikely(!__pyx_t_27)) __PYX_ERR(0, 243, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_27);
 
-      /* "licensing/api.py":188
+      /* "licensing/api.py":244
+ *             license_id=license_record.id,
  *             machine_fingerprint=request.machine_fingerprint,
- *             machine_info=str(request.machine_info),
- *             activated_at=datetime.now(),             # <<<<<<<<<<<<<<
- *             server_timestamp=datetime.now(),  # Server-trusted timestamp
- *             last_validated=datetime.now(),
+ *             user_email=request.user_email,             # <<<<<<<<<<<<<<
+ *             user_name=request.user_name,
+ *             machine_info=json.dumps(request.machine_info) if request.machine_info else None,
 */
-      __pyx_t_30 = NULL;
-      __Pyx_GetModuleGlobalName(__pyx_t_31, __pyx_mstate_global->__pyx_n_u_datetime); if (unlikely(!__pyx_t_31)) __PYX_ERR(0, 188, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_31);
-      __pyx_t_32 = __Pyx_PyObject_GetAttrStr(__pyx_t_31, __pyx_mstate_global->__pyx_n_u_now); if (unlikely(!__pyx_t_32)) __PYX_ERR(0, 188, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_32);
-      __Pyx_DECREF(__pyx_t_31); __pyx_t_31 = 0;
-      __pyx_t_7 = 1;
-      #if CYTHON_UNPACK_METHODS
-      if (unlikely(PyMethod_Check(__pyx_t_32))) {
-        __pyx_t_30 = PyMethod_GET_SELF(__pyx_t_32);
-        assert(__pyx_t_30);
-        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_32);
-        __Pyx_INCREF(__pyx_t_30);
-        __Pyx_INCREF(__pyx__function);
-        __Pyx_DECREF_SET(__pyx_t_32, __pyx__function);
-        __pyx_t_7 = 0;
-      }
-      #endif
-      {
-        PyObject *__pyx_callargs[2] = {__pyx_t_30, NULL};
-        __pyx_t_4 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_32, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_30); __pyx_t_30 = 0;
-        __Pyx_DECREF(__pyx_t_32); __pyx_t_32 = 0;
-        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 188, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_4);
-      }
+      __pyx_t_14 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_user_email); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 244, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_14);
 
-      /* "licensing/api.py":189
- *             machine_info=str(request.machine_info),
- *             activated_at=datetime.now(),
- *             server_timestamp=datetime.now(),  # Server-trusted timestamp             # <<<<<<<<<<<<<<
- *             last_validated=datetime.now(),
+      /* "licensing/api.py":245
+ *             machine_fingerprint=request.machine_fingerprint,
+ *             user_email=request.user_email,
+ *             user_name=request.user_name,             # <<<<<<<<<<<<<<
+ *             machine_info=json.dumps(request.machine_info) if request.machine_info else None,
  *             is_valid=True
 */
-      __pyx_t_30 = NULL;
-      __Pyx_GetModuleGlobalName(__pyx_t_31, __pyx_mstate_global->__pyx_n_u_datetime); if (unlikely(!__pyx_t_31)) __PYX_ERR(0, 189, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_31);
-      __pyx_t_33 = __Pyx_PyObject_GetAttrStr(__pyx_t_31, __pyx_mstate_global->__pyx_n_u_now); if (unlikely(!__pyx_t_33)) __PYX_ERR(0, 189, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_33);
-      __Pyx_DECREF(__pyx_t_31); __pyx_t_31 = 0;
-      __pyx_t_7 = 1;
-      #if CYTHON_UNPACK_METHODS
-      if (unlikely(PyMethod_Check(__pyx_t_33))) {
-        __pyx_t_30 = PyMethod_GET_SELF(__pyx_t_33);
-        assert(__pyx_t_30);
-        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_33);
-        __Pyx_INCREF(__pyx_t_30);
-        __Pyx_INCREF(__pyx__function);
-        __Pyx_DECREF_SET(__pyx_t_33, __pyx__function);
-        __pyx_t_7 = 0;
-      }
-      #endif
-      {
-        PyObject *__pyx_callargs[2] = {__pyx_t_30, NULL};
-        __pyx_t_32 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_33, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_30); __pyx_t_30 = 0;
-        __Pyx_DECREF(__pyx_t_33); __pyx_t_33 = 0;
-        if (unlikely(!__pyx_t_32)) __PYX_ERR(0, 189, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_32);
-      }
+      __pyx_t_28 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_user_name); if (unlikely(!__pyx_t_28)) __PYX_ERR(0, 245, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_28);
 
-      /* "licensing/api.py":190
- *             activated_at=datetime.now(),
- *             server_timestamp=datetime.now(),  # Server-trusted timestamp
- *             last_validated=datetime.now(),             # <<<<<<<<<<<<<<
+      /* "licensing/api.py":246
+ *             user_email=request.user_email,
+ *             user_name=request.user_name,
+ *             machine_info=json.dumps(request.machine_info) if request.machine_info else None,             # <<<<<<<<<<<<<<
  *             is_valid=True
  *         )
 */
-      __pyx_t_30 = NULL;
-      __Pyx_GetModuleGlobalName(__pyx_t_31, __pyx_mstate_global->__pyx_n_u_datetime); if (unlikely(!__pyx_t_31)) __PYX_ERR(0, 190, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_31);
-      __pyx_t_34 = __Pyx_PyObject_GetAttrStr(__pyx_t_31, __pyx_mstate_global->__pyx_n_u_now); if (unlikely(!__pyx_t_34)) __PYX_ERR(0, 190, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_34);
-      __Pyx_DECREF(__pyx_t_31); __pyx_t_31 = 0;
-      __pyx_t_7 = 1;
-      #if CYTHON_UNPACK_METHODS
-      if (unlikely(PyMethod_Check(__pyx_t_34))) {
-        __pyx_t_30 = PyMethod_GET_SELF(__pyx_t_34);
-        assert(__pyx_t_30);
-        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_34);
-        __Pyx_INCREF(__pyx_t_30);
-        __Pyx_INCREF(__pyx__function);
-        __Pyx_DECREF_SET(__pyx_t_34, __pyx__function);
-        __pyx_t_7 = 0;
-      }
-      #endif
-      {
-        PyObject *__pyx_callargs[2] = {__pyx_t_30, NULL};
-        __pyx_t_33 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_34, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_30); __pyx_t_30 = 0;
-        __Pyx_DECREF(__pyx_t_34); __pyx_t_34 = 0;
-        if (unlikely(!__pyx_t_33)) __PYX_ERR(0, 190, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_33);
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_machine_info); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 246, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_1);
+      __pyx_t_25 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_25 < 0))) __PYX_ERR(0, 246, __pyx_L4_error)
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      if (__pyx_t_25) {
+        __pyx_t_16 = NULL;
+        __Pyx_GetModuleGlobalName(__pyx_t_30, __pyx_mstate_global->__pyx_n_u_json); if (unlikely(!__pyx_t_30)) __PYX_ERR(0, 246, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_30);
+        __pyx_t_29 = __Pyx_PyObject_GetAttrStr(__pyx_t_30, __pyx_mstate_global->__pyx_n_u_dumps); if (unlikely(!__pyx_t_29)) __PYX_ERR(0, 246, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_29);
+        __Pyx_DECREF(__pyx_t_30); __pyx_t_30 = 0;
+        __pyx_t_30 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_machine_info); if (unlikely(!__pyx_t_30)) __PYX_ERR(0, 246, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_30);
+        __pyx_t_5 = 1;
+        #if CYTHON_UNPACK_METHODS
+        if (unlikely(PyMethod_Check(__pyx_t_29))) {
+          __pyx_t_16 = PyMethod_GET_SELF(__pyx_t_29);
+          assert(__pyx_t_16);
+          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_29);
+          __Pyx_INCREF(__pyx_t_16);
+          __Pyx_INCREF(__pyx__function);
+          __Pyx_DECREF_SET(__pyx_t_29, __pyx__function);
+          __pyx_t_5 = 0;
+        }
+        #endif
+        {
+          PyObject *__pyx_callargs[2] = {__pyx_t_16, __pyx_t_30};
+          __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_29, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+          __Pyx_XDECREF(__pyx_t_16); __pyx_t_16 = 0;
+          __Pyx_DECREF(__pyx_t_30); __pyx_t_30 = 0;
+          __Pyx_DECREF(__pyx_t_29); __pyx_t_29 = 0;
+          if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 246, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_1);
+        }
+        __pyx_t_13 = __pyx_t_1;
+        __pyx_t_1 = 0;
+      } else {
+        __Pyx_INCREF(Py_None);
+        __pyx_t_13 = Py_None;
       }
 
-      /* "licensing/api.py":191
- *             server_timestamp=datetime.now(),  # Server-trusted timestamp
- *             last_validated=datetime.now(),
+
+      /* "licensing/api.py":247
+ *             user_name=request.user_name,
+ *             machine_info=json.dumps(request.machine_info) if request.machine_info else None,
  *             is_valid=True             # <<<<<<<<<<<<<<
  *         )
  * 
 */
-      __pyx_t_7 = 1;
+      __pyx_t_5 = 1;
       #if CYTHON_UNPACK_METHODS
-      if (unlikely(PyMethod_Check(__pyx_t_16))) {
-        __pyx_t_14 = PyMethod_GET_SELF(__pyx_t_16);
-        assert(__pyx_t_14);
-        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_16);
-        __Pyx_INCREF(__pyx_t_14);
+      if (unlikely(PyMethod_Check(__pyx_t_4))) {
+        __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_4);
+        assert(__pyx_t_3);
+        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_4);
+        __Pyx_INCREF(__pyx_t_3);
         __Pyx_INCREF(__pyx__function);
-        __Pyx_DECREF_SET(__pyx_t_16, __pyx__function);
-        __pyx_t_7 = 0;
+        __Pyx_DECREF_SET(__pyx_t_4, __pyx__function);
+        __pyx_t_5 = 0;
       }
       #endif
       {
-        PyObject *__pyx_callargs[10] = {__pyx_t_14, __pyx_t_8, __pyx_t_27, __pyx_t_6, __pyx_t_15, __pyx_t_13, __pyx_t_4, __pyx_t_32, __pyx_t_33, Py_True};
+        PyObject *__pyx_callargs[7] = {__pyx_t_3, __pyx_t_15, __pyx_t_27, __pyx_t_14, __pyx_t_28, __pyx_t_13, Py_True};
         #if CYTHON_VECTORCALL
-        __pyx_t_34 = __pyx_mstate_global->__pyx_tuple[3];
-        if (unlikely(!__pyx_t_34)) __PYX_ERR(0, 182, __pyx_L4_error)
-        __Pyx_INCREF(__pyx_t_34);
+        __pyx_t_1 = __pyx_mstate_global->__pyx_tuple[9];
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 241, __pyx_L4_error)
+        __Pyx_INCREF(__pyx_t_1);
         #else
         {
-          PyObject *__pyx_temp[9] = {__pyx_mstate_global->__pyx_n_u_license_id, __pyx_mstate_global->__pyx_n_u_user_email, __pyx_mstate_global->__pyx_n_u_user_name, __pyx_mstate_global->__pyx_n_u_machine_fingerprint, __pyx_mstate_global->__pyx_n_u_machine_info, __pyx_mstate_global->__pyx_n_u_activated_at, __pyx_mstate_global->__pyx_n_u_server_timestamp, __pyx_mstate_global->__pyx_n_u_last_validated, __pyx_mstate_global->__pyx_n_u_is_valid};
-          __pyx_t_34 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 9);
-          if (unlikely(!__pyx_t_34)) __PYX_ERR(0, 182, __pyx_L4_error)
-          __Pyx_GOTREF(__pyx_t_34);
+          PyObject *__pyx_temp[6] = {__pyx_mstate_global->__pyx_n_u_license_id, __pyx_mstate_global->__pyx_n_u_machine_fingerprint, __pyx_mstate_global->__pyx_n_u_user_email, __pyx_mstate_global->__pyx_n_u_user_name, __pyx_mstate_global->__pyx_n_u_machine_info, __pyx_mstate_global->__pyx_n_u_is_valid};
+          __pyx_t_1 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 6);
+          if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 241, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_1);
         }
         #endif
-        __pyx_t_5 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_16, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_34);
-        __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
-        __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-        __Pyx_DECREF(__pyx_t_27); __pyx_t_27 = 0;
-        __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+        __pyx_t_2 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_1);
+        __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
         __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
+        __Pyx_DECREF(__pyx_t_27); __pyx_t_27 = 0;
+        __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+        __Pyx_DECREF(__pyx_t_28); __pyx_t_28 = 0;
         __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __Pyx_DECREF(__pyx_t_32); __pyx_t_32 = 0;
-        __Pyx_DECREF(__pyx_t_33); __pyx_t_33 = 0;
-        __Pyx_DECREF(__pyx_t_34); __pyx_t_34 = 0;
-        __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
-        if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 182, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_5);
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 241, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_2);
       }
-      __Pyx_GIVEREF(__pyx_t_5);
-      __pyx_cur_scope->__pyx_v_new_activation = __pyx_t_5;
-      __pyx_t_5 = 0;
+      __Pyx_GIVEREF(__pyx_t_2);
+      __pyx_cur_scope->__pyx_v_new_activation = __pyx_t_2;
+      __pyx_t_2 = 0;
 
-      /* "licensing/api.py":195
- * 
- *         # Consume one credit
- *         license_record.credits -= 1             # <<<<<<<<<<<<<<
- * 
- *         db.add(new_activation)
-*/
-      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_credits); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 195, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_16 = __Pyx_PyLong_SubtractObjC(__pyx_t_5, __pyx_mstate_global->__pyx_int_1, 1, 1, 0); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 195, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_16);
-      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      if (__Pyx_PyObject_SetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_credits, __pyx_t_16) < (0)) __PYX_ERR(0, 195, __pyx_L4_error)
-      __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
-
-      /* "licensing/api.py":197
- *         license_record.credits -= 1
+      /* "licensing/api.py":250
+ *         )
  * 
  *         db.add(new_activation)             # <<<<<<<<<<<<<<
  *         db.commit()
  *         db.refresh(new_activation)
 */
-      __pyx_t_5 = __pyx_cur_scope->__pyx_v_db;
-      __Pyx_INCREF(__pyx_t_5);
-      __pyx_t_7 = 0;
+      __pyx_t_4 = __pyx_cur_scope->__pyx_v_db;
+      __Pyx_INCREF(__pyx_t_4);
+      __pyx_t_5 = 0;
       {
-        PyObject *__pyx_callargs[2] = {__pyx_t_5, __pyx_cur_scope->__pyx_v_new_activation};
-        __pyx_t_16 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_add, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-        if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 197, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_16);
+        PyObject *__pyx_callargs[2] = {__pyx_t_4, __pyx_cur_scope->__pyx_v_new_activation};
+        __pyx_t_2 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_add, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 250, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_2);
       }
-      __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
+      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-      /* "licensing/api.py":198
+      /* "licensing/api.py":251
  * 
  *         db.add(new_activation)
  *         db.commit()             # <<<<<<<<<<<<<<
  *         db.refresh(new_activation)
  * 
 */
-      __pyx_t_5 = __pyx_cur_scope->__pyx_v_db;
-      __Pyx_INCREF(__pyx_t_5);
-      __pyx_t_7 = 0;
+      __pyx_t_4 = __pyx_cur_scope->__pyx_v_db;
+      __Pyx_INCREF(__pyx_t_4);
+      __pyx_t_5 = 0;
       {
-        PyObject *__pyx_callargs[2] = {__pyx_t_5, NULL};
-        __pyx_t_16 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_commit, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-        if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 198, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_16);
+        PyObject *__pyx_callargs[2] = {__pyx_t_4, NULL};
+        __pyx_t_2 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_commit, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 251, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_2);
       }
-      __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
+      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-      /* "licensing/api.py":199
+      /* "licensing/api.py":252
  *         db.add(new_activation)
  *         db.commit()
  *         db.refresh(new_activation)             # <<<<<<<<<<<<<<
  * 
  *         return ActivationResponse(
 */
-      __pyx_t_5 = __pyx_cur_scope->__pyx_v_db;
-      __Pyx_INCREF(__pyx_t_5);
-      __pyx_t_7 = 0;
+      __pyx_t_4 = __pyx_cur_scope->__pyx_v_db;
+      __Pyx_INCREF(__pyx_t_4);
+      __pyx_t_5 = 0;
       {
-        PyObject *__pyx_callargs[2] = {__pyx_t_5, __pyx_cur_scope->__pyx_v_new_activation};
-        __pyx_t_16 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_refresh, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-        if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 199, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_16);
+        PyObject *__pyx_callargs[2] = {__pyx_t_4, __pyx_cur_scope->__pyx_v_new_activation};
+        __pyx_t_2 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_refresh, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 252, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_2);
       }
-      __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
+      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-      /* "licensing/api.py":201
+      /* "licensing/api.py":254
  *         db.refresh(new_activation)
  * 
  *         return ActivationResponse(             # <<<<<<<<<<<<<<
  *             success=True,
  *             message="License activated successfully",
 */
-      __pyx_t_5 = NULL;
-      __Pyx_GetModuleGlobalName(__pyx_t_34, __pyx_mstate_global->__pyx_n_u_ActivationResponse); if (unlikely(!__pyx_t_34)) __PYX_ERR(0, 201, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_34);
+      __pyx_t_4 = NULL;
+      __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_ActivationResponse); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 254, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_1);
 
-      /* "licensing/api.py":205
+      /* "licensing/api.py":258
  *             message="License activated successfully",
  *             license_data=license_data,
  *             remaining_credits=license_record.credits,             # <<<<<<<<<<<<<<
  *             expiry_date=license_record.expiry_date.isoformat(),
  *             activation_id=new_activation.id
 */
-      __pyx_t_33 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_credits); if (unlikely(!__pyx_t_33)) __PYX_ERR(0, 205, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_33);
+      __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_credits); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 258, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_13);
 
-      /* "licensing/api.py":206
+      /* "licensing/api.py":259
  *             license_data=license_data,
  *             remaining_credits=license_record.credits,
  *             expiry_date=license_record.expiry_date.isoformat(),             # <<<<<<<<<<<<<<
  *             activation_id=new_activation.id
  *         )
 */
-      __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_expiry_date); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 206, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_13);
-      __pyx_t_4 = __pyx_t_13;
-      __Pyx_INCREF(__pyx_t_4);
-      __pyx_t_7 = 0;
+      __pyx_t_27 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_expiry_date); if (unlikely(!__pyx_t_27)) __PYX_ERR(0, 259, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_27);
+      __pyx_t_14 = __pyx_t_27;
+      __Pyx_INCREF(__pyx_t_14);
+      __pyx_t_5 = 0;
       {
-        PyObject *__pyx_callargs[2] = {__pyx_t_4, NULL};
-        __pyx_t_32 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_isoformat, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-        if (unlikely(!__pyx_t_32)) __PYX_ERR(0, 206, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_32);
+        PyObject *__pyx_callargs[2] = {__pyx_t_14, NULL};
+        __pyx_t_28 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_isoformat, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
+        __Pyx_DECREF(__pyx_t_27); __pyx_t_27 = 0;
+        if (unlikely(!__pyx_t_28)) __PYX_ERR(0, 259, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_28);
       }
 
-      /* "licensing/api.py":207
+      /* "licensing/api.py":260
  *             remaining_credits=license_record.credits,
  *             expiry_date=license_record.expiry_date.isoformat(),
  *             activation_id=new_activation.id             # <<<<<<<<<<<<<<
  *         )
  * 
 */
-      __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_new_activation, __pyx_mstate_global->__pyx_n_u_id); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 207, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_13);
-      __pyx_t_7 = 1;
+      __pyx_t_27 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_new_activation, __pyx_mstate_global->__pyx_n_u_id); if (unlikely(!__pyx_t_27)) __PYX_ERR(0, 260, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_27);
+      __pyx_t_5 = 1;
       #if CYTHON_UNPACK_METHODS
-      if (unlikely(PyMethod_Check(__pyx_t_34))) {
-        __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_34);
-        assert(__pyx_t_5);
-        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_34);
-        __Pyx_INCREF(__pyx_t_5);
+      if (unlikely(PyMethod_Check(__pyx_t_1))) {
+        __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_1);
+        assert(__pyx_t_4);
+        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_1);
+        __Pyx_INCREF(__pyx_t_4);
         __Pyx_INCREF(__pyx__function);
-        __Pyx_DECREF_SET(__pyx_t_34, __pyx__function);
-        __pyx_t_7 = 0;
+        __Pyx_DECREF_SET(__pyx_t_1, __pyx__function);
+        __pyx_t_5 = 0;
       }
       #endif
       {
-        PyObject *__pyx_callargs[7] = {__pyx_t_5, Py_True, __pyx_mstate_global->__pyx_kp_u_License_activated_successfully, __pyx_cur_scope->__pyx_v_license_data, __pyx_t_33, __pyx_t_32, __pyx_t_13};
+        PyObject *__pyx_callargs[7] = {__pyx_t_4, Py_True, __pyx_mstate_global->__pyx_kp_u_License_activated_successfully, __pyx_cur_scope->__pyx_v_license_data, __pyx_t_13, __pyx_t_28, __pyx_t_27};
         #if CYTHON_VECTORCALL
-        __pyx_t_4 = __pyx_mstate_global->__pyx_tuple[2];
-        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 201, __pyx_L4_error)
-        __Pyx_INCREF(__pyx_t_4);
+        __pyx_t_14 = __pyx_mstate_global->__pyx_tuple[8];
+        if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 254, __pyx_L4_error)
+        __Pyx_INCREF(__pyx_t_14);
         #else
         {
           PyObject *__pyx_temp[6] = {__pyx_mstate_global->__pyx_n_u_success, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_n_u_license_data, __pyx_mstate_global->__pyx_n_u_remaining_credits, __pyx_mstate_global->__pyx_n_u_expiry_date, __pyx_mstate_global->__pyx_n_u_activation_id};
-          __pyx_t_4 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 6);
-          if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 201, __pyx_L4_error)
-          __Pyx_GOTREF(__pyx_t_4);
+          __pyx_t_14 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 6);
+          if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 254, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_14);
         }
         #endif
-        __pyx_t_16 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_34, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_4);
-        __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __Pyx_DECREF(__pyx_t_33); __pyx_t_33 = 0;
-        __Pyx_DECREF(__pyx_t_32); __pyx_t_32 = 0;
+        __pyx_t_2 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_1, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_14);
+        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
         __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __Pyx_DECREF(__pyx_t_34); __pyx_t_34 = 0;
-        if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 201, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_16);
+        __Pyx_DECREF(__pyx_t_28); __pyx_t_28 = 0;
+        __Pyx_DECREF(__pyx_t_27); __pyx_t_27 = 0;
+        __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 254, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_2);
       }
       {
         PyObject *__pyx_temp;
         {
           __pyx_temp = __pyx_r;
-          __pyx_r = __pyx_t_16;
+          __pyx_r = __pyx_t_2;
         }
         __Pyx_XDECREF(__pyx_temp);
       }
-      __pyx_t_16 = 0;
+      __pyx_t_2 = 0;
       goto __pyx_L8_try_return;
 
-      /* "licensing/api.py":98
- *     5. Consumes one credit for new activations
- *     """
+      /* "licensing/api.py":151
+ *     clean_key = _clean_product_key(request.product_key)
+ * 
  *     try:             # <<<<<<<<<<<<<<
- *         # Load public key for verification (in production, load from secure config)
- *         # For now, we'll create a temporary crypto instance
+ *         public_key_pem = _get_public_key()
+ *         crypto = LicenseCrypto(public_key_pem=public_key_pem)
 */
     }
     __pyx_L4_error:;
+    __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
     __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
     __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
     __Pyx_XDECREF(__pyx_t_16); __pyx_t_16 = 0;
+    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_XDECREF(__pyx_t_27); __pyx_t_27 = 0;
+    __Pyx_XDECREF(__pyx_t_28); __pyx_t_28 = 0;
+    __Pyx_XDECREF(__pyx_t_29); __pyx_t_29 = 0;
+    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_XDECREF(__pyx_t_30); __pyx_t_30 = 0;
-    __Pyx_XDECREF(__pyx_t_31); __pyx_t_31 = 0;
-    __Pyx_XDECREF(__pyx_t_32); __pyx_t_32 = 0;
-    __Pyx_XDECREF(__pyx_t_33); __pyx_t_33 = 0;
-    __Pyx_XDECREF(__pyx_t_34); __pyx_t_34 = 0;
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-    /* "licensing/api.py":210
+    /* "licensing/api.py":263
  *         )
  * 
  *     except HTTPException:             # <<<<<<<<<<<<<<
  *         raise
  *     except Exception as e:
 */
-    __Pyx_ErrFetch(&__pyx_t_16, &__pyx_t_34, &__pyx_t_4);
-    __Pyx_GetModuleGlobalName(__pyx_t_13, __pyx_mstate_global->__pyx_n_u_HTTPException); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 210, __pyx_L6_except_error)
-    __Pyx_GOTREF(__pyx_t_13);
-    __pyx_t_17 = __Pyx_PyErr_GivenExceptionMatches(__pyx_t_16, __pyx_t_13);
-    __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-    __Pyx_ErrRestore(__pyx_t_16, __pyx_t_34, __pyx_t_4);
-    __pyx_t_16 = 0; __pyx_t_34 = 0; __pyx_t_4 = 0;
+    __Pyx_ErrFetch(&__pyx_t_2, &__pyx_t_1, &__pyx_t_14);
+    __Pyx_GetModuleGlobalName(__pyx_t_27, __pyx_mstate_global->__pyx_n_u_HTTPException); if (unlikely(!__pyx_t_27)) __PYX_ERR(0, 263, __pyx_L6_except_error)
+    __Pyx_GOTREF(__pyx_t_27);
+    __pyx_t_17 = __Pyx_PyErr_GivenExceptionMatches(__pyx_t_2, __pyx_t_27);
+    __Pyx_DECREF(__pyx_t_27); __pyx_t_27 = 0;
+    __Pyx_ErrRestore(__pyx_t_2, __pyx_t_1, __pyx_t_14);
+    __pyx_t_2 = 0; __pyx_t_1 = 0; __pyx_t_14 = 0;
     if (__pyx_t_17) {
       __Pyx_AddTraceback("licensing.api.activate_license", __pyx_clineno, __pyx_lineno, __pyx_filename);
-      if (__Pyx_GetException(&__pyx_t_4, &__pyx_t_34, &__pyx_t_16) < 0) __PYX_ERR(0, 210, __pyx_L6_except_error)
-      __Pyx_XGOTREF(__pyx_t_4);
-      __Pyx_XGOTREF(__pyx_t_34);
-      __Pyx_XGOTREF(__pyx_t_16);
+      if (__Pyx_GetException(&__pyx_t_14, &__pyx_t_1, &__pyx_t_2) < 0) __PYX_ERR(0, 263, __pyx_L6_except_error)
+      __Pyx_XGOTREF(__pyx_t_14);
+      __Pyx_XGOTREF(__pyx_t_1);
+      __Pyx_XGOTREF(__pyx_t_2);
 
-      /* "licensing/api.py":211
+      /* "licensing/api.py":264
  * 
  *     except HTTPException:
  *         raise             # <<<<<<<<<<<<<<
  *     except Exception as e:
  *         db.rollback()
 */
-      __Pyx_GIVEREF(__pyx_t_4);
-      __Pyx_GIVEREF(__pyx_t_34);
-      __Pyx_XGIVEREF(__pyx_t_16);
-      __Pyx_ErrRestoreWithState(__pyx_t_4, __pyx_t_34, __pyx_t_16);
-      __pyx_t_4 = 0;  __pyx_t_34 = 0;  __pyx_t_16 = 0; 
-      __PYX_ERR(0, 211, __pyx_L6_except_error)
+      __Pyx_GIVEREF(__pyx_t_14);
+      __Pyx_GIVEREF(__pyx_t_1);
+      __Pyx_XGIVEREF(__pyx_t_2);
+      __Pyx_ErrRestoreWithState(__pyx_t_14, __pyx_t_1, __pyx_t_2);
+      __pyx_t_14 = 0;  __pyx_t_1 = 0;  __pyx_t_2 = 0; 
+      __PYX_ERR(0, 264, __pyx_L6_except_error)
     }
 
-    /* "licensing/api.py":212
+    /* "licensing/api.py":265
  *     except HTTPException:
  *         raise
  *     except Exception as e:             # <<<<<<<<<<<<<<
@@ -5341,90 +6528,90 @@ static PyObject *__pyx_gb_9licensing_3api_2generator(__pyx_CoroutineObject *__py
     __pyx_t_17 = __Pyx_PyErr_ExceptionMatches(((PyObject *)(((PyTypeObject*)PyExc_Exception))));
     if (__pyx_t_17) {
       __Pyx_AddTraceback("licensing.api.activate_license", __pyx_clineno, __pyx_lineno, __pyx_filename);
-      if (__Pyx_GetException(&__pyx_t_16, &__pyx_t_34, &__pyx_t_4) < 0) __PYX_ERR(0, 212, __pyx_L6_except_error)
-      __Pyx_XGOTREF(__pyx_t_16);
-      __Pyx_XGOTREF(__pyx_t_34);
-      __Pyx_XGOTREF(__pyx_t_4);
-      __Pyx_INCREF(__pyx_t_34);
+      if (__Pyx_GetException(&__pyx_t_2, &__pyx_t_1, &__pyx_t_14) < 0) __PYX_ERR(0, 265, __pyx_L6_except_error)
+      __Pyx_XGOTREF(__pyx_t_2);
+      __Pyx_XGOTREF(__pyx_t_1);
+      __Pyx_XGOTREF(__pyx_t_14);
+      __Pyx_INCREF(__pyx_t_1);
       __Pyx_XGOTREF(__pyx_cur_scope->__pyx_v_e);
-      __Pyx_XDECREF_SET(__pyx_cur_scope->__pyx_v_e, __pyx_t_34);
-      __Pyx_GIVEREF(__pyx_t_34);
+      __Pyx_XDECREF_SET(__pyx_cur_scope->__pyx_v_e, __pyx_t_1);
+      __Pyx_GIVEREF(__pyx_t_1);
       /*try:*/ {
 
-        /* "licensing/api.py":213
+        /* "licensing/api.py":266
  *         raise
  *     except Exception as e:
  *         db.rollback()             # <<<<<<<<<<<<<<
  *         raise HTTPException(status_code=500, detail=f"Activation failed: {str(e)}")
  * 
 */
-        __pyx_t_32 = __pyx_cur_scope->__pyx_v_db;
-        __Pyx_INCREF(__pyx_t_32);
-        __pyx_t_7 = 0;
+        __pyx_t_28 = __pyx_cur_scope->__pyx_v_db;
+        __Pyx_INCREF(__pyx_t_28);
+        __pyx_t_5 = 0;
         {
-          PyObject *__pyx_callargs[2] = {__pyx_t_32, NULL};
-          __pyx_t_13 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_rollback, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-          __Pyx_XDECREF(__pyx_t_32); __pyx_t_32 = 0;
-          if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 213, __pyx_L41_error)
-          __Pyx_GOTREF(__pyx_t_13);
+          PyObject *__pyx_callargs[2] = {__pyx_t_28, NULL};
+          __pyx_t_27 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_rollback, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+          __Pyx_XDECREF(__pyx_t_28); __pyx_t_28 = 0;
+          if (unlikely(!__pyx_t_27)) __PYX_ERR(0, 266, __pyx_L48_error)
+          __Pyx_GOTREF(__pyx_t_27);
         }
-        __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+        __Pyx_DECREF(__pyx_t_27); __pyx_t_27 = 0;
 
-        /* "licensing/api.py":214
+        /* "licensing/api.py":267
  *     except Exception as e:
  *         db.rollback()
  *         raise HTTPException(status_code=500, detail=f"Activation failed: {str(e)}")             # <<<<<<<<<<<<<<
  * 
  * 
 */
-        __pyx_t_32 = NULL;
-        __Pyx_GetModuleGlobalName(__pyx_t_33, __pyx_mstate_global->__pyx_n_u_HTTPException); if (unlikely(!__pyx_t_33)) __PYX_ERR(0, 214, __pyx_L41_error)
-        __Pyx_GOTREF(__pyx_t_33);
-        __pyx_t_5 = __Pyx_PyObject_Unicode(__pyx_cur_scope->__pyx_v_e); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 214, __pyx_L41_error)
-        __Pyx_GOTREF(__pyx_t_5);
-        __pyx_t_15 = __Pyx_PyUnicode_Concat(__pyx_mstate_global->__pyx_kp_u_Activation_failed, __pyx_t_5); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 214, __pyx_L41_error)
+        __pyx_t_28 = NULL;
+        __Pyx_GetModuleGlobalName(__pyx_t_13, __pyx_mstate_global->__pyx_n_u_HTTPException); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 267, __pyx_L48_error)
+        __Pyx_GOTREF(__pyx_t_13);
+        __pyx_t_4 = __Pyx_PyObject_Unicode(__pyx_cur_scope->__pyx_v_e); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 267, __pyx_L48_error)
+        __Pyx_GOTREF(__pyx_t_4);
+        __pyx_t_15 = __Pyx_PyUnicode_Concat(__pyx_mstate_global->__pyx_kp_u_Activation_failed, __pyx_t_4); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 267, __pyx_L48_error)
         __Pyx_GOTREF(__pyx_t_15);
-        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __pyx_t_7 = 1;
+        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+        __pyx_t_5 = 1;
         #if CYTHON_UNPACK_METHODS
-        if (unlikely(PyMethod_Check(__pyx_t_33))) {
-          __pyx_t_32 = PyMethod_GET_SELF(__pyx_t_33);
-          assert(__pyx_t_32);
-          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_33);
-          __Pyx_INCREF(__pyx_t_32);
+        if (unlikely(PyMethod_Check(__pyx_t_13))) {
+          __pyx_t_28 = PyMethod_GET_SELF(__pyx_t_13);
+          assert(__pyx_t_28);
+          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_13);
+          __Pyx_INCREF(__pyx_t_28);
           __Pyx_INCREF(__pyx__function);
-          __Pyx_DECREF_SET(__pyx_t_33, __pyx__function);
-          __pyx_t_7 = 0;
+          __Pyx_DECREF_SET(__pyx_t_13, __pyx__function);
+          __pyx_t_5 = 0;
         }
         #endif
         {
-          PyObject *__pyx_callargs[3] = {__pyx_t_32, __pyx_mstate_global->__pyx_int_500, __pyx_t_15};
+          PyObject *__pyx_callargs[3] = {__pyx_t_28, __pyx_mstate_global->__pyx_int_500, __pyx_t_15};
           #if CYTHON_VECTORCALL
-          __pyx_t_5 = __pyx_mstate_global->__pyx_tuple[1];
-          if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 214, __pyx_L41_error)
-          __Pyx_INCREF(__pyx_t_5);
+          __pyx_t_4 = __pyx_mstate_global->__pyx_tuple[2];
+          if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 267, __pyx_L48_error)
+          __Pyx_INCREF(__pyx_t_4);
           #else
           {
             PyObject *__pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_status_code, __pyx_mstate_global->__pyx_n_u_detail};
-            __pyx_t_5 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
-            if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 214, __pyx_L41_error)
-            __Pyx_GOTREF(__pyx_t_5);
+            __pyx_t_4 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
+            if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 267, __pyx_L48_error)
+            __Pyx_GOTREF(__pyx_t_4);
           }
           #endif
-          __pyx_t_13 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_33, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_5);
-          __Pyx_XDECREF(__pyx_t_32); __pyx_t_32 = 0;
+          __pyx_t_27 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_13, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_4);
+          __Pyx_XDECREF(__pyx_t_28); __pyx_t_28 = 0;
           __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
-          __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-          __Pyx_DECREF(__pyx_t_33); __pyx_t_33 = 0;
-          if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 214, __pyx_L41_error)
-          __Pyx_GOTREF(__pyx_t_13);
+          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+          __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+          if (unlikely(!__pyx_t_27)) __PYX_ERR(0, 267, __pyx_L48_error)
+          __Pyx_GOTREF(__pyx_t_27);
         }
-        __Pyx_Raise(__pyx_t_13, 0, 0, 0);
-        __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-        __PYX_ERR(0, 214, __pyx_L41_error)
+        __Pyx_Raise(__pyx_t_27, 0, 0, 0);
+        __Pyx_DECREF(__pyx_t_27); __pyx_t_27 = 0;
+        __PYX_ERR(0, 267, __pyx_L48_error)
       }
 
-      /* "licensing/api.py":212
+      /* "licensing/api.py":265
  *     except HTTPException:
  *         raise
  *     except Exception as e:             # <<<<<<<<<<<<<<
@@ -5432,26 +6619,24 @@ static PyObject *__pyx_gb_9licensing_3api_2generator(__pyx_CoroutineObject *__py
  *         raise HTTPException(status_code=500, detail=f"Activation failed: {str(e)}")
 */
       /*finally:*/ {
-        __pyx_L41_error:;
+        __pyx_L48_error:;
         /*exception exit:*/{
           __Pyx_PyThreadState_assign
-          __pyx_t_11 = 0; __pyx_t_10 = 0; __pyx_t_9 = 0; __pyx_t_24 = 0; __pyx_t_23 = 0; __pyx_t_22 = 0;
+          __pyx_t_9 = 0; __pyx_t_10 = 0; __pyx_t_11 = 0; __pyx_t_24 = 0; __pyx_t_23 = 0; __pyx_t_22 = 0;
           __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
-          __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
           __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
+          __Pyx_XDECREF(__pyx_t_16); __pyx_t_16 = 0;
           __Pyx_XDECREF(__pyx_t_27); __pyx_t_27 = 0;
+          __Pyx_XDECREF(__pyx_t_28); __pyx_t_28 = 0;
+          __Pyx_XDECREF(__pyx_t_29); __pyx_t_29 = 0;
+          __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
           __Pyx_XDECREF(__pyx_t_30); __pyx_t_30 = 0;
-          __Pyx_XDECREF(__pyx_t_31); __pyx_t_31 = 0;
-          __Pyx_XDECREF(__pyx_t_32); __pyx_t_32 = 0;
-          __Pyx_XDECREF(__pyx_t_33); __pyx_t_33 = 0;
-          __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-          __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-          __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
+          __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
            __Pyx_ExceptionSwap(&__pyx_t_24, &__pyx_t_23, &__pyx_t_22);
-          if ( unlikely(__Pyx_GetException(&__pyx_t_11, &__pyx_t_10, &__pyx_t_9) < 0)) __Pyx_ErrFetch(&__pyx_t_11, &__pyx_t_10, &__pyx_t_9);
-          __Pyx_XGOTREF(__pyx_t_11);
-          __Pyx_XGOTREF(__pyx_t_10);
+          if ( unlikely(__Pyx_GetException(&__pyx_t_9, &__pyx_t_10, &__pyx_t_11) < 0)) __Pyx_ErrFetch(&__pyx_t_9, &__pyx_t_10, &__pyx_t_11);
           __Pyx_XGOTREF(__pyx_t_9);
+          __Pyx_XGOTREF(__pyx_t_10);
+          __Pyx_XGOTREF(__pyx_t_11);
           __Pyx_XGOTREF(__pyx_t_24);
           __Pyx_XGOTREF(__pyx_t_23);
           __Pyx_XGOTREF(__pyx_t_22);
@@ -5464,11 +6649,11 @@ static PyObject *__pyx_gb_9licensing_3api_2generator(__pyx_CoroutineObject *__py
           __Pyx_XGIVEREF(__pyx_t_23);
           __Pyx_XGIVEREF(__pyx_t_22);
           __Pyx_ExceptionReset(__pyx_t_24, __pyx_t_23, __pyx_t_22);
-          __Pyx_XGIVEREF(__pyx_t_11);
-          __Pyx_XGIVEREF(__pyx_t_10);
           __Pyx_XGIVEREF(__pyx_t_9);
-          __Pyx_ErrRestore(__pyx_t_11, __pyx_t_10, __pyx_t_9);
-          __pyx_t_11 = 0; __pyx_t_10 = 0; __pyx_t_9 = 0; __pyx_t_24 = 0; __pyx_t_23 = 0; __pyx_t_22 = 0;
+          __Pyx_XGIVEREF(__pyx_t_10);
+          __Pyx_XGIVEREF(__pyx_t_11);
+          __Pyx_ErrRestore(__pyx_t_9, __pyx_t_10, __pyx_t_11);
+          __pyx_t_9 = 0; __pyx_t_10 = 0; __pyx_t_11 = 0; __pyx_t_24 = 0; __pyx_t_23 = 0; __pyx_t_22 = 0;
           __pyx_lineno = __pyx_t_17; __pyx_clineno = __pyx_t_12; __pyx_filename = __pyx_t_18;
           goto __pyx_L6_except_error;
         }
@@ -5476,29 +6661,29 @@ static PyObject *__pyx_gb_9licensing_3api_2generator(__pyx_CoroutineObject *__py
     }
     goto __pyx_L6_except_error;
 
-    /* "licensing/api.py":98
- *     5. Consumes one credit for new activations
- *     """
+    /* "licensing/api.py":151
+ *     clean_key = _clean_product_key(request.product_key)
+ * 
  *     try:             # <<<<<<<<<<<<<<
- *         # Load public key for verification (in production, load from secure config)
- *         # For now, we'll create a temporary crypto instance
+ *         public_key_pem = _get_public_key()
+ *         crypto = LicenseCrypto(public_key_pem=public_key_pem)
 */
     __pyx_L6_except_error:;
-    __Pyx_XGIVEREF(__pyx_t_1);
-    __Pyx_XGIVEREF(__pyx_t_2);
-    __Pyx_XGIVEREF(__pyx_t_3);
-    __Pyx_ExceptionReset(__pyx_t_1, __pyx_t_2, __pyx_t_3);
+    __Pyx_XGIVEREF(__pyx_t_6);
+    __Pyx_XGIVEREF(__pyx_t_7);
+    __Pyx_XGIVEREF(__pyx_t_8);
+    __Pyx_ExceptionReset(__pyx_t_6, __pyx_t_7, __pyx_t_8);
     goto __pyx_L1_error;
     __pyx_L8_try_return:;
-    __Pyx_XGIVEREF(__pyx_t_1);
-    __Pyx_XGIVEREF(__pyx_t_2);
-    __Pyx_XGIVEREF(__pyx_t_3);
-    __Pyx_ExceptionReset(__pyx_t_1, __pyx_t_2, __pyx_t_3);
+    __Pyx_XGIVEREF(__pyx_t_6);
+    __Pyx_XGIVEREF(__pyx_t_7);
+    __Pyx_XGIVEREF(__pyx_t_8);
+    __Pyx_ExceptionReset(__pyx_t_6, __pyx_t_7, __pyx_t_8);
     goto __pyx_L0;
   }
   CYTHON_MAYBE_UNUSED_VAR(__pyx_cur_scope);
 
-  /* "licensing/api.py":83
+  /* "licensing/api.py":136
  * 
  * 
  * @router.post("/activate", response_model=ActivationResponse)             # <<<<<<<<<<<<<<
@@ -5508,20 +6693,18 @@ static PyObject *__pyx_gb_9licensing_3api_2generator(__pyx_CoroutineObject *__py
 
   /* function exit code */
   __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_XDECREF(__pyx_t_8);
   __Pyx_XDECREF(__pyx_t_13);
   __Pyx_XDECREF(__pyx_t_14);
   __Pyx_XDECREF(__pyx_t_15);
   __Pyx_XDECREF(__pyx_t_16);
   __Pyx_XDECREF(__pyx_t_27);
+  __Pyx_XDECREF(__pyx_t_28);
+  __Pyx_XDECREF(__pyx_t_29);
   __Pyx_XDECREF(__pyx_t_30);
-  __Pyx_XDECREF(__pyx_t_31);
-  __Pyx_XDECREF(__pyx_t_32);
-  __Pyx_XDECREF(__pyx_t_33);
-  __Pyx_XDECREF(__pyx_t_34);
   if (__Pyx_PyErr_Occurred()) {
     __Pyx_Generator_Replace_StopIteration(0);
     __Pyx_AddTraceback("activate_license", __pyx_clineno, __pyx_lineno, __pyx_filename);
@@ -5536,9 +6719,9 @@ static PyObject *__pyx_gb_9licensing_3api_2generator(__pyx_CoroutineObject *__py
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
-static PyObject *__pyx_gb_9licensing_3api_5generator1(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
+static PyObject *__pyx_gb_9licensing_3api_9generator1(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
-/* "licensing/api.py":217
+/* "licensing/api.py":270
  * 
  * 
  * @router.post("/validate", response_model=ValidationResponse)             # <<<<<<<<<<<<<<
@@ -5546,7 +6729,7 @@ static PyObject *__pyx_gb_9licensing_3api_5generator1(__pyx_CoroutineObject *__p
  *     request: ValidationRequest,
 */
 
-static PyObject *__pyx_pf_9licensing_3api_13__defaults__(CYTHON_UNUSED PyObject *__pyx_self) {
+static PyObject *__pyx_pf_9licensing_3api_18__defaults__(CYTHON_UNUSED PyObject *__pyx_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -5555,18 +6738,18 @@ static PyObject *__pyx_pf_9licensing_3api_13__defaults__(CYTHON_UNUSED PyObject 
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__defaults__", 0);
-  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 217, __pyx_L1_error)
+  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 270, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(__Pyx_CyFunction_Defaults(struct __pyx_defaults, __pyx_self)->arg0);
   __Pyx_GIVEREF(__Pyx_CyFunction_Defaults(struct __pyx_defaults, __pyx_self)->arg0);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 0, __Pyx_CyFunction_Defaults(struct __pyx_defaults, __pyx_self)->arg0) != (0)) __PYX_ERR(0, 217, __pyx_L1_error);
-  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 217, __pyx_L1_error)
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 0, __Pyx_CyFunction_Defaults(struct __pyx_defaults, __pyx_self)->arg0) != (0)) __PYX_ERR(0, 270, __pyx_L1_error);
+  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 270, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_GIVEREF(__pyx_t_1);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_1) != (0)) __PYX_ERR(0, 217, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_1) != (0)) __PYX_ERR(0, 270, __pyx_L1_error);
   __Pyx_INCREF(Py_None);
   __Pyx_GIVEREF(Py_None);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, Py_None) != (0)) __PYX_ERR(0, 217, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, Py_None) != (0)) __PYX_ERR(0, 270, __pyx_L1_error);
   __pyx_t_1 = 0;
   {
     PyObject *__pyx_temp;
@@ -5592,16 +6775,16 @@ static PyObject *__pyx_pf_9licensing_3api_13__defaults__(CYTHON_UNUSED PyObject 
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_9licensing_3api_4validate_license(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_9licensing_3api_8validate_license(PyObject *__pyx_self, 
 #if CYTHON_VECTORCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-PyDoc_STRVAR(__pyx_doc_9licensing_3api_3validate_license, "\n    Validate an existing license activation.\n    \n    This endpoint:\n    1. Verifies the product key signature\n    2. Checks if the activation exists and is valid\n    3. Updates last_validated timestamp\n    4. Returns license status\n    5. Uses server time for all expiry checks (prevents time manipulation)\n    ");
-static PyMethodDef __pyx_mdef_9licensing_3api_4validate_license = {"validate_license", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9licensing_3api_4validate_license, __Pyx_METH_FASTCALL|METH_KEYWORDS, __pyx_doc_9licensing_3api_3validate_license};
-static PyObject *__pyx_pw_9licensing_3api_4validate_license(PyObject *__pyx_self, 
+PyDoc_STRVAR(__pyx_doc_9licensing_3api_7validate_license, "Validate an existing license activation.");
+static PyMethodDef __pyx_mdef_9licensing_3api_8validate_license = {"validate_license", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9licensing_3api_8validate_license, __Pyx_METH_FASTCALL|METH_KEYWORDS, __pyx_doc_9licensing_3api_7validate_license};
+static PyObject *__pyx_pw_9licensing_3api_8validate_license(PyObject *__pyx_self, 
 #if CYTHON_VECTORCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -5633,35 +6816,35 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_request,&__pyx_mstate_global->__pyx_n_u_db,0};
     struct __pyx_defaults *__pyx_dynamic_args = __Pyx_CyFunction_Defaults(struct __pyx_defaults, __pyx_self);
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 217, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 270, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 217, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 270, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 217, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 270, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "validate_license", 0) < (0)) __PYX_ERR(0, 217, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "validate_license", 0) < (0)) __PYX_ERR(0, 270, __pyx_L3_error)
       if (!values[1]) values[1] = __Pyx_NewRef(__pyx_dynamic_args->arg0);
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("validate_license", 0, 1, 2, i); __PYX_ERR(0, 217, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("validate_license", 0, 1, 2, i); __PYX_ERR(0, 270, __pyx_L3_error) }
       }
     } else {
       switch (__pyx_nargs) {
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 217, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 270, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 217, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 270, __pyx_L3_error)
         break;
         default: goto __pyx_L5_argtuple_error;
       }
@@ -5672,7 +6855,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("validate_license", 0, 1, 2, __pyx_nargs); __PYX_ERR(0, 217, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("validate_license", 0, 1, 2, __pyx_nargs); __PYX_ERR(0, 270, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -5683,7 +6866,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_9licensing_3api_3validate_license(__pyx_self, __pyx_v_request, __pyx_v_db);
+  __pyx_r = __pyx_pf_9licensing_3api_7validate_license(__pyx_self, __pyx_v_request, __pyx_v_db);
 
   /* function exit code */
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
@@ -5693,7 +6876,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9licensing_3api_3validate_license(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_request, PyObject *__pyx_v_db) {
+static PyObject *__pyx_pf_9licensing_3api_7validate_license(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_request, PyObject *__pyx_v_db) {
   struct __pyx_obj_9licensing_3api___pyx_scope_struct_1_validate_license *__pyx_cur_scope;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -5705,7 +6888,7 @@ static PyObject *__pyx_pf_9licensing_3api_3validate_license(CYTHON_UNUSED PyObje
   if (unlikely(!__pyx_cur_scope)) {
     __pyx_cur_scope = ((struct __pyx_obj_9licensing_3api___pyx_scope_struct_1_validate_license *)Py_None);
     __Pyx_INCREF(Py_None);
-    __PYX_ERR(0, 217, __pyx_L1_error)
+    __PYX_ERR(0, 270, __pyx_L1_error)
   } else {
     __Pyx_GOTREF((PyObject *)__pyx_cur_scope);
   }
@@ -5716,7 +6899,7 @@ static PyObject *__pyx_pf_9licensing_3api_3validate_license(CYTHON_UNUSED PyObje
   __Pyx_INCREF(__pyx_cur_scope->__pyx_v_db);
   __Pyx_GIVEREF(__pyx_cur_scope->__pyx_v_db);
   {
-    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_9licensing_3api_5generator1, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[1]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_validate_license, __pyx_mstate_global->__pyx_n_u_validate_license, __pyx_mstate_global->__pyx_n_u_licensing_api); if (unlikely(!gen)) __PYX_ERR(0, 217, __pyx_L1_error)
+    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_9licensing_3api_9generator1, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[1]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_validate_license, __pyx_mstate_global->__pyx_n_u_validate_license, __pyx_mstate_global->__pyx_n_u_licensing_api); if (unlikely(!gen)) __PYX_ERR(0, 270, __pyx_L1_error)
     __Pyx_DECREF(__pyx_cur_scope);
     __Pyx_RefNannyFinishContext();
     return (PyObject *) gen;
@@ -5732,7 +6915,7 @@ static PyObject *__pyx_pf_9licensing_3api_3validate_license(CYTHON_UNUSED PyObje
   return __pyx_r;
 }
 
-static PyObject *__pyx_gb_9licensing_3api_5generator1(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
+static PyObject *__pyx_gb_9licensing_3api_9generator1(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
 {
   struct __pyx_obj_9licensing_3api___pyx_scope_struct_1_validate_license *__pyx_cur_scope = ((struct __pyx_obj_9licensing_3api___pyx_scope_struct_1_validate_license *)__pyx_generator->closure);
   PyObject *__pyx_r = NULL;
@@ -5740,9 +6923,9 @@ static PyObject *__pyx_gb_9licensing_3api_5generator1(__pyx_CoroutineObject *__p
   PyObject *__pyx_t_2 = NULL;
   PyObject *__pyx_t_3 = NULL;
   PyObject *__pyx_t_4 = NULL;
-  PyObject *__pyx_t_5 = NULL;
+  size_t __pyx_t_5;
   PyObject *__pyx_t_6 = NULL;
-  size_t __pyx_t_7;
+  PyObject *__pyx_t_7 = NULL;
   PyObject *__pyx_t_8 = NULL;
   PyObject *__pyx_t_9 = NULL;
   PyObject *__pyx_t_10 = NULL;
@@ -5762,7 +6945,8 @@ static PyObject *__pyx_gb_9licensing_3api_5generator1(__pyx_CoroutineObject *__p
   PyObject *__pyx_t_24 = NULL;
   int __pyx_t_25;
   int __pyx_t_26;
-  PyObject *__pyx_t_27 = NULL;
+  int __pyx_t_27;
+  PyObject *__pyx_t_28 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -5777,109 +6961,146 @@ static PyObject *__pyx_gb_9licensing_3api_5generator1(__pyx_CoroutineObject *__p
   __pyx_L3_first_run:;
   if (unlikely(__pyx_sent_value != Py_None)) {
     if (unlikely(__pyx_sent_value)) PyErr_SetString(PyExc_TypeError, "can't send non-None value to a just-started coroutine");
-    __PYX_ERR(0, 217, __pyx_L1_error)
+    __PYX_ERR(0, 270, __pyx_L1_error)
   }
 
-  /* "licensing/api.py":232
- *     5. Uses server time for all expiry checks (prevents time manipulation)
- *     """
+  /* "licensing/api.py":276
+ * ):
+ *     """Validate an existing license activation."""
+ *     clean_key = _clean_product_key(request.product_key)             # <<<<<<<<<<<<<<
+ * 
+ *     try:
+*/
+  __pyx_t_2 = NULL;
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_clean_product_key); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 276, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_product_key); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 276, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_5 = 1;
+  #if CYTHON_UNPACK_METHODS
+  if (unlikely(PyMethod_Check(__pyx_t_3))) {
+    __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_3);
+    assert(__pyx_t_2);
+    PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_3);
+    __Pyx_INCREF(__pyx_t_2);
+    __Pyx_INCREF(__pyx__function);
+    __Pyx_DECREF_SET(__pyx_t_3, __pyx__function);
+    __pyx_t_5 = 0;
+  }
+  #endif
+  {
+    PyObject *__pyx_callargs[2] = {__pyx_t_2, __pyx_t_4};
+    __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_3, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 276, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+  }
+  __Pyx_GIVEREF(__pyx_t_1);
+  __pyx_cur_scope->__pyx_v_clean_key = __pyx_t_1;
+  __pyx_t_1 = 0;
+
+  /* "licensing/api.py":278
+ *     clean_key = _clean_product_key(request.product_key)
+ * 
  *     try:             # <<<<<<<<<<<<<<
- *         # Load public key for verification
  *         public_key_pem = _get_public_key()
+ *         crypto = LicenseCrypto(public_key_pem=public_key_pem)
 */
   {
-    __Pyx_ExceptionSave(&__pyx_t_1, &__pyx_t_2, &__pyx_t_3);
-    __Pyx_XGOTREF(__pyx_t_1);
-    __Pyx_XGOTREF(__pyx_t_2);
-    __Pyx_XGOTREF(__pyx_t_3);
+    __Pyx_ExceptionSave(&__pyx_t_6, &__pyx_t_7, &__pyx_t_8);
+    __Pyx_XGOTREF(__pyx_t_6);
+    __Pyx_XGOTREF(__pyx_t_7);
+    __Pyx_XGOTREF(__pyx_t_8);
     /*try:*/ {
 
-      /* "licensing/api.py":234
+      /* "licensing/api.py":279
+ * 
  *     try:
- *         # Load public key for verification
  *         public_key_pem = _get_public_key()             # <<<<<<<<<<<<<<
  *         crypto = LicenseCrypto(public_key_pem=public_key_pem)
  * 
 */
-      __pyx_t_5 = NULL;
-      __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_get_public_key); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 234, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_6);
-      __pyx_t_7 = 1;
+      __pyx_t_3 = NULL;
+      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_get_public_key); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 279, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_4);
+      __pyx_t_5 = 1;
       #if CYTHON_UNPACK_METHODS
-      if (unlikely(PyMethod_Check(__pyx_t_6))) {
-        __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_6);
-        assert(__pyx_t_5);
-        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_6);
-        __Pyx_INCREF(__pyx_t_5);
+      if (unlikely(PyMethod_Check(__pyx_t_4))) {
+        __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_4);
+        assert(__pyx_t_3);
+        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_4);
+        __Pyx_INCREF(__pyx_t_3);
         __Pyx_INCREF(__pyx__function);
-        __Pyx_DECREF_SET(__pyx_t_6, __pyx__function);
-        __pyx_t_7 = 0;
+        __Pyx_DECREF_SET(__pyx_t_4, __pyx__function);
+        __pyx_t_5 = 0;
       }
       #endif
       {
-        PyObject *__pyx_callargs[2] = {__pyx_t_5, NULL};
-        __pyx_t_4 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_6, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 234, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_4);
+        PyObject *__pyx_callargs[2] = {__pyx_t_3, NULL};
+        __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 279, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_1);
       }
-      __Pyx_GIVEREF(__pyx_t_4);
-      __pyx_cur_scope->__pyx_v_public_key_pem = __pyx_t_4;
-      __pyx_t_4 = 0;
+      __Pyx_GIVEREF(__pyx_t_1);
+      __pyx_cur_scope->__pyx_v_public_key_pem = __pyx_t_1;
+      __pyx_t_1 = 0;
 
-      /* "licensing/api.py":235
- *         # Load public key for verification
+      /* "licensing/api.py":280
+ *     try:
  *         public_key_pem = _get_public_key()
  *         crypto = LicenseCrypto(public_key_pem=public_key_pem)             # <<<<<<<<<<<<<<
  * 
- *         # Verify and decode product key
+ *         try:
 */
-      __pyx_t_6 = NULL;
-      __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_LicenseCrypto); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 235, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_7 = 1;
+      __pyx_t_4 = NULL;
+      __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_LicenseCrypto); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 280, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __pyx_t_5 = 1;
       #if CYTHON_UNPACK_METHODS
-      if (unlikely(PyMethod_Check(__pyx_t_5))) {
-        __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_5);
-        assert(__pyx_t_6);
-        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_5);
-        __Pyx_INCREF(__pyx_t_6);
+      if (unlikely(PyMethod_Check(__pyx_t_3))) {
+        __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
+        assert(__pyx_t_4);
+        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_3);
+        __Pyx_INCREF(__pyx_t_4);
         __Pyx_INCREF(__pyx__function);
-        __Pyx_DECREF_SET(__pyx_t_5, __pyx__function);
-        __pyx_t_7 = 0;
+        __Pyx_DECREF_SET(__pyx_t_3, __pyx__function);
+        __pyx_t_5 = 0;
       }
       #endif
       {
-        PyObject *__pyx_callargs[2] = {__pyx_t_6, __pyx_cur_scope->__pyx_v_public_key_pem};
+        PyObject *__pyx_callargs[2] = {__pyx_t_4, __pyx_cur_scope->__pyx_v_public_key_pem};
         #if CYTHON_VECTORCALL
-        __pyx_t_8 = __pyx_mstate_global->__pyx_tuple[0];
-        if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 235, __pyx_L4_error)
-        __Pyx_INCREF(__pyx_t_8);
+        __pyx_t_2 = __pyx_mstate_global->__pyx_tuple[1];
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 280, __pyx_L4_error)
+        __Pyx_INCREF(__pyx_t_2);
         #else
         {
-          PyObject *__pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_public_key_pem};
-          __pyx_t_8 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 1);
-          if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 235, __pyx_L4_error)
-          __Pyx_GOTREF(__pyx_t_8);
+          PyObject *__pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_public_key_pem_2};
+          __pyx_t_2 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 1);
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 280, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_2);
         }
         #endif
-        __pyx_t_4 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_5, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_8);
-        __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-        __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 235, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_4);
+        __pyx_t_1 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_3, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_2);
+        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 280, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_1);
       }
-      __Pyx_GIVEREF(__pyx_t_4);
-      __pyx_cur_scope->__pyx_v_crypto = __pyx_t_4;
-      __pyx_t_4 = 0;
+      __Pyx_GIVEREF(__pyx_t_1);
+      __pyx_cur_scope->__pyx_v_crypto = __pyx_t_1;
+      __pyx_t_1 = 0;
 
-      /* "licensing/api.py":238
+      /* "licensing/api.py":282
+ *         crypto = LicenseCrypto(public_key_pem=public_key_pem)
  * 
- *         # Verify and decode product key
  *         try:             # <<<<<<<<<<<<<<
- *             license_data = crypto.verify_product_key(request.product_key)
+ *             license_data = crypto.verify_product_key(clean_key)
  *         except ValueError as e:
 */
       {
@@ -5889,35 +7110,32 @@ static PyObject *__pyx_gb_9licensing_3api_5generator1(__pyx_CoroutineObject *__p
         __Pyx_XGOTREF(__pyx_t_11);
         /*try:*/ {
 
-          /* "licensing/api.py":239
- *         # Verify and decode product key
+          /* "licensing/api.py":283
+ * 
  *         try:
- *             license_data = crypto.verify_product_key(request.product_key)             # <<<<<<<<<<<<<<
+ *             license_data = crypto.verify_product_key(clean_key)             # <<<<<<<<<<<<<<
  *         except ValueError as e:
  *             return ValidationResponse(
 */
-          __pyx_t_5 = __pyx_cur_scope->__pyx_v_crypto;
-          __Pyx_INCREF(__pyx_t_5);
-          __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_product_key); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 239, __pyx_L10_error)
-          __Pyx_GOTREF(__pyx_t_8);
-          __pyx_t_7 = 0;
+          __pyx_t_3 = __pyx_cur_scope->__pyx_v_crypto;
+          __Pyx_INCREF(__pyx_t_3);
+          __pyx_t_5 = 0;
           {
-            PyObject *__pyx_callargs[2] = {__pyx_t_5, __pyx_t_8};
-            __pyx_t_4 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_verify_product_key, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-            __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-            __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-            if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 239, __pyx_L10_error)
-            __Pyx_GOTREF(__pyx_t_4);
+            PyObject *__pyx_callargs[2] = {__pyx_t_3, __pyx_cur_scope->__pyx_v_clean_key};
+            __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_verify_product_key, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+            __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+            if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 283, __pyx_L10_error)
+            __Pyx_GOTREF(__pyx_t_1);
           }
-          __Pyx_GIVEREF(__pyx_t_4);
-          __pyx_cur_scope->__pyx_v_license_data = __pyx_t_4;
-          __pyx_t_4 = 0;
+          __Pyx_GIVEREF(__pyx_t_1);
+          __pyx_cur_scope->__pyx_v_license_data = __pyx_t_1;
+          __pyx_t_1 = 0;
 
-          /* "licensing/api.py":238
+          /* "licensing/api.py":282
+ *         crypto = LicenseCrypto(public_key_pem=public_key_pem)
  * 
- *         # Verify and decode product key
  *         try:             # <<<<<<<<<<<<<<
- *             license_data = crypto.verify_product_key(request.product_key)
+ *             license_data = crypto.verify_product_key(clean_key)
  *         except ValueError as e:
 */
         }
@@ -5926,14 +7144,14 @@ static PyObject *__pyx_gb_9licensing_3api_5generator1(__pyx_CoroutineObject *__p
         __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
         goto __pyx_L15_try_end;
         __pyx_L10_error:;
+        __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
         __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-        __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-        /* "licensing/api.py":240
+        /* "licensing/api.py":284
  *         try:
- *             license_data = crypto.verify_product_key(request.product_key)
+ *             license_data = crypto.verify_product_key(clean_key)
  *         except ValueError as e:             # <<<<<<<<<<<<<<
  *             return ValidationResponse(
  *                 success=False,
@@ -5941,47 +7159,47 @@ static PyObject *__pyx_gb_9licensing_3api_5generator1(__pyx_CoroutineObject *__p
         __pyx_t_12 = __Pyx_PyErr_ExceptionMatches(((PyObject *)(((PyTypeObject*)PyExc_ValueError))));
         if (__pyx_t_12) {
           __Pyx_AddTraceback("licensing.api.validate_license", __pyx_clineno, __pyx_lineno, __pyx_filename);
-          if (__Pyx_GetException(&__pyx_t_4, &__pyx_t_8, &__pyx_t_5) < 0) __PYX_ERR(0, 240, __pyx_L12_except_error)
-          __Pyx_XGOTREF(__pyx_t_4);
-          __Pyx_XGOTREF(__pyx_t_8);
-          __Pyx_XGOTREF(__pyx_t_5);
-          __Pyx_INCREF(__pyx_t_8);
-          __Pyx_GIVEREF(__pyx_t_8);
-          __pyx_cur_scope->__pyx_v_e = ((PyObject*)__pyx_t_8);
+          if (__Pyx_GetException(&__pyx_t_1, &__pyx_t_3, &__pyx_t_2) < 0) __PYX_ERR(0, 284, __pyx_L12_except_error)
+          __Pyx_XGOTREF(__pyx_t_1);
+          __Pyx_XGOTREF(__pyx_t_3);
+          __Pyx_XGOTREF(__pyx_t_2);
+          __Pyx_INCREF(__pyx_t_3);
+          __Pyx_GIVEREF(__pyx_t_3);
+          __pyx_cur_scope->__pyx_v_e = ((PyObject*)__pyx_t_3);
           /*try:*/ {
 
-            /* "licensing/api.py":241
- *             license_data = crypto.verify_product_key(request.product_key)
+            /* "licensing/api.py":285
+ *             license_data = crypto.verify_product_key(clean_key)
  *         except ValueError as e:
  *             return ValidationResponse(             # <<<<<<<<<<<<<<
  *                 success=False,
  *                 message=f"Invalid product key: {str(e)}",
 */
             __pyx_t_13 = NULL;
-            __Pyx_GetModuleGlobalName(__pyx_t_14, __pyx_mstate_global->__pyx_n_u_ValidationResponse); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 241, __pyx_L21_error)
+            __Pyx_GetModuleGlobalName(__pyx_t_14, __pyx_mstate_global->__pyx_n_u_ValidationResponse); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 285, __pyx_L21_error)
             __Pyx_GOTREF(__pyx_t_14);
 
-            /* "licensing/api.py":243
+            /* "licensing/api.py":287
  *             return ValidationResponse(
  *                 success=False,
  *                 message=f"Invalid product key: {str(e)}",             # <<<<<<<<<<<<<<
  *                 is_valid=False
  *             )
 */
-            __pyx_t_15 = __Pyx_PyObject_Unicode(__pyx_cur_scope->__pyx_v_e); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 243, __pyx_L21_error)
+            __pyx_t_15 = __Pyx_PyObject_Unicode(__pyx_cur_scope->__pyx_v_e); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 287, __pyx_L21_error)
             __Pyx_GOTREF(__pyx_t_15);
-            __pyx_t_16 = __Pyx_PyUnicode_Concat(__pyx_mstate_global->__pyx_kp_u_Invalid_product_key, __pyx_t_15); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 243, __pyx_L21_error)
+            __pyx_t_16 = __Pyx_PyUnicode_Concat(__pyx_mstate_global->__pyx_kp_u_Invalid_product_key, __pyx_t_15); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 287, __pyx_L21_error)
             __Pyx_GOTREF(__pyx_t_16);
             __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
 
-            /* "licensing/api.py":244
+            /* "licensing/api.py":288
  *                 success=False,
  *                 message=f"Invalid product key: {str(e)}",
  *                 is_valid=False             # <<<<<<<<<<<<<<
  *             )
  * 
 */
-            __pyx_t_7 = 1;
+            __pyx_t_5 = 1;
             #if CYTHON_UNPACK_METHODS
             if (unlikely(PyMethod_Check(__pyx_t_14))) {
               __pyx_t_13 = PyMethod_GET_SELF(__pyx_t_14);
@@ -5990,49 +7208,49 @@ static PyObject *__pyx_gb_9licensing_3api_5generator1(__pyx_CoroutineObject *__p
               __Pyx_INCREF(__pyx_t_13);
               __Pyx_INCREF(__pyx__function);
               __Pyx_DECREF_SET(__pyx_t_14, __pyx__function);
-              __pyx_t_7 = 0;
+              __pyx_t_5 = 0;
             }
             #endif
             {
               PyObject *__pyx_callargs[4] = {__pyx_t_13, Py_False, __pyx_t_16, Py_False};
               #if CYTHON_VECTORCALL
-              __pyx_t_15 = __pyx_mstate_global->__pyx_tuple[4];
-              if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 241, __pyx_L21_error)
+              __pyx_t_15 = __pyx_mstate_global->__pyx_tuple[10];
+              if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 285, __pyx_L21_error)
               __Pyx_INCREF(__pyx_t_15);
               #else
               {
                 PyObject *__pyx_temp[3] = {__pyx_mstate_global->__pyx_n_u_success, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_n_u_is_valid};
                 __pyx_t_15 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 3);
-                if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 241, __pyx_L21_error)
+                if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 285, __pyx_L21_error)
                 __Pyx_GOTREF(__pyx_t_15);
               }
               #endif
-              __pyx_t_6 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_14, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_15);
+              __pyx_t_4 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_14, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_15);
               __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
               __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
               __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
               __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-              if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 241, __pyx_L21_error)
-              __Pyx_GOTREF(__pyx_t_6);
+              if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 285, __pyx_L21_error)
+              __Pyx_GOTREF(__pyx_t_4);
             }
             {
               PyObject *__pyx_temp;
               {
                 __pyx_temp = __pyx_r;
-                __pyx_r = __pyx_t_6;
+                __pyx_r = __pyx_t_4;
               }
               __Pyx_XDECREF(__pyx_temp);
             }
-            __pyx_t_6 = 0;
-            __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-            __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-            __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+            __pyx_t_4 = 0;
+            __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+            __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+            __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
             goto __pyx_L20_return;
           }
 
-          /* "licensing/api.py":240
+          /* "licensing/api.py":284
  *         try:
- *             license_data = crypto.verify_product_key(request.product_key)
+ *             license_data = crypto.verify_product_key(clean_key)
  *         except ValueError as e:             # <<<<<<<<<<<<<<
  *             return ValidationResponse(
  *                 success=False,
@@ -6046,7 +7264,7 @@ static PyObject *__pyx_gb_9licensing_3api_5generator1(__pyx_CoroutineObject *__p
               __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
               __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
               __Pyx_XDECREF(__pyx_t_16); __pyx_t_16 = 0;
-              __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
+              __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
                __Pyx_ExceptionSwap(&__pyx_t_22, &__pyx_t_23, &__pyx_t_24);
               if ( unlikely(__Pyx_GetException(&__pyx_t_19, &__pyx_t_20, &__pyx_t_21) < 0)) __Pyx_ErrFetch(&__pyx_t_19, &__pyx_t_20, &__pyx_t_21);
               __Pyx_XGOTREF(__pyx_t_19);
@@ -6085,11 +7303,11 @@ static PyObject *__pyx_gb_9licensing_3api_5generator1(__pyx_CoroutineObject *__p
         }
         goto __pyx_L12_except_error;
 
-        /* "licensing/api.py":238
+        /* "licensing/api.py":282
+ *         crypto = LicenseCrypto(public_key_pem=public_key_pem)
  * 
- *         # Verify and decode product key
  *         try:             # <<<<<<<<<<<<<<
- *             license_data = crypto.verify_product_key(request.product_key)
+ *             license_data = crypto.verify_product_key(clean_key)
  *         except ValueError as e:
 */
         __pyx_L12_except_error:;
@@ -6107,953 +7325,711 @@ static PyObject *__pyx_gb_9licensing_3api_5generator1(__pyx_CoroutineObject *__p
         __pyx_L15_try_end:;
       }
 
-      /* "licensing/api.py":248
+      /* "licensing/api.py":291
+ *             )
  * 
- *         # Get license record
  *         license_record = db.query(ProductLicense).filter(             # <<<<<<<<<<<<<<
- *             ProductLicense.product_key == request.product_key
+ *             ProductLicense.product_key == clean_key
  *         ).first()
 */
       __pyx_t_15 = __pyx_cur_scope->__pyx_v_db;
       __Pyx_INCREF(__pyx_t_15);
-      __Pyx_GetModuleGlobalName(__pyx_t_16, __pyx_mstate_global->__pyx_n_u_ProductLicense); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 248, __pyx_L4_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_16, __pyx_mstate_global->__pyx_n_u_ProductLicense); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 291, __pyx_L4_error)
       __Pyx_GOTREF(__pyx_t_16);
-      __pyx_t_7 = 0;
+      __pyx_t_5 = 0;
       {
         PyObject *__pyx_callargs[2] = {__pyx_t_15, __pyx_t_16};
-        __pyx_t_14 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_query, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __pyx_t_14 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_query, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
         __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
         __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
-        if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 248, __pyx_L4_error)
+        if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 291, __pyx_L4_error)
         __Pyx_GOTREF(__pyx_t_14);
       }
-      __pyx_t_6 = __pyx_t_14;
-      __Pyx_INCREF(__pyx_t_6);
+      __pyx_t_4 = __pyx_t_14;
+      __Pyx_INCREF(__pyx_t_4);
 
-      /* "licensing/api.py":249
- *         # Get license record
+      /* "licensing/api.py":292
+ * 
  *         license_record = db.query(ProductLicense).filter(
- *             ProductLicense.product_key == request.product_key             # <<<<<<<<<<<<<<
+ *             ProductLicense.product_key == clean_key             # <<<<<<<<<<<<<<
  *         ).first()
  * 
 */
-      __Pyx_GetModuleGlobalName(__pyx_t_16, __pyx_mstate_global->__pyx_n_u_ProductLicense); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 249, __pyx_L4_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_16, __pyx_mstate_global->__pyx_n_u_ProductLicense); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 292, __pyx_L4_error)
       __Pyx_GOTREF(__pyx_t_16);
-      __pyx_t_15 = __Pyx_PyObject_GetAttrStr(__pyx_t_16, __pyx_mstate_global->__pyx_n_u_product_key); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 249, __pyx_L4_error)
+      __pyx_t_15 = __Pyx_PyObject_GetAttrStr(__pyx_t_16, __pyx_mstate_global->__pyx_n_u_product_key); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 292, __pyx_L4_error)
       __Pyx_GOTREF(__pyx_t_15);
       __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
-      __pyx_t_16 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_product_key); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 249, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_16);
-      __pyx_t_13 = __Pyx_PyObject_CompareEq_object_object(__pyx_t_15, __pyx_t_16, Py_EQ); __Pyx_XGOTREF(__pyx_t_13); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 249, __pyx_L4_error)
+      __pyx_t_16 = __Pyx_PyObject_CompareEq_object_object(__pyx_t_15, __pyx_cur_scope->__pyx_v_clean_key, Py_EQ); __Pyx_XGOTREF(__pyx_t_16); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 292, __pyx_L4_error)
       __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
-      __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
-      __pyx_t_7 = 0;
-      {
-        PyObject *__pyx_callargs[2] = {__pyx_t_6, __pyx_t_13};
-        __pyx_t_4 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_filter, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-        __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-        __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 248, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_4);
-      }
-      __pyx_t_8 = __pyx_t_4;
-      __Pyx_INCREF(__pyx_t_8);
-      __pyx_t_7 = 0;
-      {
-        PyObject *__pyx_callargs[2] = {__pyx_t_8, NULL};
-        __pyx_t_5 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_first, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-        if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 250, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_5);
-      }
-      __Pyx_GIVEREF(__pyx_t_5);
-      __pyx_cur_scope->__pyx_v_license_record = __pyx_t_5;
       __pyx_t_5 = 0;
+      {
+        PyObject *__pyx_callargs[2] = {__pyx_t_4, __pyx_t_16};
+        __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_filter, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+        __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
+        __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 291, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_1);
+      }
+      __pyx_t_3 = __pyx_t_1;
+      __Pyx_INCREF(__pyx_t_3);
+      __pyx_t_5 = 0;
+      {
+        PyObject *__pyx_callargs[2] = {__pyx_t_3, NULL};
+        __pyx_t_2 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_first, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 293, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_2);
+      }
+      __Pyx_GIVEREF(__pyx_t_2);
+      __pyx_cur_scope->__pyx_v_license_record = __pyx_t_2;
+      __pyx_t_2 = 0;
 
-      /* "licensing/api.py":252
+      /* "licensing/api.py":295
  *         ).first()
  * 
- *         if not license_record:             # <<<<<<<<<<<<<<
+ *         if not license_record or not license_record.is_active:             # <<<<<<<<<<<<<<
  *             return ValidationResponse(
  *                 success=False,
 */
-      __pyx_t_25 = __Pyx_PyObject_IsTrue(__pyx_cur_scope->__pyx_v_license_record); if (unlikely((__pyx_t_25 < 0))) __PYX_ERR(0, 252, __pyx_L4_error)
-      __pyx_t_26 = (!__pyx_t_25);
+      __pyx_t_26 = __Pyx_PyObject_IsTrue(__pyx_cur_scope->__pyx_v_license_record); if (unlikely((__pyx_t_26 < 0))) __PYX_ERR(0, 295, __pyx_L4_error)
+      __pyx_t_27 = (!__pyx_t_26);
 
 
-      if (__pyx_t_26) {
+      if (!__pyx_t_27) {
+
+      } else {
+
+        __pyx_t_25 = __pyx_t_27;
+
+        goto __pyx_L28_bool_binop_done;
+      }
+      __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_is_active); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 295, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_2);
+      __pyx_t_27 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely((__pyx_t_27 < 0))) __PYX_ERR(0, 295, __pyx_L4_error)
+      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+      __pyx_t_26 = (!__pyx_t_27);
 
 
-        /* "licensing/api.py":253
+
+      __pyx_t_25 = __pyx_t_26;
+
+      __pyx_L28_bool_binop_done:;
+      if (__pyx_t_25) {
+
+
+        /* "licensing/api.py":296
  * 
- *         if not license_record:
+ *         if not license_record or not license_record.is_active:
  *             return ValidationResponse(             # <<<<<<<<<<<<<<
  *                 success=False,
- *                 message="License not found",
+ *                 message="License not found or deactivated",
 */
-        __pyx_t_4 = NULL;
-        __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_ValidationResponse); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 253, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_8);
+        __pyx_t_1 = NULL;
+        __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_ValidationResponse); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 296, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_3);
 
-        /* "licensing/api.py":256
+        /* "licensing/api.py":299
  *                 success=False,
- *                 message="License not found",
+ *                 message="License not found or deactivated",
  *                 is_valid=False             # <<<<<<<<<<<<<<
  *             )
  * 
 */
-        __pyx_t_7 = 1;
+        __pyx_t_5 = 1;
         #if CYTHON_UNPACK_METHODS
-        if (unlikely(PyMethod_Check(__pyx_t_8))) {
-          __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_8);
-          assert(__pyx_t_4);
-          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_8);
-          __Pyx_INCREF(__pyx_t_4);
+        if (unlikely(PyMethod_Check(__pyx_t_3))) {
+          __pyx_t_1 = PyMethod_GET_SELF(__pyx_t_3);
+          assert(__pyx_t_1);
+          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_3);
+          __Pyx_INCREF(__pyx_t_1);
           __Pyx_INCREF(__pyx__function);
-          __Pyx_DECREF_SET(__pyx_t_8, __pyx__function);
-          __pyx_t_7 = 0;
+          __Pyx_DECREF_SET(__pyx_t_3, __pyx__function);
+          __pyx_t_5 = 0;
         }
         #endif
         {
-          PyObject *__pyx_callargs[4] = {__pyx_t_4, Py_False, __pyx_mstate_global->__pyx_kp_u_License_not_found, Py_False};
+          PyObject *__pyx_callargs[4] = {__pyx_t_1, Py_False, __pyx_mstate_global->__pyx_kp_u_License_not_found_or_deactivated, Py_False};
           #if CYTHON_VECTORCALL
-          __pyx_t_14 = __pyx_mstate_global->__pyx_tuple[4];
-          if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 253, __pyx_L4_error)
+          __pyx_t_14 = __pyx_mstate_global->__pyx_tuple[10];
+          if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 296, __pyx_L4_error)
           __Pyx_INCREF(__pyx_t_14);
           #else
           {
             PyObject *__pyx_temp[3] = {__pyx_mstate_global->__pyx_n_u_success, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_n_u_is_valid};
             __pyx_t_14 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 3);
-            if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 253, __pyx_L4_error)
+            if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 296, __pyx_L4_error)
             __Pyx_GOTREF(__pyx_t_14);
           }
           #endif
-          __pyx_t_5 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_8, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_14);
-          __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+          __pyx_t_2 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_3, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_14);
+          __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
           __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-          __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-          if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 253, __pyx_L4_error)
-          __Pyx_GOTREF(__pyx_t_5);
+          __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 296, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_2);
         }
         {
           PyObject *__pyx_temp;
           {
             __pyx_temp = __pyx_r;
-            __pyx_r = __pyx_t_5;
+            __pyx_r = __pyx_t_2;
           }
           __Pyx_XDECREF(__pyx_temp);
         }
-        __pyx_t_5 = 0;
+        __pyx_t_2 = 0;
         goto __pyx_L8_try_return;
 
-        /* "licensing/api.py":252
+        /* "licensing/api.py":295
  *         ).first()
  * 
- *         if not license_record:             # <<<<<<<<<<<<<<
+ *         if not license_record or not license_record.is_active:             # <<<<<<<<<<<<<<
  *             return ValidationResponse(
  *                 success=False,
 */
       }
 
-      /* "licensing/api.py":260
+      /* "licensing/api.py":302
+ *             )
  * 
- *         # Get activation record
+ *         server_now = datetime.now()             # <<<<<<<<<<<<<<
+ *         if license_record.expiry_date < server_now:
+ *             return ValidationResponse(
+*/
+      __pyx_t_3 = NULL;
+      __Pyx_GetModuleGlobalName(__pyx_t_14, __pyx_mstate_global->__pyx_n_u_datetime); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 302, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_14);
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_14, __pyx_mstate_global->__pyx_n_u_now); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 302, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_1);
+      __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+      __pyx_t_5 = 1;
+      #if CYTHON_UNPACK_METHODS
+      if (unlikely(PyMethod_Check(__pyx_t_1))) {
+        __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_1);
+        assert(__pyx_t_3);
+        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_1);
+        __Pyx_INCREF(__pyx_t_3);
+        __Pyx_INCREF(__pyx__function);
+        __Pyx_DECREF_SET(__pyx_t_1, __pyx__function);
+        __pyx_t_5 = 0;
+      }
+      #endif
+      {
+        PyObject *__pyx_callargs[2] = {__pyx_t_3, NULL};
+        __pyx_t_2 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_1, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 302, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_2);
+      }
+      __Pyx_GIVEREF(__pyx_t_2);
+      __pyx_cur_scope->__pyx_v_server_now = __pyx_t_2;
+      __pyx_t_2 = 0;
+
+      /* "licensing/api.py":303
+ * 
+ *         server_now = datetime.now()
+ *         if license_record.expiry_date < server_now:             # <<<<<<<<<<<<<<
+ *             return ValidationResponse(
+ *                 success=False,
+*/
+      __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_expiry_date); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 303, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_2);
+      __pyx_t_25 = __Pyx_PyObject_CompareBoolLt_object_object(__pyx_t_2, __pyx_cur_scope->__pyx_v_server_now, Py_LT); if (unlikely((__pyx_t_25 < 0))) __PYX_ERR(0, 303, __pyx_L4_error)
+      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+      if (__pyx_t_25) {
+
+
+        /* "licensing/api.py":304
+ *         server_now = datetime.now()
+ *         if license_record.expiry_date < server_now:
+ *             return ValidationResponse(             # <<<<<<<<<<<<<<
+ *                 success=False,
+ *                 message=f"License expired on {license_record.expiry_date.isoformat()}",
+*/
+        __pyx_t_1 = NULL;
+        __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_ValidationResponse); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 304, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_3);
+
+        /* "licensing/api.py":306
+ *             return ValidationResponse(
+ *                 success=False,
+ *                 message=f"License expired on {license_record.expiry_date.isoformat()}",             # <<<<<<<<<<<<<<
+ *                 is_valid=False
+ *             )
+*/
+        __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_expiry_date); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 306, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_4);
+        __pyx_t_16 = __pyx_t_4;
+        __Pyx_INCREF(__pyx_t_16);
+        __pyx_t_5 = 0;
+        {
+          PyObject *__pyx_callargs[2] = {__pyx_t_16, NULL};
+          __pyx_t_14 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_isoformat, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+          __Pyx_XDECREF(__pyx_t_16); __pyx_t_16 = 0;
+          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+          if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 306, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_14);
+        }
+        __pyx_t_4 = __Pyx_PyObject_FormatSimple(__pyx_t_14, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 306, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_4);
+        __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+        __pyx_t_14 = __Pyx_PyUnicode_Concat(__pyx_mstate_global->__pyx_kp_u_License_expired_on, __pyx_t_4); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 306, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_14);
+        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+
+        /* "licensing/api.py":307
+ *                 success=False,
+ *                 message=f"License expired on {license_record.expiry_date.isoformat()}",
+ *                 is_valid=False             # <<<<<<<<<<<<<<
+ *             )
+ * 
+*/
+        __pyx_t_5 = 1;
+        #if CYTHON_UNPACK_METHODS
+        if (unlikely(PyMethod_Check(__pyx_t_3))) {
+          __pyx_t_1 = PyMethod_GET_SELF(__pyx_t_3);
+          assert(__pyx_t_1);
+          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_3);
+          __Pyx_INCREF(__pyx_t_1);
+          __Pyx_INCREF(__pyx__function);
+          __Pyx_DECREF_SET(__pyx_t_3, __pyx__function);
+          __pyx_t_5 = 0;
+        }
+        #endif
+        {
+          PyObject *__pyx_callargs[4] = {__pyx_t_1, Py_False, __pyx_t_14, Py_False};
+          #if CYTHON_VECTORCALL
+          __pyx_t_4 = __pyx_mstate_global->__pyx_tuple[10];
+          if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 304, __pyx_L4_error)
+          __Pyx_INCREF(__pyx_t_4);
+          #else
+          {
+            PyObject *__pyx_temp[3] = {__pyx_mstate_global->__pyx_n_u_success, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_n_u_is_valid};
+            __pyx_t_4 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 3);
+            if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 304, __pyx_L4_error)
+            __Pyx_GOTREF(__pyx_t_4);
+          }
+          #endif
+          __pyx_t_2 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_3, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_4);
+          __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+          __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+          __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 304, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_2);
+        }
+        {
+          PyObject *__pyx_temp;
+          {
+            __pyx_temp = __pyx_r;
+            __pyx_r = __pyx_t_2;
+          }
+          __Pyx_XDECREF(__pyx_temp);
+        }
+        __pyx_t_2 = 0;
+        goto __pyx_L8_try_return;
+
+        /* "licensing/api.py":303
+ * 
+ *         server_now = datetime.now()
+ *         if license_record.expiry_date < server_now:             # <<<<<<<<<<<<<<
+ *             return ValidationResponse(
+ *                 success=False,
+*/
+      }
+
+      /* "licensing/api.py":310
+ *             )
+ * 
  *         activation = db.query(LicenseActivation).filter(             # <<<<<<<<<<<<<<
  *             LicenseActivation.id == request.activation_id,
  *             LicenseActivation.license_id == license_record.id
 */
-      __pyx_t_6 = __pyx_cur_scope->__pyx_v_db;
-      __Pyx_INCREF(__pyx_t_6);
-      __Pyx_GetModuleGlobalName(__pyx_t_16, __pyx_mstate_global->__pyx_n_u_LicenseActivation); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 260, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_16);
-      __pyx_t_7 = 0;
+      __pyx_t_16 = __pyx_cur_scope->__pyx_v_db;
+      __Pyx_INCREF(__pyx_t_16);
+      __Pyx_GetModuleGlobalName(__pyx_t_15, __pyx_mstate_global->__pyx_n_u_LicenseActivation); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 310, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_15);
+      __pyx_t_5 = 0;
       {
-        PyObject *__pyx_callargs[2] = {__pyx_t_6, __pyx_t_16};
-        __pyx_t_13 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_query, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-        __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
-        if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 260, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_13);
+        PyObject *__pyx_callargs[2] = {__pyx_t_16, __pyx_t_15};
+        __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_query, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_16); __pyx_t_16 = 0;
+        __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 310, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_1);
       }
-      __pyx_t_4 = __pyx_t_13;
-      __Pyx_INCREF(__pyx_t_4);
+      __pyx_t_14 = __pyx_t_1;
+      __Pyx_INCREF(__pyx_t_14);
 
-      /* "licensing/api.py":261
- *         # Get activation record
+      /* "licensing/api.py":311
+ * 
  *         activation = db.query(LicenseActivation).filter(
  *             LicenseActivation.id == request.activation_id,             # <<<<<<<<<<<<<<
  *             LicenseActivation.license_id == license_record.id
  *         ).first()
 */
-      __Pyx_GetModuleGlobalName(__pyx_t_16, __pyx_mstate_global->__pyx_n_u_LicenseActivation); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 261, __pyx_L4_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_15, __pyx_mstate_global->__pyx_n_u_LicenseActivation); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 311, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_15);
+      __pyx_t_16 = __Pyx_PyObject_GetAttrStr(__pyx_t_15, __pyx_mstate_global->__pyx_n_u_id); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 311, __pyx_L4_error)
       __Pyx_GOTREF(__pyx_t_16);
-      __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_16, __pyx_mstate_global->__pyx_n_u_id); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 261, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_6);
+      __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
+      __pyx_t_15 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_activation_id); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 311, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_15);
+      __pyx_t_13 = __Pyx_PyObject_CompareEq_object_object(__pyx_t_16, __pyx_t_15, Py_EQ); __Pyx_XGOTREF(__pyx_t_13); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 311, __pyx_L4_error)
       __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
-      __pyx_t_16 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_activation_id); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 261, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_16);
-      __pyx_t_15 = __Pyx_PyObject_CompareEq_object_object(__pyx_t_6, __pyx_t_16, Py_EQ); __Pyx_XGOTREF(__pyx_t_15); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 261, __pyx_L4_error)
-      __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-      __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
+      __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
 
-      /* "licensing/api.py":262
+      /* "licensing/api.py":312
  *         activation = db.query(LicenseActivation).filter(
  *             LicenseActivation.id == request.activation_id,
  *             LicenseActivation.license_id == license_record.id             # <<<<<<<<<<<<<<
  *         ).first()
  * 
 */
-      __Pyx_GetModuleGlobalName(__pyx_t_16, __pyx_mstate_global->__pyx_n_u_LicenseActivation); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 262, __pyx_L4_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_15, __pyx_mstate_global->__pyx_n_u_LicenseActivation); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 312, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_15);
+      __pyx_t_16 = __Pyx_PyObject_GetAttrStr(__pyx_t_15, __pyx_mstate_global->__pyx_n_u_license_id); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 312, __pyx_L4_error)
       __Pyx_GOTREF(__pyx_t_16);
-      __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_16, __pyx_mstate_global->__pyx_n_u_license_id); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 262, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_6);
+      __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
+      __pyx_t_15 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_id); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 312, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_15);
+      __pyx_t_28 = __Pyx_PyObject_CompareEq_object_object(__pyx_t_16, __pyx_t_15, Py_EQ); __Pyx_XGOTREF(__pyx_t_28); if (unlikely(!__pyx_t_28)) __PYX_ERR(0, 312, __pyx_L4_error)
       __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
-      __pyx_t_16 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_id); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 262, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_16);
-      __pyx_t_27 = __Pyx_PyObject_CompareEq_object_object(__pyx_t_6, __pyx_t_16, Py_EQ); __Pyx_XGOTREF(__pyx_t_27); if (unlikely(!__pyx_t_27)) __PYX_ERR(0, 262, __pyx_L4_error)
-      __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-      __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
-      __pyx_t_7 = 0;
-      {
-        PyObject *__pyx_callargs[3] = {__pyx_t_4, __pyx_t_15, __pyx_t_27};
-        __pyx_t_14 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_filter, __pyx_callargs+__pyx_t_7, (3-__pyx_t_7) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
-        __Pyx_DECREF(__pyx_t_27); __pyx_t_27 = 0;
-        __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-        if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 260, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_14);
-      }
-      __pyx_t_8 = __pyx_t_14;
-      __Pyx_INCREF(__pyx_t_8);
-      __pyx_t_7 = 0;
-      {
-        PyObject *__pyx_callargs[2] = {__pyx_t_8, NULL};
-        __pyx_t_5 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_first, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-        __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-        if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 263, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_5);
-      }
-      __Pyx_GIVEREF(__pyx_t_5);
-      __pyx_cur_scope->__pyx_v_activation = __pyx_t_5;
+      __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
       __pyx_t_5 = 0;
+      {
+        PyObject *__pyx_callargs[3] = {__pyx_t_14, __pyx_t_13, __pyx_t_28};
+        __pyx_t_4 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_filter, __pyx_callargs+__pyx_t_5, (3-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
+        __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+        __Pyx_DECREF(__pyx_t_28); __pyx_t_28 = 0;
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 310, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_4);
+      }
+      __pyx_t_3 = __pyx_t_4;
+      __Pyx_INCREF(__pyx_t_3);
+      __pyx_t_5 = 0;
+      {
+        PyObject *__pyx_callargs[2] = {__pyx_t_3, NULL};
+        __pyx_t_2 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_first, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 313, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_2);
+      }
+      __Pyx_GIVEREF(__pyx_t_2);
+      __pyx_cur_scope->__pyx_v_activation = __pyx_t_2;
+      __pyx_t_2 = 0;
 
-      /* "licensing/api.py":265
+      /* "licensing/api.py":315
  *         ).first()
  * 
- *         if not activation:             # <<<<<<<<<<<<<<
+ *         if not activation or not activation.is_valid:             # <<<<<<<<<<<<<<
  *             return ValidationResponse(
  *                 success=False,
 */
-      __pyx_t_26 = __Pyx_PyObject_IsTrue(__pyx_cur_scope->__pyx_v_activation); if (unlikely((__pyx_t_26 < 0))) __PYX_ERR(0, 265, __pyx_L4_error)
-      __pyx_t_25 = (!__pyx_t_26);
+      __pyx_t_26 = __Pyx_PyObject_IsTrue(__pyx_cur_scope->__pyx_v_activation); if (unlikely((__pyx_t_26 < 0))) __PYX_ERR(0, 315, __pyx_L4_error)
+      __pyx_t_27 = (!__pyx_t_26);
 
 
+      if (!__pyx_t_27) {
+
+      } else {
+
+        __pyx_t_25 = __pyx_t_27;
+
+        goto __pyx_L32_bool_binop_done;
+      }
+      __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_activation, __pyx_mstate_global->__pyx_n_u_is_valid); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 315, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_2);
+      __pyx_t_27 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely((__pyx_t_27 < 0))) __PYX_ERR(0, 315, __pyx_L4_error)
+      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+      __pyx_t_26 = (!__pyx_t_27);
+
+
+
+      __pyx_t_25 = __pyx_t_26;
+
+      __pyx_L32_bool_binop_done:;
       if (__pyx_t_25) {
 
 
-        /* "licensing/api.py":266
+        /* "licensing/api.py":316
  * 
- *         if not activation:
+ *         if not activation or not activation.is_valid:
  *             return ValidationResponse(             # <<<<<<<<<<<<<<
  *                 success=False,
- *                 message="Activation not found",
+ *                 message="Activation record not found or inactive",
 */
-        __pyx_t_14 = NULL;
-        __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_ValidationResponse); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 266, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_8);
+        __pyx_t_4 = NULL;
+        __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_ValidationResponse); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 316, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_3);
 
-        /* "licensing/api.py":269
+        /* "licensing/api.py":319
  *                 success=False,
- *                 message="Activation not found",
+ *                 message="Activation record not found or inactive",
  *                 is_valid=False             # <<<<<<<<<<<<<<
  *             )
  * 
 */
-        __pyx_t_7 = 1;
+        __pyx_t_5 = 1;
         #if CYTHON_UNPACK_METHODS
-        if (unlikely(PyMethod_Check(__pyx_t_8))) {
-          __pyx_t_14 = PyMethod_GET_SELF(__pyx_t_8);
-          assert(__pyx_t_14);
-          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_8);
-          __Pyx_INCREF(__pyx_t_14);
+        if (unlikely(PyMethod_Check(__pyx_t_3))) {
+          __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
+          assert(__pyx_t_4);
+          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_3);
+          __Pyx_INCREF(__pyx_t_4);
           __Pyx_INCREF(__pyx__function);
-          __Pyx_DECREF_SET(__pyx_t_8, __pyx__function);
-          __pyx_t_7 = 0;
+          __Pyx_DECREF_SET(__pyx_t_3, __pyx__function);
+          __pyx_t_5 = 0;
         }
         #endif
         {
-          PyObject *__pyx_callargs[4] = {__pyx_t_14, Py_False, __pyx_mstate_global->__pyx_kp_u_Activation_not_found, Py_False};
+          PyObject *__pyx_callargs[4] = {__pyx_t_4, Py_False, __pyx_mstate_global->__pyx_kp_u_Activation_record_not_found_or_i, Py_False};
           #if CYTHON_VECTORCALL
-          __pyx_t_13 = __pyx_mstate_global->__pyx_tuple[4];
-          if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 266, __pyx_L4_error)
-          __Pyx_INCREF(__pyx_t_13);
+          __pyx_t_1 = __pyx_mstate_global->__pyx_tuple[10];
+          if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 316, __pyx_L4_error)
+          __Pyx_INCREF(__pyx_t_1);
           #else
           {
             PyObject *__pyx_temp[3] = {__pyx_mstate_global->__pyx_n_u_success, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_n_u_is_valid};
-            __pyx_t_13 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 3);
-            if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 266, __pyx_L4_error)
-            __Pyx_GOTREF(__pyx_t_13);
+            __pyx_t_1 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 3);
+            if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 316, __pyx_L4_error)
+            __Pyx_GOTREF(__pyx_t_1);
           }
           #endif
-          __pyx_t_5 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_8, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_13);
-          __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
-          __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-          __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-          if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 266, __pyx_L4_error)
-          __Pyx_GOTREF(__pyx_t_5);
+          __pyx_t_2 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_3, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_1);
+          __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+          __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+          __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 316, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_2);
         }
         {
           PyObject *__pyx_temp;
           {
             __pyx_temp = __pyx_r;
-            __pyx_r = __pyx_t_5;
+            __pyx_r = __pyx_t_2;
           }
           __Pyx_XDECREF(__pyx_temp);
         }
-        __pyx_t_5 = 0;
+        __pyx_t_2 = 0;
         goto __pyx_L8_try_return;
 
-        /* "licensing/api.py":265
+        /* "licensing/api.py":315
  *         ).first()
  * 
- *         if not activation:             # <<<<<<<<<<<<<<
+ *         if not activation or not activation.is_valid:             # <<<<<<<<<<<<<<
  *             return ValidationResponse(
  *                 success=False,
 */
       }
 
-      /* "licensing/api.py":273
- * 
- *         # Check if activation is valid
- *         if not activation.is_valid:             # <<<<<<<<<<<<<<
- *             return ValidationResponse(
- *                 success=False,
-*/
-      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_activation, __pyx_mstate_global->__pyx_n_u_is_valid); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 273, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_25 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely((__pyx_t_25 < 0))) __PYX_ERR(0, 273, __pyx_L4_error)
-      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      __pyx_t_26 = (!__pyx_t_25);
-
-
-      if (__pyx_t_26) {
-
-
-        /* "licensing/api.py":274
- *         # Check if activation is valid
- *         if not activation.is_valid:
- *             return ValidationResponse(             # <<<<<<<<<<<<<<
- *                 success=False,
- *                 message="Activation has been deactivated",
-*/
-        __pyx_t_8 = NULL;
-        __Pyx_GetModuleGlobalName(__pyx_t_13, __pyx_mstate_global->__pyx_n_u_ValidationResponse); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 274, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_13);
-
-        /* "licensing/api.py":277
- *                 success=False,
- *                 message="Activation has been deactivated",
- *                 is_valid=False             # <<<<<<<<<<<<<<
+      /* "licensing/api.py":322
  *             )
  * 
-*/
-        __pyx_t_7 = 1;
-        #if CYTHON_UNPACK_METHODS
-        if (unlikely(PyMethod_Check(__pyx_t_13))) {
-          __pyx_t_8 = PyMethod_GET_SELF(__pyx_t_13);
-          assert(__pyx_t_8);
-          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_13);
-          __Pyx_INCREF(__pyx_t_8);
-          __Pyx_INCREF(__pyx__function);
-          __Pyx_DECREF_SET(__pyx_t_13, __pyx__function);
-          __pyx_t_7 = 0;
-        }
-        #endif
-        {
-          PyObject *__pyx_callargs[4] = {__pyx_t_8, Py_False, __pyx_mstate_global->__pyx_kp_u_Activation_has_been_deactivated, Py_False};
-          #if CYTHON_VECTORCALL
-          __pyx_t_14 = __pyx_mstate_global->__pyx_tuple[4];
-          if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 274, __pyx_L4_error)
-          __Pyx_INCREF(__pyx_t_14);
-          #else
-          {
-            PyObject *__pyx_temp[3] = {__pyx_mstate_global->__pyx_n_u_success, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_n_u_is_valid};
-            __pyx_t_14 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 3);
-            if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 274, __pyx_L4_error)
-            __Pyx_GOTREF(__pyx_t_14);
-          }
-          #endif
-          __pyx_t_5 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_13, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_14);
-          __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-          __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-          __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-          if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 274, __pyx_L4_error)
-          __Pyx_GOTREF(__pyx_t_5);
-        }
-        {
-          PyObject *__pyx_temp;
-          {
-            __pyx_temp = __pyx_r;
-            __pyx_r = __pyx_t_5;
-          }
-          __Pyx_XDECREF(__pyx_temp);
-        }
-        __pyx_t_5 = 0;
-        goto __pyx_L8_try_return;
-
-        /* "licensing/api.py":273
- * 
- *         # Check if activation is valid
- *         if not activation.is_valid:             # <<<<<<<<<<<<<<
- *             return ValidationResponse(
- *                 success=False,
-*/
-      }
-
-      /* "licensing/api.py":281
- * 
- *         # Check if machine fingerprint matches
  *         if activation.machine_fingerprint != request.machine_fingerprint:             # <<<<<<<<<<<<<<
  *             return ValidationResponse(
  *                 success=False,
 */
-      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_activation, __pyx_mstate_global->__pyx_n_u_machine_fingerprint); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 281, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_machine_fingerprint); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 281, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_13);
-      __pyx_t_26 = __Pyx_PyObject_CompareBoolNe_object_object(__pyx_t_5, __pyx_t_13, Py_NE); if (unlikely((__pyx_t_26 < 0))) __PYX_ERR(0, 281, __pyx_L4_error)
-      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-      if (__pyx_t_26) {
+      __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_activation, __pyx_mstate_global->__pyx_n_u_machine_fingerprint); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 322, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_2);
+      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_machine_fingerprint); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 322, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __pyx_t_25 = __Pyx_PyObject_CompareBoolNe_object_object(__pyx_t_2, __pyx_t_3, Py_NE); if (unlikely((__pyx_t_25 < 0))) __PYX_ERR(0, 322, __pyx_L4_error)
+      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      if (__pyx_t_25) {
 
 
-        /* "licensing/api.py":282
- *         # Check if machine fingerprint matches
+        /* "licensing/api.py":323
+ * 
  *         if activation.machine_fingerprint != request.machine_fingerprint:
  *             return ValidationResponse(             # <<<<<<<<<<<<<<
  *                 success=False,
  *                 message="Machine fingerprint mismatch",
 */
-        __pyx_t_5 = NULL;
-        __Pyx_GetModuleGlobalName(__pyx_t_14, __pyx_mstate_global->__pyx_n_u_ValidationResponse); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 282, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_14);
+        __pyx_t_2 = NULL;
+        __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_ValidationResponse); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 323, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_1);
 
-        /* "licensing/api.py":285
+        /* "licensing/api.py":326
  *                 success=False,
  *                 message="Machine fingerprint mismatch",
  *                 is_valid=False             # <<<<<<<<<<<<<<
  *             )
  * 
 */
-        __pyx_t_7 = 1;
+        __pyx_t_5 = 1;
         #if CYTHON_UNPACK_METHODS
-        if (unlikely(PyMethod_Check(__pyx_t_14))) {
-          __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_14);
-          assert(__pyx_t_5);
-          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_14);
-          __Pyx_INCREF(__pyx_t_5);
+        if (unlikely(PyMethod_Check(__pyx_t_1))) {
+          __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_1);
+          assert(__pyx_t_2);
+          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_1);
+          __Pyx_INCREF(__pyx_t_2);
           __Pyx_INCREF(__pyx__function);
-          __Pyx_DECREF_SET(__pyx_t_14, __pyx__function);
-          __pyx_t_7 = 0;
+          __Pyx_DECREF_SET(__pyx_t_1, __pyx__function);
+          __pyx_t_5 = 0;
         }
         #endif
         {
-          PyObject *__pyx_callargs[4] = {__pyx_t_5, Py_False, __pyx_mstate_global->__pyx_kp_u_Machine_fingerprint_mismatch, Py_False};
+          PyObject *__pyx_callargs[4] = {__pyx_t_2, Py_False, __pyx_mstate_global->__pyx_kp_u_Machine_fingerprint_mismatch, Py_False};
           #if CYTHON_VECTORCALL
-          __pyx_t_8 = __pyx_mstate_global->__pyx_tuple[4];
-          if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 282, __pyx_L4_error)
-          __Pyx_INCREF(__pyx_t_8);
+          __pyx_t_4 = __pyx_mstate_global->__pyx_tuple[10];
+          if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 323, __pyx_L4_error)
+          __Pyx_INCREF(__pyx_t_4);
           #else
           {
             PyObject *__pyx_temp[3] = {__pyx_mstate_global->__pyx_n_u_success, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_n_u_is_valid};
-            __pyx_t_8 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 3);
-            if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 282, __pyx_L4_error)
-            __Pyx_GOTREF(__pyx_t_8);
+            __pyx_t_4 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 3);
+            if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 323, __pyx_L4_error)
+            __Pyx_GOTREF(__pyx_t_4);
           }
           #endif
-          __pyx_t_13 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_14, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_8);
-          __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-          __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-          __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-          if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 282, __pyx_L4_error)
-          __Pyx_GOTREF(__pyx_t_13);
+          __pyx_t_3 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_1, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_4);
+          __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+          __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+          if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 323, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_3);
         }
         {
           PyObject *__pyx_temp;
           {
             __pyx_temp = __pyx_r;
-            __pyx_r = __pyx_t_13;
+            __pyx_r = __pyx_t_3;
           }
           __Pyx_XDECREF(__pyx_temp);
         }
-        __pyx_t_13 = 0;
+        __pyx_t_3 = 0;
         goto __pyx_L8_try_return;
 
-        /* "licensing/api.py":281
+        /* "licensing/api.py":322
+ *             )
  * 
- *         # Check if machine fingerprint matches
  *         if activation.machine_fingerprint != request.machine_fingerprint:             # <<<<<<<<<<<<<<
  *             return ValidationResponse(
  *                 success=False,
 */
       }
 
-      /* "licensing/api.py":289
- * 
- *         # Check if license is still active
- *         if not license_record.is_active:             # <<<<<<<<<<<<<<
- *             return ValidationResponse(
- *                 success=False,
-*/
-      __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_is_active); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 289, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_13);
-      __pyx_t_26 = __Pyx_PyObject_IsTrue(__pyx_t_13); if (unlikely((__pyx_t_26 < 0))) __PYX_ERR(0, 289, __pyx_L4_error)
-      __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-      __pyx_t_25 = (!__pyx_t_26);
-
-
-      if (__pyx_t_25) {
-
-
-        /* "licensing/api.py":290
- *         # Check if license is still active
- *         if not license_record.is_active:
- *             return ValidationResponse(             # <<<<<<<<<<<<<<
- *                 success=False,
- *                 message="License has been deactivated",
-*/
-        __pyx_t_14 = NULL;
-        __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_ValidationResponse); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 290, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_8);
-
-        /* "licensing/api.py":293
- *                 success=False,
- *                 message="License has been deactivated",
- *                 is_valid=False             # <<<<<<<<<<<<<<
+      /* "licensing/api.py":329
  *             )
  * 
-*/
-        __pyx_t_7 = 1;
-        #if CYTHON_UNPACK_METHODS
-        if (unlikely(PyMethod_Check(__pyx_t_8))) {
-          __pyx_t_14 = PyMethod_GET_SELF(__pyx_t_8);
-          assert(__pyx_t_14);
-          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_8);
-          __Pyx_INCREF(__pyx_t_14);
-          __Pyx_INCREF(__pyx__function);
-          __Pyx_DECREF_SET(__pyx_t_8, __pyx__function);
-          __pyx_t_7 = 0;
-        }
-        #endif
-        {
-          PyObject *__pyx_callargs[4] = {__pyx_t_14, Py_False, __pyx_mstate_global->__pyx_kp_u_License_has_been_deactivated, Py_False};
-          #if CYTHON_VECTORCALL
-          __pyx_t_5 = __pyx_mstate_global->__pyx_tuple[4];
-          if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 290, __pyx_L4_error)
-          __Pyx_INCREF(__pyx_t_5);
-          #else
-          {
-            PyObject *__pyx_temp[3] = {__pyx_mstate_global->__pyx_n_u_success, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_n_u_is_valid};
-            __pyx_t_5 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 3);
-            if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 290, __pyx_L4_error)
-            __Pyx_GOTREF(__pyx_t_5);
-          }
-          #endif
-          __pyx_t_13 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_8, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_5);
-          __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
-          __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-          __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-          if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 290, __pyx_L4_error)
-          __Pyx_GOTREF(__pyx_t_13);
-        }
-        {
-          PyObject *__pyx_temp;
-          {
-            __pyx_temp = __pyx_r;
-            __pyx_r = __pyx_t_13;
-          }
-          __Pyx_XDECREF(__pyx_temp);
-        }
-        __pyx_t_13 = 0;
-        goto __pyx_L8_try_return;
-
-        /* "licensing/api.py":289
- * 
- *         # Check if license is still active
- *         if not license_record.is_active:             # <<<<<<<<<<<<<<
- *             return ValidationResponse(
- *                 success=False,
-*/
-      }
-
-      /* "licensing/api.py":297
- * 
- *         # Check if license has expired (using server time only)
- *         server_now = datetime.now()             # <<<<<<<<<<<<<<
- *         if license_record.expiry_date < server_now:
- *             return ValidationResponse(
-*/
-      __pyx_t_8 = NULL;
-      __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_datetime); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 297, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_14 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_now); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 297, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_14);
-      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      __pyx_t_7 = 1;
-      #if CYTHON_UNPACK_METHODS
-      if (unlikely(PyMethod_Check(__pyx_t_14))) {
-        __pyx_t_8 = PyMethod_GET_SELF(__pyx_t_14);
-        assert(__pyx_t_8);
-        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_14);
-        __Pyx_INCREF(__pyx_t_8);
-        __Pyx_INCREF(__pyx__function);
-        __Pyx_DECREF_SET(__pyx_t_14, __pyx__function);
-        __pyx_t_7 = 0;
-      }
-      #endif
-      {
-        PyObject *__pyx_callargs[2] = {__pyx_t_8, NULL};
-        __pyx_t_13 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_14, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-        __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-        if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 297, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_13);
-      }
-      __Pyx_GIVEREF(__pyx_t_13);
-      __pyx_cur_scope->__pyx_v_server_now = __pyx_t_13;
-      __pyx_t_13 = 0;
-
-      /* "licensing/api.py":298
- *         # Check if license has expired (using server time only)
- *         server_now = datetime.now()
- *         if license_record.expiry_date < server_now:             # <<<<<<<<<<<<<<
- *             return ValidationResponse(
- *                 success=False,
-*/
-      __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_expiry_date); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 298, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_13);
-      __pyx_t_25 = __Pyx_PyObject_CompareBoolLt_object_object(__pyx_t_13, __pyx_cur_scope->__pyx_v_server_now, Py_LT); if (unlikely((__pyx_t_25 < 0))) __PYX_ERR(0, 298, __pyx_L4_error)
-      __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-      if (__pyx_t_25) {
-
-
-        /* "licensing/api.py":299
- *         server_now = datetime.now()
- *         if license_record.expiry_date < server_now:
- *             return ValidationResponse(             # <<<<<<<<<<<<<<
- *                 success=False,
- *                 message=f"License has expired on {license_record.expiry_date.isoformat()}",
-*/
-        __pyx_t_14 = NULL;
-        __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_ValidationResponse); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 299, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_8);
-
-        /* "licensing/api.py":301
- *             return ValidationResponse(
- *                 success=False,
- *                 message=f"License has expired on {license_record.expiry_date.isoformat()}",             # <<<<<<<<<<<<<<
- *                 is_valid=False
- *             )
-*/
-        __pyx_t_15 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_expiry_date); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 301, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_15);
-        __pyx_t_27 = __pyx_t_15;
-        __Pyx_INCREF(__pyx_t_27);
-        __pyx_t_7 = 0;
-        {
-          PyObject *__pyx_callargs[2] = {__pyx_t_27, NULL};
-          __pyx_t_5 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_isoformat, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-          __Pyx_XDECREF(__pyx_t_27); __pyx_t_27 = 0;
-          __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
-          if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 301, __pyx_L4_error)
-          __Pyx_GOTREF(__pyx_t_5);
-        }
-        __pyx_t_15 = __Pyx_PyObject_FormatSimple(__pyx_t_5, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 301, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_15);
-        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __pyx_t_5 = __Pyx_PyUnicode_Concat(__pyx_mstate_global->__pyx_kp_u_License_has_expired_on, __pyx_t_15); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 301, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_5);
-        __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
-
-        /* "licensing/api.py":302
- *                 success=False,
- *                 message=f"License has expired on {license_record.expiry_date.isoformat()}",
- *                 is_valid=False             # <<<<<<<<<<<<<<
- *             )
- * 
-*/
-        __pyx_t_7 = 1;
-        #if CYTHON_UNPACK_METHODS
-        if (unlikely(PyMethod_Check(__pyx_t_8))) {
-          __pyx_t_14 = PyMethod_GET_SELF(__pyx_t_8);
-          assert(__pyx_t_14);
-          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_8);
-          __Pyx_INCREF(__pyx_t_14);
-          __Pyx_INCREF(__pyx__function);
-          __Pyx_DECREF_SET(__pyx_t_8, __pyx__function);
-          __pyx_t_7 = 0;
-        }
-        #endif
-        {
-          PyObject *__pyx_callargs[4] = {__pyx_t_14, Py_False, __pyx_t_5, Py_False};
-          #if CYTHON_VECTORCALL
-          __pyx_t_15 = __pyx_mstate_global->__pyx_tuple[4];
-          if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 299, __pyx_L4_error)
-          __Pyx_INCREF(__pyx_t_15);
-          #else
-          {
-            PyObject *__pyx_temp[3] = {__pyx_mstate_global->__pyx_n_u_success, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_n_u_is_valid};
-            __pyx_t_15 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 3);
-            if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 299, __pyx_L4_error)
-            __Pyx_GOTREF(__pyx_t_15);
-          }
-          #endif
-          __pyx_t_13 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_8, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_15);
-          __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
-          __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-          __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
-          __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-          if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 299, __pyx_L4_error)
-          __Pyx_GOTREF(__pyx_t_13);
-        }
-        {
-          PyObject *__pyx_temp;
-          {
-            __pyx_temp = __pyx_r;
-            __pyx_r = __pyx_t_13;
-          }
-          __Pyx_XDECREF(__pyx_temp);
-        }
-        __pyx_t_13 = 0;
-        goto __pyx_L8_try_return;
-
-        /* "licensing/api.py":298
- *         # Check if license has expired (using server time only)
- *         server_now = datetime.now()
- *         if license_record.expiry_date < server_now:             # <<<<<<<<<<<<<<
- *             return ValidationResponse(
- *                 success=False,
-*/
-      }
-
-      /* "licensing/api.py":307
- *         # Time manipulation protection: Check if server_timestamp shows excessive time
- *         # Calculate actual elapsed time based on server timestamps
- *         elapsed_days = (server_now - activation.server_timestamp).days             # <<<<<<<<<<<<<<
- *         if elapsed_days > 400:  # More than ~1 year + buffer
- *             return ValidationResponse(
-*/
-      __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_activation, __pyx_mstate_global->__pyx_n_u_server_timestamp); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 307, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_13);
-      __pyx_t_8 = __Pyx_PyNumber_Subtract_object_object(__pyx_cur_scope->__pyx_v_server_now, __pyx_t_13); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 307, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_8);
-      __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-      __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_days); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 307, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_13);
-      __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-      __Pyx_GIVEREF(__pyx_t_13);
-      __pyx_cur_scope->__pyx_v_elapsed_days = __pyx_t_13;
-      __pyx_t_13 = 0;
-
-      /* "licensing/api.py":308
- *         # Calculate actual elapsed time based on server timestamps
- *         elapsed_days = (server_now - activation.server_timestamp).days
- *         if elapsed_days > 400:  # More than ~1 year + buffer             # <<<<<<<<<<<<<<
- *             return ValidationResponse(
- *                 success=False,
-*/
-      __pyx_t_25 = __Pyx_PyObject_CompareBoolGt_object_int(__pyx_cur_scope->__pyx_v_elapsed_days, __pyx_mstate_global->__pyx_int_400, Py_GT); if (unlikely((__pyx_t_25 < 0))) __PYX_ERR(0, 308, __pyx_L4_error)
-      if (__pyx_t_25) {
-
-
-        /* "licensing/api.py":309
- *         elapsed_days = (server_now - activation.server_timestamp).days
- *         if elapsed_days > 400:  # More than ~1 year + buffer
- *             return ValidationResponse(             # <<<<<<<<<<<<<<
- *                 success=False,
- *                 message="License validity period exceeded. Please contact support.",
-*/
-        __pyx_t_8 = NULL;
-        __Pyx_GetModuleGlobalName(__pyx_t_15, __pyx_mstate_global->__pyx_n_u_ValidationResponse); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 309, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_15);
-
-        /* "licensing/api.py":312
- *                 success=False,
- *                 message="License validity period exceeded. Please contact support.",
- *                 is_valid=False             # <<<<<<<<<<<<<<
- *             )
- * 
-*/
-        __pyx_t_7 = 1;
-        #if CYTHON_UNPACK_METHODS
-        if (unlikely(PyMethod_Check(__pyx_t_15))) {
-          __pyx_t_8 = PyMethod_GET_SELF(__pyx_t_15);
-          assert(__pyx_t_8);
-          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_15);
-          __Pyx_INCREF(__pyx_t_8);
-          __Pyx_INCREF(__pyx__function);
-          __Pyx_DECREF_SET(__pyx_t_15, __pyx__function);
-          __pyx_t_7 = 0;
-        }
-        #endif
-        {
-          PyObject *__pyx_callargs[4] = {__pyx_t_8, Py_False, __pyx_mstate_global->__pyx_kp_u_License_validity_period_exceeded, Py_False};
-          #if CYTHON_VECTORCALL
-          __pyx_t_5 = __pyx_mstate_global->__pyx_tuple[4];
-          if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 309, __pyx_L4_error)
-          __Pyx_INCREF(__pyx_t_5);
-          #else
-          {
-            PyObject *__pyx_temp[3] = {__pyx_mstate_global->__pyx_n_u_success, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_n_u_is_valid};
-            __pyx_t_5 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 3);
-            if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 309, __pyx_L4_error)
-            __Pyx_GOTREF(__pyx_t_5);
-          }
-          #endif
-          __pyx_t_13 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_15, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_5);
-          __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-          __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-          __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
-          if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 309, __pyx_L4_error)
-          __Pyx_GOTREF(__pyx_t_13);
-        }
-        {
-          PyObject *__pyx_temp;
-          {
-            __pyx_temp = __pyx_r;
-            __pyx_r = __pyx_t_13;
-          }
-          __Pyx_XDECREF(__pyx_temp);
-        }
-        __pyx_t_13 = 0;
-        goto __pyx_L8_try_return;
-
-        /* "licensing/api.py":308
- *         # Calculate actual elapsed time based on server timestamps
- *         elapsed_days = (server_now - activation.server_timestamp).days
- *         if elapsed_days > 400:  # More than ~1 year + buffer             # <<<<<<<<<<<<<<
- *             return ValidationResponse(
- *                 success=False,
-*/
-      }
-
-      /* "licensing/api.py":316
- * 
- *         # Update last validated timestamp (server time)
  *         activation.last_validated = server_now             # <<<<<<<<<<<<<<
  *         db.commit()
  * 
 */
-      if (__Pyx_PyObject_SetAttrStr(__pyx_cur_scope->__pyx_v_activation, __pyx_mstate_global->__pyx_n_u_last_validated, __pyx_cur_scope->__pyx_v_server_now) < (0)) __PYX_ERR(0, 316, __pyx_L4_error)
+      if (__Pyx_PyObject_SetAttrStr(__pyx_cur_scope->__pyx_v_activation, __pyx_mstate_global->__pyx_n_u_last_validated, __pyx_cur_scope->__pyx_v_server_now) < (0)) __PYX_ERR(0, 329, __pyx_L4_error)
 
-      /* "licensing/api.py":317
- *         # Update last validated timestamp (server time)
+      /* "licensing/api.py":330
+ * 
  *         activation.last_validated = server_now
  *         db.commit()             # <<<<<<<<<<<<<<
  * 
  *         return ValidationResponse(
 */
-      __pyx_t_15 = __pyx_cur_scope->__pyx_v_db;
-      __Pyx_INCREF(__pyx_t_15);
-      __pyx_t_7 = 0;
+      __pyx_t_1 = __pyx_cur_scope->__pyx_v_db;
+      __Pyx_INCREF(__pyx_t_1);
+      __pyx_t_5 = 0;
       {
-        PyObject *__pyx_callargs[2] = {__pyx_t_15, NULL};
-        __pyx_t_13 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_commit, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
-        if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 317, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_13);
+        PyObject *__pyx_callargs[2] = {__pyx_t_1, NULL};
+        __pyx_t_3 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_commit, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+        if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 330, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_3);
       }
-      __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-      /* "licensing/api.py":319
+      /* "licensing/api.py":332
  *         db.commit()
  * 
  *         return ValidationResponse(             # <<<<<<<<<<<<<<
  *             success=True,
  *             message="License is valid",
 */
-      __pyx_t_15 = NULL;
-      __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_ValidationResponse); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 319, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_5);
+      __pyx_t_1 = NULL;
+      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_ValidationResponse); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 332, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_4);
 
-      /* "licensing/api.py":324
+      /* "licensing/api.py":337
  *             is_valid=True,
  *             license_data=license_data,
  *             remaining_credits=license_record.credits             # <<<<<<<<<<<<<<
  *         )
  * 
 */
-      __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_credits); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 324, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_8);
-      __pyx_t_7 = 1;
+      __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_credits); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 337, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_2);
+      __pyx_t_5 = 1;
       #if CYTHON_UNPACK_METHODS
-      if (unlikely(PyMethod_Check(__pyx_t_5))) {
-        __pyx_t_15 = PyMethod_GET_SELF(__pyx_t_5);
-        assert(__pyx_t_15);
-        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_5);
-        __Pyx_INCREF(__pyx_t_15);
+      if (unlikely(PyMethod_Check(__pyx_t_4))) {
+        __pyx_t_1 = PyMethod_GET_SELF(__pyx_t_4);
+        assert(__pyx_t_1);
+        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_4);
+        __Pyx_INCREF(__pyx_t_1);
         __Pyx_INCREF(__pyx__function);
-        __Pyx_DECREF_SET(__pyx_t_5, __pyx__function);
-        __pyx_t_7 = 0;
+        __Pyx_DECREF_SET(__pyx_t_4, __pyx__function);
+        __pyx_t_5 = 0;
       }
       #endif
       {
-        PyObject *__pyx_callargs[6] = {__pyx_t_15, Py_True, __pyx_mstate_global->__pyx_kp_u_License_is_valid, Py_True, __pyx_cur_scope->__pyx_v_license_data, __pyx_t_8};
+        PyObject *__pyx_callargs[6] = {__pyx_t_1, Py_True, __pyx_mstate_global->__pyx_kp_u_License_is_valid, Py_True, __pyx_cur_scope->__pyx_v_license_data, __pyx_t_2};
         #if CYTHON_VECTORCALL
-        __pyx_t_14 = __pyx_mstate_global->__pyx_tuple[5];
-        if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 319, __pyx_L4_error)
-        __Pyx_INCREF(__pyx_t_14);
+        __pyx_t_28 = __pyx_mstate_global->__pyx_tuple[11];
+        if (unlikely(!__pyx_t_28)) __PYX_ERR(0, 332, __pyx_L4_error)
+        __Pyx_INCREF(__pyx_t_28);
         #else
         {
           PyObject *__pyx_temp[5] = {__pyx_mstate_global->__pyx_n_u_success, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_n_u_is_valid, __pyx_mstate_global->__pyx_n_u_license_data, __pyx_mstate_global->__pyx_n_u_remaining_credits};
-          __pyx_t_14 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 5);
-          if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 319, __pyx_L4_error)
-          __Pyx_GOTREF(__pyx_t_14);
+          __pyx_t_28 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 5);
+          if (unlikely(!__pyx_t_28)) __PYX_ERR(0, 332, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_28);
         }
         #endif
-        __pyx_t_13 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_5, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_14);
-        __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
-        __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-        __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 319, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_13);
+        __pyx_t_3 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_28);
+        __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __Pyx_DECREF(__pyx_t_28); __pyx_t_28 = 0;
+        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+        if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 332, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_3);
       }
       {
         PyObject *__pyx_temp;
         {
           __pyx_temp = __pyx_r;
-          __pyx_r = __pyx_t_13;
+          __pyx_r = __pyx_t_3;
         }
         __Pyx_XDECREF(__pyx_temp);
       }
-      __pyx_t_13 = 0;
+      __pyx_t_3 = 0;
       goto __pyx_L8_try_return;
 
-      /* "licensing/api.py":232
- *     5. Uses server time for all expiry checks (prevents time manipulation)
- *     """
+      /* "licensing/api.py":278
+ *     clean_key = _clean_product_key(request.product_key)
+ * 
  *     try:             # <<<<<<<<<<<<<<
- *         # Load public key for verification
  *         public_key_pem = _get_public_key()
+ *         crypto = LicenseCrypto(public_key_pem=public_key_pem)
 */
     }
     __pyx_L4_error:;
+    __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
     __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
     __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
     __Pyx_XDECREF(__pyx_t_16); __pyx_t_16 = 0;
-    __Pyx_XDECREF(__pyx_t_27); __pyx_t_27 = 0;
+    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __Pyx_XDECREF(__pyx_t_28); __pyx_t_28 = 0;
+    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-    /* "licensing/api.py":327
+    /* "licensing/api.py":340
  *         )
  * 
  *     except Exception as e:             # <<<<<<<<<<<<<<
@@ -7063,97 +8039,97 @@ static PyObject *__pyx_gb_9licensing_3api_5generator1(__pyx_CoroutineObject *__p
     __pyx_t_17 = __Pyx_PyErr_ExceptionMatches(((PyObject *)(((PyTypeObject*)PyExc_Exception))));
     if (__pyx_t_17) {
       __Pyx_AddTraceback("licensing.api.validate_license", __pyx_clineno, __pyx_lineno, __pyx_filename);
-      if (__Pyx_GetException(&__pyx_t_13, &__pyx_t_5, &__pyx_t_14) < 0) __PYX_ERR(0, 327, __pyx_L6_except_error)
-      __Pyx_XGOTREF(__pyx_t_13);
-      __Pyx_XGOTREF(__pyx_t_5);
-      __Pyx_XGOTREF(__pyx_t_14);
-      __Pyx_INCREF(__pyx_t_5);
+      if (__Pyx_GetException(&__pyx_t_3, &__pyx_t_4, &__pyx_t_28) < 0) __PYX_ERR(0, 340, __pyx_L6_except_error)
+      __Pyx_XGOTREF(__pyx_t_3);
+      __Pyx_XGOTREF(__pyx_t_4);
+      __Pyx_XGOTREF(__pyx_t_28);
+      __Pyx_INCREF(__pyx_t_4);
       __Pyx_XGOTREF(__pyx_cur_scope->__pyx_v_e);
-      __Pyx_XDECREF_SET(__pyx_cur_scope->__pyx_v_e, __pyx_t_5);
-      __Pyx_GIVEREF(__pyx_t_5);
+      __Pyx_XDECREF_SET(__pyx_cur_scope->__pyx_v_e, __pyx_t_4);
+      __Pyx_GIVEREF(__pyx_t_4);
       /*try:*/ {
 
-        /* "licensing/api.py":328
+        /* "licensing/api.py":341
  * 
  *     except Exception as e:
  *         return ValidationResponse(             # <<<<<<<<<<<<<<
  *             success=False,
  *             message=f"Validation failed: {str(e)}",
 */
-        __pyx_t_15 = NULL;
-        __Pyx_GetModuleGlobalName(__pyx_t_27, __pyx_mstate_global->__pyx_n_u_ValidationResponse); if (unlikely(!__pyx_t_27)) __PYX_ERR(0, 328, __pyx_L39_error)
-        __Pyx_GOTREF(__pyx_t_27);
+        __pyx_t_1 = NULL;
+        __Pyx_GetModuleGlobalName(__pyx_t_13, __pyx_mstate_global->__pyx_n_u_ValidationResponse); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 341, __pyx_L40_error)
+        __Pyx_GOTREF(__pyx_t_13);
 
-        /* "licensing/api.py":330
+        /* "licensing/api.py":343
  *         return ValidationResponse(
  *             success=False,
  *             message=f"Validation failed: {str(e)}",             # <<<<<<<<<<<<<<
  *             is_valid=False
  *         )
 */
-        __pyx_t_4 = __Pyx_PyObject_Unicode(__pyx_cur_scope->__pyx_v_e); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 330, __pyx_L39_error)
-        __Pyx_GOTREF(__pyx_t_4);
-        __pyx_t_16 = __Pyx_PyUnicode_Concat(__pyx_mstate_global->__pyx_kp_u_Validation_failed, __pyx_t_4); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 330, __pyx_L39_error)
-        __Pyx_GOTREF(__pyx_t_16);
-        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+        __pyx_t_14 = __Pyx_PyObject_Unicode(__pyx_cur_scope->__pyx_v_e); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 343, __pyx_L40_error)
+        __Pyx_GOTREF(__pyx_t_14);
+        __pyx_t_15 = __Pyx_PyUnicode_Concat(__pyx_mstate_global->__pyx_kp_u_Validation_failed, __pyx_t_14); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 343, __pyx_L40_error)
+        __Pyx_GOTREF(__pyx_t_15);
+        __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
 
-        /* "licensing/api.py":331
+        /* "licensing/api.py":344
  *             success=False,
  *             message=f"Validation failed: {str(e)}",
  *             is_valid=False             # <<<<<<<<<<<<<<
  *         )
  * 
 */
-        __pyx_t_7 = 1;
+        __pyx_t_5 = 1;
         #if CYTHON_UNPACK_METHODS
-        if (unlikely(PyMethod_Check(__pyx_t_27))) {
-          __pyx_t_15 = PyMethod_GET_SELF(__pyx_t_27);
-          assert(__pyx_t_15);
-          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_27);
-          __Pyx_INCREF(__pyx_t_15);
+        if (unlikely(PyMethod_Check(__pyx_t_13))) {
+          __pyx_t_1 = PyMethod_GET_SELF(__pyx_t_13);
+          assert(__pyx_t_1);
+          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_13);
+          __Pyx_INCREF(__pyx_t_1);
           __Pyx_INCREF(__pyx__function);
-          __Pyx_DECREF_SET(__pyx_t_27, __pyx__function);
-          __pyx_t_7 = 0;
+          __Pyx_DECREF_SET(__pyx_t_13, __pyx__function);
+          __pyx_t_5 = 0;
         }
         #endif
         {
-          PyObject *__pyx_callargs[4] = {__pyx_t_15, Py_False, __pyx_t_16, Py_False};
+          PyObject *__pyx_callargs[4] = {__pyx_t_1, Py_False, __pyx_t_15, Py_False};
           #if CYTHON_VECTORCALL
-          __pyx_t_4 = __pyx_mstate_global->__pyx_tuple[4];
-          if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 328, __pyx_L39_error)
-          __Pyx_INCREF(__pyx_t_4);
+          __pyx_t_14 = __pyx_mstate_global->__pyx_tuple[10];
+          if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 341, __pyx_L40_error)
+          __Pyx_INCREF(__pyx_t_14);
           #else
           {
             PyObject *__pyx_temp[3] = {__pyx_mstate_global->__pyx_n_u_success, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_n_u_is_valid};
-            __pyx_t_4 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 3);
-            if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 328, __pyx_L39_error)
-            __Pyx_GOTREF(__pyx_t_4);
+            __pyx_t_14 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 3);
+            if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 341, __pyx_L40_error)
+            __Pyx_GOTREF(__pyx_t_14);
           }
           #endif
-          __pyx_t_8 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_27, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_4);
-          __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
-          __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
-          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          __Pyx_DECREF(__pyx_t_27); __pyx_t_27 = 0;
-          if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 328, __pyx_L39_error)
-          __Pyx_GOTREF(__pyx_t_8);
+          __pyx_t_2 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_13, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_14);
+          __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+          __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
+          __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+          __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 341, __pyx_L40_error)
+          __Pyx_GOTREF(__pyx_t_2);
         }
         {
           PyObject *__pyx_temp;
           {
             __pyx_temp = __pyx_r;
-            __pyx_r = __pyx_t_8;
+            __pyx_r = __pyx_t_2;
           }
           __Pyx_XDECREF(__pyx_temp);
         }
-        __pyx_t_8 = 0;
-        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-        __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-        goto __pyx_L38_return;
+        __pyx_t_2 = 0;
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+        __Pyx_DECREF(__pyx_t_28); __pyx_t_28 = 0;
+        goto __pyx_L39_return;
       }
 
-      /* "licensing/api.py":327
+      /* "licensing/api.py":340
  *         )
  * 
  *     except Exception as e:             # <<<<<<<<<<<<<<
@@ -7161,16 +8137,16 @@ static PyObject *__pyx_gb_9licensing_3api_5generator1(__pyx_CoroutineObject *__p
  *             success=False,
 */
       /*finally:*/ {
-        __pyx_L39_error:;
+        __pyx_L40_error:;
         /*exception exit:*/{
           __Pyx_PyThreadState_assign
           __pyx_t_11 = 0; __pyx_t_10 = 0; __pyx_t_9 = 0; __pyx_t_24 = 0; __pyx_t_23 = 0; __pyx_t_22 = 0;
+          __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+          __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
+          __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
           __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
           __Pyx_XDECREF(__pyx_t_16); __pyx_t_16 = 0;
-          __Pyx_XDECREF(__pyx_t_27); __pyx_t_27 = 0;
-          __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-          __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-          __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
+          __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
            __Pyx_ExceptionSwap(&__pyx_t_24, &__pyx_t_23, &__pyx_t_22);
           if ( unlikely(__Pyx_GetException(&__pyx_t_11, &__pyx_t_10, &__pyx_t_9) < 0)) __Pyx_ErrFetch(&__pyx_t_11, &__pyx_t_10, &__pyx_t_9);
           __Pyx_XGOTREF(__pyx_t_11);
@@ -7196,7 +8172,7 @@ static PyObject *__pyx_gb_9licensing_3api_5generator1(__pyx_CoroutineObject *__p
           __pyx_lineno = __pyx_t_17; __pyx_clineno = __pyx_t_12; __pyx_filename = __pyx_t_18;
           goto __pyx_L6_except_error;
         }
-        __pyx_L38_return: {
+        __pyx_L39_return: {
           __pyx_t_22 = __pyx_r;
           __pyx_r = 0;
           __Pyx_GOTREF(__pyx_cur_scope->__pyx_v_e);
@@ -7209,35 +8185,35 @@ static PyObject *__pyx_gb_9licensing_3api_5generator1(__pyx_CoroutineObject *__p
     }
     goto __pyx_L6_except_error;
 
-    /* "licensing/api.py":232
- *     5. Uses server time for all expiry checks (prevents time manipulation)
- *     """
+    /* "licensing/api.py":278
+ *     clean_key = _clean_product_key(request.product_key)
+ * 
  *     try:             # <<<<<<<<<<<<<<
- *         # Load public key for verification
  *         public_key_pem = _get_public_key()
+ *         crypto = LicenseCrypto(public_key_pem=public_key_pem)
 */
     __pyx_L6_except_error:;
-    __Pyx_XGIVEREF(__pyx_t_1);
-    __Pyx_XGIVEREF(__pyx_t_2);
-    __Pyx_XGIVEREF(__pyx_t_3);
-    __Pyx_ExceptionReset(__pyx_t_1, __pyx_t_2, __pyx_t_3);
+    __Pyx_XGIVEREF(__pyx_t_6);
+    __Pyx_XGIVEREF(__pyx_t_7);
+    __Pyx_XGIVEREF(__pyx_t_8);
+    __Pyx_ExceptionReset(__pyx_t_6, __pyx_t_7, __pyx_t_8);
     goto __pyx_L1_error;
     __pyx_L8_try_return:;
-    __Pyx_XGIVEREF(__pyx_t_1);
-    __Pyx_XGIVEREF(__pyx_t_2);
-    __Pyx_XGIVEREF(__pyx_t_3);
-    __Pyx_ExceptionReset(__pyx_t_1, __pyx_t_2, __pyx_t_3);
+    __Pyx_XGIVEREF(__pyx_t_6);
+    __Pyx_XGIVEREF(__pyx_t_7);
+    __Pyx_XGIVEREF(__pyx_t_8);
+    __Pyx_ExceptionReset(__pyx_t_6, __pyx_t_7, __pyx_t_8);
     goto __pyx_L0;
     __pyx_L7_except_return:;
-    __Pyx_XGIVEREF(__pyx_t_1);
-    __Pyx_XGIVEREF(__pyx_t_2);
-    __Pyx_XGIVEREF(__pyx_t_3);
-    __Pyx_ExceptionReset(__pyx_t_1, __pyx_t_2, __pyx_t_3);
+    __Pyx_XGIVEREF(__pyx_t_6);
+    __Pyx_XGIVEREF(__pyx_t_7);
+    __Pyx_XGIVEREF(__pyx_t_8);
+    __Pyx_ExceptionReset(__pyx_t_6, __pyx_t_7, __pyx_t_8);
     goto __pyx_L0;
   }
   CYTHON_MAYBE_UNUSED_VAR(__pyx_cur_scope);
 
-  /* "licensing/api.py":217
+  /* "licensing/api.py":270
  * 
  * 
  * @router.post("/validate", response_model=ValidationResponse)             # <<<<<<<<<<<<<<
@@ -7247,15 +8223,15 @@ static PyObject *__pyx_gb_9licensing_3api_5generator1(__pyx_CoroutineObject *__p
 
   /* function exit code */
   __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_XDECREF(__pyx_t_8);
   __Pyx_XDECREF(__pyx_t_13);
   __Pyx_XDECREF(__pyx_t_14);
   __Pyx_XDECREF(__pyx_t_15);
   __Pyx_XDECREF(__pyx_t_16);
-  __Pyx_XDECREF(__pyx_t_27);
+  __Pyx_XDECREF(__pyx_t_28);
   if (__Pyx_PyErr_Occurred()) {
     __Pyx_Generator_Replace_StopIteration(0);
     __Pyx_AddTraceback("validate_license", __pyx_clineno, __pyx_lineno, __pyx_filename);
@@ -7270,9 +8246,9 @@ static PyObject *__pyx_gb_9licensing_3api_5generator1(__pyx_CoroutineObject *__p
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
-static PyObject *__pyx_gb_9licensing_3api_8generator2(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
+static PyObject *__pyx_gb_9licensing_3api_12generator2(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
-/* "licensing/api.py":335
+/* "licensing/api.py":348
  * 
  * 
  * @router.post("/deactivate", response_model=DeactivationResponse)             # <<<<<<<<<<<<<<
@@ -7280,7 +8256,7 @@ static PyObject *__pyx_gb_9licensing_3api_8generator2(__pyx_CoroutineObject *__p
  *     request: DeactivationRequest,
 */
 
-static PyObject *__pyx_pf_9licensing_3api_15__defaults__(CYTHON_UNUSED PyObject *__pyx_self) {
+static PyObject *__pyx_pf_9licensing_3api_20__defaults__(CYTHON_UNUSED PyObject *__pyx_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -7289,18 +8265,18 @@ static PyObject *__pyx_pf_9licensing_3api_15__defaults__(CYTHON_UNUSED PyObject 
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__defaults__", 0);
-  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 335, __pyx_L1_error)
+  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 348, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(__Pyx_CyFunction_Defaults(struct __pyx_defaults, __pyx_self)->arg0);
   __Pyx_GIVEREF(__Pyx_CyFunction_Defaults(struct __pyx_defaults, __pyx_self)->arg0);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 0, __Pyx_CyFunction_Defaults(struct __pyx_defaults, __pyx_self)->arg0) != (0)) __PYX_ERR(0, 335, __pyx_L1_error);
-  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 335, __pyx_L1_error)
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 0, __Pyx_CyFunction_Defaults(struct __pyx_defaults, __pyx_self)->arg0) != (0)) __PYX_ERR(0, 348, __pyx_L1_error);
+  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 348, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_GIVEREF(__pyx_t_1);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_1) != (0)) __PYX_ERR(0, 335, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_1) != (0)) __PYX_ERR(0, 348, __pyx_L1_error);
   __Pyx_INCREF(Py_None);
   __Pyx_GIVEREF(Py_None);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, Py_None) != (0)) __PYX_ERR(0, 335, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, Py_None) != (0)) __PYX_ERR(0, 348, __pyx_L1_error);
   __pyx_t_1 = 0;
   {
     PyObject *__pyx_temp;
@@ -7326,16 +8302,16 @@ static PyObject *__pyx_pf_9licensing_3api_15__defaults__(CYTHON_UNUSED PyObject 
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_9licensing_3api_7deactivate_license(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_9licensing_3api_11deactivate_license(PyObject *__pyx_self, 
 #if CYTHON_VECTORCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-PyDoc_STRVAR(__pyx_doc_9licensing_3api_6deactivate_license, "\n    Deactivate a license activation.\n    \n    This endpoint:\n    1. Verifies the product key\n    2. Deactivates the specified activation\n    3. Restores one credit to the license\n    ");
-static PyMethodDef __pyx_mdef_9licensing_3api_7deactivate_license = {"deactivate_license", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9licensing_3api_7deactivate_license, __Pyx_METH_FASTCALL|METH_KEYWORDS, __pyx_doc_9licensing_3api_6deactivate_license};
-static PyObject *__pyx_pw_9licensing_3api_7deactivate_license(PyObject *__pyx_self, 
+PyDoc_STRVAR(__pyx_doc_9licensing_3api_10deactivate_license, "Deactivate a license on this machine and restore credit.");
+static PyMethodDef __pyx_mdef_9licensing_3api_11deactivate_license = {"deactivate_license", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9licensing_3api_11deactivate_license, __Pyx_METH_FASTCALL|METH_KEYWORDS, __pyx_doc_9licensing_3api_10deactivate_license};
+static PyObject *__pyx_pw_9licensing_3api_11deactivate_license(PyObject *__pyx_self, 
 #if CYTHON_VECTORCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -7367,35 +8343,35 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_request,&__pyx_mstate_global->__pyx_n_u_db,0};
     struct __pyx_defaults *__pyx_dynamic_args = __Pyx_CyFunction_Defaults(struct __pyx_defaults, __pyx_self);
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 335, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 348, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 335, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 348, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 335, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 348, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "deactivate_license", 0) < (0)) __PYX_ERR(0, 335, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "deactivate_license", 0) < (0)) __PYX_ERR(0, 348, __pyx_L3_error)
       if (!values[1]) values[1] = __Pyx_NewRef(__pyx_dynamic_args->arg0);
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("deactivate_license", 0, 1, 2, i); __PYX_ERR(0, 335, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("deactivate_license", 0, 1, 2, i); __PYX_ERR(0, 348, __pyx_L3_error) }
       }
     } else {
       switch (__pyx_nargs) {
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 335, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 348, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 335, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 348, __pyx_L3_error)
         break;
         default: goto __pyx_L5_argtuple_error;
       }
@@ -7406,7 +8382,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("deactivate_license", 0, 1, 2, __pyx_nargs); __PYX_ERR(0, 335, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("deactivate_license", 0, 1, 2, __pyx_nargs); __PYX_ERR(0, 348, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -7417,7 +8393,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_9licensing_3api_6deactivate_license(__pyx_self, __pyx_v_request, __pyx_v_db);
+  __pyx_r = __pyx_pf_9licensing_3api_10deactivate_license(__pyx_self, __pyx_v_request, __pyx_v_db);
 
   /* function exit code */
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
@@ -7427,7 +8403,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9licensing_3api_6deactivate_license(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_request, PyObject *__pyx_v_db) {
+static PyObject *__pyx_pf_9licensing_3api_10deactivate_license(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_request, PyObject *__pyx_v_db) {
   struct __pyx_obj_9licensing_3api___pyx_scope_struct_2_deactivate_license *__pyx_cur_scope;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -7439,7 +8415,7 @@ static PyObject *__pyx_pf_9licensing_3api_6deactivate_license(CYTHON_UNUSED PyOb
   if (unlikely(!__pyx_cur_scope)) {
     __pyx_cur_scope = ((struct __pyx_obj_9licensing_3api___pyx_scope_struct_2_deactivate_license *)Py_None);
     __Pyx_INCREF(Py_None);
-    __PYX_ERR(0, 335, __pyx_L1_error)
+    __PYX_ERR(0, 348, __pyx_L1_error)
   } else {
     __Pyx_GOTREF((PyObject *)__pyx_cur_scope);
   }
@@ -7450,7 +8426,7 @@ static PyObject *__pyx_pf_9licensing_3api_6deactivate_license(CYTHON_UNUSED PyOb
   __Pyx_INCREF(__pyx_cur_scope->__pyx_v_db);
   __Pyx_GIVEREF(__pyx_cur_scope->__pyx_v_db);
   {
-    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_9licensing_3api_8generator2, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[2]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_deactivate_license, __pyx_mstate_global->__pyx_n_u_deactivate_license, __pyx_mstate_global->__pyx_n_u_licensing_api); if (unlikely(!gen)) __PYX_ERR(0, 335, __pyx_L1_error)
+    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_9licensing_3api_12generator2, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[2]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_deactivate_license, __pyx_mstate_global->__pyx_n_u_deactivate_license, __pyx_mstate_global->__pyx_n_u_licensing_api); if (unlikely(!gen)) __PYX_ERR(0, 348, __pyx_L1_error)
     __Pyx_DECREF(__pyx_cur_scope);
     __Pyx_RefNannyFinishContext();
     return (PyObject *) gen;
@@ -7466,7 +8442,7 @@ static PyObject *__pyx_pf_9licensing_3api_6deactivate_license(CYTHON_UNUSED PyOb
   return __pyx_r;
 }
 
-static PyObject *__pyx_gb_9licensing_3api_8generator2(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
+static PyObject *__pyx_gb_9licensing_3api_12generator2(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
 {
   struct __pyx_obj_9licensing_3api___pyx_scope_struct_2_deactivate_license *__pyx_cur_scope = ((struct __pyx_obj_9licensing_3api___pyx_scope_struct_2_deactivate_license *)__pyx_generator->closure);
   PyObject *__pyx_r = NULL;
@@ -7474,16 +8450,16 @@ static PyObject *__pyx_gb_9licensing_3api_8generator2(__pyx_CoroutineObject *__p
   PyObject *__pyx_t_2 = NULL;
   PyObject *__pyx_t_3 = NULL;
   PyObject *__pyx_t_4 = NULL;
-  PyObject *__pyx_t_5 = NULL;
+  size_t __pyx_t_5;
   PyObject *__pyx_t_6 = NULL;
   PyObject *__pyx_t_7 = NULL;
   PyObject *__pyx_t_8 = NULL;
   PyObject *__pyx_t_9 = NULL;
   PyObject *__pyx_t_10 = NULL;
-  size_t __pyx_t_11;
-  PyObject *__pyx_t_12 = NULL;
+  PyObject *__pyx_t_11 = NULL;
+  int __pyx_t_12;
   int __pyx_t_13;
-  int __pyx_t_14;
+  PyObject *__pyx_t_14 = NULL;
   PyObject *__pyx_t_15 = NULL;
   int __pyx_t_16;
   int __pyx_t_17;
@@ -7508,150 +8484,184 @@ static PyObject *__pyx_gb_9licensing_3api_8generator2(__pyx_CoroutineObject *__p
   __pyx_L3_first_run:;
   if (unlikely(__pyx_sent_value != Py_None)) {
     if (unlikely(__pyx_sent_value)) PyErr_SetString(PyExc_TypeError, "can't send non-None value to a just-started coroutine");
-    __PYX_ERR(0, 335, __pyx_L1_error)
+    __PYX_ERR(0, 348, __pyx_L1_error)
   }
 
-  /* "licensing/api.py":348
- *     3. Restores one credit to the license
- *     """
+  /* "licensing/api.py":354
+ * ):
+ *     """Deactivate a license on this machine and restore credit."""
+ *     clean_key = _clean_product_key(request.product_key)             # <<<<<<<<<<<<<<
+ * 
+ *     try:
+*/
+  __pyx_t_2 = NULL;
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_clean_product_key); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 354, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_product_key); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 354, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_5 = 1;
+  #if CYTHON_UNPACK_METHODS
+  if (unlikely(PyMethod_Check(__pyx_t_3))) {
+    __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_3);
+    assert(__pyx_t_2);
+    PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_3);
+    __Pyx_INCREF(__pyx_t_2);
+    __Pyx_INCREF(__pyx__function);
+    __Pyx_DECREF_SET(__pyx_t_3, __pyx__function);
+    __pyx_t_5 = 0;
+  }
+  #endif
+  {
+    PyObject *__pyx_callargs[2] = {__pyx_t_2, __pyx_t_4};
+    __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_3, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 354, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+  }
+  __Pyx_GIVEREF(__pyx_t_1);
+  __pyx_cur_scope->__pyx_v_clean_key = __pyx_t_1;
+  __pyx_t_1 = 0;
+
+  /* "licensing/api.py":356
+ *     clean_key = _clean_product_key(request.product_key)
+ * 
  *     try:             # <<<<<<<<<<<<<<
- *         # Get license record
  *         license_record = db.query(ProductLicense).filter(
+ *             ProductLicense.product_key == clean_key
 */
   {
-    __Pyx_ExceptionSave(&__pyx_t_1, &__pyx_t_2, &__pyx_t_3);
-    __Pyx_XGOTREF(__pyx_t_1);
-    __Pyx_XGOTREF(__pyx_t_2);
-    __Pyx_XGOTREF(__pyx_t_3);
+    __Pyx_ExceptionSave(&__pyx_t_6, &__pyx_t_7, &__pyx_t_8);
+    __Pyx_XGOTREF(__pyx_t_6);
+    __Pyx_XGOTREF(__pyx_t_7);
+    __Pyx_XGOTREF(__pyx_t_8);
     /*try:*/ {
 
-      /* "licensing/api.py":350
+      /* "licensing/api.py":357
+ * 
  *     try:
- *         # Get license record
  *         license_record = db.query(ProductLicense).filter(             # <<<<<<<<<<<<<<
- *             ProductLicense.product_key == request.product_key
+ *             ProductLicense.product_key == clean_key
  *         ).first()
 */
-      __pyx_t_9 = __pyx_cur_scope->__pyx_v_db;
-      __Pyx_INCREF(__pyx_t_9);
-      __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_ProductLicense); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 350, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_10);
-      __pyx_t_11 = 0;
+      __pyx_t_10 = __pyx_cur_scope->__pyx_v_db;
+      __Pyx_INCREF(__pyx_t_10);
+      __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_mstate_global->__pyx_n_u_ProductLicense); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 357, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_11);
+      __pyx_t_5 = 0;
       {
-        PyObject *__pyx_callargs[2] = {__pyx_t_9, __pyx_t_10};
-        __pyx_t_8 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_query, __pyx_callargs+__pyx_t_11, (2-__pyx_t_11) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
-        __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-        if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 350, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_8);
+        PyObject *__pyx_callargs[2] = {__pyx_t_10, __pyx_t_11};
+        __pyx_t_9 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_query, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
+        __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
+        if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 357, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_9);
       }
-      __pyx_t_7 = __pyx_t_8;
-      __Pyx_INCREF(__pyx_t_7);
+      __pyx_t_2 = __pyx_t_9;
+      __Pyx_INCREF(__pyx_t_2);
 
-      /* "licensing/api.py":351
- *         # Get license record
+      /* "licensing/api.py":358
+ *     try:
  *         license_record = db.query(ProductLicense).filter(
- *             ProductLicense.product_key == request.product_key             # <<<<<<<<<<<<<<
+ *             ProductLicense.product_key == clean_key             # <<<<<<<<<<<<<<
  *         ).first()
  * 
 */
-      __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_ProductLicense); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 351, __pyx_L4_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_mstate_global->__pyx_n_u_ProductLicense); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 358, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_11);
+      __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_11, __pyx_mstate_global->__pyx_n_u_product_key); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 358, __pyx_L4_error)
       __Pyx_GOTREF(__pyx_t_10);
-      __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_product_key); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 351, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_9);
+      __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
+      __pyx_t_11 = __Pyx_PyObject_CompareEq_object_object(__pyx_t_10, __pyx_cur_scope->__pyx_v_clean_key, Py_EQ); __Pyx_XGOTREF(__pyx_t_11); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 358, __pyx_L4_error)
       __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-      __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_product_key); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 351, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_10);
-      __pyx_t_12 = __Pyx_PyObject_CompareEq_object_object(__pyx_t_9, __pyx_t_10, Py_EQ); __Pyx_XGOTREF(__pyx_t_12); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 351, __pyx_L4_error)
-      __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-      __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-      __pyx_t_11 = 0;
+      __pyx_t_5 = 0;
       {
-        PyObject *__pyx_callargs[2] = {__pyx_t_7, __pyx_t_12};
-        __pyx_t_6 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_filter, __pyx_callargs+__pyx_t_11, (2-__pyx_t_11) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
-        __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-        __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-        if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 350, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_6);
-      }
-      __pyx_t_5 = __pyx_t_6;
-      __Pyx_INCREF(__pyx_t_5);
-      __pyx_t_11 = 0;
-      {
-        PyObject *__pyx_callargs[2] = {__pyx_t_5, NULL};
-        __pyx_t_4 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_first, __pyx_callargs+__pyx_t_11, (1-__pyx_t_11) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 352, __pyx_L4_error)
+        PyObject *__pyx_callargs[2] = {__pyx_t_2, __pyx_t_11};
+        __pyx_t_4 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_filter, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
+        __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 357, __pyx_L4_error)
         __Pyx_GOTREF(__pyx_t_4);
       }
-      __Pyx_GIVEREF(__pyx_t_4);
-      __pyx_cur_scope->__pyx_v_license_record = __pyx_t_4;
-      __pyx_t_4 = 0;
+      __pyx_t_3 = __pyx_t_4;
+      __Pyx_INCREF(__pyx_t_3);
+      __pyx_t_5 = 0;
+      {
+        PyObject *__pyx_callargs[2] = {__pyx_t_3, NULL};
+        __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_first, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 359, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_1);
+      }
+      __Pyx_GIVEREF(__pyx_t_1);
+      __pyx_cur_scope->__pyx_v_license_record = __pyx_t_1;
+      __pyx_t_1 = 0;
 
-      /* "licensing/api.py":354
+      /* "licensing/api.py":361
  *         ).first()
  * 
  *         if not license_record:             # <<<<<<<<<<<<<<
  *             raise HTTPException(status_code=404, detail="License not found")
  * 
 */
-      __pyx_t_13 = __Pyx_PyObject_IsTrue(__pyx_cur_scope->__pyx_v_license_record); if (unlikely((__pyx_t_13 < 0))) __PYX_ERR(0, 354, __pyx_L4_error)
-      __pyx_t_14 = (!__pyx_t_13);
+      __pyx_t_12 = __Pyx_PyObject_IsTrue(__pyx_cur_scope->__pyx_v_license_record); if (unlikely((__pyx_t_12 < 0))) __PYX_ERR(0, 361, __pyx_L4_error)
+      __pyx_t_13 = (!__pyx_t_12);
 
 
-      if (unlikely(__pyx_t_14)) {
+      if (unlikely(__pyx_t_13)) {
 
 
-        /* "licensing/api.py":355
+        /* "licensing/api.py":362
  * 
  *         if not license_record:
  *             raise HTTPException(status_code=404, detail="License not found")             # <<<<<<<<<<<<<<
  * 
- *         # Get activation record
+ *         activation = db.query(LicenseActivation).filter(
 */
-        __pyx_t_6 = NULL;
-        __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_HTTPException); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 355, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_5);
-        __pyx_t_11 = 1;
+        __pyx_t_4 = NULL;
+        __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_HTTPException); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 362, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_3);
+        __pyx_t_5 = 1;
         #if CYTHON_UNPACK_METHODS
-        if (unlikely(PyMethod_Check(__pyx_t_5))) {
-          __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_5);
-          assert(__pyx_t_6);
-          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_5);
-          __Pyx_INCREF(__pyx_t_6);
+        if (unlikely(PyMethod_Check(__pyx_t_3))) {
+          __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
+          assert(__pyx_t_4);
+          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_3);
+          __Pyx_INCREF(__pyx_t_4);
           __Pyx_INCREF(__pyx__function);
-          __Pyx_DECREF_SET(__pyx_t_5, __pyx__function);
-          __pyx_t_11 = 0;
+          __Pyx_DECREF_SET(__pyx_t_3, __pyx__function);
+          __pyx_t_5 = 0;
         }
         #endif
         {
-          PyObject *__pyx_callargs[3] = {__pyx_t_6, __pyx_mstate_global->__pyx_int_404, __pyx_mstate_global->__pyx_kp_u_License_not_found};
+          PyObject *__pyx_callargs[3] = {__pyx_t_4, __pyx_mstate_global->__pyx_int_404, __pyx_mstate_global->__pyx_kp_u_License_not_found};
           #if CYTHON_VECTORCALL
-          __pyx_t_8 = __pyx_mstate_global->__pyx_tuple[1];
-          if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 355, __pyx_L4_error)
-          __Pyx_INCREF(__pyx_t_8);
+          __pyx_t_9 = __pyx_mstate_global->__pyx_tuple[2];
+          if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 362, __pyx_L4_error)
+          __Pyx_INCREF(__pyx_t_9);
           #else
           {
             PyObject *__pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_status_code, __pyx_mstate_global->__pyx_n_u_detail};
-            __pyx_t_8 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
-            if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 355, __pyx_L4_error)
-            __Pyx_GOTREF(__pyx_t_8);
+            __pyx_t_9 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
+            if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 362, __pyx_L4_error)
+            __Pyx_GOTREF(__pyx_t_9);
           }
           #endif
-          __pyx_t_4 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_5, __pyx_callargs+__pyx_t_11, (1-__pyx_t_11) | (__pyx_t_11*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_8);
-          __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-          __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-          __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-          if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 355, __pyx_L4_error)
-          __Pyx_GOTREF(__pyx_t_4);
+          __pyx_t_1 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_3, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_9);
+          __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+          __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+          __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+          if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 362, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_1);
         }
-        __Pyx_Raise(__pyx_t_4, 0, 0, 0);
-        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __PYX_ERR(0, 355, __pyx_L4_error)
+        __Pyx_Raise(__pyx_t_1, 0, 0, 0);
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __PYX_ERR(0, 362, __pyx_L4_error)
 
-        /* "licensing/api.py":354
+        /* "licensing/api.py":361
  *         ).first()
  * 
  *         if not license_record:             # <<<<<<<<<<<<<<
@@ -7660,152 +8670,152 @@ static PyObject *__pyx_gb_9licensing_3api_8generator2(__pyx_CoroutineObject *__p
 */
       }
 
-      /* "licensing/api.py":358
+      /* "licensing/api.py":364
+ *             raise HTTPException(status_code=404, detail="License not found")
  * 
- *         # Get activation record
  *         activation = db.query(LicenseActivation).filter(             # <<<<<<<<<<<<<<
  *             LicenseActivation.id == request.activation_id,
  *             LicenseActivation.license_id == license_record.id
 */
-      __pyx_t_7 = __pyx_cur_scope->__pyx_v_db;
-      __Pyx_INCREF(__pyx_t_7);
-      __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_LicenseActivation); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 358, __pyx_L4_error)
+      __pyx_t_2 = __pyx_cur_scope->__pyx_v_db;
+      __Pyx_INCREF(__pyx_t_2);
+      __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_LicenseActivation); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 364, __pyx_L4_error)
       __Pyx_GOTREF(__pyx_t_10);
-      __pyx_t_11 = 0;
+      __pyx_t_5 = 0;
       {
-        PyObject *__pyx_callargs[2] = {__pyx_t_7, __pyx_t_10};
-        __pyx_t_12 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_query, __pyx_callargs+__pyx_t_11, (2-__pyx_t_11) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
+        PyObject *__pyx_callargs[2] = {__pyx_t_2, __pyx_t_10};
+        __pyx_t_11 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_query, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
         __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-        if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 358, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_12);
+        if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 364, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_11);
       }
-      __pyx_t_6 = __pyx_t_12;
-      __Pyx_INCREF(__pyx_t_6);
+      __pyx_t_4 = __pyx_t_11;
+      __Pyx_INCREF(__pyx_t_4);
 
-      /* "licensing/api.py":359
- *         # Get activation record
+      /* "licensing/api.py":365
+ * 
  *         activation = db.query(LicenseActivation).filter(
  *             LicenseActivation.id == request.activation_id,             # <<<<<<<<<<<<<<
  *             LicenseActivation.license_id == license_record.id
  *         ).first()
 */
-      __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_LicenseActivation); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 359, __pyx_L4_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_LicenseActivation); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 365, __pyx_L4_error)
       __Pyx_GOTREF(__pyx_t_10);
-      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_id); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 359, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_7);
+      __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_id); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 365, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-      __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_activation_id); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 359, __pyx_L4_error)
+      __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_activation_id); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 365, __pyx_L4_error)
       __Pyx_GOTREF(__pyx_t_10);
-      __pyx_t_9 = __Pyx_PyObject_CompareEq_object_object(__pyx_t_7, __pyx_t_10, Py_EQ); __Pyx_XGOTREF(__pyx_t_9); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 359, __pyx_L4_error)
-      __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+      __pyx_t_14 = __Pyx_PyObject_CompareEq_object_object(__pyx_t_2, __pyx_t_10, Py_EQ); __Pyx_XGOTREF(__pyx_t_14); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 365, __pyx_L4_error)
+      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
 
-      /* "licensing/api.py":360
+      /* "licensing/api.py":366
  *         activation = db.query(LicenseActivation).filter(
  *             LicenseActivation.id == request.activation_id,
  *             LicenseActivation.license_id == license_record.id             # <<<<<<<<<<<<<<
  *         ).first()
  * 
 */
-      __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_LicenseActivation); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 360, __pyx_L4_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_LicenseActivation); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 366, __pyx_L4_error)
       __Pyx_GOTREF(__pyx_t_10);
-      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_license_id); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 360, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_7);
+      __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_license_id); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 366, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-      __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_id); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 360, __pyx_L4_error)
+      __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_id); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 366, __pyx_L4_error)
       __Pyx_GOTREF(__pyx_t_10);
-      __pyx_t_15 = __Pyx_PyObject_CompareEq_object_object(__pyx_t_7, __pyx_t_10, Py_EQ); __Pyx_XGOTREF(__pyx_t_15); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 360, __pyx_L4_error)
-      __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+      __pyx_t_15 = __Pyx_PyObject_CompareEq_object_object(__pyx_t_2, __pyx_t_10, Py_EQ); __Pyx_XGOTREF(__pyx_t_15); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 366, __pyx_L4_error)
+      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-      __pyx_t_11 = 0;
+      __pyx_t_5 = 0;
       {
-        PyObject *__pyx_callargs[3] = {__pyx_t_6, __pyx_t_9, __pyx_t_15};
-        __pyx_t_8 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_filter, __pyx_callargs+__pyx_t_11, (3-__pyx_t_11) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-        __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+        PyObject *__pyx_callargs[3] = {__pyx_t_4, __pyx_t_14, __pyx_t_15};
+        __pyx_t_9 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_filter, __pyx_callargs+__pyx_t_5, (3-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+        __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
         __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
-        __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-        if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 358, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_8);
+        __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
+        if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 364, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_9);
       }
-      __pyx_t_5 = __pyx_t_8;
-      __Pyx_INCREF(__pyx_t_5);
-      __pyx_t_11 = 0;
+      __pyx_t_3 = __pyx_t_9;
+      __Pyx_INCREF(__pyx_t_3);
+      __pyx_t_5 = 0;
       {
-        PyObject *__pyx_callargs[2] = {__pyx_t_5, NULL};
-        __pyx_t_4 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_first, __pyx_callargs+__pyx_t_11, (1-__pyx_t_11) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 361, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_4);
+        PyObject *__pyx_callargs[2] = {__pyx_t_3, NULL};
+        __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_first, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+        __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 367, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_1);
       }
-      __Pyx_GIVEREF(__pyx_t_4);
-      __pyx_cur_scope->__pyx_v_activation = __pyx_t_4;
-      __pyx_t_4 = 0;
+      __Pyx_GIVEREF(__pyx_t_1);
+      __pyx_cur_scope->__pyx_v_activation = __pyx_t_1;
+      __pyx_t_1 = 0;
 
-      /* "licensing/api.py":363
+      /* "licensing/api.py":369
  *         ).first()
  * 
  *         if not activation:             # <<<<<<<<<<<<<<
  *             raise HTTPException(status_code=404, detail="Activation not found")
  * 
 */
-      __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_cur_scope->__pyx_v_activation); if (unlikely((__pyx_t_14 < 0))) __PYX_ERR(0, 363, __pyx_L4_error)
-      __pyx_t_13 = (!__pyx_t_14);
+      __pyx_t_13 = __Pyx_PyObject_IsTrue(__pyx_cur_scope->__pyx_v_activation); if (unlikely((__pyx_t_13 < 0))) __PYX_ERR(0, 369, __pyx_L4_error)
+      __pyx_t_12 = (!__pyx_t_13);
 
 
-      if (unlikely(__pyx_t_13)) {
+      if (unlikely(__pyx_t_12)) {
 
 
-        /* "licensing/api.py":364
+        /* "licensing/api.py":370
  * 
  *         if not activation:
  *             raise HTTPException(status_code=404, detail="Activation not found")             # <<<<<<<<<<<<<<
  * 
  *         if not activation.is_valid:
 */
-        __pyx_t_8 = NULL;
-        __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_HTTPException); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 364, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_5);
-        __pyx_t_11 = 1;
+        __pyx_t_9 = NULL;
+        __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_HTTPException); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 370, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_3);
+        __pyx_t_5 = 1;
         #if CYTHON_UNPACK_METHODS
-        if (unlikely(PyMethod_Check(__pyx_t_5))) {
-          __pyx_t_8 = PyMethod_GET_SELF(__pyx_t_5);
-          assert(__pyx_t_8);
-          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_5);
-          __Pyx_INCREF(__pyx_t_8);
+        if (unlikely(PyMethod_Check(__pyx_t_3))) {
+          __pyx_t_9 = PyMethod_GET_SELF(__pyx_t_3);
+          assert(__pyx_t_9);
+          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_3);
+          __Pyx_INCREF(__pyx_t_9);
           __Pyx_INCREF(__pyx__function);
-          __Pyx_DECREF_SET(__pyx_t_5, __pyx__function);
-          __pyx_t_11 = 0;
+          __Pyx_DECREF_SET(__pyx_t_3, __pyx__function);
+          __pyx_t_5 = 0;
         }
         #endif
         {
-          PyObject *__pyx_callargs[3] = {__pyx_t_8, __pyx_mstate_global->__pyx_int_404, __pyx_mstate_global->__pyx_kp_u_Activation_not_found};
+          PyObject *__pyx_callargs[3] = {__pyx_t_9, __pyx_mstate_global->__pyx_int_404, __pyx_mstate_global->__pyx_kp_u_Activation_not_found};
           #if CYTHON_VECTORCALL
-          __pyx_t_12 = __pyx_mstate_global->__pyx_tuple[1];
-          if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 364, __pyx_L4_error)
-          __Pyx_INCREF(__pyx_t_12);
+          __pyx_t_11 = __pyx_mstate_global->__pyx_tuple[2];
+          if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 370, __pyx_L4_error)
+          __Pyx_INCREF(__pyx_t_11);
           #else
           {
             PyObject *__pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_status_code, __pyx_mstate_global->__pyx_n_u_detail};
-            __pyx_t_12 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
-            if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 364, __pyx_L4_error)
-            __Pyx_GOTREF(__pyx_t_12);
+            __pyx_t_11 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
+            if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 370, __pyx_L4_error)
+            __Pyx_GOTREF(__pyx_t_11);
           }
           #endif
-          __pyx_t_4 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_5, __pyx_callargs+__pyx_t_11, (1-__pyx_t_11) | (__pyx_t_11*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_12);
-          __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-          __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-          __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-          if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 364, __pyx_L4_error)
-          __Pyx_GOTREF(__pyx_t_4);
+          __pyx_t_1 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_3, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_11);
+          __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
+          __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
+          __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+          if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 370, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_1);
         }
-        __Pyx_Raise(__pyx_t_4, 0, 0, 0);
-        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __PYX_ERR(0, 364, __pyx_L4_error)
+        __Pyx_Raise(__pyx_t_1, 0, 0, 0);
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __PYX_ERR(0, 370, __pyx_L4_error)
 
-        /* "licensing/api.py":363
+        /* "licensing/api.py":369
  *         ).first()
  * 
  *         if not activation:             # <<<<<<<<<<<<<<
@@ -7814,71 +8824,71 @@ static PyObject *__pyx_gb_9licensing_3api_8generator2(__pyx_CoroutineObject *__p
 */
       }
 
-      /* "licensing/api.py":366
+      /* "licensing/api.py":372
  *             raise HTTPException(status_code=404, detail="Activation not found")
  * 
  *         if not activation.is_valid:             # <<<<<<<<<<<<<<
  *             raise HTTPException(status_code=400, detail="Activation is already deactivated")
  * 
 */
-      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_activation, __pyx_mstate_global->__pyx_n_u_is_valid); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 366, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_13 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely((__pyx_t_13 < 0))) __PYX_ERR(0, 366, __pyx_L4_error)
-      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_14 = (!__pyx_t_13);
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_activation, __pyx_mstate_global->__pyx_n_u_is_valid); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 372, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_1);
+      __pyx_t_12 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_12 < 0))) __PYX_ERR(0, 372, __pyx_L4_error)
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      __pyx_t_13 = (!__pyx_t_12);
 
 
-      if (unlikely(__pyx_t_14)) {
+      if (unlikely(__pyx_t_13)) {
 
 
-        /* "licensing/api.py":367
+        /* "licensing/api.py":373
  * 
  *         if not activation.is_valid:
  *             raise HTTPException(status_code=400, detail="Activation is already deactivated")             # <<<<<<<<<<<<<<
  * 
- *         # Deactivate the activation
+ *         activation.is_valid = False
 */
-        __pyx_t_5 = NULL;
-        __Pyx_GetModuleGlobalName(__pyx_t_12, __pyx_mstate_global->__pyx_n_u_HTTPException); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 367, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_12);
-        __pyx_t_11 = 1;
+        __pyx_t_3 = NULL;
+        __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_mstate_global->__pyx_n_u_HTTPException); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 373, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_11);
+        __pyx_t_5 = 1;
         #if CYTHON_UNPACK_METHODS
-        if (unlikely(PyMethod_Check(__pyx_t_12))) {
-          __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_12);
-          assert(__pyx_t_5);
-          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_12);
-          __Pyx_INCREF(__pyx_t_5);
+        if (unlikely(PyMethod_Check(__pyx_t_11))) {
+          __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_11);
+          assert(__pyx_t_3);
+          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_11);
+          __Pyx_INCREF(__pyx_t_3);
           __Pyx_INCREF(__pyx__function);
-          __Pyx_DECREF_SET(__pyx_t_12, __pyx__function);
-          __pyx_t_11 = 0;
+          __Pyx_DECREF_SET(__pyx_t_11, __pyx__function);
+          __pyx_t_5 = 0;
         }
         #endif
         {
-          PyObject *__pyx_callargs[3] = {__pyx_t_5, __pyx_mstate_global->__pyx_int_400, __pyx_mstate_global->__pyx_kp_u_Activation_is_already_deactivate};
+          PyObject *__pyx_callargs[3] = {__pyx_t_3, __pyx_mstate_global->__pyx_int_400, __pyx_mstate_global->__pyx_kp_u_Activation_is_already_deactivate};
           #if CYTHON_VECTORCALL
-          __pyx_t_8 = __pyx_mstate_global->__pyx_tuple[1];
-          if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 367, __pyx_L4_error)
-          __Pyx_INCREF(__pyx_t_8);
+          __pyx_t_9 = __pyx_mstate_global->__pyx_tuple[2];
+          if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 373, __pyx_L4_error)
+          __Pyx_INCREF(__pyx_t_9);
           #else
           {
             PyObject *__pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_status_code, __pyx_mstate_global->__pyx_n_u_detail};
-            __pyx_t_8 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
-            if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 367, __pyx_L4_error)
-            __Pyx_GOTREF(__pyx_t_8);
+            __pyx_t_9 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
+            if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 373, __pyx_L4_error)
+            __Pyx_GOTREF(__pyx_t_9);
           }
           #endif
-          __pyx_t_4 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_12, __pyx_callargs+__pyx_t_11, (1-__pyx_t_11) | (__pyx_t_11*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_8);
-          __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-          __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-          __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-          if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 367, __pyx_L4_error)
-          __Pyx_GOTREF(__pyx_t_4);
+          __pyx_t_1 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_11, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_9);
+          __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+          __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+          __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
+          if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 373, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_1);
         }
-        __Pyx_Raise(__pyx_t_4, 0, 0, 0);
-        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __PYX_ERR(0, 367, __pyx_L4_error)
+        __Pyx_Raise(__pyx_t_1, 0, 0, 0);
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __PYX_ERR(0, 373, __pyx_L4_error)
 
-        /* "licensing/api.py":366
+        /* "licensing/api.py":372
  *             raise HTTPException(status_code=404, detail="Activation not found")
  * 
  *         if not activation.is_valid:             # <<<<<<<<<<<<<<
@@ -7887,215 +8897,215 @@ static PyObject *__pyx_gb_9licensing_3api_8generator2(__pyx_CoroutineObject *__p
 */
       }
 
-      /* "licensing/api.py":370
+      /* "licensing/api.py":375
+ *             raise HTTPException(status_code=400, detail="Activation is already deactivated")
  * 
- *         # Deactivate the activation
  *         activation.is_valid = False             # <<<<<<<<<<<<<<
  *         activation.deactivated_at = datetime.now()
  *         activation.deactivation_reason = request.reason
 */
-      if (__Pyx_PyObject_SetAttrStr(__pyx_cur_scope->__pyx_v_activation, __pyx_mstate_global->__pyx_n_u_is_valid, Py_False) < (0)) __PYX_ERR(0, 370, __pyx_L4_error)
+      if (__Pyx_PyObject_SetAttrStr(__pyx_cur_scope->__pyx_v_activation, __pyx_mstate_global->__pyx_n_u_is_valid, Py_False) < (0)) __PYX_ERR(0, 375, __pyx_L4_error)
 
-      /* "licensing/api.py":371
- *         # Deactivate the activation
+      /* "licensing/api.py":376
+ * 
  *         activation.is_valid = False
  *         activation.deactivated_at = datetime.now()             # <<<<<<<<<<<<<<
  *         activation.deactivation_reason = request.reason
  * 
 */
-      __pyx_t_12 = NULL;
-      __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_datetime); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 371, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_8);
-      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_now); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 371, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_5);
-      __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-      __pyx_t_11 = 1;
+      __pyx_t_11 = NULL;
+      __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_datetime); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 376, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_9);
+      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_now); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 376, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+      __pyx_t_5 = 1;
       #if CYTHON_UNPACK_METHODS
-      if (unlikely(PyMethod_Check(__pyx_t_5))) {
-        __pyx_t_12 = PyMethod_GET_SELF(__pyx_t_5);
-        assert(__pyx_t_12);
-        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_5);
-        __Pyx_INCREF(__pyx_t_12);
+      if (unlikely(PyMethod_Check(__pyx_t_3))) {
+        __pyx_t_11 = PyMethod_GET_SELF(__pyx_t_3);
+        assert(__pyx_t_11);
+        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_3);
+        __Pyx_INCREF(__pyx_t_11);
         __Pyx_INCREF(__pyx__function);
-        __Pyx_DECREF_SET(__pyx_t_5, __pyx__function);
-        __pyx_t_11 = 0;
+        __Pyx_DECREF_SET(__pyx_t_3, __pyx__function);
+        __pyx_t_5 = 0;
       }
       #endif
       {
-        PyObject *__pyx_callargs[2] = {__pyx_t_12, NULL};
-        __pyx_t_4 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_5, __pyx_callargs+__pyx_t_11, (1-__pyx_t_11) | (__pyx_t_11*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_12); __pyx_t_12 = 0;
-        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 371, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_4);
+        PyObject *__pyx_callargs[2] = {__pyx_t_11, NULL};
+        __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_3, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 376, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_1);
       }
-      if (__Pyx_PyObject_SetAttrStr(__pyx_cur_scope->__pyx_v_activation, __pyx_mstate_global->__pyx_n_u_deactivated_at, __pyx_t_4) < (0)) __PYX_ERR(0, 371, __pyx_L4_error)
-      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+      if (__Pyx_PyObject_SetAttrStr(__pyx_cur_scope->__pyx_v_activation, __pyx_mstate_global->__pyx_n_u_deactivated_at, __pyx_t_1) < (0)) __PYX_ERR(0, 376, __pyx_L4_error)
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-      /* "licensing/api.py":372
+      /* "licensing/api.py":377
  *         activation.is_valid = False
  *         activation.deactivated_at = datetime.now()
  *         activation.deactivation_reason = request.reason             # <<<<<<<<<<<<<<
  * 
- *         # Restore one credit
-*/
-      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_reason); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 372, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_4);
-      if (__Pyx_PyObject_SetAttrStr(__pyx_cur_scope->__pyx_v_activation, __pyx_mstate_global->__pyx_n_u_deactivation_reason, __pyx_t_4) < (0)) __PYX_ERR(0, 372, __pyx_L4_error)
-      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-
-      /* "licensing/api.py":375
- * 
- *         # Restore one credit
- *         license_record.credits += 1             # <<<<<<<<<<<<<<
- * 
- *         db.commit()
-*/
-      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_credits); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 375, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_5 = __Pyx_PyLong_AddObjC(__pyx_t_4, __pyx_mstate_global->__pyx_int_1, 1, 1, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 375, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_5);
-      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      if (__Pyx_PyObject_SetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_credits, __pyx_t_5) < (0)) __PYX_ERR(0, 375, __pyx_L4_error)
-      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-
-      /* "licensing/api.py":377
  *         license_record.credits += 1
+*/
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_reason); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 377, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_1);
+      if (__Pyx_PyObject_SetAttrStr(__pyx_cur_scope->__pyx_v_activation, __pyx_mstate_global->__pyx_n_u_deactivation_reason, __pyx_t_1) < (0)) __PYX_ERR(0, 377, __pyx_L4_error)
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+      /* "licensing/api.py":379
+ *         activation.deactivation_reason = request.reason
  * 
+ *         license_record.credits += 1             # <<<<<<<<<<<<<<
+ *         db.commit()
+ * 
+*/
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_credits); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 379, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_1);
+      __pyx_t_3 = __Pyx_PyLong_AddObjC(__pyx_t_1, __pyx_mstate_global->__pyx_int_1, 1, 1, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 379, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      if (__Pyx_PyObject_SetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_credits, __pyx_t_3) < (0)) __PYX_ERR(0, 379, __pyx_L4_error)
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+
+      /* "licensing/api.py":380
+ * 
+ *         license_record.credits += 1
  *         db.commit()             # <<<<<<<<<<<<<<
  * 
  *         return DeactivationResponse(
 */
-      __pyx_t_4 = __pyx_cur_scope->__pyx_v_db;
-      __Pyx_INCREF(__pyx_t_4);
-      __pyx_t_11 = 0;
+      __pyx_t_1 = __pyx_cur_scope->__pyx_v_db;
+      __Pyx_INCREF(__pyx_t_1);
+      __pyx_t_5 = 0;
       {
-        PyObject *__pyx_callargs[2] = {__pyx_t_4, NULL};
-        __pyx_t_5 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_commit, __pyx_callargs+__pyx_t_11, (1-__pyx_t_11) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-        if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 377, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_5);
+        PyObject *__pyx_callargs[2] = {__pyx_t_1, NULL};
+        __pyx_t_3 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_commit, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+        if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 380, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_3);
       }
-      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-      /* "licensing/api.py":379
+      /* "licensing/api.py":382
  *         db.commit()
  * 
  *         return DeactivationResponse(             # <<<<<<<<<<<<<<
  *             success=True,
  *             message="License deactivated successfully",
 */
-      __pyx_t_4 = NULL;
-      __Pyx_GetModuleGlobalName(__pyx_t_12, __pyx_mstate_global->__pyx_n_u_DeactivationResponse); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 379, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_12);
+      __pyx_t_1 = NULL;
+      __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_mstate_global->__pyx_n_u_DeactivationResponse); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 382, __pyx_L4_error)
+      __Pyx_GOTREF(__pyx_t_11);
 
-      /* "licensing/api.py":380
+      /* "licensing/api.py":383
  * 
  *         return DeactivationResponse(
  *             success=True,             # <<<<<<<<<<<<<<
  *             message="License deactivated successfully",
  *             credits_restored=1
 */
-      __pyx_t_11 = 1;
+      __pyx_t_5 = 1;
       #if CYTHON_UNPACK_METHODS
-      if (unlikely(PyMethod_Check(__pyx_t_12))) {
-        __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_12);
-        assert(__pyx_t_4);
-        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_12);
-        __Pyx_INCREF(__pyx_t_4);
+      if (unlikely(PyMethod_Check(__pyx_t_11))) {
+        __pyx_t_1 = PyMethod_GET_SELF(__pyx_t_11);
+        assert(__pyx_t_1);
+        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_11);
+        __Pyx_INCREF(__pyx_t_1);
         __Pyx_INCREF(__pyx__function);
-        __Pyx_DECREF_SET(__pyx_t_12, __pyx__function);
-        __pyx_t_11 = 0;
+        __Pyx_DECREF_SET(__pyx_t_11, __pyx__function);
+        __pyx_t_5 = 0;
       }
       #endif
       {
-        PyObject *__pyx_callargs[4] = {__pyx_t_4, Py_True, __pyx_mstate_global->__pyx_kp_u_License_deactivated_successfully, __pyx_mstate_global->__pyx_int_1};
+        PyObject *__pyx_callargs[4] = {__pyx_t_1, Py_True, __pyx_mstate_global->__pyx_kp_u_License_deactivated_successfully, __pyx_mstate_global->__pyx_int_1};
         #if CYTHON_VECTORCALL
-        __pyx_t_8 = __pyx_mstate_global->__pyx_tuple[6];
-        if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 379, __pyx_L4_error)
-        __Pyx_INCREF(__pyx_t_8);
+        __pyx_t_9 = __pyx_mstate_global->__pyx_tuple[12];
+        if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 382, __pyx_L4_error)
+        __Pyx_INCREF(__pyx_t_9);
         #else
         {
           PyObject *__pyx_temp[3] = {__pyx_mstate_global->__pyx_n_u_success, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_n_u_credits_restored};
-          __pyx_t_8 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 3);
-          if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 379, __pyx_L4_error)
-          __Pyx_GOTREF(__pyx_t_8);
+          __pyx_t_9 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 3);
+          if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 382, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_9);
         }
         #endif
-        __pyx_t_5 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_12, __pyx_callargs+__pyx_t_11, (1-__pyx_t_11) | (__pyx_t_11*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_8);
-        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-        __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-        if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 379, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_5);
+        __pyx_t_3 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_11, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_9);
+        __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+        __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
+        if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 382, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_3);
       }
       {
         PyObject *__pyx_temp;
         {
           __pyx_temp = __pyx_r;
-          __pyx_r = __pyx_t_5;
+          __pyx_r = __pyx_t_3;
         }
         __Pyx_XDECREF(__pyx_temp);
       }
-      __pyx_t_5 = 0;
+      __pyx_t_3 = 0;
       goto __pyx_L8_try_return;
 
-      /* "licensing/api.py":348
- *     3. Restores one credit to the license
- *     """
+      /* "licensing/api.py":356
+ *     clean_key = _clean_product_key(request.product_key)
+ * 
  *     try:             # <<<<<<<<<<<<<<
- *         # Get license record
  *         license_record = db.query(ProductLicense).filter(
+ *             ProductLicense.product_key == clean_key
 */
     }
     __pyx_L4_error:;
+    __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
-    __Pyx_XDECREF(__pyx_t_12); __pyx_t_12 = 0;
+    __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
+    __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
     __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
+    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
     __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-    /* "licensing/api.py":385
+    /* "licensing/api.py":388
  *         )
  * 
  *     except HTTPException:             # <<<<<<<<<<<<<<
  *         raise
  *     except Exception as e:
 */
-    __Pyx_ErrFetch(&__pyx_t_5, &__pyx_t_12, &__pyx_t_8);
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_HTTPException); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 385, __pyx_L6_except_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_16 = __Pyx_PyErr_GivenExceptionMatches(__pyx_t_5, __pyx_t_4);
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __Pyx_ErrRestore(__pyx_t_5, __pyx_t_12, __pyx_t_8);
-    __pyx_t_5 = 0; __pyx_t_12 = 0; __pyx_t_8 = 0;
+    __Pyx_ErrFetch(&__pyx_t_3, &__pyx_t_11, &__pyx_t_9);
+    __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_HTTPException); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 388, __pyx_L6_except_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __pyx_t_16 = __Pyx_PyErr_GivenExceptionMatches(__pyx_t_3, __pyx_t_1);
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __Pyx_ErrRestore(__pyx_t_3, __pyx_t_11, __pyx_t_9);
+    __pyx_t_3 = 0; __pyx_t_11 = 0; __pyx_t_9 = 0;
     if (__pyx_t_16) {
       __Pyx_AddTraceback("licensing.api.deactivate_license", __pyx_clineno, __pyx_lineno, __pyx_filename);
-      if (__Pyx_GetException(&__pyx_t_8, &__pyx_t_12, &__pyx_t_5) < 0) __PYX_ERR(0, 385, __pyx_L6_except_error)
-      __Pyx_XGOTREF(__pyx_t_8);
-      __Pyx_XGOTREF(__pyx_t_12);
-      __Pyx_XGOTREF(__pyx_t_5);
+      if (__Pyx_GetException(&__pyx_t_9, &__pyx_t_11, &__pyx_t_3) < 0) __PYX_ERR(0, 388, __pyx_L6_except_error)
+      __Pyx_XGOTREF(__pyx_t_9);
+      __Pyx_XGOTREF(__pyx_t_11);
+      __Pyx_XGOTREF(__pyx_t_3);
 
-      /* "licensing/api.py":386
+      /* "licensing/api.py":389
  * 
  *     except HTTPException:
  *         raise             # <<<<<<<<<<<<<<
  *     except Exception as e:
  *         db.rollback()
 */
-      __Pyx_GIVEREF(__pyx_t_8);
-      __Pyx_GIVEREF(__pyx_t_12);
-      __Pyx_XGIVEREF(__pyx_t_5);
-      __Pyx_ErrRestoreWithState(__pyx_t_8, __pyx_t_12, __pyx_t_5);
-      __pyx_t_8 = 0;  __pyx_t_12 = 0;  __pyx_t_5 = 0; 
-      __PYX_ERR(0, 386, __pyx_L6_except_error)
+      __Pyx_GIVEREF(__pyx_t_9);
+      __Pyx_GIVEREF(__pyx_t_11);
+      __Pyx_XGIVEREF(__pyx_t_3);
+      __Pyx_ErrRestoreWithState(__pyx_t_9, __pyx_t_11, __pyx_t_3);
+      __pyx_t_9 = 0;  __pyx_t_11 = 0;  __pyx_t_3 = 0; 
+      __PYX_ERR(0, 389, __pyx_L6_except_error)
     }
 
-    /* "licensing/api.py":387
+    /* "licensing/api.py":390
  *     except HTTPException:
  *         raise
  *     except Exception as e:             # <<<<<<<<<<<<<<
@@ -8105,16 +9115,16 @@ static PyObject *__pyx_gb_9licensing_3api_8generator2(__pyx_CoroutineObject *__p
     __pyx_t_16 = __Pyx_PyErr_ExceptionMatches(((PyObject *)(((PyTypeObject*)PyExc_Exception))));
     if (__pyx_t_16) {
       __Pyx_AddTraceback("licensing.api.deactivate_license", __pyx_clineno, __pyx_lineno, __pyx_filename);
-      if (__Pyx_GetException(&__pyx_t_5, &__pyx_t_12, &__pyx_t_8) < 0) __PYX_ERR(0, 387, __pyx_L6_except_error)
-      __Pyx_XGOTREF(__pyx_t_5);
-      __Pyx_XGOTREF(__pyx_t_12);
-      __Pyx_XGOTREF(__pyx_t_8);
-      __Pyx_INCREF(__pyx_t_12);
-      __Pyx_GIVEREF(__pyx_t_12);
-      __pyx_cur_scope->__pyx_v_e = __pyx_t_12;
+      if (__Pyx_GetException(&__pyx_t_3, &__pyx_t_11, &__pyx_t_9) < 0) __PYX_ERR(0, 390, __pyx_L6_except_error)
+      __Pyx_XGOTREF(__pyx_t_3);
+      __Pyx_XGOTREF(__pyx_t_11);
+      __Pyx_XGOTREF(__pyx_t_9);
+      __Pyx_INCREF(__pyx_t_11);
+      __Pyx_GIVEREF(__pyx_t_11);
+      __pyx_cur_scope->__pyx_v_e = __pyx_t_11;
       /*try:*/ {
 
-        /* "licensing/api.py":388
+        /* "licensing/api.py":391
  *         raise
  *     except Exception as e:
  *         db.rollback()             # <<<<<<<<<<<<<<
@@ -8123,17 +9133,17 @@ static PyObject *__pyx_gb_9licensing_3api_8generator2(__pyx_CoroutineObject *__p
 */
         __pyx_t_15 = __pyx_cur_scope->__pyx_v_db;
         __Pyx_INCREF(__pyx_t_15);
-        __pyx_t_11 = 0;
+        __pyx_t_5 = 0;
         {
           PyObject *__pyx_callargs[2] = {__pyx_t_15, NULL};
-          __pyx_t_4 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_rollback, __pyx_callargs+__pyx_t_11, (1-__pyx_t_11) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+          __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_rollback, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
-          if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 388, __pyx_L20_error)
-          __Pyx_GOTREF(__pyx_t_4);
+          if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 391, __pyx_L20_error)
+          __Pyx_GOTREF(__pyx_t_1);
         }
-        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-        /* "licensing/api.py":389
+        /* "licensing/api.py":392
  *     except Exception as e:
  *         db.rollback()
  *         raise HTTPException(status_code=500, detail=f"Deactivation failed: {str(e)}")             # <<<<<<<<<<<<<<
@@ -8141,53 +9151,53 @@ static PyObject *__pyx_gb_9licensing_3api_8generator2(__pyx_CoroutineObject *__p
  * 
 */
         __pyx_t_15 = NULL;
-        __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_HTTPException); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 389, __pyx_L20_error)
-        __Pyx_GOTREF(__pyx_t_9);
-        __pyx_t_6 = __Pyx_PyObject_Unicode(__pyx_cur_scope->__pyx_v_e); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 389, __pyx_L20_error)
-        __Pyx_GOTREF(__pyx_t_6);
-        __pyx_t_10 = __Pyx_PyUnicode_Concat(__pyx_mstate_global->__pyx_kp_u_Deactivation_failed, __pyx_t_6); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 389, __pyx_L20_error)
+        __Pyx_GetModuleGlobalName(__pyx_t_14, __pyx_mstate_global->__pyx_n_u_HTTPException); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 392, __pyx_L20_error)
+        __Pyx_GOTREF(__pyx_t_14);
+        __pyx_t_4 = __Pyx_PyObject_Unicode(__pyx_cur_scope->__pyx_v_e); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 392, __pyx_L20_error)
+        __Pyx_GOTREF(__pyx_t_4);
+        __pyx_t_10 = __Pyx_PyUnicode_Concat(__pyx_mstate_global->__pyx_kp_u_Deactivation_failed, __pyx_t_4); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 392, __pyx_L20_error)
         __Pyx_GOTREF(__pyx_t_10);
-        __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-        __pyx_t_11 = 1;
+        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+        __pyx_t_5 = 1;
         #if CYTHON_UNPACK_METHODS
-        if (unlikely(PyMethod_Check(__pyx_t_9))) {
-          __pyx_t_15 = PyMethod_GET_SELF(__pyx_t_9);
+        if (unlikely(PyMethod_Check(__pyx_t_14))) {
+          __pyx_t_15 = PyMethod_GET_SELF(__pyx_t_14);
           assert(__pyx_t_15);
-          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_9);
+          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_14);
           __Pyx_INCREF(__pyx_t_15);
           __Pyx_INCREF(__pyx__function);
-          __Pyx_DECREF_SET(__pyx_t_9, __pyx__function);
-          __pyx_t_11 = 0;
+          __Pyx_DECREF_SET(__pyx_t_14, __pyx__function);
+          __pyx_t_5 = 0;
         }
         #endif
         {
           PyObject *__pyx_callargs[3] = {__pyx_t_15, __pyx_mstate_global->__pyx_int_500, __pyx_t_10};
           #if CYTHON_VECTORCALL
-          __pyx_t_6 = __pyx_mstate_global->__pyx_tuple[1];
-          if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 389, __pyx_L20_error)
-          __Pyx_INCREF(__pyx_t_6);
+          __pyx_t_4 = __pyx_mstate_global->__pyx_tuple[2];
+          if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 392, __pyx_L20_error)
+          __Pyx_INCREF(__pyx_t_4);
           #else
           {
             PyObject *__pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_status_code, __pyx_mstate_global->__pyx_n_u_detail};
-            __pyx_t_6 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
-            if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 389, __pyx_L20_error)
-            __Pyx_GOTREF(__pyx_t_6);
+            __pyx_t_4 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
+            if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 392, __pyx_L20_error)
+            __Pyx_GOTREF(__pyx_t_4);
           }
           #endif
-          __pyx_t_4 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_9, __pyx_callargs+__pyx_t_11, (1-__pyx_t_11) | (__pyx_t_11*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_6);
+          __pyx_t_1 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_14, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_4);
           __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
           __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-          __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-          __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-          if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 389, __pyx_L20_error)
-          __Pyx_GOTREF(__pyx_t_4);
+          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+          __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+          if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 392, __pyx_L20_error)
+          __Pyx_GOTREF(__pyx_t_1);
         }
-        __Pyx_Raise(__pyx_t_4, 0, 0, 0);
-        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __PYX_ERR(0, 389, __pyx_L20_error)
+        __Pyx_Raise(__pyx_t_1, 0, 0, 0);
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __PYX_ERR(0, 392, __pyx_L20_error)
       }
 
-      /* "licensing/api.py":387
+      /* "licensing/api.py":390
  *     except HTTPException:
  *         raise
  *     except Exception as e:             # <<<<<<<<<<<<<<
@@ -8199,12 +9209,12 @@ static PyObject *__pyx_gb_9licensing_3api_8generator2(__pyx_CoroutineObject *__p
         /*exception exit:*/{
           __Pyx_PyThreadState_assign
           __pyx_t_19 = 0; __pyx_t_20 = 0; __pyx_t_21 = 0; __pyx_t_22 = 0; __pyx_t_23 = 0; __pyx_t_24 = 0;
+          __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
           __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
+          __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
           __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
+          __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
           __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-          __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-          __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
-          __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
            __Pyx_ExceptionSwap(&__pyx_t_22, &__pyx_t_23, &__pyx_t_24);
           if ( unlikely(__Pyx_GetException(&__pyx_t_19, &__pyx_t_20, &__pyx_t_21) < 0)) __Pyx_ErrFetch(&__pyx_t_19, &__pyx_t_20, &__pyx_t_21);
           __Pyx_XGOTREF(__pyx_t_19);
@@ -8234,29 +9244,29 @@ static PyObject *__pyx_gb_9licensing_3api_8generator2(__pyx_CoroutineObject *__p
     }
     goto __pyx_L6_except_error;
 
-    /* "licensing/api.py":348
- *     3. Restores one credit to the license
- *     """
+    /* "licensing/api.py":356
+ *     clean_key = _clean_product_key(request.product_key)
+ * 
  *     try:             # <<<<<<<<<<<<<<
- *         # Get license record
  *         license_record = db.query(ProductLicense).filter(
+ *             ProductLicense.product_key == clean_key
 */
     __pyx_L6_except_error:;
-    __Pyx_XGIVEREF(__pyx_t_1);
-    __Pyx_XGIVEREF(__pyx_t_2);
-    __Pyx_XGIVEREF(__pyx_t_3);
-    __Pyx_ExceptionReset(__pyx_t_1, __pyx_t_2, __pyx_t_3);
+    __Pyx_XGIVEREF(__pyx_t_6);
+    __Pyx_XGIVEREF(__pyx_t_7);
+    __Pyx_XGIVEREF(__pyx_t_8);
+    __Pyx_ExceptionReset(__pyx_t_6, __pyx_t_7, __pyx_t_8);
     goto __pyx_L1_error;
     __pyx_L8_try_return:;
-    __Pyx_XGIVEREF(__pyx_t_1);
-    __Pyx_XGIVEREF(__pyx_t_2);
-    __Pyx_XGIVEREF(__pyx_t_3);
-    __Pyx_ExceptionReset(__pyx_t_1, __pyx_t_2, __pyx_t_3);
+    __Pyx_XGIVEREF(__pyx_t_6);
+    __Pyx_XGIVEREF(__pyx_t_7);
+    __Pyx_XGIVEREF(__pyx_t_8);
+    __Pyx_ExceptionReset(__pyx_t_6, __pyx_t_7, __pyx_t_8);
     goto __pyx_L0;
   }
   CYTHON_MAYBE_UNUSED_VAR(__pyx_cur_scope);
 
-  /* "licensing/api.py":335
+  /* "licensing/api.py":348
  * 
  * 
  * @router.post("/deactivate", response_model=DeactivationResponse)             # <<<<<<<<<<<<<<
@@ -8266,14 +9276,14 @@ static PyObject *__pyx_gb_9licensing_3api_8generator2(__pyx_CoroutineObject *__p
 
   /* function exit code */
   __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_XDECREF(__pyx_t_7);
-  __Pyx_XDECREF(__pyx_t_8);
   __Pyx_XDECREF(__pyx_t_9);
   __Pyx_XDECREF(__pyx_t_10);
-  __Pyx_XDECREF(__pyx_t_12);
+  __Pyx_XDECREF(__pyx_t_11);
+  __Pyx_XDECREF(__pyx_t_14);
   __Pyx_XDECREF(__pyx_t_15);
   if (__Pyx_PyErr_Occurred()) {
     __Pyx_Generator_Replace_StopIteration(0);
@@ -8289,403 +9299,1493 @@ static PyObject *__pyx_gb_9licensing_3api_8generator2(__pyx_CoroutineObject *__p
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
+static PyObject *__pyx_gb_9licensing_3api_15generator3(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
-/* "licensing/api.py":397
+/* "licensing/api.py":395
  * 
  * 
- * def _get_public_key() -> str:             # <<<<<<<<<<<<<<
- *     """
- *     Get the public key for product key verification.
+ * @router.post("/register", response_model=RegisterLicenseResponse)             # <<<<<<<<<<<<<<
+ * async def register_license(
+ *     request: RegisterLicenseRequest,
 */
 
-/* Python wrapper */
-static PyObject *__pyx_pw_9licensing_3api_10_get_public_key(PyObject *__pyx_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-PyDoc_STRVAR(__pyx_doc_9licensing_3api_9_get_public_key, "\n    Get the public key for product key verification.\n    \n    Loads from environment variable or falls back to embedded key.\n    ");
-static PyMethodDef __pyx_mdef_9licensing_3api_10_get_public_key = {"_get_public_key", (PyCFunction)__pyx_pw_9licensing_3api_10_get_public_key, METH_NOARGS, __pyx_doc_9licensing_3api_9_get_public_key};
-static PyObject *__pyx_pw_9licensing_3api_10_get_public_key(PyObject *__pyx_self, CYTHON_UNUSED PyObject *unused) {
-  CYTHON_UNUSED PyObject *const *__pyx_kwvalues;
-  PyObject *__pyx_r = 0;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("_get_public_key (wrapper)", 0);
-  __pyx_kwvalues = __Pyx_KwValues_VARARGS(__pyx_args, __pyx_nargs);
-  __pyx_r = __pyx_pf_9licensing_3api_9_get_public_key(__pyx_self);
-
-  /* function exit code */
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-static PyObject *__pyx_pf_9licensing_3api_9_get_public_key(CYTHON_UNUSED PyObject *__pyx_self) {
-  PyObject *__pyx_v_os = NULL;
-  PyObject *__pyx_v_public_key = NULL;
-  PyObject *__pyx_v_key_file = NULL;
-  PyObject *__pyx_v_root_key_file = NULL;
-  PyObject *__pyx_v_embedded_key = NULL;
+static PyObject *__pyx_pf_9licensing_3api_22__defaults__(CYTHON_UNUSED PyObject *__pyx_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
-  PyObject *__pyx_t_3 = NULL;
-  size_t __pyx_t_4;
-  int __pyx_t_5;
-  PyObject *__pyx_t_6 = NULL;
-  PyObject *__pyx_t_7 = NULL;
-  PyObject *__pyx_t_8 = NULL;
-  PyObject *__pyx_t_9 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("_get_public_key", 0);
-
-  /* "licensing/api.py":403
- *     Loads from environment variable or falls back to embedded key.
- *     """
- *     import os             # <<<<<<<<<<<<<<
- * 
- *     # Try environment variable first
-*/
-  __pyx_t_2 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_os, 0, 0, NULL, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 403, __pyx_L1_error)
-  __pyx_t_1 = __pyx_t_2;
+  __Pyx_RefNannySetupContext("__defaults__", 0);
+  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 395, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_v_os = __pyx_t_1;
+  __Pyx_INCREF(__Pyx_CyFunction_Defaults(struct __pyx_defaults, __pyx_self)->arg0);
+  __Pyx_GIVEREF(__Pyx_CyFunction_Defaults(struct __pyx_defaults, __pyx_self)->arg0);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 0, __Pyx_CyFunction_Defaults(struct __pyx_defaults, __pyx_self)->arg0) != (0)) __PYX_ERR(0, 395, __pyx_L1_error);
+  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 395, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_GIVEREF(__pyx_t_1);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_1) != (0)) __PYX_ERR(0, 395, __pyx_L1_error);
+  __Pyx_INCREF(Py_None);
+  __Pyx_GIVEREF(Py_None);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, Py_None) != (0)) __PYX_ERR(0, 395, __pyx_L1_error);
   __pyx_t_1 = 0;
-
-  /* "licensing/api.py":406
- * 
- *     # Try environment variable first
- *     public_key = os.getenv("LICENSE_PUBLIC_KEY")             # <<<<<<<<<<<<<<
- *     if public_key:
- *         return public_key
-*/
-  __pyx_t_3 = __pyx_v_os;
-  __Pyx_INCREF(__pyx_t_3);
-  __pyx_t_4 = 0;
-  {
-    PyObject *__pyx_callargs[2] = {__pyx_t_3, __pyx_mstate_global->__pyx_n_u_LICENSE_PUBLIC_KEY};
-    __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_getenv, __pyx_callargs+__pyx_t_4, (2-__pyx_t_4) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 406, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
-  }
-  __pyx_v_public_key = __pyx_t_1;
-  __pyx_t_1 = 0;
-
-  /* "licensing/api.py":407
- *     # Try environment variable first
- *     public_key = os.getenv("LICENSE_PUBLIC_KEY")
- *     if public_key:             # <<<<<<<<<<<<<<
- *         return public_key
- * 
-*/
-  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_v_public_key); if (unlikely((__pyx_t_5 < 0))) __PYX_ERR(0, 407, __pyx_L1_error)
-  if (__pyx_t_5) {
-
-
-    /* "licensing/api.py":408
- *     public_key = os.getenv("LICENSE_PUBLIC_KEY")
- *     if public_key:
- *         return public_key             # <<<<<<<<<<<<<<
- * 
- *     # Try to load from file in the licensing directory
-*/
-    __pyx_t_1 = __pyx_v_public_key;
-    __Pyx_INCREF(__pyx_t_1);
-    if (!(likely(PyUnicode_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("str", __pyx_t_1))) __PYX_ERR(0, 408, __pyx_L1_error)
-    {
-      PyObject *__pyx_temp;
-      {
-        __pyx_temp = __pyx_r;
-        __pyx_r = ((PyObject*)__pyx_t_1);
-      }
-      __Pyx_XDECREF(__pyx_temp);
-    }
-    __pyx_t_1 = 0;
-    goto __pyx_L0;
-
-    /* "licensing/api.py":407
- *     # Try environment variable first
- *     public_key = os.getenv("LICENSE_PUBLIC_KEY")
- *     if public_key:             # <<<<<<<<<<<<<<
- *         return public_key
- * 
-*/
-  }
-
-  /* "licensing/api.py":411
- * 
- *     # Try to load from file in the licensing directory
- *     key_file = Path(__file__).parent / "public_key.pem"             # <<<<<<<<<<<<<<
- *     if key_file.exists():
- *         return key_file.read_text()
-*/
-  __pyx_t_3 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_Path); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 411, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_6);
-  __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_mstate_global->__pyx_n_u_file); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 411, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_4 = 1;
-  #if CYTHON_UNPACK_METHODS
-  if (unlikely(PyMethod_Check(__pyx_t_6))) {
-    __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_6);
-    assert(__pyx_t_3);
-    PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_6);
-    __Pyx_INCREF(__pyx_t_3);
-    __Pyx_INCREF(__pyx__function);
-    __Pyx_DECREF_SET(__pyx_t_6, __pyx__function);
-    __pyx_t_4 = 0;
-  }
-  #endif
-  {
-    PyObject *__pyx_callargs[2] = {__pyx_t_3, __pyx_t_7};
-    __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_6, __pyx_callargs+__pyx_t_4, (2-__pyx_t_4) | (__pyx_t_4*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 411, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
-  }
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_parent); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 411, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_6);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyNumber_Divide(__pyx_t_6, __pyx_mstate_global->__pyx_kp_u_public_key_pem_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 411, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_v_key_file = __pyx_t_1;
-  __pyx_t_1 = 0;
-
-  /* "licensing/api.py":412
- *     # Try to load from file in the licensing directory
- *     key_file = Path(__file__).parent / "public_key.pem"
- *     if key_file.exists():             # <<<<<<<<<<<<<<
- *         return key_file.read_text()
- * 
-*/
-  __pyx_t_6 = __pyx_v_key_file;
-  __Pyx_INCREF(__pyx_t_6);
-  __pyx_t_4 = 0;
-  {
-    PyObject *__pyx_callargs[2] = {__pyx_t_6, NULL};
-    __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_exists, __pyx_callargs+__pyx_t_4, (1-__pyx_t_4) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-    __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 412, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
-  }
-  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_5 < 0))) __PYX_ERR(0, 412, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (__pyx_t_5) {
-
-
-    /* "licensing/api.py":413
- *     key_file = Path(__file__).parent / "public_key.pem"
- *     if key_file.exists():
- *         return key_file.read_text()             # <<<<<<<<<<<<<<
- * 
- *     # Try to load from project root
-*/
-    __pyx_t_6 = __pyx_v_key_file;
-    __Pyx_INCREF(__pyx_t_6);
-    __pyx_t_4 = 0;
-    {
-      PyObject *__pyx_callargs[2] = {__pyx_t_6, NULL};
-      __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_read_text, __pyx_callargs+__pyx_t_4, (1-__pyx_t_4) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-      __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 413, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_1);
-    }
-    if (!(likely(PyUnicode_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("str", __pyx_t_1))) __PYX_ERR(0, 413, __pyx_L1_error)
-    {
-      PyObject *__pyx_temp;
-      {
-        __pyx_temp = __pyx_r;
-        __pyx_r = ((PyObject*)__pyx_t_1);
-      }
-      __Pyx_XDECREF(__pyx_temp);
-    }
-    __pyx_t_1 = 0;
-    goto __pyx_L0;
-
-    /* "licensing/api.py":412
- *     # Try to load from file in the licensing directory
- *     key_file = Path(__file__).parent / "public_key.pem"
- *     if key_file.exists():             # <<<<<<<<<<<<<<
- *         return key_file.read_text()
- * 
-*/
-  }
-
-  /* "licensing/api.py":416
- * 
- *     # Try to load from project root
- *     root_key_file = Path(__file__).resolve().parent.parent.parent.parent / "license_public_key.pem"             # <<<<<<<<<<<<<<
- *     if root_key_file.exists():
- *         return root_key_file.read_text()
-*/
-  __pyx_t_3 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_Path); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 416, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_8);
-  __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_file); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 416, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_9);
-  __pyx_t_4 = 1;
-  #if CYTHON_UNPACK_METHODS
-  if (unlikely(PyMethod_Check(__pyx_t_8))) {
-    __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_8);
-    assert(__pyx_t_3);
-    PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_8);
-    __Pyx_INCREF(__pyx_t_3);
-    __Pyx_INCREF(__pyx__function);
-    __Pyx_DECREF_SET(__pyx_t_8, __pyx__function);
-    __pyx_t_4 = 0;
-  }
-  #endif
-  {
-    PyObject *__pyx_callargs[2] = {__pyx_t_3, __pyx_t_9};
-    __pyx_t_7 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_8, __pyx_callargs+__pyx_t_4, (2-__pyx_t_4) | (__pyx_t_4*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-    __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-    if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 416, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_7);
-  }
-  __pyx_t_6 = __pyx_t_7;
-  __Pyx_INCREF(__pyx_t_6);
-  __pyx_t_4 = 0;
-  {
-    PyObject *__pyx_callargs[2] = {__pyx_t_6, NULL};
-    __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_resolve, __pyx_callargs+__pyx_t_4, (1-__pyx_t_4) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-    __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 416, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
-  }
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_parent); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 416, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_7);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_mstate_global->__pyx_n_u_parent); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 416, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_parent); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 416, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_7);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_mstate_global->__pyx_n_u_parent); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 416, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyNumber_Divide(__pyx_t_1, __pyx_mstate_global->__pyx_kp_u_license_public_key_pem); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 416, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_7);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_v_root_key_file = __pyx_t_7;
-  __pyx_t_7 = 0;
-
-  /* "licensing/api.py":417
- *     # Try to load from project root
- *     root_key_file = Path(__file__).resolve().parent.parent.parent.parent / "license_public_key.pem"
- *     if root_key_file.exists():             # <<<<<<<<<<<<<<
- *         return root_key_file.read_text()
- * 
-*/
-  __pyx_t_1 = __pyx_v_root_key_file;
-  __Pyx_INCREF(__pyx_t_1);
-  __pyx_t_4 = 0;
-  {
-    PyObject *__pyx_callargs[2] = {__pyx_t_1, NULL};
-    __pyx_t_7 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_exists, __pyx_callargs+__pyx_t_4, (1-__pyx_t_4) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-    __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
-    if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 417, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_7);
-  }
-  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_7); if (unlikely((__pyx_t_5 < 0))) __PYX_ERR(0, 417, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  if (__pyx_t_5) {
-
-
-    /* "licensing/api.py":418
- *     root_key_file = Path(__file__).resolve().parent.parent.parent.parent / "license_public_key.pem"
- *     if root_key_file.exists():
- *         return root_key_file.read_text()             # <<<<<<<<<<<<<<
- * 
- *     # Embedded fallback public key (for client distribution)
-*/
-    __pyx_t_1 = __pyx_v_root_key_file;
-    __Pyx_INCREF(__pyx_t_1);
-    __pyx_t_4 = 0;
-    {
-      PyObject *__pyx_callargs[2] = {__pyx_t_1, NULL};
-      __pyx_t_7 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_read_text, __pyx_callargs+__pyx_t_4, (1-__pyx_t_4) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-      __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
-      if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 418, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_7);
-    }
-    if (!(likely(PyUnicode_CheckExact(__pyx_t_7))||((__pyx_t_7) == Py_None) || __Pyx_RaiseUnexpectedTypeError("str", __pyx_t_7))) __PYX_ERR(0, 418, __pyx_L1_error)
-    {
-      PyObject *__pyx_temp;
-      {
-        __pyx_temp = __pyx_r;
-        __pyx_r = ((PyObject*)__pyx_t_7);
-      }
-      __Pyx_XDECREF(__pyx_temp);
-    }
-    __pyx_t_7 = 0;
-    goto __pyx_L0;
-
-    /* "licensing/api.py":417
- *     # Try to load from project root
- *     root_key_file = Path(__file__).resolve().parent.parent.parent.parent / "license_public_key.pem"
- *     if root_key_file.exists():             # <<<<<<<<<<<<<<
- *         return root_key_file.read_text()
- * 
-*/
-  }
-
-  /* "licensing/api.py":422
- *     # Embedded fallback public key (for client distribution)
- *     # In production, this should be your actual public key
- *     embedded_key = """-----BEGIN PUBLIC KEY-----             # <<<<<<<<<<<<<<
- * MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwq/XMIVF9N3D6QKfnac/
- * 00ku5pidy2/a14YSRiJ1StEEusplVAjVgJo1C85uQm5aBTItDrPu6x0C79BzZF9w
-*/
-  __Pyx_INCREF(__pyx_mstate_global->__pyx_kp_u_BEGIN_PUBLIC_KEY_MIIBIjANBgkqhk);
-  __pyx_v_embedded_key = __pyx_mstate_global->__pyx_kp_u_BEGIN_PUBLIC_KEY_MIIBIjANBgkqhk;
-
-  /* "licensing/api.py":432
- * -----END PUBLIC KEY-----"""
- * 
- *     return embedded_key             # <<<<<<<<<<<<<<
-*/
   {
     PyObject *__pyx_temp;
     {
       __pyx_temp = __pyx_r;
-      __Pyx_INCREF(__pyx_v_embedded_key);
-      __pyx_r = __pyx_v_embedded_key;
+      __pyx_r = __pyx_t_2;
     }
     __Pyx_XDECREF(__pyx_temp);
   }
+  __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "licensing/api.py":397
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_AddTraceback("licensing.api.__defaults__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* Python wrapper */
+static PyObject *__pyx_pw_9licensing_3api_14register_license(PyObject *__pyx_self, 
+#if CYTHON_VECTORCALL
+PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
+#else
+PyObject *__pyx_args, PyObject *__pyx_kwds
+#endif
+); /*proto*/
+PyDoc_STRVAR(__pyx_doc_9licensing_3api_13register_license, "Admin endpoint to pre-register a product key.");
+static PyMethodDef __pyx_mdef_9licensing_3api_14register_license = {"register_license", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9licensing_3api_14register_license, __Pyx_METH_FASTCALL|METH_KEYWORDS, __pyx_doc_9licensing_3api_13register_license};
+static PyObject *__pyx_pw_9licensing_3api_14register_license(PyObject *__pyx_self, 
+#if CYTHON_VECTORCALL
+PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
+#else
+PyObject *__pyx_args, PyObject *__pyx_kwds
+#endif
+) {
+  PyObject *__pyx_v_request = 0;
+  PyObject *__pyx_v_db = 0;
+  #if !CYTHON_VECTORCALL
+  CYTHON_UNUSED Py_ssize_t __pyx_nargs;
+  #endif
+  CYTHON_UNUSED PyObject *const *__pyx_kwvalues;
+  PyObject* values[2] = {0,0};
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("register_license (wrapper)", 0);
+  #if !CYTHON_VECTORCALL
+  #if CYTHON_ASSUME_SAFE_SIZE
+  __pyx_nargs = PyTuple_GET_SIZE(__pyx_args);
+  #else
+  __pyx_nargs = PyTuple_Size(__pyx_args); if (unlikely(__pyx_nargs < 0)) return NULL;
+  #endif
+  #endif
+  __pyx_kwvalues = __Pyx_KwValues_FASTCALL(__pyx_args, __pyx_nargs);
+  {
+    PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_request,&__pyx_mstate_global->__pyx_n_u_db,0};
+    struct __pyx_defaults *__pyx_dynamic_args = __Pyx_CyFunction_Defaults(struct __pyx_defaults, __pyx_self);
+    const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
+    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 395, __pyx_L3_error)
+    if (__pyx_kwds_len > 0) {
+      switch (__pyx_nargs) {
+        case  2:
+        values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 395, __pyx_L3_error)
+        CYTHON_FALLTHROUGH;
+        case  1:
+        values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 395, __pyx_L3_error)
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      const Py_ssize_t kwd_pos_args = __pyx_nargs;
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "register_license", 0) < (0)) __PYX_ERR(0, 395, __pyx_L3_error)
+      if (!values[1]) values[1] = __Pyx_NewRef(__pyx_dynamic_args->arg0);
+      for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("register_license", 0, 1, 2, i); __PYX_ERR(0, 395, __pyx_L3_error) }
+      }
+    } else {
+      switch (__pyx_nargs) {
+        case  2:
+        values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 395, __pyx_L3_error)
+        CYTHON_FALLTHROUGH;
+        case  1:
+        values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 395, __pyx_L3_error)
+        break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      if (!values[1]) values[1] = __Pyx_NewRef(__pyx_dynamic_args->arg0);
+    }
+    __pyx_v_request = values[0];
+    __pyx_v_db = values[1];
+  }
+  goto __pyx_L6_skip;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("register_license", 0, 1, 2, __pyx_nargs); __PYX_ERR(0, 395, __pyx_L3_error)
+  __pyx_L6_skip:;
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L3_error:;
+  for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
+    Py_XDECREF(values[__pyx_temp]);
+  }
+  __Pyx_AddTraceback("licensing.api.register_license", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_9licensing_3api_13register_license(__pyx_self, __pyx_v_request, __pyx_v_db);
+
+  /* function exit code */
+  for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
+    Py_XDECREF(values[__pyx_temp]);
+  }
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_9licensing_3api_13register_license(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_request, PyObject *__pyx_v_db) {
+  struct __pyx_obj_9licensing_3api___pyx_scope_struct_3_register_license *__pyx_cur_scope;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("register_license", 0);
+  __pyx_cur_scope = (struct __pyx_obj_9licensing_3api___pyx_scope_struct_3_register_license *)__pyx_tp_new_9licensing_3api___pyx_scope_struct_3_register_license(__pyx_mstate_global->__pyx_ptype_9licensing_3api___pyx_scope_struct_3_register_license, __pyx_mstate_global->__pyx_empty_tuple, NULL);
+  if (unlikely(!__pyx_cur_scope)) {
+    __pyx_cur_scope = ((struct __pyx_obj_9licensing_3api___pyx_scope_struct_3_register_license *)Py_None);
+    __Pyx_INCREF(Py_None);
+    __PYX_ERR(0, 395, __pyx_L1_error)
+  } else {
+    __Pyx_GOTREF((PyObject *)__pyx_cur_scope);
+  }
+  __pyx_cur_scope->__pyx_v_request = __pyx_v_request;
+  __Pyx_INCREF(__pyx_cur_scope->__pyx_v_request);
+  __Pyx_GIVEREF(__pyx_cur_scope->__pyx_v_request);
+  __pyx_cur_scope->__pyx_v_db = __pyx_v_db;
+  __Pyx_INCREF(__pyx_cur_scope->__pyx_v_db);
+  __Pyx_GIVEREF(__pyx_cur_scope->__pyx_v_db);
+  {
+    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_9licensing_3api_15generator3, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[3]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_register_license, __pyx_mstate_global->__pyx_n_u_register_license, __pyx_mstate_global->__pyx_n_u_licensing_api); if (unlikely(!gen)) __PYX_ERR(0, 395, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_cur_scope);
+    __Pyx_RefNannyFinishContext();
+    return (PyObject *) gen;
+  }
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_AddTraceback("licensing.api.register_license", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __Pyx_DECREF((PyObject *)__pyx_cur_scope);
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_gb_9licensing_3api_15generator3(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
+{
+  struct __pyx_obj_9licensing_3api___pyx_scope_struct_3_register_license *__pyx_cur_scope = ((struct __pyx_obj_9licensing_3api___pyx_scope_struct_3_register_license *)__pyx_generator->closure);
+  PyObject *__pyx_r = NULL;
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  size_t __pyx_t_5;
+  int __pyx_t_6;
+  int __pyx_t_7;
+  PyObject *__pyx_t_8 = NULL;
+  PyObject *__pyx_t_9 = NULL;
+  PyObject *__pyx_t_10 = NULL;
+  int __pyx_t_11;
+  PyObject *__pyx_t_12 = NULL;
+  PyObject *__pyx_t_13 = NULL;
+  PyObject *__pyx_t_14 = NULL;
+  PyObject *__pyx_t_15 = NULL;
+  int __pyx_t_16;
+  char const *__pyx_t_17;
+  PyObject *__pyx_t_18 = NULL;
+  PyObject *__pyx_t_19 = NULL;
+  PyObject *__pyx_t_20 = NULL;
+  PyObject *__pyx_t_21 = NULL;
+  PyObject *__pyx_t_22 = NULL;
+  PyObject *__pyx_t_23 = NULL;
+  PyObject *__pyx_t_24 = NULL;
+  PyObject *__pyx_t_25 = NULL;
+  PyObject *__pyx_t_26 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("register_license", 0);
+  switch (__pyx_generator->resume_label) {
+    case 0: goto __pyx_L3_first_run;
+    default: /* CPython raises the right error here */
+    __Pyx_RefNannyFinishContext();
+    return NULL;
+  }
+  __pyx_L3_first_run:;
+  if (unlikely(__pyx_sent_value != Py_None)) {
+    if (unlikely(__pyx_sent_value)) PyErr_SetString(PyExc_TypeError, "can't send non-None value to a just-started coroutine");
+    __PYX_ERR(0, 395, __pyx_L1_error)
+  }
+
+  /* "licensing/api.py":401
+ * ):
+ *     """Admin endpoint to pre-register a product key."""
+ *     clean_key = _clean_product_key(request.product_key)             # <<<<<<<<<<<<<<
+ * 
+ *     expected_secret = os.getenv("LICENSE_ADMIN_SECRET", "")
+*/
+  __pyx_t_2 = NULL;
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_clean_product_key); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 401, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_product_key); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 401, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_5 = 1;
+  #if CYTHON_UNPACK_METHODS
+  if (unlikely(PyMethod_Check(__pyx_t_3))) {
+    __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_3);
+    assert(__pyx_t_2);
+    PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_3);
+    __Pyx_INCREF(__pyx_t_2);
+    __Pyx_INCREF(__pyx__function);
+    __Pyx_DECREF_SET(__pyx_t_3, __pyx__function);
+    __pyx_t_5 = 0;
+  }
+  #endif
+  {
+    PyObject *__pyx_callargs[2] = {__pyx_t_2, __pyx_t_4};
+    __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_3, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 401, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+  }
+  __Pyx_GIVEREF(__pyx_t_1);
+  __pyx_cur_scope->__pyx_v_clean_key = __pyx_t_1;
+  __pyx_t_1 = 0;
+
+  /* "licensing/api.py":403
+ *     clean_key = _clean_product_key(request.product_key)
+ * 
+ *     expected_secret = os.getenv("LICENSE_ADMIN_SECRET", "")             # <<<<<<<<<<<<<<
+ *     if expected_secret and request.admin_secret != expected_secret:
+ *         raise HTTPException(status_code=403, detail="Invalid admin secret")
+*/
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_os); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 403, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_getenv); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 403, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_mstate_global->__pyx_tuple[13], NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 403, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __Pyx_GIVEREF(__pyx_t_1);
+  __pyx_cur_scope->__pyx_v_expected_secret = __pyx_t_1;
+  __pyx_t_1 = 0;
+
+  /* "licensing/api.py":404
+ * 
+ *     expected_secret = os.getenv("LICENSE_ADMIN_SECRET", "")
+ *     if expected_secret and request.admin_secret != expected_secret:             # <<<<<<<<<<<<<<
+ *         raise HTTPException(status_code=403, detail="Invalid admin secret")
+ * 
+*/
+  __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_cur_scope->__pyx_v_expected_secret); if (unlikely((__pyx_t_7 < 0))) __PYX_ERR(0, 404, __pyx_L1_error)
+  if (__pyx_t_7) {
+
+  } else {
+
+    __pyx_t_6 = __pyx_t_7;
+
+    goto __pyx_L5_bool_binop_done;
+  }
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_admin_secret); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 404, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_7 = __Pyx_PyObject_CompareBoolNe_object_object(__pyx_t_1, __pyx_cur_scope->__pyx_v_expected_secret, Py_NE); if (unlikely((__pyx_t_7 < 0))) __PYX_ERR(0, 404, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  __pyx_t_6 = __pyx_t_7;
+
+  __pyx_L5_bool_binop_done:;
+  if (unlikely(__pyx_t_6)) {
+
+
+    /* "licensing/api.py":405
+ *     expected_secret = os.getenv("LICENSE_ADMIN_SECRET", "")
+ *     if expected_secret and request.admin_secret != expected_secret:
+ *         raise HTTPException(status_code=403, detail="Invalid admin secret")             # <<<<<<<<<<<<<<
+ * 
+ *     try:
+*/
+    __pyx_t_3 = NULL;
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_HTTPException); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 405, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_5 = 1;
+    #if CYTHON_UNPACK_METHODS
+    if (unlikely(PyMethod_Check(__pyx_t_4))) {
+      __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_4);
+      assert(__pyx_t_3);
+      PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_4);
+      __Pyx_INCREF(__pyx_t_3);
+      __Pyx_INCREF(__pyx__function);
+      __Pyx_DECREF_SET(__pyx_t_4, __pyx__function);
+      __pyx_t_5 = 0;
+    }
+    #endif
+    {
+      PyObject *__pyx_callargs[3] = {__pyx_t_3, __pyx_mstate_global->__pyx_int_403, __pyx_mstate_global->__pyx_kp_u_Invalid_admin_secret};
+      #if CYTHON_VECTORCALL
+      __pyx_t_2 = __pyx_mstate_global->__pyx_tuple[2];
+      if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 405, __pyx_L1_error)
+      __Pyx_INCREF(__pyx_t_2);
+      #else
+      {
+        PyObject *__pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_status_code, __pyx_mstate_global->__pyx_n_u_detail};
+        __pyx_t_2 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 405, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_2);
+      }
+      #endif
+      __pyx_t_1 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_2);
+      __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 405, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_1);
+    }
+    __Pyx_Raise(__pyx_t_1, 0, 0, 0);
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __PYX_ERR(0, 405, __pyx_L1_error)
+
+    /* "licensing/api.py":404
+ * 
+ *     expected_secret = os.getenv("LICENSE_ADMIN_SECRET", "")
+ *     if expected_secret and request.admin_secret != expected_secret:             # <<<<<<<<<<<<<<
+ *         raise HTTPException(status_code=403, detail="Invalid admin secret")
+ * 
+*/
+  }
+
+  /* "licensing/api.py":407
+ *         raise HTTPException(status_code=403, detail="Invalid admin secret")
+ * 
+ *     try:             # <<<<<<<<<<<<<<
+ *         public_key_pem = _get_public_key()
+ *         crypto = LicenseCrypto(public_key_pem=public_key_pem)
+*/
+  {
+    __Pyx_ExceptionSave(&__pyx_t_8, &__pyx_t_9, &__pyx_t_10);
+    __Pyx_XGOTREF(__pyx_t_8);
+    __Pyx_XGOTREF(__pyx_t_9);
+    __Pyx_XGOTREF(__pyx_t_10);
+    /*try:*/ {
+
+      /* "licensing/api.py":408
+ * 
+ *     try:
+ *         public_key_pem = _get_public_key()             # <<<<<<<<<<<<<<
+ *         crypto = LicenseCrypto(public_key_pem=public_key_pem)
+ *         license_data = crypto.verify_product_key(clean_key)
+*/
+      __pyx_t_4 = NULL;
+      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_get_public_key); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 408, __pyx_L7_error)
+      __Pyx_GOTREF(__pyx_t_2);
+      __pyx_t_5 = 1;
+      #if CYTHON_UNPACK_METHODS
+      if (unlikely(PyMethod_Check(__pyx_t_2))) {
+        __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_2);
+        assert(__pyx_t_4);
+        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_2);
+        __Pyx_INCREF(__pyx_t_4);
+        __Pyx_INCREF(__pyx__function);
+        __Pyx_DECREF_SET(__pyx_t_2, __pyx__function);
+        __pyx_t_5 = 0;
+      }
+      #endif
+      {
+        PyObject *__pyx_callargs[2] = {__pyx_t_4, NULL};
+        __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_2, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 408, __pyx_L7_error)
+        __Pyx_GOTREF(__pyx_t_1);
+      }
+      __Pyx_GIVEREF(__pyx_t_1);
+      __pyx_cur_scope->__pyx_v_public_key_pem = __pyx_t_1;
+      __pyx_t_1 = 0;
+
+      /* "licensing/api.py":409
+ *     try:
+ *         public_key_pem = _get_public_key()
+ *         crypto = LicenseCrypto(public_key_pem=public_key_pem)             # <<<<<<<<<<<<<<
+ *         license_data = crypto.verify_product_key(clean_key)
+ *     except ValueError as e:
+*/
+      __pyx_t_2 = NULL;
+      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_LicenseCrypto); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 409, __pyx_L7_error)
+      __Pyx_GOTREF(__pyx_t_4);
+      __pyx_t_5 = 1;
+      #if CYTHON_UNPACK_METHODS
+      if (unlikely(PyMethod_Check(__pyx_t_4))) {
+        __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_4);
+        assert(__pyx_t_2);
+        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_4);
+        __Pyx_INCREF(__pyx_t_2);
+        __Pyx_INCREF(__pyx__function);
+        __Pyx_DECREF_SET(__pyx_t_4, __pyx__function);
+        __pyx_t_5 = 0;
+      }
+      #endif
+      {
+        PyObject *__pyx_callargs[2] = {__pyx_t_2, __pyx_cur_scope->__pyx_v_public_key_pem};
+        #if CYTHON_VECTORCALL
+        __pyx_t_3 = __pyx_mstate_global->__pyx_tuple[1];
+        if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 409, __pyx_L7_error)
+        __Pyx_INCREF(__pyx_t_3);
+        #else
+        {
+          PyObject *__pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_public_key_pem_2};
+          __pyx_t_3 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 1);
+          if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 409, __pyx_L7_error)
+          __Pyx_GOTREF(__pyx_t_3);
+        }
+        #endif
+        __pyx_t_1 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_3);
+        __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 409, __pyx_L7_error)
+        __Pyx_GOTREF(__pyx_t_1);
+      }
+      __Pyx_GIVEREF(__pyx_t_1);
+      __pyx_cur_scope->__pyx_v_crypto = __pyx_t_1;
+      __pyx_t_1 = 0;
+
+      /* "licensing/api.py":410
+ *         public_key_pem = _get_public_key()
+ *         crypto = LicenseCrypto(public_key_pem=public_key_pem)
+ *         license_data = crypto.verify_product_key(clean_key)             # <<<<<<<<<<<<<<
+ *     except ValueError as e:
+ *         raise HTTPException(status_code=400, detail=f"Invalid product key signature: {str(e)}")
+*/
+      __pyx_t_4 = __pyx_cur_scope->__pyx_v_crypto;
+      __Pyx_INCREF(__pyx_t_4);
+      __pyx_t_5 = 0;
+      {
+        PyObject *__pyx_callargs[2] = {__pyx_t_4, __pyx_cur_scope->__pyx_v_clean_key};
+        __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_verify_product_key, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 410, __pyx_L7_error)
+        __Pyx_GOTREF(__pyx_t_1);
+      }
+      __Pyx_GIVEREF(__pyx_t_1);
+      __pyx_cur_scope->__pyx_v_license_data = __pyx_t_1;
+      __pyx_t_1 = 0;
+
+      /* "licensing/api.py":407
+ *         raise HTTPException(status_code=403, detail="Invalid admin secret")
+ * 
+ *     try:             # <<<<<<<<<<<<<<
+ *         public_key_pem = _get_public_key()
+ *         crypto = LicenseCrypto(public_key_pem=public_key_pem)
+*/
+    }
+    __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
+    __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
+    __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
+    goto __pyx_L12_try_end;
+    __pyx_L7_error:;
+    __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+
+    /* "licensing/api.py":411
+ *         crypto = LicenseCrypto(public_key_pem=public_key_pem)
+ *         license_data = crypto.verify_product_key(clean_key)
+ *     except ValueError as e:             # <<<<<<<<<<<<<<
+ *         raise HTTPException(status_code=400, detail=f"Invalid product key signature: {str(e)}")
+ * 
+*/
+    __pyx_t_11 = __Pyx_PyErr_ExceptionMatches(((PyObject *)(((PyTypeObject*)PyExc_ValueError))));
+    if (__pyx_t_11) {
+      __Pyx_AddTraceback("licensing.api.register_license", __pyx_clineno, __pyx_lineno, __pyx_filename);
+      if (__Pyx_GetException(&__pyx_t_1, &__pyx_t_4, &__pyx_t_3) < 0) __PYX_ERR(0, 411, __pyx_L9_except_error)
+      __Pyx_XGOTREF(__pyx_t_1);
+      __Pyx_XGOTREF(__pyx_t_4);
+      __Pyx_XGOTREF(__pyx_t_3);
+      __Pyx_INCREF(__pyx_t_4);
+      __Pyx_GIVEREF(__pyx_t_4);
+      __pyx_cur_scope->__pyx_v_e = ((PyObject*)__pyx_t_4);
+      /*try:*/ {
+
+        /* "licensing/api.py":412
+ *         license_data = crypto.verify_product_key(clean_key)
+ *     except ValueError as e:
+ *         raise HTTPException(status_code=400, detail=f"Invalid product key signature: {str(e)}")             # <<<<<<<<<<<<<<
+ * 
+ *     existing = db.query(ProductLicense).filter(
+*/
+        __pyx_t_12 = NULL;
+        __Pyx_GetModuleGlobalName(__pyx_t_13, __pyx_mstate_global->__pyx_n_u_HTTPException); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 412, __pyx_L18_error)
+        __Pyx_GOTREF(__pyx_t_13);
+        __pyx_t_14 = __Pyx_PyObject_Unicode(__pyx_cur_scope->__pyx_v_e); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 412, __pyx_L18_error)
+        __Pyx_GOTREF(__pyx_t_14);
+        __pyx_t_15 = __Pyx_PyUnicode_Concat(__pyx_mstate_global->__pyx_kp_u_Invalid_product_key_signature, __pyx_t_14); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 412, __pyx_L18_error)
+        __Pyx_GOTREF(__pyx_t_15);
+        __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+        __pyx_t_5 = 1;
+        #if CYTHON_UNPACK_METHODS
+        if (unlikely(PyMethod_Check(__pyx_t_13))) {
+          __pyx_t_12 = PyMethod_GET_SELF(__pyx_t_13);
+          assert(__pyx_t_12);
+          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_13);
+          __Pyx_INCREF(__pyx_t_12);
+          __Pyx_INCREF(__pyx__function);
+          __Pyx_DECREF_SET(__pyx_t_13, __pyx__function);
+          __pyx_t_5 = 0;
+        }
+        #endif
+        {
+          PyObject *__pyx_callargs[3] = {__pyx_t_12, __pyx_mstate_global->__pyx_int_400, __pyx_t_15};
+          #if CYTHON_VECTORCALL
+          __pyx_t_14 = __pyx_mstate_global->__pyx_tuple[2];
+          if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 412, __pyx_L18_error)
+          __Pyx_INCREF(__pyx_t_14);
+          #else
+          {
+            PyObject *__pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_status_code, __pyx_mstate_global->__pyx_n_u_detail};
+            __pyx_t_14 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
+            if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 412, __pyx_L18_error)
+            __Pyx_GOTREF(__pyx_t_14);
+          }
+          #endif
+          __pyx_t_2 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_13, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_14);
+          __Pyx_XDECREF(__pyx_t_12); __pyx_t_12 = 0;
+          __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
+          __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+          __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 412, __pyx_L18_error)
+          __Pyx_GOTREF(__pyx_t_2);
+        }
+        __Pyx_Raise(__pyx_t_2, 0, 0, 0);
+        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __PYX_ERR(0, 412, __pyx_L18_error)
+      }
+
+      /* "licensing/api.py":411
+ *         crypto = LicenseCrypto(public_key_pem=public_key_pem)
+ *         license_data = crypto.verify_product_key(clean_key)
+ *     except ValueError as e:             # <<<<<<<<<<<<<<
+ *         raise HTTPException(status_code=400, detail=f"Invalid product key signature: {str(e)}")
+ * 
+*/
+      /*finally:*/ {
+        __pyx_L18_error:;
+        /*exception exit:*/{
+          __Pyx_PyThreadState_assign
+          __pyx_t_18 = 0; __pyx_t_19 = 0; __pyx_t_20 = 0; __pyx_t_21 = 0; __pyx_t_22 = 0; __pyx_t_23 = 0;
+          __Pyx_XDECREF(__pyx_t_12); __pyx_t_12 = 0;
+          __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
+          __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
+          __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
+          __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+           __Pyx_ExceptionSwap(&__pyx_t_21, &__pyx_t_22, &__pyx_t_23);
+          if ( unlikely(__Pyx_GetException(&__pyx_t_18, &__pyx_t_19, &__pyx_t_20) < 0)) __Pyx_ErrFetch(&__pyx_t_18, &__pyx_t_19, &__pyx_t_20);
+          __Pyx_XGOTREF(__pyx_t_18);
+          __Pyx_XGOTREF(__pyx_t_19);
+          __Pyx_XGOTREF(__pyx_t_20);
+          __Pyx_XGOTREF(__pyx_t_21);
+          __Pyx_XGOTREF(__pyx_t_22);
+          __Pyx_XGOTREF(__pyx_t_23);
+          __pyx_t_11 = __pyx_lineno; __pyx_t_16 = __pyx_clineno; __pyx_t_17 = __pyx_filename;
+          {
+            __Pyx_GOTREF(__pyx_cur_scope->__pyx_v_e);
+            __Pyx_DECREF(__pyx_cur_scope->__pyx_v_e); __pyx_cur_scope->__pyx_v_e = 0;
+          }
+          __Pyx_XGIVEREF(__pyx_t_21);
+          __Pyx_XGIVEREF(__pyx_t_22);
+          __Pyx_XGIVEREF(__pyx_t_23);
+          __Pyx_ExceptionReset(__pyx_t_21, __pyx_t_22, __pyx_t_23);
+          __Pyx_XGIVEREF(__pyx_t_18);
+          __Pyx_XGIVEREF(__pyx_t_19);
+          __Pyx_XGIVEREF(__pyx_t_20);
+          __Pyx_ErrRestore(__pyx_t_18, __pyx_t_19, __pyx_t_20);
+          __pyx_t_18 = 0; __pyx_t_19 = 0; __pyx_t_20 = 0; __pyx_t_21 = 0; __pyx_t_22 = 0; __pyx_t_23 = 0;
+          __pyx_lineno = __pyx_t_11; __pyx_clineno = __pyx_t_16; __pyx_filename = __pyx_t_17;
+          goto __pyx_L9_except_error;
+        }
+      }
+    }
+    goto __pyx_L9_except_error;
+
+    /* "licensing/api.py":407
+ *         raise HTTPException(status_code=403, detail="Invalid admin secret")
+ * 
+ *     try:             # <<<<<<<<<<<<<<
+ *         public_key_pem = _get_public_key()
+ *         crypto = LicenseCrypto(public_key_pem=public_key_pem)
+*/
+    __pyx_L9_except_error:;
+    __Pyx_XGIVEREF(__pyx_t_8);
+    __Pyx_XGIVEREF(__pyx_t_9);
+    __Pyx_XGIVEREF(__pyx_t_10);
+    __Pyx_ExceptionReset(__pyx_t_8, __pyx_t_9, __pyx_t_10);
+    goto __pyx_L1_error;
+    __pyx_L12_try_end:;
+  }
+
+  /* "licensing/api.py":414
+ *         raise HTTPException(status_code=400, detail=f"Invalid product key signature: {str(e)}")
+ * 
+ *     existing = db.query(ProductLicense).filter(             # <<<<<<<<<<<<<<
+ *         ProductLicense.product_key == clean_key
+ *     ).first()
+*/
+  __pyx_t_14 = __pyx_cur_scope->__pyx_v_db;
+  __Pyx_INCREF(__pyx_t_14);
+  __Pyx_GetModuleGlobalName(__pyx_t_15, __pyx_mstate_global->__pyx_n_u_ProductLicense); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 414, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_15);
+  __pyx_t_5 = 0;
+  {
+    PyObject *__pyx_callargs[2] = {__pyx_t_14, __pyx_t_15};
+    __pyx_t_13 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_query, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
+    __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
+    if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 414, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_13);
+  }
+  __pyx_t_2 = __pyx_t_13;
+  __Pyx_INCREF(__pyx_t_2);
+
+  /* "licensing/api.py":415
+ * 
+ *     existing = db.query(ProductLicense).filter(
+ *         ProductLicense.product_key == clean_key             # <<<<<<<<<<<<<<
+ *     ).first()
+ * 
+*/
+  __Pyx_GetModuleGlobalName(__pyx_t_15, __pyx_mstate_global->__pyx_n_u_ProductLicense); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 415, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_15);
+  __pyx_t_14 = __Pyx_PyObject_GetAttrStr(__pyx_t_15, __pyx_mstate_global->__pyx_n_u_product_key); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 415, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_14);
+  __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
+  __pyx_t_15 = __Pyx_PyObject_CompareEq_object_object(__pyx_t_14, __pyx_cur_scope->__pyx_v_clean_key, Py_EQ); __Pyx_XGOTREF(__pyx_t_15); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 415, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+  __pyx_t_5 = 0;
+  {
+    PyObject *__pyx_callargs[2] = {__pyx_t_2, __pyx_t_15};
+    __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_filter, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
+    __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 414, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+  }
+  __pyx_t_4 = __pyx_t_1;
+  __Pyx_INCREF(__pyx_t_4);
+  __pyx_t_5 = 0;
+  {
+    PyObject *__pyx_callargs[2] = {__pyx_t_4, NULL};
+    __pyx_t_3 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_first, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 416, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+  }
+  __Pyx_GIVEREF(__pyx_t_3);
+  __pyx_cur_scope->__pyx_v_existing = __pyx_t_3;
+  __pyx_t_3 = 0;
+
+  /* "licensing/api.py":418
+ *     ).first()
+ * 
+ *     if existing:             # <<<<<<<<<<<<<<
+ *         return RegisterLicenseResponse(
+ *             success=True,
+*/
+  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_cur_scope->__pyx_v_existing); if (unlikely((__pyx_t_6 < 0))) __PYX_ERR(0, 418, __pyx_L1_error)
+  if (__pyx_t_6) {
+
+
+    /* "licensing/api.py":419
+ * 
+ *     if existing:
+ *         return RegisterLicenseResponse(             # <<<<<<<<<<<<<<
+ *             success=True,
+ *             message="License already registered",
+*/
+    __pyx_t_1 = NULL;
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_RegisterLicenseResponse); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 419, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+
+    /* "licensing/api.py":422
+ *             success=True,
+ *             message="License already registered",
+ *             license_id=existing.id             # <<<<<<<<<<<<<<
+ *         )
+ * 
+*/
+    __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_existing, __pyx_mstate_global->__pyx_n_u_id); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 422, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_13);
+    __pyx_t_5 = 1;
+    #if CYTHON_UNPACK_METHODS
+    if (unlikely(PyMethod_Check(__pyx_t_4))) {
+      __pyx_t_1 = PyMethod_GET_SELF(__pyx_t_4);
+      assert(__pyx_t_1);
+      PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_4);
+      __Pyx_INCREF(__pyx_t_1);
+      __Pyx_INCREF(__pyx__function);
+      __Pyx_DECREF_SET(__pyx_t_4, __pyx__function);
+      __pyx_t_5 = 0;
+    }
+    #endif
+    {
+      PyObject *__pyx_callargs[4] = {__pyx_t_1, Py_True, __pyx_mstate_global->__pyx_kp_u_License_already_registered, __pyx_t_13};
+      #if CYTHON_VECTORCALL
+      __pyx_t_15 = __pyx_mstate_global->__pyx_tuple[14];
+      if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 419, __pyx_L1_error)
+      __Pyx_INCREF(__pyx_t_15);
+      #else
+      {
+        PyObject *__pyx_temp[3] = {__pyx_mstate_global->__pyx_n_u_success, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_n_u_license_id};
+        __pyx_t_15 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 3);
+        if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 419, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_15);
+      }
+      #endif
+      __pyx_t_3 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_15);
+      __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+      __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+      __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+      if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 419, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_3);
+    }
+    {
+      PyObject *__pyx_temp;
+      {
+        __pyx_temp = __pyx_r;
+        __pyx_r = __pyx_t_3;
+      }
+      __Pyx_XDECREF(__pyx_temp);
+    }
+    __pyx_t_3 = 0;
+    goto __pyx_L0;
+
+    /* "licensing/api.py":418
+ *     ).first()
+ * 
+ *     if existing:             # <<<<<<<<<<<<<<
+ *         return RegisterLicenseResponse(
+ *             success=True,
+*/
+  }
+
+  /* "licensing/api.py":425
+ *         )
+ * 
+ *     try:             # <<<<<<<<<<<<<<
+ *         try:
+ *             expiry_dt = datetime.fromisoformat(license_data.get("expiry", ""))
+*/
+  {
+    __Pyx_ExceptionSave(&__pyx_t_10, &__pyx_t_9, &__pyx_t_8);
+    __Pyx_XGOTREF(__pyx_t_10);
+    __Pyx_XGOTREF(__pyx_t_9);
+    __Pyx_XGOTREF(__pyx_t_8);
+    /*try:*/ {
+
+      /* "licensing/api.py":426
+ * 
+ *     try:
+ *         try:             # <<<<<<<<<<<<<<
+ *             expiry_dt = datetime.fromisoformat(license_data.get("expiry", ""))
+ *         except Exception:
+*/
+      {
+        __Pyx_ExceptionSave(&__pyx_t_23, &__pyx_t_22, &__pyx_t_21);
+        __Pyx_XGOTREF(__pyx_t_23);
+        __Pyx_XGOTREF(__pyx_t_22);
+        __Pyx_XGOTREF(__pyx_t_21);
+        /*try:*/ {
+
+          /* "licensing/api.py":427
+ *     try:
+ *         try:
+ *             expiry_dt = datetime.fromisoformat(license_data.get("expiry", ""))             # <<<<<<<<<<<<<<
+ *         except Exception:
+ *             expiry_dt = datetime.now() + timedelta(days=request.expiry_days)
+*/
+          __pyx_t_4 = NULL;
+          __Pyx_GetModuleGlobalName(__pyx_t_15, __pyx_mstate_global->__pyx_n_u_datetime); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 427, __pyx_L31_error)
+          __Pyx_GOTREF(__pyx_t_15);
+          __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_15, __pyx_mstate_global->__pyx_n_u_fromisoformat); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 427, __pyx_L31_error)
+          __Pyx_GOTREF(__pyx_t_13);
+          __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
+          __pyx_t_15 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_data, __pyx_mstate_global->__pyx_n_u_get); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 427, __pyx_L31_error)
+          __Pyx_GOTREF(__pyx_t_15);
+          __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_15, __pyx_mstate_global->__pyx_tuple[15], NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 427, __pyx_L31_error)
+          __Pyx_GOTREF(__pyx_t_1);
+          __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
+          __pyx_t_5 = 1;
+          #if CYTHON_UNPACK_METHODS
+          if (unlikely(PyMethod_Check(__pyx_t_13))) {
+            __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_13);
+            assert(__pyx_t_4);
+            PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_13);
+            __Pyx_INCREF(__pyx_t_4);
+            __Pyx_INCREF(__pyx__function);
+            __Pyx_DECREF_SET(__pyx_t_13, __pyx__function);
+            __pyx_t_5 = 0;
+          }
+          #endif
+          {
+            PyObject *__pyx_callargs[2] = {__pyx_t_4, __pyx_t_1};
+            __pyx_t_3 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_13, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+            __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+            __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+            __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+            if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 427, __pyx_L31_error)
+            __Pyx_GOTREF(__pyx_t_3);
+          }
+          __Pyx_GIVEREF(__pyx_t_3);
+          __pyx_cur_scope->__pyx_v_expiry_dt = __pyx_t_3;
+          __pyx_t_3 = 0;
+
+          /* "licensing/api.py":426
+ * 
+ *     try:
+ *         try:             # <<<<<<<<<<<<<<
+ *             expiry_dt = datetime.fromisoformat(license_data.get("expiry", ""))
+ *         except Exception:
+*/
+        }
+        __Pyx_XDECREF(__pyx_t_23); __pyx_t_23 = 0;
+        __Pyx_XDECREF(__pyx_t_22); __pyx_t_22 = 0;
+        __Pyx_XDECREF(__pyx_t_21); __pyx_t_21 = 0;
+        goto __pyx_L36_try_end;
+        __pyx_L31_error:;
+        __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __Pyx_XDECREF(__pyx_t_12); __pyx_t_12 = 0;
+        __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
+        __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
+        __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
+        __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+
+        /* "licensing/api.py":428
+ *         try:
+ *             expiry_dt = datetime.fromisoformat(license_data.get("expiry", ""))
+ *         except Exception:             # <<<<<<<<<<<<<<
+ *             expiry_dt = datetime.now() + timedelta(days=request.expiry_days)
+ * 
+*/
+        __pyx_t_16 = __Pyx_PyErr_ExceptionMatches(((PyObject *)(((PyTypeObject*)PyExc_Exception))));
+        if (__pyx_t_16) {
+          __Pyx_AddTraceback("licensing.api.register_license", __pyx_clineno, __pyx_lineno, __pyx_filename);
+          if (__Pyx_GetException(&__pyx_t_3, &__pyx_t_13, &__pyx_t_1) < 0) __PYX_ERR(0, 428, __pyx_L33_except_error)
+          __Pyx_XGOTREF(__pyx_t_3);
+          __Pyx_XGOTREF(__pyx_t_13);
+          __Pyx_XGOTREF(__pyx_t_1);
+
+          /* "licensing/api.py":429
+ *             expiry_dt = datetime.fromisoformat(license_data.get("expiry", ""))
+ *         except Exception:
+ *             expiry_dt = datetime.now() + timedelta(days=request.expiry_days)             # <<<<<<<<<<<<<<
+ * 
+ *         license_record = ProductLicense(
+*/
+          __pyx_t_15 = NULL;
+          __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_datetime); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 429, __pyx_L33_except_error)
+          __Pyx_GOTREF(__pyx_t_2);
+          __pyx_t_14 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_now); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 429, __pyx_L33_except_error)
+          __Pyx_GOTREF(__pyx_t_14);
+          __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+          __pyx_t_5 = 1;
+          #if CYTHON_UNPACK_METHODS
+          if (unlikely(PyMethod_Check(__pyx_t_14))) {
+            __pyx_t_15 = PyMethod_GET_SELF(__pyx_t_14);
+            assert(__pyx_t_15);
+            PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_14);
+            __Pyx_INCREF(__pyx_t_15);
+            __Pyx_INCREF(__pyx__function);
+            __Pyx_DECREF_SET(__pyx_t_14, __pyx__function);
+            __pyx_t_5 = 0;
+          }
+          #endif
+          {
+            PyObject *__pyx_callargs[2] = {__pyx_t_15, NULL};
+            __pyx_t_4 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_14, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+            __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
+            __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+            if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 429, __pyx_L33_except_error)
+            __Pyx_GOTREF(__pyx_t_4);
+          }
+          __pyx_t_15 = NULL;
+          __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_timedelta); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 429, __pyx_L33_except_error)
+          __Pyx_GOTREF(__pyx_t_2);
+          __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_expiry_days); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 429, __pyx_L33_except_error)
+          __Pyx_GOTREF(__pyx_t_12);
+          __pyx_t_5 = 1;
+          #if CYTHON_UNPACK_METHODS
+          if (unlikely(PyMethod_Check(__pyx_t_2))) {
+            __pyx_t_15 = PyMethod_GET_SELF(__pyx_t_2);
+            assert(__pyx_t_15);
+            PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_2);
+            __Pyx_INCREF(__pyx_t_15);
+            __Pyx_INCREF(__pyx__function);
+            __Pyx_DECREF_SET(__pyx_t_2, __pyx__function);
+            __pyx_t_5 = 0;
+          }
+          #endif
+          {
+            PyObject *__pyx_callargs[2] = {__pyx_t_15, __pyx_t_12};
+            #if CYTHON_VECTORCALL
+            __pyx_t_24 = __pyx_mstate_global->__pyx_tuple[3];
+            if (unlikely(!__pyx_t_24)) __PYX_ERR(0, 429, __pyx_L33_except_error)
+            __Pyx_INCREF(__pyx_t_24);
+            #else
+            {
+              PyObject *__pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_days};
+              __pyx_t_24 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 1);
+              if (unlikely(!__pyx_t_24)) __PYX_ERR(0, 429, __pyx_L33_except_error)
+              __Pyx_GOTREF(__pyx_t_24);
+            }
+            #endif
+            __pyx_t_14 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_2, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_24);
+            __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
+            __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
+            __Pyx_DECREF(__pyx_t_24); __pyx_t_24 = 0;
+            __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+            if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 429, __pyx_L33_except_error)
+            __Pyx_GOTREF(__pyx_t_14);
+          }
+          __pyx_t_2 = __Pyx_PyNumber_Add_object_object(__pyx_t_4, __pyx_t_14); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 429, __pyx_L33_except_error)
+          __Pyx_GOTREF(__pyx_t_2);
+          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+          __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+          __Pyx_XGOTREF(__pyx_cur_scope->__pyx_v_expiry_dt);
+          __Pyx_XDECREF_SET(__pyx_cur_scope->__pyx_v_expiry_dt, __pyx_t_2);
+          __Pyx_GIVEREF(__pyx_t_2);
+          __pyx_t_2 = 0;
+          __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+          __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
+          __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+          goto __pyx_L32_exception_handled;
+        }
+        goto __pyx_L33_except_error;
+
+        /* "licensing/api.py":426
+ * 
+ *     try:
+ *         try:             # <<<<<<<<<<<<<<
+ *             expiry_dt = datetime.fromisoformat(license_data.get("expiry", ""))
+ *         except Exception:
+*/
+        __pyx_L33_except_error:;
+        __Pyx_XGIVEREF(__pyx_t_23);
+        __Pyx_XGIVEREF(__pyx_t_22);
+        __Pyx_XGIVEREF(__pyx_t_21);
+        __Pyx_ExceptionReset(__pyx_t_23, __pyx_t_22, __pyx_t_21);
+        goto __pyx_L25_error;
+        __pyx_L32_exception_handled:;
+        __Pyx_XGIVEREF(__pyx_t_23);
+        __Pyx_XGIVEREF(__pyx_t_22);
+        __Pyx_XGIVEREF(__pyx_t_21);
+        __Pyx_ExceptionReset(__pyx_t_23, __pyx_t_22, __pyx_t_21);
+        __pyx_L36_try_end:;
+      }
+
+      /* "licensing/api.py":431
+ *             expiry_dt = datetime.now() + timedelta(days=request.expiry_days)
+ * 
+ *         license_record = ProductLicense(             # <<<<<<<<<<<<<<
+ *             product_key=clean_key,
+ *             product_name=request.product_name,
+*/
+      __pyx_t_13 = NULL;
+      __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_ProductLicense); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 431, __pyx_L25_error)
+      __Pyx_GOTREF(__pyx_t_3);
+
+      /* "licensing/api.py":433
+ *         license_record = ProductLicense(
+ *             product_key=clean_key,
+ *             product_name=request.product_name,             # <<<<<<<<<<<<<<
+ *             version=request.version,
+ *             credits=request.credits,
+*/
+      __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_product_name); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 433, __pyx_L25_error)
+      __Pyx_GOTREF(__pyx_t_2);
+
+      /* "licensing/api.py":434
+ *             product_key=clean_key,
+ *             product_name=request.product_name,
+ *             version=request.version,             # <<<<<<<<<<<<<<
+ *             credits=request.credits,
+ *             expiry_date=expiry_dt,
+*/
+      __pyx_t_14 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_version); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 434, __pyx_L25_error)
+      __Pyx_GOTREF(__pyx_t_14);
+
+      /* "licensing/api.py":435
+ *             product_name=request.product_name,
+ *             version=request.version,
+ *             credits=request.credits,             # <<<<<<<<<<<<<<
+ *             expiry_date=expiry_dt,
+ *             license_metadata=json.dumps(request.metadata) if request.metadata else None,
+*/
+      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_credits); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 435, __pyx_L25_error)
+      __Pyx_GOTREF(__pyx_t_4);
+
+      /* "licensing/api.py":437
+ *             credits=request.credits,
+ *             expiry_date=expiry_dt,
+ *             license_metadata=json.dumps(request.metadata) if request.metadata else None,             # <<<<<<<<<<<<<<
+ *             is_active=True
+ *         )
+*/
+      __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_metadata); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 437, __pyx_L25_error)
+      __Pyx_GOTREF(__pyx_t_12);
+      __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_12); if (unlikely((__pyx_t_6 < 0))) __PYX_ERR(0, 437, __pyx_L25_error)
+      __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
+      if (__pyx_t_6) {
+        __pyx_t_15 = NULL;
+        __Pyx_GetModuleGlobalName(__pyx_t_25, __pyx_mstate_global->__pyx_n_u_json); if (unlikely(!__pyx_t_25)) __PYX_ERR(0, 437, __pyx_L25_error)
+        __Pyx_GOTREF(__pyx_t_25);
+        __pyx_t_26 = __Pyx_PyObject_GetAttrStr(__pyx_t_25, __pyx_mstate_global->__pyx_n_u_dumps); if (unlikely(!__pyx_t_26)) __PYX_ERR(0, 437, __pyx_L25_error)
+        __Pyx_GOTREF(__pyx_t_26);
+        __Pyx_DECREF(__pyx_t_25); __pyx_t_25 = 0;
+        __pyx_t_25 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_metadata); if (unlikely(!__pyx_t_25)) __PYX_ERR(0, 437, __pyx_L25_error)
+        __Pyx_GOTREF(__pyx_t_25);
+        __pyx_t_5 = 1;
+        #if CYTHON_UNPACK_METHODS
+        if (unlikely(PyMethod_Check(__pyx_t_26))) {
+          __pyx_t_15 = PyMethod_GET_SELF(__pyx_t_26);
+          assert(__pyx_t_15);
+          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_26);
+          __Pyx_INCREF(__pyx_t_15);
+          __Pyx_INCREF(__pyx__function);
+          __Pyx_DECREF_SET(__pyx_t_26, __pyx__function);
+          __pyx_t_5 = 0;
+        }
+        #endif
+        {
+          PyObject *__pyx_callargs[2] = {__pyx_t_15, __pyx_t_25};
+          __pyx_t_12 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_26, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+          __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
+          __Pyx_DECREF(__pyx_t_25); __pyx_t_25 = 0;
+          __Pyx_DECREF(__pyx_t_26); __pyx_t_26 = 0;
+          if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 437, __pyx_L25_error)
+          __Pyx_GOTREF(__pyx_t_12);
+        }
+        __pyx_t_24 = __pyx_t_12;
+        __pyx_t_12 = 0;
+      } else {
+        __Pyx_INCREF(Py_None);
+        __pyx_t_24 = Py_None;
+      }
+
+
+      /* "licensing/api.py":438
+ *             expiry_date=expiry_dt,
+ *             license_metadata=json.dumps(request.metadata) if request.metadata else None,
+ *             is_active=True             # <<<<<<<<<<<<<<
+ *         )
+ *         db.add(license_record)
+*/
+      __pyx_t_5 = 1;
+      #if CYTHON_UNPACK_METHODS
+      if (unlikely(PyMethod_Check(__pyx_t_3))) {
+        __pyx_t_13 = PyMethod_GET_SELF(__pyx_t_3);
+        assert(__pyx_t_13);
+        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_3);
+        __Pyx_INCREF(__pyx_t_13);
+        __Pyx_INCREF(__pyx__function);
+        __Pyx_DECREF_SET(__pyx_t_3, __pyx__function);
+        __pyx_t_5 = 0;
+      }
+      #endif
+      {
+        PyObject *__pyx_callargs[8] = {__pyx_t_13, __pyx_cur_scope->__pyx_v_clean_key, __pyx_t_2, __pyx_t_14, __pyx_t_4, __pyx_cur_scope->__pyx_v_expiry_dt, __pyx_t_24, Py_True};
+        #if CYTHON_VECTORCALL
+        __pyx_t_12 = __pyx_mstate_global->__pyx_tuple[5];
+        if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 431, __pyx_L25_error)
+        __Pyx_INCREF(__pyx_t_12);
+        #else
+        {
+          PyObject *__pyx_temp[7] = {__pyx_mstate_global->__pyx_n_u_product_key, __pyx_mstate_global->__pyx_n_u_product_name, __pyx_mstate_global->__pyx_n_u_version, __pyx_mstate_global->__pyx_n_u_credits, __pyx_mstate_global->__pyx_n_u_expiry_date, __pyx_mstate_global->__pyx_n_u_license_metadata, __pyx_mstate_global->__pyx_n_u_is_active};
+          __pyx_t_12 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 7);
+          if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 431, __pyx_L25_error)
+          __Pyx_GOTREF(__pyx_t_12);
+        }
+        #endif
+        __pyx_t_1 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_3, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_12);
+        __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
+        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+        __Pyx_DECREF(__pyx_t_24); __pyx_t_24 = 0;
+        __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 431, __pyx_L25_error)
+        __Pyx_GOTREF(__pyx_t_1);
+      }
+      __Pyx_GIVEREF(__pyx_t_1);
+      __pyx_cur_scope->__pyx_v_license_record = __pyx_t_1;
+      __pyx_t_1 = 0;
+
+      /* "licensing/api.py":440
+ *             is_active=True
+ *         )
+ *         db.add(license_record)             # <<<<<<<<<<<<<<
+ *         db.commit()
+ *         db.refresh(license_record)
+*/
+      __pyx_t_3 = __pyx_cur_scope->__pyx_v_db;
+      __Pyx_INCREF(__pyx_t_3);
+      __pyx_t_5 = 0;
+      {
+        PyObject *__pyx_callargs[2] = {__pyx_t_3, __pyx_cur_scope->__pyx_v_license_record};
+        __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_add, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 440, __pyx_L25_error)
+        __Pyx_GOTREF(__pyx_t_1);
+      }
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+      /* "licensing/api.py":441
+ *         )
+ *         db.add(license_record)
+ *         db.commit()             # <<<<<<<<<<<<<<
+ *         db.refresh(license_record)
+ * 
+*/
+      __pyx_t_3 = __pyx_cur_scope->__pyx_v_db;
+      __Pyx_INCREF(__pyx_t_3);
+      __pyx_t_5 = 0;
+      {
+        PyObject *__pyx_callargs[2] = {__pyx_t_3, NULL};
+        __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_commit, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 441, __pyx_L25_error)
+        __Pyx_GOTREF(__pyx_t_1);
+      }
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+      /* "licensing/api.py":442
+ *         db.add(license_record)
+ *         db.commit()
+ *         db.refresh(license_record)             # <<<<<<<<<<<<<<
+ * 
+ *         return RegisterLicenseResponse(
+*/
+      __pyx_t_3 = __pyx_cur_scope->__pyx_v_db;
+      __Pyx_INCREF(__pyx_t_3);
+      __pyx_t_5 = 0;
+      {
+        PyObject *__pyx_callargs[2] = {__pyx_t_3, __pyx_cur_scope->__pyx_v_license_record};
+        __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_refresh, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 442, __pyx_L25_error)
+        __Pyx_GOTREF(__pyx_t_1);
+      }
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+      /* "licensing/api.py":444
+ *         db.refresh(license_record)
+ * 
+ *         return RegisterLicenseResponse(             # <<<<<<<<<<<<<<
+ *             success=True,
+ *             message="License registered successfully",
+*/
+      __pyx_t_3 = NULL;
+      __Pyx_GetModuleGlobalName(__pyx_t_12, __pyx_mstate_global->__pyx_n_u_RegisterLicenseResponse); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 444, __pyx_L25_error)
+      __Pyx_GOTREF(__pyx_t_12);
+
+      /* "licensing/api.py":447
+ *             success=True,
+ *             message="License registered successfully",
+ *             license_id=license_record.id             # <<<<<<<<<<<<<<
+ *         )
+ *     except Exception as e:
+*/
+      __pyx_t_24 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_license_record, __pyx_mstate_global->__pyx_n_u_id); if (unlikely(!__pyx_t_24)) __PYX_ERR(0, 447, __pyx_L25_error)
+      __Pyx_GOTREF(__pyx_t_24);
+      __pyx_t_5 = 1;
+      #if CYTHON_UNPACK_METHODS
+      if (unlikely(PyMethod_Check(__pyx_t_12))) {
+        __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_12);
+        assert(__pyx_t_3);
+        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_12);
+        __Pyx_INCREF(__pyx_t_3);
+        __Pyx_INCREF(__pyx__function);
+        __Pyx_DECREF_SET(__pyx_t_12, __pyx__function);
+        __pyx_t_5 = 0;
+      }
+      #endif
+      {
+        PyObject *__pyx_callargs[4] = {__pyx_t_3, Py_True, __pyx_mstate_global->__pyx_kp_u_License_registered_successfully, __pyx_t_24};
+        #if CYTHON_VECTORCALL
+        __pyx_t_4 = __pyx_mstate_global->__pyx_tuple[14];
+        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 444, __pyx_L25_error)
+        __Pyx_INCREF(__pyx_t_4);
+        #else
+        {
+          PyObject *__pyx_temp[3] = {__pyx_mstate_global->__pyx_n_u_success, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_n_u_license_id};
+          __pyx_t_4 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 3);
+          if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 444, __pyx_L25_error)
+          __Pyx_GOTREF(__pyx_t_4);
+        }
+        #endif
+        __pyx_t_1 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_12, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_4);
+        __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+        __Pyx_DECREF(__pyx_t_24); __pyx_t_24 = 0;
+        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+        __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 444, __pyx_L25_error)
+        __Pyx_GOTREF(__pyx_t_1);
+      }
+      {
+        PyObject *__pyx_temp;
+        {
+          __pyx_temp = __pyx_r;
+          __pyx_r = __pyx_t_1;
+        }
+        __Pyx_XDECREF(__pyx_temp);
+      }
+      __pyx_t_1 = 0;
+      goto __pyx_L29_try_return;
+
+      /* "licensing/api.py":425
+ *         )
+ * 
+ *     try:             # <<<<<<<<<<<<<<
+ *         try:
+ *             expiry_dt = datetime.fromisoformat(license_data.get("expiry", ""))
+*/
+    }
+    __pyx_L25_error:;
+    __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __Pyx_XDECREF(__pyx_t_12); __pyx_t_12 = 0;
+    __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
+    __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
+    __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
+    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __Pyx_XDECREF(__pyx_t_24); __pyx_t_24 = 0;
+    __Pyx_XDECREF(__pyx_t_25); __pyx_t_25 = 0;
+    __Pyx_XDECREF(__pyx_t_26); __pyx_t_26 = 0;
+    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+
+    /* "licensing/api.py":449
+ *             license_id=license_record.id
+ *         )
+ *     except Exception as e:             # <<<<<<<<<<<<<<
+ *         db.rollback()
+ *         raise HTTPException(status_code=500, detail=f"Registration failed: {str(e)}")
+*/
+    __pyx_t_16 = __Pyx_PyErr_ExceptionMatches(((PyObject *)(((PyTypeObject*)PyExc_Exception))));
+    if (__pyx_t_16) {
+      __Pyx_AddTraceback("licensing.api.register_license", __pyx_clineno, __pyx_lineno, __pyx_filename);
+      if (__Pyx_GetException(&__pyx_t_1, &__pyx_t_12, &__pyx_t_4) < 0) __PYX_ERR(0, 449, __pyx_L27_except_error)
+      __Pyx_XGOTREF(__pyx_t_1);
+      __Pyx_XGOTREF(__pyx_t_12);
+      __Pyx_XGOTREF(__pyx_t_4);
+      __Pyx_INCREF(__pyx_t_12);
+      __Pyx_GIVEREF(__pyx_t_12);
+      __pyx_cur_scope->__pyx_v_e = __pyx_t_12;
+      /*try:*/ {
+
+        /* "licensing/api.py":450
+ *         )
+ *     except Exception as e:
+ *         db.rollback()             # <<<<<<<<<<<<<<
+ *         raise HTTPException(status_code=500, detail=f"Registration failed: {str(e)}")
+*/
+        __pyx_t_3 = __pyx_cur_scope->__pyx_v_db;
+        __Pyx_INCREF(__pyx_t_3);
+        __pyx_t_5 = 0;
+        {
+          PyObject *__pyx_callargs[2] = {__pyx_t_3, NULL};
+          __pyx_t_24 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_rollback, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+          __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+          if (unlikely(!__pyx_t_24)) __PYX_ERR(0, 450, __pyx_L44_error)
+          __Pyx_GOTREF(__pyx_t_24);
+        }
+        __Pyx_DECREF(__pyx_t_24); __pyx_t_24 = 0;
+
+        /* "licensing/api.py":451
+ *     except Exception as e:
+ *         db.rollback()
+ *         raise HTTPException(status_code=500, detail=f"Registration failed: {str(e)}")             # <<<<<<<<<<<<<<
+*/
+        __pyx_t_3 = NULL;
+        __Pyx_GetModuleGlobalName(__pyx_t_14, __pyx_mstate_global->__pyx_n_u_HTTPException); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 451, __pyx_L44_error)
+        __Pyx_GOTREF(__pyx_t_14);
+        __pyx_t_2 = __Pyx_PyObject_Unicode(__pyx_cur_scope->__pyx_v_e); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 451, __pyx_L44_error)
+        __Pyx_GOTREF(__pyx_t_2);
+        __pyx_t_13 = __Pyx_PyUnicode_Concat(__pyx_mstate_global->__pyx_kp_u_Registration_failed, __pyx_t_2); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 451, __pyx_L44_error)
+        __Pyx_GOTREF(__pyx_t_13);
+        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __pyx_t_5 = 1;
+        #if CYTHON_UNPACK_METHODS
+        if (unlikely(PyMethod_Check(__pyx_t_14))) {
+          __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_14);
+          assert(__pyx_t_3);
+          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_14);
+          __Pyx_INCREF(__pyx_t_3);
+          __Pyx_INCREF(__pyx__function);
+          __Pyx_DECREF_SET(__pyx_t_14, __pyx__function);
+          __pyx_t_5 = 0;
+        }
+        #endif
+        {
+          PyObject *__pyx_callargs[3] = {__pyx_t_3, __pyx_mstate_global->__pyx_int_500, __pyx_t_13};
+          #if CYTHON_VECTORCALL
+          __pyx_t_2 = __pyx_mstate_global->__pyx_tuple[2];
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 451, __pyx_L44_error)
+          __Pyx_INCREF(__pyx_t_2);
+          #else
+          {
+            PyObject *__pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_status_code, __pyx_mstate_global->__pyx_n_u_detail};
+            __pyx_t_2 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
+            if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 451, __pyx_L44_error)
+            __Pyx_GOTREF(__pyx_t_2);
+          }
+          #endif
+          __pyx_t_24 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_14, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_2);
+          __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+          __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+          __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+          __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+          if (unlikely(!__pyx_t_24)) __PYX_ERR(0, 451, __pyx_L44_error)
+          __Pyx_GOTREF(__pyx_t_24);
+        }
+        __Pyx_Raise(__pyx_t_24, 0, 0, 0);
+        __Pyx_DECREF(__pyx_t_24); __pyx_t_24 = 0;
+        __PYX_ERR(0, 451, __pyx_L44_error)
+      }
+
+      /* "licensing/api.py":449
+ *             license_id=license_record.id
+ *         )
+ *     except Exception as e:             # <<<<<<<<<<<<<<
+ *         db.rollback()
+ *         raise HTTPException(status_code=500, detail=f"Registration failed: {str(e)}")
+*/
+      /*finally:*/ {
+        __pyx_L44_error:;
+        /*exception exit:*/{
+          __Pyx_PyThreadState_assign
+          __pyx_t_21 = 0; __pyx_t_22 = 0; __pyx_t_23 = 0; __pyx_t_20 = 0; __pyx_t_19 = 0; __pyx_t_18 = 0;
+          __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
+          __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
+          __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
+          __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+          __Pyx_XDECREF(__pyx_t_24); __pyx_t_24 = 0;
+          __Pyx_XDECREF(__pyx_t_25); __pyx_t_25 = 0;
+          __Pyx_XDECREF(__pyx_t_26); __pyx_t_26 = 0;
+          __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+           __Pyx_ExceptionSwap(&__pyx_t_20, &__pyx_t_19, &__pyx_t_18);
+          if ( unlikely(__Pyx_GetException(&__pyx_t_21, &__pyx_t_22, &__pyx_t_23) < 0)) __Pyx_ErrFetch(&__pyx_t_21, &__pyx_t_22, &__pyx_t_23);
+          __Pyx_XGOTREF(__pyx_t_21);
+          __Pyx_XGOTREF(__pyx_t_22);
+          __Pyx_XGOTREF(__pyx_t_23);
+          __Pyx_XGOTREF(__pyx_t_20);
+          __Pyx_XGOTREF(__pyx_t_19);
+          __Pyx_XGOTREF(__pyx_t_18);
+          __pyx_t_16 = __pyx_lineno; __pyx_t_11 = __pyx_clineno; __pyx_t_17 = __pyx_filename;
+          {
+            __Pyx_GOTREF(__pyx_cur_scope->__pyx_v_e);
+            __Pyx_DECREF(__pyx_cur_scope->__pyx_v_e); __pyx_cur_scope->__pyx_v_e = 0;
+          }
+          __Pyx_XGIVEREF(__pyx_t_20);
+          __Pyx_XGIVEREF(__pyx_t_19);
+          __Pyx_XGIVEREF(__pyx_t_18);
+          __Pyx_ExceptionReset(__pyx_t_20, __pyx_t_19, __pyx_t_18);
+          __Pyx_XGIVEREF(__pyx_t_21);
+          __Pyx_XGIVEREF(__pyx_t_22);
+          __Pyx_XGIVEREF(__pyx_t_23);
+          __Pyx_ErrRestore(__pyx_t_21, __pyx_t_22, __pyx_t_23);
+          __pyx_t_21 = 0; __pyx_t_22 = 0; __pyx_t_23 = 0; __pyx_t_20 = 0; __pyx_t_19 = 0; __pyx_t_18 = 0;
+          __pyx_lineno = __pyx_t_16; __pyx_clineno = __pyx_t_11; __pyx_filename = __pyx_t_17;
+          goto __pyx_L27_except_error;
+        }
+      }
+    }
+    goto __pyx_L27_except_error;
+
+    /* "licensing/api.py":425
+ *         )
+ * 
+ *     try:             # <<<<<<<<<<<<<<
+ *         try:
+ *             expiry_dt = datetime.fromisoformat(license_data.get("expiry", ""))
+*/
+    __pyx_L27_except_error:;
+    __Pyx_XGIVEREF(__pyx_t_10);
+    __Pyx_XGIVEREF(__pyx_t_9);
+    __Pyx_XGIVEREF(__pyx_t_8);
+    __Pyx_ExceptionReset(__pyx_t_10, __pyx_t_9, __pyx_t_8);
+    goto __pyx_L1_error;
+    __pyx_L29_try_return:;
+    __Pyx_XGIVEREF(__pyx_t_10);
+    __Pyx_XGIVEREF(__pyx_t_9);
+    __Pyx_XGIVEREF(__pyx_t_8);
+    __Pyx_ExceptionReset(__pyx_t_10, __pyx_t_9, __pyx_t_8);
+    goto __pyx_L0;
+  }
+  CYTHON_MAYBE_UNUSED_VAR(__pyx_cur_scope);
+
+  /* "licensing/api.py":395
  * 
  * 
- * def _get_public_key() -> str:             # <<<<<<<<<<<<<<
- *     """
- *     Get the public key for product key verification.
+ * @router.post("/register", response_model=RegisterLicenseResponse)             # <<<<<<<<<<<<<<
+ * async def register_license(
+ *     request: RegisterLicenseRequest,
 */
 
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_XDECREF(__pyx_t_7);
-  __Pyx_XDECREF(__pyx_t_8);
-  __Pyx_XDECREF(__pyx_t_9);
-  __Pyx_AddTraceback("licensing.api._get_public_key", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = NULL;
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_12);
+  __Pyx_XDECREF(__pyx_t_13);
+  __Pyx_XDECREF(__pyx_t_14);
+  __Pyx_XDECREF(__pyx_t_15);
+  __Pyx_XDECREF(__pyx_t_24);
+  __Pyx_XDECREF(__pyx_t_25);
+  __Pyx_XDECREF(__pyx_t_26);
+  if (__Pyx_PyErr_Occurred()) {
+    __Pyx_Generator_Replace_StopIteration(0);
+    __Pyx_AddTraceback("register_license", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  }
   __pyx_L0:;
-  __Pyx_XDECREF(__pyx_v_os);
-  __Pyx_XDECREF(__pyx_v_public_key);
-  __Pyx_XDECREF(__pyx_v_key_file);
-  __Pyx_XDECREF(__pyx_v_root_key_file);
-  __Pyx_XDECREF(__pyx_v_embedded_key);
   __Pyx_XGIVEREF(__pyx_r);
+  #if !CYTHON_USE_EXC_INFO_STACK
+  __Pyx_Coroutine_ResetAndClearException(__pyx_generator);
+  #endif
+  __pyx_generator->resume_label = -1;
+  __Pyx_Coroutine_clear((PyObject*)__pyx_generator);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
@@ -8956,14 +11056,17 @@ static void __pyx_tp_dealloc_9licensing_3api___pyx_scope_struct__activate_licens
   }
   #endif
   PyObject_GC_UnTrack(o);
-  Py_CLEAR(p->__pyx_v_activation_count);
+  Py_CLEAR(p->__pyx_v_active_machine_count);
+  Py_CLEAR(p->__pyx_v_clean_key);
   Py_CLEAR(p->__pyx_v_crypto);
-  Py_CLEAR(p->__pyx_v_days_since_creation);
   Py_CLEAR(p->__pyx_v_db);
   Py_CLEAR(p->__pyx_v_e);
   Py_CLEAR(p->__pyx_v_existing_activation);
+  Py_CLEAR(p->__pyx_v_expiry_dt);
+  Py_CLEAR(p->__pyx_v_initial_credits);
   Py_CLEAR(p->__pyx_v_license_data);
   Py_CLEAR(p->__pyx_v_license_record);
+  Py_CLEAR(p->__pyx_v_max_allowed);
   Py_CLEAR(p->__pyx_v_new_activation);
   Py_CLEAR(p->__pyx_v_public_key_pem);
   Py_CLEAR(p->__pyx_v_request);
@@ -8997,14 +11100,14 @@ static int __pyx_tp_traverse_9licensing_3api___pyx_scope_struct__activate_licens
     e = __Pyx_call_type_traverse(o, 1, v, a);
     if (e) return e;
   }
-  if (p->__pyx_v_activation_count) {
-    e = (*v)(p->__pyx_v_activation_count, a); if (e) return e;
+  if (p->__pyx_v_active_machine_count) {
+    e = (*v)(p->__pyx_v_active_machine_count, a); if (e) return e;
+  }
+  if (p->__pyx_v_clean_key) {
+    e = (*v)(p->__pyx_v_clean_key, a); if (e) return e;
   }
   if (p->__pyx_v_crypto) {
     e = (*v)(p->__pyx_v_crypto, a); if (e) return e;
-  }
-  if (p->__pyx_v_days_since_creation) {
-    e = (*v)(p->__pyx_v_days_since_creation, a); if (e) return e;
   }
   if (p->__pyx_v_db) {
     e = (*v)(p->__pyx_v_db, a); if (e) return e;
@@ -9014,6 +11117,9 @@ static int __pyx_tp_traverse_9licensing_3api___pyx_scope_struct__activate_licens
   }
   if (p->__pyx_v_existing_activation) {
     e = (*v)(p->__pyx_v_existing_activation, a); if (e) return e;
+  }
+  if (p->__pyx_v_expiry_dt) {
+    e = (*v)(p->__pyx_v_expiry_dt, a); if (e) return e;
   }
   if (p->__pyx_v_license_data) {
     e = (*v)(p->__pyx_v_license_data, a); if (e) return e;
@@ -9208,10 +11314,10 @@ static void __pyx_tp_dealloc_9licensing_3api___pyx_scope_struct_1_validate_licen
   #endif
   PyObject_GC_UnTrack(o);
   Py_CLEAR(p->__pyx_v_activation);
+  Py_CLEAR(p->__pyx_v_clean_key);
   Py_CLEAR(p->__pyx_v_crypto);
   Py_CLEAR(p->__pyx_v_db);
   Py_CLEAR(p->__pyx_v_e);
-  Py_CLEAR(p->__pyx_v_elapsed_days);
   Py_CLEAR(p->__pyx_v_license_data);
   Py_CLEAR(p->__pyx_v_license_record);
   Py_CLEAR(p->__pyx_v_public_key_pem);
@@ -9249,6 +11355,9 @@ static int __pyx_tp_traverse_9licensing_3api___pyx_scope_struct_1_validate_licen
   if (p->__pyx_v_activation) {
     e = (*v)(p->__pyx_v_activation, a); if (e) return e;
   }
+  if (p->__pyx_v_clean_key) {
+    e = (*v)(p->__pyx_v_clean_key, a); if (e) return e;
+  }
   if (p->__pyx_v_crypto) {
     e = (*v)(p->__pyx_v_crypto, a); if (e) return e;
   }
@@ -9257,9 +11366,6 @@ static int __pyx_tp_traverse_9licensing_3api___pyx_scope_struct_1_validate_licen
   }
   if (p->__pyx_v_e) {
     e = (*v)(p->__pyx_v_e, a); if (e) return e;
-  }
-  if (p->__pyx_v_elapsed_days) {
-    e = (*v)(p->__pyx_v_elapsed_days, a); if (e) return e;
   }
   if (p->__pyx_v_license_data) {
     e = (*v)(p->__pyx_v_license_data, a); if (e) return e;
@@ -9451,6 +11557,7 @@ static void __pyx_tp_dealloc_9licensing_3api___pyx_scope_struct_2_deactivate_lic
   #endif
   PyObject_GC_UnTrack(o);
   Py_CLEAR(p->__pyx_v_activation);
+  Py_CLEAR(p->__pyx_v_clean_key);
   Py_CLEAR(p->__pyx_v_db);
   Py_CLEAR(p->__pyx_v_e);
   Py_CLEAR(p->__pyx_v_license_record);
@@ -9486,6 +11593,9 @@ static int __pyx_tp_traverse_9licensing_3api___pyx_scope_struct_2_deactivate_lic
   }
   if (p->__pyx_v_activation) {
     e = (*v)(p->__pyx_v_activation, a); if (e) return e;
+  }
+  if (p->__pyx_v_clean_key) {
+    e = (*v)(p->__pyx_v_clean_key, a); if (e) return e;
   }
   if (p->__pyx_v_db) {
     e = (*v)(p->__pyx_v_db, a); if (e) return e;
@@ -9599,6 +11709,253 @@ static PyTypeObject __pyx_type_9licensing_3api___pyx_scope_struct_2_deactivate_l
 };
 #endif
 
+static PyObject *__pyx_tp_new__initialisation_9licensing_3api___pyx_scope_struct_3_register_license(PyObject *o, 
+#if CYTHON_VECTORCALL_TPNEW
+    CYTHON_UNUSED PyObject *const *args, CYTHON_UNUSED Py_ssize_t nargs, CYTHON_UNUSED PyObject *kwnames
+#else
+    CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k
+#endif
+) {
+  return o;
+}
+
+static PyObject *__pyx_tp_new_vectorcall_9licensing_3api___pyx_scope_struct_3_register_license(PyTypeObject *t, 
+#if CYTHON_VECTORCALL_TPNEW
+    PyObject *const *args, Py_ssize_t nargs, PyObject *kwnames
+#else
+    PyObject *a, PyObject *k
+#endif
+) {
+  PyObject *o;
+  #if CYTHON_USE_FREELISTS
+  if (likely((int)(__pyx_mstate_global->__pyx_freecount_9licensing_3api___pyx_scope_struct_3_register_license > 0) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(t, __pyx_mstate_global->__pyx_ptype_9licensing_3api___pyx_scope_struct_3_register_license, sizeof(struct __pyx_obj_9licensing_3api___pyx_scope_struct_3_register_license))))
+  {
+    o = (PyObject*)__pyx_mstate_global->__pyx_freelist_9licensing_3api___pyx_scope_struct_3_register_license[--__pyx_mstate_global->__pyx_freecount_9licensing_3api___pyx_scope_struct_3_register_license];
+    #if CYTHON_USE_TYPE_SPECS
+    Py_DECREF(Py_TYPE(o));
+    #endif
+    memset(o, 0, sizeof(struct __pyx_obj_9licensing_3api___pyx_scope_struct_3_register_license));
+    #if CYTHON_COMPILING_IN_LIMITED_API
+    (void) PyObject_Init(o, t);
+    #else
+    (void) PyObject_INIT(o, t);
+    #endif
+    PyObject_GC_Track(o);
+  } else
+  #endif
+  {
+    o = __Pyx_AllocateExtensionType(t, 1);
+  }
+  if (unlikely(!o)) return 0;
+  return __pyx_tp_new__initialisation_9licensing_3api___pyx_scope_struct_3_register_license(o, 
+#if CYTHON_VECTORCALL_TPNEW
+    args, nargs, kwnames
+#else
+    a, k
+#endif
+);
+}
+
+#if CYTHON_VECTORCALL_TPNEW
+static PyObject *__pyx_tp_new_9licensing_3api___pyx_scope_struct_3_register_license(PyTypeObject *t, PyObject *a, PyObject *k) {
+  return __Pyx_CallTpnewAsVectorcall(__pyx_tp_new_vectorcall_9licensing_3api___pyx_scope_struct_3_register_license, t, a, k);
+}
+#endif
+
+#if CYTHON_VECTORCALL_TPNEW
+static PyObject *__pyx_tp_vectorcall_9licensing_3api___pyx_scope_struct_3_register_license(PyObject *t, PyObject *const *args, size_t nargsf, PyObject *kwnames) {
+  if (unlikely((PyTypeObject*)t != __pyx_mstate_global->__pyx_ptype_9licensing_3api___pyx_scope_struct_3_register_license || __Pyx_PyType_HasFeature((PyTypeObject*)t, Py_TPFLAGS_IS_ABSTRACT))) {
+    return __Pyx_CallNewInitFromVectorcall((PyTypeObject*)t, args, nargsf, kwnames);
+  }
+  Py_ssize_t nargs = PyVectorcall_NARGS(nargsf);
+  PyObject *o = __pyx_tp_new_vectorcall_9licensing_3api___pyx_scope_struct_3_register_license((PyTypeObject*)t, args, nargs, kwnames);
+  return o;
+}
+#endif
+
+static void __pyx_tp_dealloc_9licensing_3api___pyx_scope_struct_3_register_license(PyObject *o) {
+  struct __pyx_obj_9licensing_3api___pyx_scope_struct_3_register_license *p = (struct __pyx_obj_9licensing_3api___pyx_scope_struct_3_register_license *)o;
+  #if CYTHON_USE_TP_FINALIZE
+  if (unlikely(__Pyx_PyObject_GetSlot(o, tp_finalize, destructor)) && !__Pyx_PyObject_GC_IsFinalized(o)) {
+    if (__Pyx_PyObject_GetSlot(o, tp_dealloc, destructor) == __pyx_tp_dealloc_9licensing_3api___pyx_scope_struct_3_register_license) {
+      if (PyObject_CallFinalizerFromDealloc(o)) return;
+    }
+  }
+  #endif
+  PyObject_GC_UnTrack(o);
+  Py_CLEAR(p->__pyx_v_clean_key);
+  Py_CLEAR(p->__pyx_v_crypto);
+  Py_CLEAR(p->__pyx_v_db);
+  Py_CLEAR(p->__pyx_v_e);
+  Py_CLEAR(p->__pyx_v_existing);
+  Py_CLEAR(p->__pyx_v_expected_secret);
+  Py_CLEAR(p->__pyx_v_expiry_dt);
+  Py_CLEAR(p->__pyx_v_license_data);
+  Py_CLEAR(p->__pyx_v_license_record);
+  Py_CLEAR(p->__pyx_v_public_key_pem);
+  Py_CLEAR(p->__pyx_v_request);
+  #if CYTHON_USE_FREELISTS
+  if (likely((int)(__pyx_mstate_global->__pyx_freecount_9licensing_3api___pyx_scope_struct_3_register_license < 8) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(Py_TYPE(o), __pyx_mstate_global->__pyx_ptype_9licensing_3api___pyx_scope_struct_3_register_license, sizeof(struct __pyx_obj_9licensing_3api___pyx_scope_struct_3_register_license))))
+  {
+    __pyx_mstate_global->__pyx_freelist_9licensing_3api___pyx_scope_struct_3_register_license[__pyx_mstate_global->__pyx_freecount_9licensing_3api___pyx_scope_struct_3_register_license++] = ((struct __pyx_obj_9licensing_3api___pyx_scope_struct_3_register_license *)o);
+  } else
+  #endif
+  {
+    PyTypeObject *tp = Py_TYPE(o);
+    #if CYTHON_USE_TYPE_SLOTS
+    (*tp->tp_free)(o);
+    #else
+    {
+      freefunc tp_free = (freefunc)PyType_GetSlot(tp, Py_tp_free);
+      if (tp_free) tp_free(o);
+    }
+    #endif
+    #if CYTHON_USE_TYPE_SPECS
+    Py_DECREF(tp);
+    #endif
+  }
+}
+
+static int __pyx_tp_traverse_9licensing_3api___pyx_scope_struct_3_register_license(PyObject *o, visitproc v, void *a) {
+  int e;
+  struct __pyx_obj_9licensing_3api___pyx_scope_struct_3_register_license *p = (struct __pyx_obj_9licensing_3api___pyx_scope_struct_3_register_license *)o;
+  {
+    e = __Pyx_call_type_traverse(o, 1, v, a);
+    if (e) return e;
+  }
+  if (p->__pyx_v_clean_key) {
+    e = (*v)(p->__pyx_v_clean_key, a); if (e) return e;
+  }
+  if (p->__pyx_v_crypto) {
+    e = (*v)(p->__pyx_v_crypto, a); if (e) return e;
+  }
+  if (p->__pyx_v_db) {
+    e = (*v)(p->__pyx_v_db, a); if (e) return e;
+  }
+  if (p->__pyx_v_e) {
+    e = (*v)(p->__pyx_v_e, a); if (e) return e;
+  }
+  if (p->__pyx_v_existing) {
+    e = (*v)(p->__pyx_v_existing, a); if (e) return e;
+  }
+  if (p->__pyx_v_expected_secret) {
+    e = (*v)(p->__pyx_v_expected_secret, a); if (e) return e;
+  }
+  if (p->__pyx_v_expiry_dt) {
+    e = (*v)(p->__pyx_v_expiry_dt, a); if (e) return e;
+  }
+  if (p->__pyx_v_license_data) {
+    e = (*v)(p->__pyx_v_license_data, a); if (e) return e;
+  }
+  if (p->__pyx_v_license_record) {
+    e = (*v)(p->__pyx_v_license_record, a); if (e) return e;
+  }
+  if (p->__pyx_v_public_key_pem) {
+    e = (*v)(p->__pyx_v_public_key_pem, a); if (e) return e;
+  }
+  if (p->__pyx_v_request) {
+    e = (*v)(p->__pyx_v_request, a); if (e) return e;
+  }
+  return 0;
+}
+#if CYTHON_USE_TYPE_SPECS
+static PyType_Slot __pyx_type_9licensing_3api___pyx_scope_struct_3_register_license_slots[] = {
+  {Py_tp_dealloc, (void *)__pyx_tp_dealloc_9licensing_3api___pyx_scope_struct_3_register_license},
+  {Py_tp_traverse, (void *)__pyx_tp_traverse_9licensing_3api___pyx_scope_struct_3_register_license},
+  {Py_tp_new, (void *)__pyx_tp_new_9licensing_3api___pyx_scope_struct_3_register_license},
+  #if (!CYTHON_COMPILING_IN_PYPY || PYPY_VERSION_NUM >= 0x07030800) && (!CYTHON_COMPILING_IN_LIMITED_API || __PYX_LIMITED_VERSION_HEX >= 0x030E0000)
+  #if CYTHON_VECTORCALL_TPNEW
+  {Py_tp_vectorcall, (void *)__pyx_tp_vectorcall_9licensing_3api___pyx_scope_struct_3_register_license},
+  #endif
+  #endif
+  {0, 0},
+};
+static PyType_Spec __pyx_type_9licensing_3api___pyx_scope_struct_3_register_license_spec = {
+  "licensing.api.__pyx_scope_struct_3_register_license",
+  sizeof(struct __pyx_obj_9licensing_3api___pyx_scope_struct_3_register_license),
+  0,
+  Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_HAVE_GC,
+  __pyx_type_9licensing_3api___pyx_scope_struct_3_register_license_slots,
+};
+#else
+
+static PyTypeObject __pyx_type_9licensing_3api___pyx_scope_struct_3_register_license = {
+  PyVarObject_HEAD_INIT(0, 0)
+  "licensing.api.""__pyx_scope_struct_3_register_license", /*tp_name*/
+  sizeof(struct __pyx_obj_9licensing_3api___pyx_scope_struct_3_register_license), /*tp_basicsize*/
+  0, /*tp_itemsize*/
+  __pyx_tp_dealloc_9licensing_3api___pyx_scope_struct_3_register_license, /*tp_dealloc*/
+  0, /*tp_vectorcall_offset*/
+  0, /*tp_getattr*/
+  0, /*tp_setattr*/
+  0, /*tp_as_async*/
+  0, /*tp_repr*/
+  0, /*tp_as_number*/
+  0, /*tp_as_sequence*/
+  0, /*tp_as_mapping*/
+  0, /*tp_hash*/
+  0, /*tp_call*/
+  0, /*tp_str*/
+  0, /*tp_getattro*/
+  0, /*tp_setattro*/
+  0, /*tp_as_buffer*/
+  Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
+  0, /*tp_doc*/
+  __pyx_tp_traverse_9licensing_3api___pyx_scope_struct_3_register_license, /*tp_traverse*/
+  0, /*tp_clear*/
+  0, /*tp_richcompare*/
+  0, /*tp_weaklistoffset*/
+  0, /*tp_iter*/
+  0, /*tp_iternext*/
+  0, /*tp_methods*/
+  0, /*tp_members*/
+  0, /*tp_getset*/
+  0, /*tp_base*/
+  0, /*tp_dict*/
+  0, /*tp_descr_get*/
+  0, /*tp_descr_set*/
+  #if !CYTHON_USE_TYPE_SPECS
+  0, /*tp_dictoffset*/
+  #endif
+  0, /*tp_init*/
+  0, /*tp_alloc*/
+  __pyx_tp_new_9licensing_3api___pyx_scope_struct_3_register_license, /*tp_new*/
+  0, /*tp_free*/
+  0, /*tp_is_gc*/
+  0, /*tp_bases*/
+  0, /*tp_mro*/
+  0, /*tp_cache*/
+  0, /*tp_subclasses*/
+  0, /*tp_weaklist*/
+  0, /*tp_del*/
+  0, /*tp_version_tag*/
+  #if CYTHON_USE_TP_FINALIZE
+  0, /*tp_finalize*/
+  #else
+  NULL, /*tp_finalize*/
+  #endif
+  #if (!CYTHON_COMPILING_IN_PYPY || PYPY_VERSION_NUM >= 0x07030800) && (!CYTHON_COMPILING_IN_LIMITED_API || __PYX_LIMITED_VERSION_HEX >= 0x030E0000)
+  #if CYTHON_VECTORCALL_TPNEW
+  __pyx_tp_vectorcall_9licensing_3api___pyx_scope_struct_3_register_license, /*tp_vectorcall*/
+  #else
+  NULL, /*tp_vectorcall*/
+  #endif
+  #endif
+  #if __PYX_NEED_TP_PRINT_SLOT == 1
+  0, /*tp_print*/
+  #endif
+  #if PY_VERSION_HEX >= 0x030C0000
+  0, /*tp_watched*/
+  #endif
+  #if PY_VERSION_HEX >= 0x030d00A4
+  0, /*tp_versions_used*/
+  #endif
+  #if CYTHON_COMPILING_IN_PYPY && PY_VERSION_HEX < 0x030a0000
+  0, /*tp_pypy_flags*/
+  #endif
+};
+#endif
+
 static PyMethodDef __pyx_methods[] = {
   {0, 0, 0, 0}
 };
@@ -9615,6 +11972,7 @@ static CYTHON_SMALL_CODE int __Pyx_modinit_Exttype___pyx_defaults(__pyx_mstatety
 static CYTHON_SMALL_CODE int __Pyx_modinit_Exttype___pyx_obj_9licensing_3api___pyx_scope_struct__activate_license(__pyx_mstatetype *__pyx_mstate); /*proto*/
 static CYTHON_SMALL_CODE int __Pyx_modinit_Exttype___pyx_obj_9licensing_3api___pyx_scope_struct_1_validate_license(__pyx_mstatetype *__pyx_mstate); /*proto*/
 static CYTHON_SMALL_CODE int __Pyx_modinit_Exttype___pyx_obj_9licensing_3api___pyx_scope_struct_2_deactivate_license(__pyx_mstatetype *__pyx_mstate); /*proto*/
+static CYTHON_SMALL_CODE int __Pyx_modinit_Exttype___pyx_obj_9licensing_3api___pyx_scope_struct_3_register_license(__pyx_mstatetype *__pyx_mstate); /*proto*/
 static CYTHON_SMALL_CODE int __Pyx_modinit_Type_import_code(__pyx_mstatetype *__pyx_mstate); /*proto*/
 static CYTHON_SMALL_CODE int __Pyx_modinit_Variable_import_code(__pyx_mstatetype *__pyx_mstate); /*proto*/
 static CYTHON_SMALL_CODE int __Pyx_modinit_Function_import_code(__pyx_mstatetype *__pyx_mstate); /*proto*/
@@ -9657,14 +12015,14 @@ static int __Pyx_modinit_Exttype___pyx_defaults(__pyx_mstatetype *__pyx_mstate) 
   __Pyx_RefNannySetupContext("__Pyx_modinit_Exttype___pyx_defaults", 0);
   /*--- Exttype __pyx_defaults ---*/
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_9licensing_3api___pyx_defaults = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9licensing_3api___pyx_defaults_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9licensing_3api___pyx_defaults)) __PYX_ERR(0, 83, __pyx_L1_error)
+  __pyx_mstate->__pyx_ptype_9licensing_3api___pyx_defaults = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9licensing_3api___pyx_defaults_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9licensing_3api___pyx_defaults)) __PYX_ERR(0, 136, __pyx_L1_error)
   #else
   __pyx_mstate->__pyx_ptype_9licensing_3api___pyx_defaults = &__pyx_type_9licensing_3api___pyx_defaults;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9licensing_3api___pyx_defaults) < (0)) __PYX_ERR(0, 83, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9licensing_3api___pyx_defaults) < (0)) __PYX_ERR(0, 136, __pyx_L1_error)
   #endif
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_9licensing_3api___pyx_defaults);
@@ -9690,14 +12048,14 @@ static int __Pyx_modinit_Exttype___pyx_obj_9licensing_3api___pyx_scope_struct__a
   __Pyx_RefNannySetupContext("__Pyx_modinit_Exttype___pyx_obj_9licensing_3api___pyx_scope_struct__activate_license", 0);
   /*--- Exttype __pyx_obj_9licensing_3api___pyx_scope_struct__activate_license ---*/
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct__activate_license = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9licensing_3api___pyx_scope_struct__activate_license_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct__activate_license)) __PYX_ERR(0, 83, __pyx_L1_error)
+  __pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct__activate_license = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9licensing_3api___pyx_scope_struct__activate_license_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct__activate_license)) __PYX_ERR(0, 136, __pyx_L1_error)
   #else
   __pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct__activate_license = &__pyx_type_9licensing_3api___pyx_scope_struct__activate_license;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct__activate_license) < (0)) __PYX_ERR(0, 83, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct__activate_license) < (0)) __PYX_ERR(0, 136, __pyx_L1_error)
   #endif
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct__activate_license);
@@ -9723,14 +12081,14 @@ static int __Pyx_modinit_Exttype___pyx_obj_9licensing_3api___pyx_scope_struct_1_
   __Pyx_RefNannySetupContext("__Pyx_modinit_Exttype___pyx_obj_9licensing_3api___pyx_scope_struct_1_validate_license", 0);
   /*--- Exttype __pyx_obj_9licensing_3api___pyx_scope_struct_1_validate_license ---*/
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct_1_validate_license = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9licensing_3api___pyx_scope_struct_1_validate_license_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct_1_validate_license)) __PYX_ERR(0, 217, __pyx_L1_error)
+  __pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct_1_validate_license = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9licensing_3api___pyx_scope_struct_1_validate_license_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct_1_validate_license)) __PYX_ERR(0, 270, __pyx_L1_error)
   #else
   __pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct_1_validate_license = &__pyx_type_9licensing_3api___pyx_scope_struct_1_validate_license;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct_1_validate_license) < (0)) __PYX_ERR(0, 217, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct_1_validate_license) < (0)) __PYX_ERR(0, 270, __pyx_L1_error)
   #endif
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct_1_validate_license);
@@ -9756,14 +12114,14 @@ static int __Pyx_modinit_Exttype___pyx_obj_9licensing_3api___pyx_scope_struct_2_
   __Pyx_RefNannySetupContext("__Pyx_modinit_Exttype___pyx_obj_9licensing_3api___pyx_scope_struct_2_deactivate_license", 0);
   /*--- Exttype __pyx_obj_9licensing_3api___pyx_scope_struct_2_deactivate_license ---*/
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct_2_deactivate_license = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9licensing_3api___pyx_scope_struct_2_deactivate_license_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct_2_deactivate_license)) __PYX_ERR(0, 335, __pyx_L1_error)
+  __pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct_2_deactivate_license = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9licensing_3api___pyx_scope_struct_2_deactivate_license_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct_2_deactivate_license)) __PYX_ERR(0, 348, __pyx_L1_error)
   #else
   __pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct_2_deactivate_license = &__pyx_type_9licensing_3api___pyx_scope_struct_2_deactivate_license;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct_2_deactivate_license) < (0)) __PYX_ERR(0, 335, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct_2_deactivate_license) < (0)) __PYX_ERR(0, 348, __pyx_L1_error)
   #endif
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct_2_deactivate_license);
@@ -9771,6 +12129,39 @@ static int __Pyx_modinit_Exttype___pyx_obj_9licensing_3api___pyx_scope_struct_2_
   #if !CYTHON_COMPILING_IN_LIMITED_API
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct_2_deactivate_license->tp_dictoffset && __pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct_2_deactivate_license->tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct_2_deactivate_license->tp_getattro = PyObject_GenericGetAttr;
+  }
+  #endif
+  __Pyx_RefNannyFinishContext();
+  return 0;
+  __pyx_L1_error:;
+  __Pyx_RefNannyFinishContext();
+  return -1;
+}
+
+static int __Pyx_modinit_Exttype___pyx_obj_9licensing_3api___pyx_scope_struct_3_register_license(__pyx_mstatetype *__pyx_mstate) {
+  __Pyx_RefNannyDeclarations
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  CYTHON_UNUSED_VAR(__pyx_mstate);
+  __Pyx_RefNannySetupContext("__Pyx_modinit_Exttype___pyx_obj_9licensing_3api___pyx_scope_struct_3_register_license", 0);
+  /*--- Exttype __pyx_obj_9licensing_3api___pyx_scope_struct_3_register_license ---*/
+  #if CYTHON_USE_TYPE_SPECS
+  __pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct_3_register_license = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9licensing_3api___pyx_scope_struct_3_register_license_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct_3_register_license)) __PYX_ERR(0, 395, __pyx_L1_error)
+  #else
+  __pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct_3_register_license = &__pyx_type_9licensing_3api___pyx_scope_struct_3_register_license;
+  #endif
+  #if !CYTHON_COMPILING_IN_LIMITED_API
+  #endif
+  #if !CYTHON_USE_TYPE_SPECS
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct_3_register_license) < (0)) __PYX_ERR(0, 395, __pyx_L1_error)
+  #endif
+  #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
+  PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct_3_register_license);
+  #endif
+  #if !CYTHON_COMPILING_IN_LIMITED_API
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct_3_register_license->tp_dictoffset && __pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct_3_register_license->tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_mstate->__pyx_ptype_9licensing_3api___pyx_scope_struct_3_register_license->tp_getattro = PyObject_GenericGetAttr;
   }
   #endif
   __Pyx_RefNannyFinishContext();
@@ -10087,6 +12478,7 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
   if (unlikely((__Pyx_modinit_Exttype___pyx_obj_9licensing_3api___pyx_scope_struct__activate_license(__pyx_mstate) < 0))) __PYX_ERR(0, 1, __pyx_L1_error)
   if (unlikely((__Pyx_modinit_Exttype___pyx_obj_9licensing_3api___pyx_scope_struct_1_validate_license(__pyx_mstate) < 0))) __PYX_ERR(0, 1, __pyx_L1_error)
   if (unlikely((__Pyx_modinit_Exttype___pyx_obj_9licensing_3api___pyx_scope_struct_2_deactivate_license(__pyx_mstate) < 0))) __PYX_ERR(0, 1, __pyx_L1_error)
+  if (unlikely((__Pyx_modinit_Exttype___pyx_obj_9licensing_3api___pyx_scope_struct_3_register_license(__pyx_mstate) < 0))) __PYX_ERR(0, 1, __pyx_L1_error)
   (void)__Pyx_modinit_Type_import_code(__pyx_mstate);
   (void)__Pyx_modinit_Variable_import_code(__pyx_mstate);
   (void)__Pyx_modinit_Function_import_code(__pyx_mstate);
@@ -10094,65 +12486,43 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
   /*--- Execution code ---*/
 
   /* "licensing/api.py":1
- * from datetime import datetime             # <<<<<<<<<<<<<<
- * from pathlib import Path
- * from typing import Dict, Any
+ * import json             # <<<<<<<<<<<<<<
+ * import os
+ * from datetime import datetime, timedelta
 */
-  {
-    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_datetime};
-    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_datetime, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1, __pyx_L1_error)
-  }
+  __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_json, 0, 0, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_t_2 = __pyx_t_1;
   __Pyx_GOTREF(__pyx_t_2);
-  {
-    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_datetime};
-    __pyx_t_3 = 0; {
-      __pyx_t_4 = __Pyx_ImportFrom(__pyx_t_2, __pyx_imported_names[__pyx_t_3]); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_4);
-      if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_imported_names[__pyx_t_3], __pyx_t_4) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
-      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    }
-  }
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_json, __pyx_t_2) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "licensing/api.py":2
- * from datetime import datetime
- * from pathlib import Path             # <<<<<<<<<<<<<<
- * from typing import Dict, Any
- * 
+ * import json
+ * import os             # <<<<<<<<<<<<<<
+ * from datetime import datetime, timedelta
+ * from pathlib import Path
 */
-  {
-    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_Path};
-    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_pathlib, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 2, __pyx_L1_error)
-  }
+  __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_os, 0, 0, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 2, __pyx_L1_error)
   __pyx_t_2 = __pyx_t_1;
   __Pyx_GOTREF(__pyx_t_2);
-  {
-    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_Path};
-    __pyx_t_3 = 0; {
-      __pyx_t_4 = __Pyx_ImportFrom(__pyx_t_2, __pyx_imported_names[__pyx_t_3]); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 2, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_4);
-      if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_imported_names[__pyx_t_3], __pyx_t_4) < (0)) __PYX_ERR(0, 2, __pyx_L1_error)
-      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    }
-  }
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_os, __pyx_t_2) < (0)) __PYX_ERR(0, 2, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "licensing/api.py":3
- * from datetime import datetime
+ * import json
+ * import os
+ * from datetime import datetime, timedelta             # <<<<<<<<<<<<<<
  * from pathlib import Path
- * from typing import Dict, Any             # <<<<<<<<<<<<<<
- * 
- * from fastapi import APIRouter, HTTPException, Depends
+ * from typing import Dict, Any, Optional
 */
   {
-    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_Dict,__pyx_mstate_global->__pyx_n_u_Any};
-    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_typing, __pyx_imported_names, 2, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 3, __pyx_L1_error)
+    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_datetime,__pyx_mstate_global->__pyx_n_u_timedelta};
+    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_datetime, __pyx_imported_names, 2, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 3, __pyx_L1_error)
   }
   __pyx_t_2 = __pyx_t_1;
   __Pyx_GOTREF(__pyx_t_2);
   {
-    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_Dict,__pyx_mstate_global->__pyx_n_u_Any};
+    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_datetime,__pyx_mstate_global->__pyx_n_u_timedelta};
     for (__pyx_t_3=0; __pyx_t_3 < 2; __pyx_t_3++) {
       __pyx_t_4 = __Pyx_ImportFrom(__pyx_t_2, __pyx_imported_names[__pyx_t_3]); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 3, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
@@ -10162,21 +12532,45 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "licensing/api.py":5
- * from typing import Dict, Any
+  /* "licensing/api.py":4
+ * import os
+ * from datetime import datetime, timedelta
+ * from pathlib import Path             # <<<<<<<<<<<<<<
+ * from typing import Dict, Any, Optional
  * 
- * from fastapi import APIRouter, HTTPException, Depends             # <<<<<<<<<<<<<<
- * from pydantic import BaseModel, Field
- * from sqlalchemy.orm import Session
 */
   {
-    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_APIRouter,__pyx_mstate_global->__pyx_n_u_HTTPException,__pyx_mstate_global->__pyx_n_u_Depends};
-    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_fastapi, __pyx_imported_names, 3, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 5, __pyx_L1_error)
+    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_Path};
+    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_pathlib, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 4, __pyx_L1_error)
   }
   __pyx_t_2 = __pyx_t_1;
   __Pyx_GOTREF(__pyx_t_2);
   {
-    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_APIRouter,__pyx_mstate_global->__pyx_n_u_HTTPException,__pyx_mstate_global->__pyx_n_u_Depends};
+    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_Path};
+    __pyx_t_3 = 0; {
+      __pyx_t_4 = __Pyx_ImportFrom(__pyx_t_2, __pyx_imported_names[__pyx_t_3]); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 4, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_4);
+      if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_imported_names[__pyx_t_3], __pyx_t_4) < (0)) __PYX_ERR(0, 4, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    }
+  }
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "licensing/api.py":5
+ * from datetime import datetime, timedelta
+ * from pathlib import Path
+ * from typing import Dict, Any, Optional             # <<<<<<<<<<<<<<
+ * 
+ * from fastapi import APIRouter, HTTPException, Depends
+*/
+  {
+    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_Dict,__pyx_mstate_global->__pyx_n_u_Any,__pyx_mstate_global->__pyx_n_u_Optional};
+    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_typing, __pyx_imported_names, 3, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 5, __pyx_L1_error)
+  }
+  __pyx_t_2 = __pyx_t_1;
+  __Pyx_GOTREF(__pyx_t_2);
+  {
+    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_Dict,__pyx_mstate_global->__pyx_n_u_Any,__pyx_mstate_global->__pyx_n_u_Optional};
     for (__pyx_t_3=0; __pyx_t_3 < 3; __pyx_t_3++) {
       __pyx_t_4 = __Pyx_ImportFrom(__pyx_t_2, __pyx_imported_names[__pyx_t_3]); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 5, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
@@ -10186,46 +12580,22 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "licensing/api.py":6
- * 
- * from fastapi import APIRouter, HTTPException, Depends
- * from pydantic import BaseModel, Field             # <<<<<<<<<<<<<<
- * from sqlalchemy.orm import Session
- * 
-*/
-  {
-    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_BaseModel,__pyx_mstate_global->__pyx_n_u_Field};
-    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_pydantic, __pyx_imported_names, 2, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 6, __pyx_L1_error)
-  }
-  __pyx_t_2 = __pyx_t_1;
-  __Pyx_GOTREF(__pyx_t_2);
-  {
-    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_BaseModel,__pyx_mstate_global->__pyx_n_u_Field};
-    for (__pyx_t_3=0; __pyx_t_3 < 2; __pyx_t_3++) {
-      __pyx_t_4 = __Pyx_ImportFrom(__pyx_t_2, __pyx_imported_names[__pyx_t_3]); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 6, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_4);
-      if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_imported_names[__pyx_t_3], __pyx_t_4) < (0)) __PYX_ERR(0, 6, __pyx_L1_error)
-      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    }
-  }
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-
   /* "licensing/api.py":7
- * from fastapi import APIRouter, HTTPException, Depends
- * from pydantic import BaseModel, Field
- * from sqlalchemy.orm import Session             # <<<<<<<<<<<<<<
+ * from typing import Dict, Any, Optional
  * 
- * from app.database.database import get_db
+ * from fastapi import APIRouter, HTTPException, Depends             # <<<<<<<<<<<<<<
+ * from pydantic import BaseModel, Field
+ * from sqlalchemy.orm import Session
 */
   {
-    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_Session};
-    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_sqlalchemy_orm, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 7, __pyx_L1_error)
+    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_APIRouter,__pyx_mstate_global->__pyx_n_u_HTTPException,__pyx_mstate_global->__pyx_n_u_Depends};
+    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_fastapi, __pyx_imported_names, 3, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 7, __pyx_L1_error)
   }
   __pyx_t_2 = __pyx_t_1;
   __Pyx_GOTREF(__pyx_t_2);
   {
-    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_Session};
-    __pyx_t_3 = 0; {
+    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_APIRouter,__pyx_mstate_global->__pyx_n_u_HTTPException,__pyx_mstate_global->__pyx_n_u_Depends};
+    for (__pyx_t_3=0; __pyx_t_3 < 3; __pyx_t_3++) {
       __pyx_t_4 = __Pyx_ImportFrom(__pyx_t_2, __pyx_imported_names[__pyx_t_3]); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 7, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_imported_names[__pyx_t_3], __pyx_t_4) < (0)) __PYX_ERR(0, 7, __pyx_L1_error)
@@ -10234,21 +12604,45 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "licensing/api.py":9
+  /* "licensing/api.py":8
+ * 
+ * from fastapi import APIRouter, HTTPException, Depends
+ * from pydantic import BaseModel, Field             # <<<<<<<<<<<<<<
  * from sqlalchemy.orm import Session
  * 
- * from app.database.database import get_db             # <<<<<<<<<<<<<<
- * from app.database.models import ProductLicense, LicenseActivation
- * from app.services.licensing.machine_fingerprint import MachineFingerprint
 */
   {
-    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_get_db};
-    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_app_database_database, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 9, __pyx_L1_error)
+    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_BaseModel,__pyx_mstate_global->__pyx_n_u_Field};
+    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_pydantic, __pyx_imported_names, 2, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 8, __pyx_L1_error)
   }
   __pyx_t_2 = __pyx_t_1;
   __Pyx_GOTREF(__pyx_t_2);
   {
-    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_get_db};
+    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_BaseModel,__pyx_mstate_global->__pyx_n_u_Field};
+    for (__pyx_t_3=0; __pyx_t_3 < 2; __pyx_t_3++) {
+      __pyx_t_4 = __Pyx_ImportFrom(__pyx_t_2, __pyx_imported_names[__pyx_t_3]); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 8, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_4);
+      if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_imported_names[__pyx_t_3], __pyx_t_4) < (0)) __PYX_ERR(0, 8, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    }
+  }
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "licensing/api.py":9
+ * from fastapi import APIRouter, HTTPException, Depends
+ * from pydantic import BaseModel, Field
+ * from sqlalchemy.orm import Session             # <<<<<<<<<<<<<<
+ * 
+ * from app.database.database import get_db
+*/
+  {
+    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_Session};
+    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_sqlalchemy_orm, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 9, __pyx_L1_error)
+  }
+  __pyx_t_2 = __pyx_t_1;
+  __Pyx_GOTREF(__pyx_t_2);
+  {
+    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_Session};
     __pyx_t_3 = 0; {
       __pyx_t_4 = __Pyx_ImportFrom(__pyx_t_2, __pyx_imported_names[__pyx_t_3]); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 9, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
@@ -10258,45 +12652,21 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "licensing/api.py":10
- * 
- * from app.database.database import get_db
- * from app.database.models import ProductLicense, LicenseActivation             # <<<<<<<<<<<<<<
- * from app.services.licensing.machine_fingerprint import MachineFingerprint
- * from app.services.licensing.crypto import LicenseCrypto
-*/
-  {
-    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_ProductLicense,__pyx_mstate_global->__pyx_n_u_LicenseActivation};
-    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_app_database_models, __pyx_imported_names, 2, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 10, __pyx_L1_error)
-  }
-  __pyx_t_2 = __pyx_t_1;
-  __Pyx_GOTREF(__pyx_t_2);
-  {
-    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_ProductLicense,__pyx_mstate_global->__pyx_n_u_LicenseActivation};
-    for (__pyx_t_3=0; __pyx_t_3 < 2; __pyx_t_3++) {
-      __pyx_t_4 = __Pyx_ImportFrom(__pyx_t_2, __pyx_imported_names[__pyx_t_3]); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 10, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_4);
-      if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_imported_names[__pyx_t_3], __pyx_t_4) < (0)) __PYX_ERR(0, 10, __pyx_L1_error)
-      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    }
-  }
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-
   /* "licensing/api.py":11
- * from app.database.database import get_db
- * from app.database.models import ProductLicense, LicenseActivation
- * from app.services.licensing.machine_fingerprint import MachineFingerprint             # <<<<<<<<<<<<<<
- * from app.services.licensing.crypto import LicenseCrypto
+ * from sqlalchemy.orm import Session
  * 
+ * from app.database.database import get_db             # <<<<<<<<<<<<<<
+ * from app.database.models import ProductLicense, LicenseActivation
+ * from app.services.licensing.crypto import LicenseCrypto
 */
   {
-    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_MachineFingerprint};
-    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_app_services_licensing_machine_f, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 11, __pyx_L1_error)
+    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_get_db};
+    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_app_database_database, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 11, __pyx_L1_error)
   }
   __pyx_t_2 = __pyx_t_1;
   __Pyx_GOTREF(__pyx_t_2);
   {
-    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_MachineFingerprint};
+    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_get_db};
     __pyx_t_3 = 0; {
       __pyx_t_4 = __Pyx_ImportFrom(__pyx_t_2, __pyx_imported_names[__pyx_t_3]); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 11, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
@@ -10307,21 +12677,21 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "licensing/api.py":12
- * from app.database.models import ProductLicense, LicenseActivation
- * from app.services.licensing.machine_fingerprint import MachineFingerprint
- * from app.services.licensing.crypto import LicenseCrypto             # <<<<<<<<<<<<<<
  * 
+ * from app.database.database import get_db
+ * from app.database.models import ProductLicense, LicenseActivation             # <<<<<<<<<<<<<<
+ * from app.services.licensing.crypto import LicenseCrypto
  * 
 */
   {
-    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_LicenseCrypto};
-    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_app_services_licensing_crypto, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 12, __pyx_L1_error)
+    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_ProductLicense,__pyx_mstate_global->__pyx_n_u_LicenseActivation};
+    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_app_database_models, __pyx_imported_names, 2, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 12, __pyx_L1_error)
   }
   __pyx_t_2 = __pyx_t_1;
   __Pyx_GOTREF(__pyx_t_2);
   {
-    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_LicenseCrypto};
-    __pyx_t_3 = 0; {
+    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_ProductLicense,__pyx_mstate_global->__pyx_n_u_LicenseActivation};
+    for (__pyx_t_3=0; __pyx_t_3 < 2; __pyx_t_3++) {
       __pyx_t_4 = __Pyx_ImportFrom(__pyx_t_2, __pyx_imported_names[__pyx_t_3]); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 12, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_imported_names[__pyx_t_3], __pyx_t_4) < (0)) __PYX_ERR(0, 12, __pyx_L1_error)
@@ -10330,7 +12700,31 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "licensing/api.py":15
+  /* "licensing/api.py":13
+ * from app.database.database import get_db
+ * from app.database.models import ProductLicense, LicenseActivation
+ * from app.services.licensing.crypto import LicenseCrypto             # <<<<<<<<<<<<<<
+ * 
+ * 
+*/
+  {
+    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_LicenseCrypto};
+    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_app_services_licensing_crypto, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 13, __pyx_L1_error)
+  }
+  __pyx_t_2 = __pyx_t_1;
+  __Pyx_GOTREF(__pyx_t_2);
+  {
+    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_LicenseCrypto};
+    __pyx_t_3 = 0; {
+      __pyx_t_4 = __Pyx_ImportFrom(__pyx_t_2, __pyx_imported_names[__pyx_t_3]); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 13, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_4);
+      if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_imported_names[__pyx_t_3], __pyx_t_4) < (0)) __PYX_ERR(0, 13, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    }
+  }
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "licensing/api.py":16
  * 
  * 
  * router = APIRouter(prefix="/api/license", tags=["licensing"])             # <<<<<<<<<<<<<<
@@ -10338,25 +12732,25 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
  * 
 */
   __pyx_t_4 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_APIRouter); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 15, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_APIRouter); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 16, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   {
     PyObject* __pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_licensing};
-    __pyx_t_6 = __Pyx_PyList_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 15, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyList_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 16, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
   }
   __pyx_t_7 = 1;
   {
     PyObject *__pyx_callargs[3] = {__pyx_t_4, __pyx_mstate_global->__pyx_kp_u_api_license, __pyx_t_6};
     #if CYTHON_VECTORCALL
-    __pyx_t_8 = __pyx_mstate_global->__pyx_tuple[7];
-    if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 15, __pyx_L1_error)
+    __pyx_t_8 = __pyx_mstate_global->__pyx_tuple[16];
+    if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 16, __pyx_L1_error)
     __Pyx_INCREF(__pyx_t_8);
     #else
     {
       PyObject *__pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_prefix, __pyx_mstate_global->__pyx_n_u_tags};
       __pyx_t_8 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
-      if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 15, __pyx_L1_error)
+      if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 16, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_8);
     }
     #endif
@@ -10365,53 +12759,53 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 15, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 16, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
   }
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_router, __pyx_t_2) < (0)) __PYX_ERR(0, 15, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_router, __pyx_t_2) < (0)) __PYX_ERR(0, 16, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "licensing/api.py":23
+  /* "licensing/api.py":24
  * 
  * 
  * class ActivationRequest(BaseModel):             # <<<<<<<<<<<<<<
  *     """Request model for license activation."""
- * 
+ *     product_key: str = Field(..., description="The product key to activate")
 */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_BaseModel); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 23, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_BaseModel); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   {
     PyObject* __pyx_temp[1] = {__pyx_t_2};
-    __pyx_t_5 = __Pyx_PyTuple_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 23, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyTuple_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 24, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PEP560_update_bases(__pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 23, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PEP560_update_bases(__pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_8 = __Pyx_CalculateMetaclass(NULL, __pyx_t_2); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 23, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_CalculateMetaclass(NULL, __pyx_t_2); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  __pyx_t_6 = __Pyx_Py3MetaclassPrepare(__pyx_t_8, __pyx_t_2, __pyx_mstate_global->__pyx_n_u_ActivationRequest, __pyx_mstate_global->__pyx_n_u_ActivationRequest, (PyObject *) NULL, __pyx_mstate_global->__pyx_n_u_licensing_api, __pyx_mstate_global->__pyx_kp_u_Request_model_for_license_activa); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 23, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_Py3MetaclassPrepare(__pyx_t_8, __pyx_t_2, __pyx_mstate_global->__pyx_n_u_ActivationRequest, __pyx_mstate_global->__pyx_n_u_ActivationRequest, (PyObject *) NULL, __pyx_mstate_global->__pyx_n_u_licensing_api, __pyx_mstate_global->__pyx_kp_u_Request_model_for_license_activa); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   if (__pyx_t_2 != __pyx_t_5) {
-    if (unlikely((PyDict_SetItemString(__pyx_t_6, "__orig_bases__", __pyx_t_5) < 0))) __PYX_ERR(0, 23, __pyx_L1_error)
+    if (unlikely((PyDict_SetItemString(__pyx_t_6, "__orig_bases__", __pyx_t_5) < 0))) __PYX_ERR(0, 24, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = __Pyx_PyDict_NewPresized(5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 23, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyDict_NewPresized(5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_product_key, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 23, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_machine_fingerprint, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 23, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_user_email, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 23, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_user_name, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 23, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_machine_info, __pyx_mstate_global->__pyx_kp_u_Dict_str_Any) < (0)) __PYX_ERR(0, 23, __pyx_L1_error)
-  if (__Pyx_SetNameInClass(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_annotations, __pyx_t_5) < (0)) __PYX_ERR(0, 23, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_product_key, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 24, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_machine_fingerprint, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 24, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_user_email, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 24, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_user_name, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 24, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_machine_info, __pyx_mstate_global->__pyx_kp_u_Dict_str_Any) < (0)) __PYX_ERR(0, 24, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_annotations, __pyx_t_5) < (0)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
   /* "licensing/api.py":26
+ * class ActivationRequest(BaseModel):
  *     """Request model for license activation."""
- * 
  *     product_key: str = Field(..., description="The product key to activate")             # <<<<<<<<<<<<<<
  *     machine_fingerprint: str = Field(..., description="Machine fingerprint hash")
- *     user_email: str = Field(..., description="User email for support and tracking")
+ *     user_email: str = Field(default="", description="User email for support and tracking")
 */
   __pyx_t_4 = NULL;
   __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_Field); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 26, __pyx_L1_error)
@@ -10420,7 +12814,7 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
   {
     PyObject *__pyx_callargs[3] = {__pyx_t_4, Py_Ellipsis, __pyx_mstate_global->__pyx_kp_u_The_product_key_to_activate};
     #if CYTHON_VECTORCALL
-    __pyx_t_10 = __pyx_mstate_global->__pyx_tuple[8];
+    __pyx_t_10 = __pyx_mstate_global->__pyx_tuple[17];
     if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 26, __pyx_L1_error)
     __Pyx_INCREF(__pyx_t_10);
     #else
@@ -10442,10 +12836,10 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
   /* "licensing/api.py":27
- * 
+ *     """Request model for license activation."""
  *     product_key: str = Field(..., description="The product key to activate")
  *     machine_fingerprint: str = Field(..., description="Machine fingerprint hash")             # <<<<<<<<<<<<<<
- *     user_email: str = Field(..., description="User email for support and tracking")
+ *     user_email: str = Field(default="", description="User email for support and tracking")
  *     user_name: str = Field(default="", description="User name for support")
 */
   __pyx_t_9 = NULL;
@@ -10455,7 +12849,7 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
   {
     PyObject *__pyx_callargs[3] = {__pyx_t_9, Py_Ellipsis, __pyx_mstate_global->__pyx_kp_u_Machine_fingerprint_hash};
     #if CYTHON_VECTORCALL
-    __pyx_t_4 = __pyx_mstate_global->__pyx_tuple[8];
+    __pyx_t_4 = __pyx_mstate_global->__pyx_tuple[17];
     if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 27, __pyx_L1_error)
     __Pyx_INCREF(__pyx_t_4);
     #else
@@ -10479,7 +12873,7 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
   /* "licensing/api.py":28
  *     product_key: str = Field(..., description="The product key to activate")
  *     machine_fingerprint: str = Field(..., description="Machine fingerprint hash")
- *     user_email: str = Field(..., description="User email for support and tracking")             # <<<<<<<<<<<<<<
+ *     user_email: str = Field(default="", description="User email for support and tracking")             # <<<<<<<<<<<<<<
  *     user_name: str = Field(default="", description="User name for support")
  *     machine_info: Dict[str, Any] = Field(default_factory=dict, description="Additional machine info")
 */
@@ -10488,20 +12882,20 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_7 = 1;
   {
-    PyObject *__pyx_callargs[3] = {__pyx_t_10, Py_Ellipsis, __pyx_mstate_global->__pyx_kp_u_User_email_for_support_and_track};
+    PyObject *__pyx_callargs[3] = {__pyx_t_10, __pyx_mstate_global->__pyx_kp_u__3, __pyx_mstate_global->__pyx_kp_u_User_email_for_support_and_track};
     #if CYTHON_VECTORCALL
-    __pyx_t_9 = __pyx_mstate_global->__pyx_tuple[8];
+    __pyx_t_9 = __pyx_mstate_global->__pyx_tuple[18];
     if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 28, __pyx_L1_error)
     __Pyx_INCREF(__pyx_t_9);
     #else
     {
-      PyObject *__pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_description};
-      __pyx_t_9 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+2, 1);
+      PyObject *__pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_default, __pyx_mstate_global->__pyx_n_u_description};
+      __pyx_t_9 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
       if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 28, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_9);
     }
     #endif
-    __pyx_t_5 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_9);
+    __pyx_t_5 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_9);
     __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -10513,7 +12907,7 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
 
   /* "licensing/api.py":29
  *     machine_fingerprint: str = Field(..., description="Machine fingerprint hash")
- *     user_email: str = Field(..., description="User email for support and tracking")
+ *     user_email: str = Field(default="", description="User email for support and tracking")
  *     user_name: str = Field(default="", description="User name for support")             # <<<<<<<<<<<<<<
  *     machine_info: Dict[str, Any] = Field(default_factory=dict, description="Additional machine info")
  * 
@@ -10525,7 +12919,7 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
   {
     PyObject *__pyx_callargs[3] = {__pyx_t_4, __pyx_mstate_global->__pyx_kp_u__3, __pyx_mstate_global->__pyx_kp_u_User_name_for_support};
     #if CYTHON_VECTORCALL
-    __pyx_t_10 = __pyx_mstate_global->__pyx_tuple[9];
+    __pyx_t_10 = __pyx_mstate_global->__pyx_tuple[18];
     if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 29, __pyx_L1_error)
     __Pyx_INCREF(__pyx_t_10);
     #else
@@ -10547,7 +12941,7 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
   /* "licensing/api.py":30
- *     user_email: str = Field(..., description="User email for support and tracking")
+ *     user_email: str = Field(default="", description="User email for support and tracking")
  *     user_name: str = Field(default="", description="User name for support")
  *     machine_info: Dict[str, Any] = Field(default_factory=dict, description="Additional machine info")             # <<<<<<<<<<<<<<
  * 
@@ -10560,7 +12954,7 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
   {
     PyObject *__pyx_callargs[3] = {__pyx_t_9, ((PyObject *)(&PyDict_Type)), __pyx_mstate_global->__pyx_kp_u_Additional_machine_info};
     #if CYTHON_VECTORCALL
-    __pyx_t_4 = __pyx_mstate_global->__pyx_tuple[10];
+    __pyx_t_4 = __pyx_mstate_global->__pyx_tuple[19];
     if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 30, __pyx_L1_error)
     __Pyx_INCREF(__pyx_t_4);
     #else
@@ -10581,19 +12975,19 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
   if (__Pyx_SetNameInClass(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_machine_info, __pyx_t_5) < (0)) __PYX_ERR(0, 30, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "licensing/api.py":23
+  /* "licensing/api.py":24
  * 
  * 
  * class ActivationRequest(BaseModel):             # <<<<<<<<<<<<<<
  *     """Request model for license activation."""
- * 
+ *     product_key: str = Field(..., description="The product key to activate")
 */
-  __pyx_t_5 = __Pyx_Py3ClassCreate(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_ActivationRequest, __pyx_t_2, __pyx_t_6, NULL, 0, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 23, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_Py3ClassCreate(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_ActivationRequest, __pyx_t_2, __pyx_t_6, NULL, 0, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_5);
   #endif
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_ActivationRequest, __pyx_t_5) < (0)) __PYX_ERR(0, 23, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_ActivationRequest, __pyx_t_5) < (0)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
@@ -10604,7 +12998,7 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
  * 
  * class ActivationResponse(BaseModel):             # <<<<<<<<<<<<<<
  *     """Response model for successful activation."""
- * 
+ *     success: bool
 */
   __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_BaseModel); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 33, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -10635,7 +13029,7 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
   if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_annotations, __pyx_t_8) < (0)) __PYX_ERR(0, 33, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-  /* "licensing/api.py":41
+  /* "licensing/api.py":40
  *     remaining_credits: int
  *     expiry_date: str
  *     activation_id: int             # <<<<<<<<<<<<<<
@@ -10653,61 +13047,61 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "licensing/api.py":44
+  /* "licensing/api.py":43
  * 
  * 
  * class ValidationRequest(BaseModel):             # <<<<<<<<<<<<<<
  *     """Request model for license validation."""
- * 
+ *     product_key: str = Field(..., description="The product key to validate")
 */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_BaseModel); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 44, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_BaseModel); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 43, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   {
     PyObject* __pyx_temp[1] = {__pyx_t_2};
-    __pyx_t_6 = __Pyx_PyTuple_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 44, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyTuple_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 43, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PEP560_update_bases(__pyx_t_6); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 44, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PEP560_update_bases(__pyx_t_6); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 43, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_5 = __Pyx_CalculateMetaclass(NULL, __pyx_t_2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 44, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_CalculateMetaclass(NULL, __pyx_t_2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 43, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_8 = __Pyx_Py3MetaclassPrepare(__pyx_t_5, __pyx_t_2, __pyx_mstate_global->__pyx_n_u_ValidationRequest, __pyx_mstate_global->__pyx_n_u_ValidationRequest, (PyObject *) NULL, __pyx_mstate_global->__pyx_n_u_licensing_api, __pyx_mstate_global->__pyx_kp_u_Request_model_for_license_valida); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 44, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_Py3MetaclassPrepare(__pyx_t_5, __pyx_t_2, __pyx_mstate_global->__pyx_n_u_ValidationRequest, __pyx_mstate_global->__pyx_n_u_ValidationRequest, (PyObject *) NULL, __pyx_mstate_global->__pyx_n_u_licensing_api, __pyx_mstate_global->__pyx_kp_u_Request_model_for_license_valida); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 43, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   if (__pyx_t_2 != __pyx_t_6) {
-    if (unlikely((PyDict_SetItemString(__pyx_t_8, "__orig_bases__", __pyx_t_6) < 0))) __PYX_ERR(0, 44, __pyx_L1_error)
+    if (unlikely((PyDict_SetItemString(__pyx_t_8, "__orig_bases__", __pyx_t_6) < 0))) __PYX_ERR(0, 43, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_6 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 44, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 43, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  if (PyDict_SetItem(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_product_key, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 44, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_machine_fingerprint, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 44, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_activation_id, __pyx_mstate_global->__pyx_n_u_int) < (0)) __PYX_ERR(0, 44, __pyx_L1_error)
-  if (__Pyx_SetNameInClass(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_annotations, __pyx_t_6) < (0)) __PYX_ERR(0, 44, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_product_key, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 43, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_machine_fingerprint, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 43, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_activation_id, __pyx_mstate_global->__pyx_n_u_int) < (0)) __PYX_ERR(0, 43, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_annotations, __pyx_t_6) < (0)) __PYX_ERR(0, 43, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-  /* "licensing/api.py":47
+  /* "licensing/api.py":45
+ * class ValidationRequest(BaseModel):
  *     """Request model for license validation."""
- * 
  *     product_key: str = Field(..., description="The product key to validate")             # <<<<<<<<<<<<<<
  *     machine_fingerprint: str = Field(..., description="Current machine fingerprint")
  *     activation_id: int = Field(..., description="Previous activation ID")
 */
   __pyx_t_10 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_Field); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 47, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_Field); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 45, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_7 = 1;
   {
     PyObject *__pyx_callargs[3] = {__pyx_t_10, Py_Ellipsis, __pyx_mstate_global->__pyx_kp_u_The_product_key_to_validate};
     #if CYTHON_VECTORCALL
-    __pyx_t_9 = __pyx_mstate_global->__pyx_tuple[8];
-    if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 47, __pyx_L1_error)
+    __pyx_t_9 = __pyx_mstate_global->__pyx_tuple[17];
+    if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 45, __pyx_L1_error)
     __Pyx_INCREF(__pyx_t_9);
     #else
     {
       PyObject *__pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_description};
       __pyx_t_9 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+2, 1);
-      if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 47, __pyx_L1_error)
+      if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 45, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_9);
     }
     #endif
@@ -10715,34 +13109,34 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
     __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 47, __pyx_L1_error)
+    if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 45, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
   }
-  if (__Pyx_SetNameInClass(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_product_key, __pyx_t_6) < (0)) __PYX_ERR(0, 47, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_product_key, __pyx_t_6) < (0)) __PYX_ERR(0, 45, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-  /* "licensing/api.py":48
- * 
+  /* "licensing/api.py":46
+ *     """Request model for license validation."""
  *     product_key: str = Field(..., description="The product key to validate")
  *     machine_fingerprint: str = Field(..., description="Current machine fingerprint")             # <<<<<<<<<<<<<<
  *     activation_id: int = Field(..., description="Previous activation ID")
  * 
 */
   __pyx_t_4 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_Field); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 48, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_Field); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 46, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   __pyx_t_7 = 1;
   {
     PyObject *__pyx_callargs[3] = {__pyx_t_4, Py_Ellipsis, __pyx_mstate_global->__pyx_kp_u_Current_machine_fingerprint};
     #if CYTHON_VECTORCALL
-    __pyx_t_10 = __pyx_mstate_global->__pyx_tuple[8];
-    if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 48, __pyx_L1_error)
+    __pyx_t_10 = __pyx_mstate_global->__pyx_tuple[17];
+    if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 46, __pyx_L1_error)
     __Pyx_INCREF(__pyx_t_10);
     #else
     {
       PyObject *__pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_description};
       __pyx_t_10 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+2, 1);
-      if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 48, __pyx_L1_error)
+      if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 46, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_10);
     }
     #endif
@@ -10750,13 +13144,13 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-    if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 48, __pyx_L1_error)
+    if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 46, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
   }
-  if (__Pyx_SetNameInClass(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_machine_fingerprint, __pyx_t_6) < (0)) __PYX_ERR(0, 48, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_machine_fingerprint, __pyx_t_6) < (0)) __PYX_ERR(0, 46, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-  /* "licensing/api.py":49
+  /* "licensing/api.py":47
  *     product_key: str = Field(..., description="The product key to validate")
  *     machine_fingerprint: str = Field(..., description="Current machine fingerprint")
  *     activation_id: int = Field(..., description="Previous activation ID")             # <<<<<<<<<<<<<<
@@ -10764,20 +13158,20 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
  * 
 */
   __pyx_t_9 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_Field); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 49, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_Field); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 47, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
   __pyx_t_7 = 1;
   {
     PyObject *__pyx_callargs[3] = {__pyx_t_9, Py_Ellipsis, __pyx_mstate_global->__pyx_kp_u_Previous_activation_ID};
     #if CYTHON_VECTORCALL
-    __pyx_t_4 = __pyx_mstate_global->__pyx_tuple[8];
-    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 49, __pyx_L1_error)
+    __pyx_t_4 = __pyx_mstate_global->__pyx_tuple[17];
+    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 47, __pyx_L1_error)
     __Pyx_INCREF(__pyx_t_4);
     #else
     {
       PyObject *__pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_description};
       __pyx_t_4 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+2, 1);
-      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 49, __pyx_L1_error)
+      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 47, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
     }
     #endif
@@ -10785,156 +13179,156 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
     __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-    if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 49, __pyx_L1_error)
+    if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 47, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
   }
-  if (__Pyx_SetNameInClass(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_activation_id, __pyx_t_6) < (0)) __PYX_ERR(0, 49, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_activation_id, __pyx_t_6) < (0)) __PYX_ERR(0, 47, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-  /* "licensing/api.py":44
+  /* "licensing/api.py":43
  * 
  * 
  * class ValidationRequest(BaseModel):             # <<<<<<<<<<<<<<
  *     """Request model for license validation."""
- * 
+ *     product_key: str = Field(..., description="The product key to validate")
 */
-  __pyx_t_6 = __Pyx_Py3ClassCreate(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_ValidationRequest, __pyx_t_2, __pyx_t_8, NULL, 0, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 44, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_Py3ClassCreate(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_ValidationRequest, __pyx_t_2, __pyx_t_8, NULL, 0, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 43, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_6);
   #endif
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_ValidationRequest, __pyx_t_6) < (0)) __PYX_ERR(0, 44, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_ValidationRequest, __pyx_t_6) < (0)) __PYX_ERR(0, 43, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "licensing/api.py":52
+  /* "licensing/api.py":50
  * 
  * 
  * class ValidationResponse(BaseModel):             # <<<<<<<<<<<<<<
  *     """Response model for license validation."""
- * 
+ *     success: bool
 */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_BaseModel); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 52, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_BaseModel); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 50, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   {
     PyObject* __pyx_temp[1] = {__pyx_t_2};
-    __pyx_t_5 = __Pyx_PyTuple_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 52, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyTuple_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 50, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PEP560_update_bases(__pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 52, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PEP560_update_bases(__pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 50, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_8 = __Pyx_CalculateMetaclass(NULL, __pyx_t_2); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 52, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_CalculateMetaclass(NULL, __pyx_t_2); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 50, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  __pyx_t_6 = __Pyx_Py3MetaclassPrepare(__pyx_t_8, __pyx_t_2, __pyx_mstate_global->__pyx_n_u_ValidationResponse, __pyx_mstate_global->__pyx_n_u_ValidationResponse, (PyObject *) NULL, __pyx_mstate_global->__pyx_n_u_licensing_api, __pyx_mstate_global->__pyx_kp_u_Response_model_for_license_valid); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 52, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_Py3MetaclassPrepare(__pyx_t_8, __pyx_t_2, __pyx_mstate_global->__pyx_n_u_ValidationResponse, __pyx_mstate_global->__pyx_n_u_ValidationResponse, (PyObject *) NULL, __pyx_mstate_global->__pyx_n_u_licensing_api, __pyx_mstate_global->__pyx_kp_u_Response_model_for_license_valid); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 50, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   if (__pyx_t_2 != __pyx_t_5) {
-    if (unlikely((PyDict_SetItemString(__pyx_t_6, "__orig_bases__", __pyx_t_5) < 0))) __PYX_ERR(0, 52, __pyx_L1_error)
+    if (unlikely((PyDict_SetItemString(__pyx_t_6, "__orig_bases__", __pyx_t_5) < 0))) __PYX_ERR(0, 50, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = __Pyx_PyDict_NewPresized(5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 52, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyDict_NewPresized(5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 50, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_success, __pyx_mstate_global->__pyx_n_u_bool) < (0)) __PYX_ERR(0, 52, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 52, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_is_valid, __pyx_mstate_global->__pyx_n_u_bool) < (0)) __PYX_ERR(0, 52, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_license_data, __pyx_mstate_global->__pyx_kp_u_Dict_str_Any_None) < (0)) __PYX_ERR(0, 52, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_remaining_credits, __pyx_mstate_global->__pyx_kp_u_int_None) < (0)) __PYX_ERR(0, 52, __pyx_L1_error)
-  if (__Pyx_SetNameInClass(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_annotations, __pyx_t_5) < (0)) __PYX_ERR(0, 52, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_success, __pyx_mstate_global->__pyx_n_u_bool) < (0)) __PYX_ERR(0, 50, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 50, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_is_valid, __pyx_mstate_global->__pyx_n_u_bool) < (0)) __PYX_ERR(0, 50, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_license_data, __pyx_mstate_global->__pyx_kp_u_Optional_Dict_str_Any) < (0)) __PYX_ERR(0, 50, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_remaining_credits, __pyx_mstate_global->__pyx_kp_u_Optional_int) < (0)) __PYX_ERR(0, 50, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_annotations, __pyx_t_5) < (0)) __PYX_ERR(0, 50, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "licensing/api.py":58
+  /* "licensing/api.py":55
  *     message: str
  *     is_valid: bool
- *     license_data: Dict[str, Any] | None = None             # <<<<<<<<<<<<<<
- *     remaining_credits: int | None = None
+ *     license_data: Optional[Dict[str, Any]] = None             # <<<<<<<<<<<<<<
+ *     remaining_credits: Optional[int] = None
  * 
 */
-  if (__Pyx_SetNameInClass(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_license_data, Py_None) < (0)) __PYX_ERR(0, 58, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_license_data, Py_None) < (0)) __PYX_ERR(0, 55, __pyx_L1_error)
 
-  /* "licensing/api.py":59
+  /* "licensing/api.py":56
  *     is_valid: bool
- *     license_data: Dict[str, Any] | None = None
- *     remaining_credits: int | None = None             # <<<<<<<<<<<<<<
+ *     license_data: Optional[Dict[str, Any]] = None
+ *     remaining_credits: Optional[int] = None             # <<<<<<<<<<<<<<
  * 
  * 
 */
-  if (__Pyx_SetNameInClass(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_remaining_credits, Py_None) < (0)) __PYX_ERR(0, 59, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_remaining_credits, Py_None) < (0)) __PYX_ERR(0, 56, __pyx_L1_error)
 
-  /* "licensing/api.py":52
+  /* "licensing/api.py":50
  * 
  * 
  * class ValidationResponse(BaseModel):             # <<<<<<<<<<<<<<
  *     """Response model for license validation."""
- * 
+ *     success: bool
 */
-  __pyx_t_5 = __Pyx_Py3ClassCreate(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_ValidationResponse, __pyx_t_2, __pyx_t_6, NULL, 0, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 52, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_Py3ClassCreate(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_ValidationResponse, __pyx_t_2, __pyx_t_6, NULL, 0, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 50, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_5);
   #endif
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_ValidationResponse, __pyx_t_5) < (0)) __PYX_ERR(0, 52, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_ValidationResponse, __pyx_t_5) < (0)) __PYX_ERR(0, 50, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "licensing/api.py":62
+  /* "licensing/api.py":59
  * 
  * 
  * class DeactivationRequest(BaseModel):             # <<<<<<<<<<<<<<
  *     """Request model for license deactivation."""
- * 
+ *     product_key: str = Field(..., description="The product key to deactivate")
 */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_BaseModel); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_BaseModel); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 59, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   {
     PyObject* __pyx_temp[1] = {__pyx_t_2};
-    __pyx_t_8 = __Pyx_PyTuple_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 62, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyTuple_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 59, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PEP560_update_bases(__pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PEP560_update_bases(__pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 59, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_6 = __Pyx_CalculateMetaclass(NULL, __pyx_t_2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_CalculateMetaclass(NULL, __pyx_t_2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 59, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_5 = __Pyx_Py3MetaclassPrepare(__pyx_t_6, __pyx_t_2, __pyx_mstate_global->__pyx_n_u_DeactivationRequest, __pyx_mstate_global->__pyx_n_u_DeactivationRequest, (PyObject *) NULL, __pyx_mstate_global->__pyx_n_u_licensing_api, __pyx_mstate_global->__pyx_kp_u_Request_model_for_license_deacti); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_Py3MetaclassPrepare(__pyx_t_6, __pyx_t_2, __pyx_mstate_global->__pyx_n_u_DeactivationRequest, __pyx_mstate_global->__pyx_n_u_DeactivationRequest, (PyObject *) NULL, __pyx_mstate_global->__pyx_n_u_licensing_api, __pyx_mstate_global->__pyx_kp_u_Request_model_for_license_deacti); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 59, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   if (__pyx_t_2 != __pyx_t_8) {
-    if (unlikely((PyDict_SetItemString(__pyx_t_5, "__orig_bases__", __pyx_t_8) < 0))) __PYX_ERR(0, 62, __pyx_L1_error)
+    if (unlikely((PyDict_SetItemString(__pyx_t_5, "__orig_bases__", __pyx_t_8) < 0))) __PYX_ERR(0, 59, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-  __pyx_t_8 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 59, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  if (PyDict_SetItem(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_product_key, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 62, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_activation_id, __pyx_mstate_global->__pyx_n_u_int) < (0)) __PYX_ERR(0, 62, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_reason, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 62, __pyx_L1_error)
-  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_annotations, __pyx_t_8) < (0)) __PYX_ERR(0, 62, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_product_key, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 59, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_activation_id, __pyx_mstate_global->__pyx_n_u_int) < (0)) __PYX_ERR(0, 59, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_reason, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 59, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_annotations, __pyx_t_8) < (0)) __PYX_ERR(0, 59, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-  /* "licensing/api.py":65
+  /* "licensing/api.py":61
+ * class DeactivationRequest(BaseModel):
  *     """Request model for license deactivation."""
- * 
  *     product_key: str = Field(..., description="The product key to deactivate")             # <<<<<<<<<<<<<<
  *     activation_id: int = Field(..., description="Activation ID to deactivate")
  *     reason: str = Field(default="User requested deactivation", description="Reason for deactivation")
 */
   __pyx_t_10 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_Field); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 65, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_Field); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 61, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_7 = 1;
   {
     PyObject *__pyx_callargs[3] = {__pyx_t_10, Py_Ellipsis, __pyx_mstate_global->__pyx_kp_u_The_product_key_to_deactivate};
     #if CYTHON_VECTORCALL
-    __pyx_t_9 = __pyx_mstate_global->__pyx_tuple[8];
-    if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 65, __pyx_L1_error)
+    __pyx_t_9 = __pyx_mstate_global->__pyx_tuple[17];
+    if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 61, __pyx_L1_error)
     __Pyx_INCREF(__pyx_t_9);
     #else
     {
       PyObject *__pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_description};
       __pyx_t_9 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+2, 1);
-      if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 65, __pyx_L1_error)
+      if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 61, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_9);
     }
     #endif
@@ -10942,34 +13336,34 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
     __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 65, __pyx_L1_error)
+    if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 61, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
   }
-  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_product_key, __pyx_t_8) < (0)) __PYX_ERR(0, 65, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_product_key, __pyx_t_8) < (0)) __PYX_ERR(0, 61, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-  /* "licensing/api.py":66
- * 
+  /* "licensing/api.py":62
+ *     """Request model for license deactivation."""
  *     product_key: str = Field(..., description="The product key to deactivate")
  *     activation_id: int = Field(..., description="Activation ID to deactivate")             # <<<<<<<<<<<<<<
  *     reason: str = Field(default="User requested deactivation", description="Reason for deactivation")
  * 
 */
   __pyx_t_4 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_Field); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 66, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_Field); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 62, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   __pyx_t_7 = 1;
   {
     PyObject *__pyx_callargs[3] = {__pyx_t_4, Py_Ellipsis, __pyx_mstate_global->__pyx_kp_u_Activation_ID_to_deactivate};
     #if CYTHON_VECTORCALL
-    __pyx_t_10 = __pyx_mstate_global->__pyx_tuple[8];
-    if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 66, __pyx_L1_error)
+    __pyx_t_10 = __pyx_mstate_global->__pyx_tuple[17];
+    if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 62, __pyx_L1_error)
     __Pyx_INCREF(__pyx_t_10);
     #else
     {
       PyObject *__pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_description};
       __pyx_t_10 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+2, 1);
-      if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 66, __pyx_L1_error)
+      if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 62, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_10);
     }
     #endif
@@ -10977,13 +13371,13 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-    if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 66, __pyx_L1_error)
+    if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 62, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
   }
-  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_activation_id, __pyx_t_8) < (0)) __PYX_ERR(0, 66, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_activation_id, __pyx_t_8) < (0)) __PYX_ERR(0, 62, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-  /* "licensing/api.py":67
+  /* "licensing/api.py":63
  *     product_key: str = Field(..., description="The product key to deactivate")
  *     activation_id: int = Field(..., description="Activation ID to deactivate")
  *     reason: str = Field(default="User requested deactivation", description="Reason for deactivation")             # <<<<<<<<<<<<<<
@@ -10991,20 +13385,20 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
  * 
 */
   __pyx_t_9 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_Field); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 67, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_Field); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 63, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
   __pyx_t_7 = 1;
   {
     PyObject *__pyx_callargs[3] = {__pyx_t_9, __pyx_mstate_global->__pyx_kp_u_User_requested_deactivation, __pyx_mstate_global->__pyx_kp_u_Reason_for_deactivation};
     #if CYTHON_VECTORCALL
-    __pyx_t_4 = __pyx_mstate_global->__pyx_tuple[9];
-    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 67, __pyx_L1_error)
+    __pyx_t_4 = __pyx_mstate_global->__pyx_tuple[18];
+    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 63, __pyx_L1_error)
     __Pyx_INCREF(__pyx_t_4);
     #else
     {
       PyObject *__pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_default, __pyx_mstate_global->__pyx_n_u_description};
       __pyx_t_4 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
-      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 67, __pyx_L1_error)
+      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 63, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
     }
     #endif
@@ -11012,383 +13406,855 @@ __Pyx_RefNannySetupContext("PyInit_api", 0);
     __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-    if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 67, __pyx_L1_error)
+    if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 63, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
   }
-  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_reason, __pyx_t_8) < (0)) __PYX_ERR(0, 67, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_reason, __pyx_t_8) < (0)) __PYX_ERR(0, 63, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-  /* "licensing/api.py":62
+  /* "licensing/api.py":59
  * 
  * 
  * class DeactivationRequest(BaseModel):             # <<<<<<<<<<<<<<
  *     """Request model for license deactivation."""
- * 
+ *     product_key: str = Field(..., description="The product key to deactivate")
 */
-  __pyx_t_8 = __Pyx_Py3ClassCreate(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_DeactivationRequest, __pyx_t_2, __pyx_t_5, NULL, 0, 0); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_Py3ClassCreate(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_DeactivationRequest, __pyx_t_2, __pyx_t_5, NULL, 0, 0); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 59, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_8);
   #endif
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_DeactivationRequest, __pyx_t_8) < (0)) __PYX_ERR(0, 62, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_DeactivationRequest, __pyx_t_8) < (0)) __PYX_ERR(0, 59, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "licensing/api.py":70
+  /* "licensing/api.py":66
  * 
  * 
  * class DeactivationResponse(BaseModel):             # <<<<<<<<<<<<<<
  *     """Response model for deactivation."""
- * 
+ *     success: bool
 */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_BaseModel); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 70, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_BaseModel); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   {
     PyObject* __pyx_temp[1] = {__pyx_t_2};
-    __pyx_t_6 = __Pyx_PyTuple_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 70, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyTuple_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 66, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PEP560_update_bases(__pyx_t_6); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 70, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PEP560_update_bases(__pyx_t_6); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_5 = __Pyx_CalculateMetaclass(NULL, __pyx_t_2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 70, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_CalculateMetaclass(NULL, __pyx_t_2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_8 = __Pyx_Py3MetaclassPrepare(__pyx_t_5, __pyx_t_2, __pyx_mstate_global->__pyx_n_u_DeactivationResponse, __pyx_mstate_global->__pyx_n_u_DeactivationResponse, (PyObject *) NULL, __pyx_mstate_global->__pyx_n_u_licensing_api, __pyx_mstate_global->__pyx_kp_u_Response_model_for_deactivation); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 70, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_Py3MetaclassPrepare(__pyx_t_5, __pyx_t_2, __pyx_mstate_global->__pyx_n_u_DeactivationResponse, __pyx_mstate_global->__pyx_n_u_DeactivationResponse, (PyObject *) NULL, __pyx_mstate_global->__pyx_n_u_licensing_api, __pyx_mstate_global->__pyx_kp_u_Response_model_for_deactivation); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   if (__pyx_t_2 != __pyx_t_6) {
-    if (unlikely((PyDict_SetItemString(__pyx_t_8, "__orig_bases__", __pyx_t_6) < 0))) __PYX_ERR(0, 70, __pyx_L1_error)
+    if (unlikely((PyDict_SetItemString(__pyx_t_8, "__orig_bases__", __pyx_t_6) < 0))) __PYX_ERR(0, 66, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_6 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 70, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  if (PyDict_SetItem(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_success, __pyx_mstate_global->__pyx_n_u_bool) < (0)) __PYX_ERR(0, 70, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 70, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_credits_restored, __pyx_mstate_global->__pyx_n_u_int) < (0)) __PYX_ERR(0, 70, __pyx_L1_error)
-  if (__Pyx_SetNameInClass(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_annotations, __pyx_t_6) < (0)) __PYX_ERR(0, 70, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_success, __pyx_mstate_global->__pyx_n_u_bool) < (0)) __PYX_ERR(0, 66, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 66, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_credits_restored, __pyx_mstate_global->__pyx_n_u_int) < (0)) __PYX_ERR(0, 66, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_annotations, __pyx_t_6) < (0)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-  /* "licensing/api.py":75
+  /* "licensing/api.py":70
  *     success: bool
  *     message: str
  *     credits_restored: int             # <<<<<<<<<<<<<<
  * 
  * 
 */
-  __pyx_t_6 = __Pyx_Py3ClassCreate(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_DeactivationResponse, __pyx_t_2, __pyx_t_8, NULL, 0, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 70, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_Py3ClassCreate(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_DeactivationResponse, __pyx_t_2, __pyx_t_8, NULL, 0, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_6);
   #endif
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_DeactivationResponse, __pyx_t_6) < (0)) __PYX_ERR(0, 70, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_DeactivationResponse, __pyx_t_6) < (0)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "licensing/api.py":83
+  /* "licensing/api.py":73
+ * 
+ * 
+ * class RegisterLicenseRequest(BaseModel):             # <<<<<<<<<<<<<<
+ *     """Request model for registering a new license key."""
+ *     product_key: str = Field(..., description="The product key to register")
+*/
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_BaseModel); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 73, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  {
+    PyObject* __pyx_temp[1] = {__pyx_t_2};
+    __pyx_t_5 = __Pyx_PyTuple_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 73, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+  }
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_2 = __Pyx_PEP560_update_bases(__pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 73, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_8 = __Pyx_CalculateMetaclass(NULL, __pyx_t_2); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 73, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_8);
+  __pyx_t_6 = __Pyx_Py3MetaclassPrepare(__pyx_t_8, __pyx_t_2, __pyx_mstate_global->__pyx_n_u_RegisterLicenseRequest, __pyx_mstate_global->__pyx_n_u_RegisterLicenseRequest, (PyObject *) NULL, __pyx_mstate_global->__pyx_n_u_licensing_api, __pyx_mstate_global->__pyx_kp_u_Request_model_for_registering_a); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 73, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_6);
+  if (__pyx_t_2 != __pyx_t_5) {
+    if (unlikely((PyDict_SetItemString(__pyx_t_6, "__orig_bases__", __pyx_t_5) < 0))) __PYX_ERR(0, 73, __pyx_L1_error)
+  }
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  __pyx_t_5 = __Pyx_PyDict_NewPresized(7); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 73, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_product_key, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 73, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_product_name, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 73, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_version, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 73, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_credits, __pyx_mstate_global->__pyx_n_u_int) < (0)) __PYX_ERR(0, 73, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_expiry_days, __pyx_mstate_global->__pyx_n_u_int) < (0)) __PYX_ERR(0, 73, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_admin_secret, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 73, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_metadata, __pyx_mstate_global->__pyx_kp_u_Dict_str_Any) < (0)) __PYX_ERR(0, 73, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_annotations, __pyx_t_5) < (0)) __PYX_ERR(0, 73, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+
+  /* "licensing/api.py":75
+ * class RegisterLicenseRequest(BaseModel):
+ *     """Request model for registering a new license key."""
+ *     product_key: str = Field(..., description="The product key to register")             # <<<<<<<<<<<<<<
+ *     product_name: str = Field(default="LLS CBT", description="Product name")
+ *     version: str = Field(default="1.0.0", description="Product version")
+*/
+  __pyx_t_10 = NULL;
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_Field); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 75, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_7 = 1;
+  {
+    PyObject *__pyx_callargs[3] = {__pyx_t_10, Py_Ellipsis, __pyx_mstate_global->__pyx_kp_u_The_product_key_to_register};
+    #if CYTHON_VECTORCALL
+    __pyx_t_9 = __pyx_mstate_global->__pyx_tuple[17];
+    if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 75, __pyx_L1_error)
+    __Pyx_INCREF(__pyx_t_9);
+    #else
+    {
+      PyObject *__pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_description};
+      __pyx_t_9 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+2, 1);
+      if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 75, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_9);
+    }
+    #endif
+    __pyx_t_5 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_9);
+    __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
+    __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 75, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+  }
+  if (__Pyx_SetNameInClass(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_product_key, __pyx_t_5) < (0)) __PYX_ERR(0, 75, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+
+  /* "licensing/api.py":76
+ *     """Request model for registering a new license key."""
+ *     product_key: str = Field(..., description="The product key to register")
+ *     product_name: str = Field(default="LLS CBT", description="Product name")             # <<<<<<<<<<<<<<
+ *     version: str = Field(default="1.0.0", description="Product version")
+ *     credits: int = Field(default=2, description="Number of activation credits")
+*/
+  __pyx_t_4 = NULL;
+  __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_Field); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 76, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_9);
+  __pyx_t_7 = 1;
+  {
+    PyObject *__pyx_callargs[3] = {__pyx_t_4, __pyx_mstate_global->__pyx_kp_u_LLS_CBT, __pyx_mstate_global->__pyx_kp_u_Product_name};
+    #if CYTHON_VECTORCALL
+    __pyx_t_10 = __pyx_mstate_global->__pyx_tuple[18];
+    if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 76, __pyx_L1_error)
+    __Pyx_INCREF(__pyx_t_10);
+    #else
+    {
+      PyObject *__pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_default, __pyx_mstate_global->__pyx_n_u_description};
+      __pyx_t_10 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
+      if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 76, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_10);
+    }
+    #endif
+    __pyx_t_5 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_9, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_10);
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
+    __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+    if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 76, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+  }
+  if (__Pyx_SetNameInClass(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_product_name, __pyx_t_5) < (0)) __PYX_ERR(0, 76, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+
+  /* "licensing/api.py":77
+ *     product_key: str = Field(..., description="The product key to register")
+ *     product_name: str = Field(default="LLS CBT", description="Product name")
+ *     version: str = Field(default="1.0.0", description="Product version")             # <<<<<<<<<<<<<<
+ *     credits: int = Field(default=2, description="Number of activation credits")
+ *     expiry_days: int = Field(default=365, description="Days until expiry")
+*/
+  __pyx_t_9 = NULL;
+  __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_Field); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 77, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_10);
+  __pyx_t_7 = 1;
+  {
+    PyObject *__pyx_callargs[3] = {__pyx_t_9, __pyx_mstate_global->__pyx_kp_u_1_0_0, __pyx_mstate_global->__pyx_kp_u_Product_version};
+    #if CYTHON_VECTORCALL
+    __pyx_t_4 = __pyx_mstate_global->__pyx_tuple[18];
+    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 77, __pyx_L1_error)
+    __Pyx_INCREF(__pyx_t_4);
+    #else
+    {
+      PyObject *__pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_default, __pyx_mstate_global->__pyx_n_u_description};
+      __pyx_t_4 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
+      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 77, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_4);
+    }
+    #endif
+    __pyx_t_5 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_10, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_4);
+    __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
+    if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 77, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+  }
+  if (__Pyx_SetNameInClass(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_version, __pyx_t_5) < (0)) __PYX_ERR(0, 77, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+
+  /* "licensing/api.py":78
+ *     product_name: str = Field(default="LLS CBT", description="Product name")
+ *     version: str = Field(default="1.0.0", description="Product version")
+ *     credits: int = Field(default=2, description="Number of activation credits")             # <<<<<<<<<<<<<<
+ *     expiry_days: int = Field(default=365, description="Days until expiry")
+ *     admin_secret: str = Field(default="", description="Admin secret for authorization")
+*/
+  __pyx_t_10 = NULL;
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_Field); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 78, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_7 = 1;
+  {
+    PyObject *__pyx_callargs[3] = {__pyx_t_10, __pyx_mstate_global->__pyx_int_2, __pyx_mstate_global->__pyx_kp_u_Number_of_activation_credits};
+    #if CYTHON_VECTORCALL
+    __pyx_t_9 = __pyx_mstate_global->__pyx_tuple[18];
+    if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 78, __pyx_L1_error)
+    __Pyx_INCREF(__pyx_t_9);
+    #else
+    {
+      PyObject *__pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_default, __pyx_mstate_global->__pyx_n_u_description};
+      __pyx_t_9 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
+      if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 78, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_9);
+    }
+    #endif
+    __pyx_t_5 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_9);
+    __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
+    __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 78, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+  }
+  if (__Pyx_SetNameInClass(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_credits, __pyx_t_5) < (0)) __PYX_ERR(0, 78, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+
+  /* "licensing/api.py":79
+ *     version: str = Field(default="1.0.0", description="Product version")
+ *     credits: int = Field(default=2, description="Number of activation credits")
+ *     expiry_days: int = Field(default=365, description="Days until expiry")             # <<<<<<<<<<<<<<
+ *     admin_secret: str = Field(default="", description="Admin secret for authorization")
+ *     metadata: Dict[str, Any] = Field(default_factory=dict)
+*/
+  __pyx_t_4 = NULL;
+  __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_Field); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 79, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_9);
+  __pyx_t_7 = 1;
+  {
+    PyObject *__pyx_callargs[3] = {__pyx_t_4, __pyx_mstate_global->__pyx_int_365, __pyx_mstate_global->__pyx_kp_u_Days_until_expiry};
+    #if CYTHON_VECTORCALL
+    __pyx_t_10 = __pyx_mstate_global->__pyx_tuple[18];
+    if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 79, __pyx_L1_error)
+    __Pyx_INCREF(__pyx_t_10);
+    #else
+    {
+      PyObject *__pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_default, __pyx_mstate_global->__pyx_n_u_description};
+      __pyx_t_10 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
+      if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 79, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_10);
+    }
+    #endif
+    __pyx_t_5 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_9, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_10);
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
+    __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+    if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 79, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+  }
+  if (__Pyx_SetNameInClass(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_expiry_days, __pyx_t_5) < (0)) __PYX_ERR(0, 79, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+
+  /* "licensing/api.py":80
+ *     credits: int = Field(default=2, description="Number of activation credits")
+ *     expiry_days: int = Field(default=365, description="Days until expiry")
+ *     admin_secret: str = Field(default="", description="Admin secret for authorization")             # <<<<<<<<<<<<<<
+ *     metadata: Dict[str, Any] = Field(default_factory=dict)
+ * 
+*/
+  __pyx_t_9 = NULL;
+  __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_Field); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 80, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_10);
+  __pyx_t_7 = 1;
+  {
+    PyObject *__pyx_callargs[3] = {__pyx_t_9, __pyx_mstate_global->__pyx_kp_u__3, __pyx_mstate_global->__pyx_kp_u_Admin_secret_for_authorization};
+    #if CYTHON_VECTORCALL
+    __pyx_t_4 = __pyx_mstate_global->__pyx_tuple[18];
+    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 80, __pyx_L1_error)
+    __Pyx_INCREF(__pyx_t_4);
+    #else
+    {
+      PyObject *__pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_default, __pyx_mstate_global->__pyx_n_u_description};
+      __pyx_t_4 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
+      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 80, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_4);
+    }
+    #endif
+    __pyx_t_5 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_10, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_4);
+    __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
+    if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 80, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+  }
+  if (__Pyx_SetNameInClass(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_admin_secret, __pyx_t_5) < (0)) __PYX_ERR(0, 80, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+
+  /* "licensing/api.py":81
+ *     expiry_days: int = Field(default=365, description="Days until expiry")
+ *     admin_secret: str = Field(default="", description="Admin secret for authorization")
+ *     metadata: Dict[str, Any] = Field(default_factory=dict)             # <<<<<<<<<<<<<<
+ * 
+ * 
+*/
+  __pyx_t_10 = NULL;
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_Field); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 81, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_7 = 1;
+  {
+    PyObject *__pyx_callargs[2] = {__pyx_t_10, ((PyObject *)(&PyDict_Type))};
+    #if CYTHON_VECTORCALL
+    __pyx_t_9 = __pyx_mstate_global->__pyx_tuple[20];
+    if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 81, __pyx_L1_error)
+    __Pyx_INCREF(__pyx_t_9);
+    #else
+    {
+      PyObject *__pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_default_factory};
+      __pyx_t_9 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 1);
+      if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 81, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_9);
+    }
+    #endif
+    __pyx_t_5 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_9);
+    __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
+    __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 81, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+  }
+  if (__Pyx_SetNameInClass(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_metadata, __pyx_t_5) < (0)) __PYX_ERR(0, 81, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+
+  /* "licensing/api.py":73
+ * 
+ * 
+ * class RegisterLicenseRequest(BaseModel):             # <<<<<<<<<<<<<<
+ *     """Request model for registering a new license key."""
+ *     product_key: str = Field(..., description="The product key to register")
+*/
+  __pyx_t_5 = __Pyx_Py3ClassCreate(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_RegisterLicenseRequest, __pyx_t_2, __pyx_t_6, NULL, 0, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 73, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
+  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_5);
+  #endif
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_RegisterLicenseRequest, __pyx_t_5) < (0)) __PYX_ERR(0, 73, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+  __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "licensing/api.py":84
+ * 
+ * 
+ * class RegisterLicenseResponse(BaseModel):             # <<<<<<<<<<<<<<
+ *     """Response model for license registration."""
+ *     success: bool
+*/
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_BaseModel); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 84, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  {
+    PyObject* __pyx_temp[1] = {__pyx_t_2};
+    __pyx_t_8 = __Pyx_PyTuple_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 84, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_8);
+  }
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_2 = __Pyx_PEP560_update_bases(__pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 84, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_6 = __Pyx_CalculateMetaclass(NULL, __pyx_t_2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 84, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_6);
+  __pyx_t_5 = __Pyx_Py3MetaclassPrepare(__pyx_t_6, __pyx_t_2, __pyx_mstate_global->__pyx_n_u_RegisterLicenseResponse, __pyx_mstate_global->__pyx_n_u_RegisterLicenseResponse, (PyObject *) NULL, __pyx_mstate_global->__pyx_n_u_licensing_api, __pyx_mstate_global->__pyx_kp_u_Response_model_for_license_regis); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 84, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  if (__pyx_t_2 != __pyx_t_8) {
+    if (unlikely((PyDict_SetItemString(__pyx_t_5, "__orig_bases__", __pyx_t_8) < 0))) __PYX_ERR(0, 84, __pyx_L1_error)
+  }
+  __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+  __pyx_t_8 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 84, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_8);
+  if (PyDict_SetItem(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_success, __pyx_mstate_global->__pyx_n_u_bool) < (0)) __PYX_ERR(0, 84, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 84, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_license_id, __pyx_mstate_global->__pyx_kp_u_Optional_int) < (0)) __PYX_ERR(0, 84, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_annotations, __pyx_t_8) < (0)) __PYX_ERR(0, 84, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+
+  /* "licensing/api.py":88
+ *     success: bool
+ *     message: str
+ *     license_id: Optional[int] = None             # <<<<<<<<<<<<<<
+ * 
+ * 
+*/
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_license_id, Py_None) < (0)) __PYX_ERR(0, 88, __pyx_L1_error)
+
+  /* "licensing/api.py":84
+ * 
+ * 
+ * class RegisterLicenseResponse(BaseModel):             # <<<<<<<<<<<<<<
+ *     """Response model for license registration."""
+ *     success: bool
+*/
+  __pyx_t_8 = __Pyx_Py3ClassCreate(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_RegisterLicenseResponse, __pyx_t_2, __pyx_t_5, NULL, 0, 0); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 84, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_8);
+  #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
+  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_8);
+  #endif
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_RegisterLicenseResponse, __pyx_t_8) < (0)) __PYX_ERR(0, 84, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "licensing/api.py":96
+ * 
+ * 
+ * def _clean_product_key(product_key: str) -> str:             # <<<<<<<<<<<<<<
+ *     """Strip dashes, whitespace, and ensure proper Base64 padding."""
+ *     clean = product_key.strip().replace("-", "").replace(" ", "").replace("\r", "").replace("\n", "")
+*/
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 96, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_product_key, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 96, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_return, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 96, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_CyFunction_New(&__pyx_mdef_9licensing_3api_1_clean_product_key, 0, __pyx_mstate_global->__pyx_n_u_clean_product_key, NULL, __pyx_mstate_global->__pyx_n_u_licensing_api, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[4])); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 96, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_6);
+  #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
+  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_6);
+  #endif
+  __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_6, __pyx_t_2);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_clean_product_key, __pyx_t_6) < (0)) __PYX_ERR(0, 96, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+
+  /* "licensing/api.py":105
+ * 
+ * 
+ * def _get_public_key() -> str:             # <<<<<<<<<<<<<<
+ *     """Get the RSA public key for product key verification."""
+ *     public_key = os.getenv("LICENSE_PUBLIC_KEY")
+*/
+  __pyx_t_6 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 105, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_6);
+  if (PyDict_SetItem(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_return, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 105, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9licensing_3api_3_get_public_key, 0, __pyx_mstate_global->__pyx_n_u_get_public_key, NULL, __pyx_mstate_global->__pyx_n_u_licensing_api, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[5])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 105, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
+  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_2);
+  #endif
+  __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_2, __pyx_t_6);
+  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_get_public_key, __pyx_t_2) < (0)) __PYX_ERR(0, 105, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "licensing/api.py":136
  * 
  * 
  * @router.post("/activate", response_model=ActivationResponse)             # <<<<<<<<<<<<<<
  * async def activate_license(
  *     request: ActivationRequest,
 */
-  __pyx_t_5 = NULL;
   __pyx_t_6 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_router); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 83, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_10);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_post); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 83, __pyx_L1_error)
+  __pyx_t_8 = NULL;
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_router); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 136, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_ActivationResponse); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 83, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_10);
+  __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_post); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 136, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_9);
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_ActivationResponse); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 136, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_7 = 1;
   {
-    PyObject *__pyx_callargs[3] = {__pyx_t_6, __pyx_mstate_global->__pyx_kp_u_activate, __pyx_t_10};
+    PyObject *__pyx_callargs[3] = {__pyx_t_8, __pyx_mstate_global->__pyx_kp_u_activate, __pyx_t_4};
     #if CYTHON_VECTORCALL
-    __pyx_t_9 = __pyx_mstate_global->__pyx_tuple[11];
-    if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 83, __pyx_L1_error)
-    __Pyx_INCREF(__pyx_t_9);
+    __pyx_t_10 = __pyx_mstate_global->__pyx_tuple[21];
+    if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 136, __pyx_L1_error)
+    __Pyx_INCREF(__pyx_t_10);
     #else
     {
       PyObject *__pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_response_model};
-      __pyx_t_9 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+2, 1);
-      if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 83, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_9);
+      __pyx_t_10 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+2, 1);
+      if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 136, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_10);
     }
     #endif
-    __pyx_t_8 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_9);
-    __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
+    __pyx_t_5 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_9, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_10);
+    __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 83, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_8);
+    if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 136, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
   }
-  __pyx_t_4 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 83, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_request, __pyx_mstate_global->__pyx_n_u_ActivationRequest) < (0)) __PYX_ERR(0, 83, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_db, __pyx_mstate_global->__pyx_n_u_Session) < (0)) __PYX_ERR(0, 83, __pyx_L1_error)
-  __pyx_t_9 = __Pyx_CyFunction_New(&__pyx_mdef_9licensing_3api_1activate_license, __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_activate_license, NULL, __pyx_mstate_global->__pyx_n_u_licensing_api, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[0])); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 83, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 136, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
+  if (PyDict_SetItem(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_request, __pyx_mstate_global->__pyx_n_u_ActivationRequest) < (0)) __PYX_ERR(0, 136, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_db, __pyx_mstate_global->__pyx_n_u_Session) < (0)) __PYX_ERR(0, 136, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_CyFunction_New(&__pyx_mdef_9licensing_3api_5activate_license, __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_activate_license, NULL, __pyx_mstate_global->__pyx_n_u_licensing_api, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[0])); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 136, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_10);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
-  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_9);
+  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_10);
   #endif
-  if (!__Pyx_CyFunction_InitDefaults(__pyx_t_9, __pyx_mstate_global->__pyx_ptype_9licensing_3api___pyx_defaults)) __PYX_ERR(0, 83, __pyx_L1_error)
+  if (!__Pyx_CyFunction_InitDefaults(__pyx_t_10, __pyx_mstate_global->__pyx_ptype_9licensing_3api___pyx_defaults)) __PYX_ERR(0, 136, __pyx_L1_error)
 
-  /* "licensing/api.py":86
+  /* "licensing/api.py":139
  * async def activate_license(
  *     request: ActivationRequest,
  *     db: Session = Depends(get_db)             # <<<<<<<<<<<<<<
  * ):
  *     """
 */
-  __pyx_t_6 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_mstate_global->__pyx_n_u_Depends); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 86, __pyx_L1_error)
+  __pyx_t_8 = NULL;
+  __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_mstate_global->__pyx_n_u_Depends); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 139, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
-  __Pyx_GetModuleGlobalName(__pyx_t_12, __pyx_mstate_global->__pyx_n_u_get_db); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 86, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_12, __pyx_mstate_global->__pyx_n_u_get_db); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 139, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_12);
   __pyx_t_7 = 1;
   {
-    PyObject *__pyx_callargs[2] = {__pyx_t_6, __pyx_t_12};
-    __pyx_t_10 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_11, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-    __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
+    PyObject *__pyx_callargs[2] = {__pyx_t_8, __pyx_t_12};
+    __pyx_t_4 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_11, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
     __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-    if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 86, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_10);
+    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 139, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
   }
-  __Pyx_CyFunction_Defaults(struct __pyx_defaults, __pyx_t_9)->arg0 = __pyx_t_10;
-  __Pyx_GIVEREF(__pyx_t_10);
-  __pyx_t_10 = 0;
-  __Pyx_CyFunction_SetDefaultsGetter(__pyx_t_9, __pyx_pf_9licensing_3api_11__defaults__);
-  __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_9, __pyx_t_4);
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __Pyx_CyFunction_Defaults(struct __pyx_defaults, __pyx_t_10)->arg0 = __pyx_t_4;
+  __Pyx_GIVEREF(__pyx_t_4);
+  __pyx_t_4 = 0;
+  __Pyx_CyFunction_SetDefaultsGetter(__pyx_t_10, __pyx_pf_9licensing_3api_16__defaults__);
+  __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_10, __pyx_t_9);
+  __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
   __pyx_t_7 = 1;
   {
-    PyObject *__pyx_callargs[2] = {__pyx_t_5, __pyx_t_9};
-    __pyx_t_2 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_8, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-    __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-    __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 83, __pyx_L1_error)
+    PyObject *__pyx_callargs[2] = {__pyx_t_6, __pyx_t_10};
+    __pyx_t_2 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_5, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
+    __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 136, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
   }
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_activate_license, __pyx_t_2) < (0)) __PYX_ERR(0, 83, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_activate_license, __pyx_t_2) < (0)) __PYX_ERR(0, 136, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "licensing/api.py":217
+  /* "licensing/api.py":270
  * 
  * 
  * @router.post("/validate", response_model=ValidationResponse)             # <<<<<<<<<<<<<<
  * async def validate_license(
  *     request: ValidationRequest,
 */
-  __pyx_t_8 = NULL;
   __pyx_t_5 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_router); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 217, __pyx_L1_error)
+  __pyx_t_6 = NULL;
+  __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_router); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 270, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_9);
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_post); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 270, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_post); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 217, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_10);
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_ValidationResponse); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 217, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+  __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_ValidationResponse); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 270, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_9);
   __pyx_t_7 = 1;
   {
-    PyObject *__pyx_callargs[3] = {__pyx_t_5, __pyx_mstate_global->__pyx_kp_u_validate, __pyx_t_4};
+    PyObject *__pyx_callargs[3] = {__pyx_t_6, __pyx_mstate_global->__pyx_kp_u_validate, __pyx_t_9};
     #if CYTHON_VECTORCALL
-    __pyx_t_11 = __pyx_mstate_global->__pyx_tuple[11];
-    if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 217, __pyx_L1_error)
+    __pyx_t_11 = __pyx_mstate_global->__pyx_tuple[21];
+    if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 270, __pyx_L1_error)
     __Pyx_INCREF(__pyx_t_11);
     #else
     {
       PyObject *__pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_response_model};
       __pyx_t_11 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+2, 1);
-      if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 217, __pyx_L1_error)
+      if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 270, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_11);
     }
     #endif
-    __pyx_t_9 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_10, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_11);
-    __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __pyx_t_10 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_11);
+    __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
+    __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-    __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-    if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 217, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_9);
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 270, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_10);
   }
-  __pyx_t_10 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 217, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_10);
-  if (PyDict_SetItem(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_request, __pyx_mstate_global->__pyx_n_u_ValidationRequest) < (0)) __PYX_ERR(0, 217, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_db, __pyx_mstate_global->__pyx_n_u_Session) < (0)) __PYX_ERR(0, 217, __pyx_L1_error)
-  __pyx_t_11 = __Pyx_CyFunction_New(&__pyx_mdef_9licensing_3api_4validate_license, __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_validate_license, NULL, __pyx_mstate_global->__pyx_n_u_licensing_api, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[1])); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 217, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 270, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_request, __pyx_mstate_global->__pyx_n_u_ValidationRequest) < (0)) __PYX_ERR(0, 270, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_db, __pyx_mstate_global->__pyx_n_u_Session) < (0)) __PYX_ERR(0, 270, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_CyFunction_New(&__pyx_mdef_9licensing_3api_8validate_license, __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_validate_license, NULL, __pyx_mstate_global->__pyx_n_u_licensing_api, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[1])); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 270, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_11);
   #endif
-  if (!__Pyx_CyFunction_InitDefaults(__pyx_t_11, __pyx_mstate_global->__pyx_ptype_9licensing_3api___pyx_defaults)) __PYX_ERR(0, 217, __pyx_L1_error)
+  if (!__Pyx_CyFunction_InitDefaults(__pyx_t_11, __pyx_mstate_global->__pyx_ptype_9licensing_3api___pyx_defaults)) __PYX_ERR(0, 270, __pyx_L1_error)
 
-  /* "licensing/api.py":220
+  /* "licensing/api.py":273
  * async def validate_license(
  *     request: ValidationRequest,
  *     db: Session = Depends(get_db)             # <<<<<<<<<<<<<<
  * ):
- *     """
+ *     """Validate an existing license activation."""
 */
-  __pyx_t_5 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_12, __pyx_mstate_global->__pyx_n_u_Depends); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 220, __pyx_L1_error)
+  __pyx_t_6 = NULL;
+  __Pyx_GetModuleGlobalName(__pyx_t_12, __pyx_mstate_global->__pyx_n_u_Depends); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 273, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_12);
-  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_get_db); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 220, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_6);
+  __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_get_db); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 273, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_8);
   __pyx_t_7 = 1;
   {
-    PyObject *__pyx_callargs[2] = {__pyx_t_5, __pyx_t_6};
-    __pyx_t_4 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_12, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-    __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    PyObject *__pyx_callargs[2] = {__pyx_t_6, __pyx_t_8};
+    __pyx_t_9 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_12, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
+    __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
     __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 220, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
+    if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 273, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_9);
   }
-  __Pyx_CyFunction_Defaults(struct __pyx_defaults, __pyx_t_11)->arg0 = __pyx_t_4;
-  __Pyx_GIVEREF(__pyx_t_4);
-  __pyx_t_4 = 0;
-  __Pyx_CyFunction_SetDefaultsGetter(__pyx_t_11, __pyx_pf_9licensing_3api_13__defaults__);
-  __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_11, __pyx_t_10);
-  __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
+  __Pyx_CyFunction_Defaults(struct __pyx_defaults, __pyx_t_11)->arg0 = __pyx_t_9;
+  __Pyx_GIVEREF(__pyx_t_9);
+  __pyx_t_9 = 0;
+  __Pyx_CyFunction_SetDefaultsGetter(__pyx_t_11, __pyx_pf_9licensing_3api_18__defaults__);
+  __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_11, __pyx_t_4);
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_t_7 = 1;
   {
-    PyObject *__pyx_callargs[2] = {__pyx_t_8, __pyx_t_11};
-    __pyx_t_2 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_9, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-    __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
+    PyObject *__pyx_callargs[2] = {__pyx_t_5, __pyx_t_11};
+    __pyx_t_2 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_10, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-    __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 217, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 270, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
   }
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_validate_license, __pyx_t_2) < (0)) __PYX_ERR(0, 217, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_validate_license, __pyx_t_2) < (0)) __PYX_ERR(0, 270, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "licensing/api.py":335
+  /* "licensing/api.py":348
  * 
  * 
  * @router.post("/deactivate", response_model=DeactivationResponse)             # <<<<<<<<<<<<<<
  * async def deactivate_license(
  *     request: DeactivationRequest,
 */
-  __pyx_t_9 = NULL;
-  __pyx_t_8 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_router); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 335, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_10);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_post); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 335, __pyx_L1_error)
+  __pyx_t_10 = NULL;
+  __pyx_t_5 = NULL;
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_router); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 348, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_DeactivationResponse); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 335, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_10);
+  __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_post); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 348, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_9);
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_DeactivationResponse); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 348, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_7 = 1;
   {
-    PyObject *__pyx_callargs[3] = {__pyx_t_8, __pyx_mstate_global->__pyx_kp_u_deactivate, __pyx_t_10};
+    PyObject *__pyx_callargs[3] = {__pyx_t_5, __pyx_mstate_global->__pyx_kp_u_deactivate, __pyx_t_4};
     #if CYTHON_VECTORCALL
-    __pyx_t_12 = __pyx_mstate_global->__pyx_tuple[11];
-    if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 335, __pyx_L1_error)
+    __pyx_t_12 = __pyx_mstate_global->__pyx_tuple[21];
+    if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 348, __pyx_L1_error)
     __Pyx_INCREF(__pyx_t_12);
     #else
     {
       PyObject *__pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_response_model};
       __pyx_t_12 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+2, 1);
-      if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 335, __pyx_L1_error)
+      if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 348, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_12);
     }
     #endif
-    __pyx_t_11 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_12);
-    __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-    __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-    __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
+    __pyx_t_11 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_9, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_12);
+    __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 335, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
+    __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+    if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 348, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_11);
   }
-  __pyx_t_4 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 335, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_request, __pyx_mstate_global->__pyx_n_u_DeactivationRequest) < (0)) __PYX_ERR(0, 335, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_db, __pyx_mstate_global->__pyx_n_u_Session) < (0)) __PYX_ERR(0, 335, __pyx_L1_error)
-  __pyx_t_12 = __Pyx_CyFunction_New(&__pyx_mdef_9licensing_3api_7deactivate_license, __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_deactivate_license, NULL, __pyx_mstate_global->__pyx_n_u_licensing_api, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[2])); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 335, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 348, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_9);
+  if (PyDict_SetItem(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_request, __pyx_mstate_global->__pyx_n_u_DeactivationRequest) < (0)) __PYX_ERR(0, 348, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_db, __pyx_mstate_global->__pyx_n_u_Session) < (0)) __PYX_ERR(0, 348, __pyx_L1_error)
+  __pyx_t_12 = __Pyx_CyFunction_New(&__pyx_mdef_9licensing_3api_11deactivate_license, __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_deactivate_license, NULL, __pyx_mstate_global->__pyx_n_u_licensing_api, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[2])); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 348, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_12);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_12);
   #endif
-  if (!__Pyx_CyFunction_InitDefaults(__pyx_t_12, __pyx_mstate_global->__pyx_ptype_9licensing_3api___pyx_defaults)) __PYX_ERR(0, 335, __pyx_L1_error)
+  if (!__Pyx_CyFunction_InitDefaults(__pyx_t_12, __pyx_mstate_global->__pyx_ptype_9licensing_3api___pyx_defaults)) __PYX_ERR(0, 348, __pyx_L1_error)
 
-  /* "licensing/api.py":338
+  /* "licensing/api.py":351
  * async def deactivate_license(
  *     request: DeactivationRequest,
  *     db: Session = Depends(get_db)             # <<<<<<<<<<<<<<
  * ):
- *     """
+ *     """Deactivate a license on this machine and restore credit."""
 */
-  __pyx_t_8 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_Depends); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 338, __pyx_L1_error)
+  __pyx_t_5 = NULL;
+  __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_Depends); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 351, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_8);
+  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_get_db); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 351, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_get_db); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 338, __pyx_L1_error)
+  __pyx_t_7 = 1;
+  {
+    PyObject *__pyx_callargs[2] = {__pyx_t_5, __pyx_t_6};
+    __pyx_t_4 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_8, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 351, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+  }
+  __Pyx_CyFunction_Defaults(struct __pyx_defaults, __pyx_t_12)->arg0 = __pyx_t_4;
+  __Pyx_GIVEREF(__pyx_t_4);
+  __pyx_t_4 = 0;
+  __Pyx_CyFunction_SetDefaultsGetter(__pyx_t_12, __pyx_pf_9licensing_3api_20__defaults__);
+  __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_12, __pyx_t_9);
+  __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+  __pyx_t_7 = 1;
+  {
+    PyObject *__pyx_callargs[2] = {__pyx_t_10, __pyx_t_12};
+    __pyx_t_2 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_11, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
+    __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
+    __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 348, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+  }
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_deactivate_license, __pyx_t_2) < (0)) __PYX_ERR(0, 348, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "licensing/api.py":395
+ * 
+ * 
+ * @router.post("/register", response_model=RegisterLicenseResponse)             # <<<<<<<<<<<<<<
+ * async def register_license(
+ *     request: RegisterLicenseRequest,
+*/
+  __pyx_t_11 = NULL;
+  __pyx_t_10 = NULL;
+  __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_router); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 395, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_9);
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_post); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 395, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+  __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_RegisterLicenseResponse); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 395, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_9);
+  __pyx_t_7 = 1;
+  {
+    PyObject *__pyx_callargs[3] = {__pyx_t_10, __pyx_mstate_global->__pyx_kp_u_register, __pyx_t_9};
+    #if CYTHON_VECTORCALL
+    __pyx_t_8 = __pyx_mstate_global->__pyx_tuple[21];
+    if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 395, __pyx_L1_error)
+    __Pyx_INCREF(__pyx_t_8);
+    #else
+    {
+      PyObject *__pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_response_model};
+      __pyx_t_8 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+2, 1);
+      if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 395, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_8);
+    }
+    #endif
+    __pyx_t_12 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_8);
+    __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
+    __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+    __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 395, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_12);
+  }
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 395, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_request, __pyx_mstate_global->__pyx_n_u_RegisterLicenseRequest) < (0)) __PYX_ERR(0, 395, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_db, __pyx_mstate_global->__pyx_n_u_Session) < (0)) __PYX_ERR(0, 395, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_CyFunction_New(&__pyx_mdef_9licensing_3api_14register_license, __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_register_license, NULL, __pyx_mstate_global->__pyx_n_u_licensing_api, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[3])); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 395, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_8);
+  #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
+  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_8);
+  #endif
+  if (!__Pyx_CyFunction_InitDefaults(__pyx_t_8, __pyx_mstate_global->__pyx_ptype_9licensing_3api___pyx_defaults)) __PYX_ERR(0, 395, __pyx_L1_error)
+
+  /* "licensing/api.py":398
+ * async def register_license(
+ *     request: RegisterLicenseRequest,
+ *     db: Session = Depends(get_db)             # <<<<<<<<<<<<<<
+ * ):
+ *     """Admin endpoint to pre-register a product key."""
+*/
+  __pyx_t_10 = NULL;
+  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_Depends); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 398, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_6);
+  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_get_db); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 398, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __pyx_t_7 = 1;
   {
-    PyObject *__pyx_callargs[2] = {__pyx_t_8, __pyx_t_5};
-    __pyx_t_10 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_6, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-    __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
+    PyObject *__pyx_callargs[2] = {__pyx_t_10, __pyx_t_5};
+    __pyx_t_9 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_6, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 338, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_10);
+    if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 398, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_9);
   }
-  __Pyx_CyFunction_Defaults(struct __pyx_defaults, __pyx_t_12)->arg0 = __pyx_t_10;
-  __Pyx_GIVEREF(__pyx_t_10);
-  __pyx_t_10 = 0;
-  __Pyx_CyFunction_SetDefaultsGetter(__pyx_t_12, __pyx_pf_9licensing_3api_15__defaults__);
-  __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_12, __pyx_t_4);
+  __Pyx_CyFunction_Defaults(struct __pyx_defaults, __pyx_t_8)->arg0 = __pyx_t_9;
+  __Pyx_GIVEREF(__pyx_t_9);
+  __pyx_t_9 = 0;
+  __Pyx_CyFunction_SetDefaultsGetter(__pyx_t_8, __pyx_pf_9licensing_3api_22__defaults__);
+  __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_8, __pyx_t_4);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_t_7 = 1;
   {
-    PyObject *__pyx_callargs[2] = {__pyx_t_9, __pyx_t_12};
-    __pyx_t_2 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_11, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-    __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
+    PyObject *__pyx_callargs[2] = {__pyx_t_11, __pyx_t_8};
+    __pyx_t_2 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_12, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
+    __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
     __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-    __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 335, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 395, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
   }
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_deactivate_license, __pyx_t_2) < (0)) __PYX_ERR(0, 335, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_register_license, __pyx_t_2) < (0)) __PYX_ERR(0, 395, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-
-  /* "licensing/api.py":397
- * 
- * 
- * def _get_public_key() -> str:             # <<<<<<<<<<<<<<
- *     """
- *     Get the public key for product key verification.
-*/
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 397, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_return, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 397, __pyx_L1_error)
-  __pyx_t_11 = __Pyx_CyFunction_New(&__pyx_mdef_9licensing_3api_10_get_public_key, 0, __pyx_mstate_global->__pyx_n_u_get_public_key, NULL, __pyx_mstate_global->__pyx_n_u_licensing_api, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[3])); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 397, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_11);
-  #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
-  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_11);
-  #endif
-  __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_11, __pyx_t_2);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_get_public_key, __pyx_t_11) < (0)) __PYX_ERR(0, 397, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
 
   /* "licensing/api.py":1
- * from datetime import datetime             # <<<<<<<<<<<<<<
- * from pathlib import Path
- * from typing import Dict, Any
+ * import json             # <<<<<<<<<<<<<<
+ * import os
+ * from datetime import datetime, timedelta
 */
-  __pyx_t_11 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_11);
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_test, __pyx_t_11) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_test, __pyx_t_2) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /*--- Wrapped vars code ---*/
 
@@ -11442,6 +14308,8 @@ static int __Pyx_InitCachedBuiltins(__pyx_mstatetype *__pyx_mstate) {
   __pyx_mstate->__pyx_umethod_PyDict_Type_pop.method_name = &__pyx_mstate->__pyx_n_u_pop;
   __pyx_mstate->__pyx_umethod_PyDict_Type_values.type = (PyObject*)&PyDict_Type;
   __pyx_mstate->__pyx_umethod_PyDict_Type_values.method_name = &__pyx_mstate->__pyx_n_u_values;
+  __pyx_mstate->__pyx_umethod_PyUnicode_Type__strip.type = (PyObject*)(&PyUnicode_Type);
+  __pyx_mstate->__pyx_umethod_PyUnicode_Type__strip.method_name = &__pyx_mstate->__pyx_n_u_strip;
   return 0;
 }
 /* #### Code section: cached_constants ### */
@@ -11454,22 +14322,36 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
   CYTHON_UNUSED_VAR(__pyx_mstate);
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "licensing/api.py":103
- *         # In production, you should have the public key stored securely
- *         public_key_pem = _get_public_key()
- *         crypto = LicenseCrypto(public_key_pem=public_key_pem)             # <<<<<<<<<<<<<<
+  /* "licensing/api.py":113
+ *     key_file = Path(__file__).parent / "public_key.pem"
+ *     if key_file.exists():
+ *         return key_file.read_text(encoding="utf-8")             # <<<<<<<<<<<<<<
  * 
- *         # Verify and decode product key
+ *     root_key_file = Path(__file__).resolve().parent.parent.parent.parent / "license_public_key.pem"
 */
   {
-    PyObject* __pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_public_key_pem};
-    __pyx_mstate_global->__pyx_tuple[0] = __Pyx_PyTuple_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_mstate_global->__pyx_tuple[0])) __PYX_ERR(0, 103, __pyx_L1_error)
+    PyObject* __pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_encoding};
+    __pyx_mstate_global->__pyx_tuple[0] = __Pyx_PyTuple_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_mstate_global->__pyx_tuple[0])) __PYX_ERR(0, 113, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[0]);
   }
   __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[0]);
 
-  /* "licensing/api.py":109
- *             license_data = crypto.verify_product_key(request.product_key)
+  /* "licensing/api.py":153
+ *     try:
+ *         public_key_pem = _get_public_key()
+ *         crypto = LicenseCrypto(public_key_pem=public_key_pem)             # <<<<<<<<<<<<<<
+ * 
+ *         # Cryptographically verify the product key
+*/
+  {
+    PyObject* __pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_public_key_pem_2};
+    __pyx_mstate_global->__pyx_tuple[1] = __Pyx_PyTuple_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_mstate_global->__pyx_tuple[1])) __PYX_ERR(0, 153, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[1]);
+  }
+  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[1]);
+
+  /* "licensing/api.py":159
+ *             license_data = crypto.verify_product_key(clean_key)
  *         except ValueError as e:
  *             raise HTTPException(status_code=400, detail=f"Invalid product key: {str(e)}")             # <<<<<<<<<<<<<<
  * 
@@ -11477,41 +14359,111 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
 */
   {
     PyObject* __pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_status_code, __pyx_mstate_global->__pyx_n_u_detail};
-    __pyx_mstate_global->__pyx_tuple[1] = __Pyx_PyTuple_FromArray(__pyx_temp, 2); if (unlikely(!__pyx_mstate_global->__pyx_tuple[1])) __PYX_ERR(0, 109, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[1]);
-  }
-  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[1]);
-
-  /* "licensing/api.py":160
- *             db.commit()
- * 
- *             return ActivationResponse(             # <<<<<<<<<<<<<<
- *                 success=True,
- *                 message="License reactivated successfully on same machine",
-*/
-  {
-    PyObject* __pyx_temp[6] = {__pyx_mstate_global->__pyx_n_u_success, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_n_u_license_data, __pyx_mstate_global->__pyx_n_u_remaining_credits, __pyx_mstate_global->__pyx_n_u_expiry_date, __pyx_mstate_global->__pyx_n_u_activation_id};
-    __pyx_mstate_global->__pyx_tuple[2] = __Pyx_PyTuple_FromArray(__pyx_temp, 6); if (unlikely(!__pyx_mstate_global->__pyx_tuple[2])) __PYX_ERR(0, 160, __pyx_L1_error)
+    __pyx_mstate_global->__pyx_tuple[2] = __Pyx_PyTuple_FromArray(__pyx_temp, 2); if (unlikely(!__pyx_mstate_global->__pyx_tuple[2])) __PYX_ERR(0, 159, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[2]);
   }
   __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[2]);
 
-  /* "licensing/api.py":182
+  /* "licensing/api.py":171
+ *                 expiry_dt = datetime.fromisoformat(license_data["expiry"])
+ *             except Exception:
+ *                 expiry_dt = datetime.now() + timedelta(days=365)             # <<<<<<<<<<<<<<
  * 
- *         # Create new activation
- *         new_activation = LicenseActivation(             # <<<<<<<<<<<<<<
- *             license_id=license_record.id,
- *             user_email=request.user_email,
+ *             initial_credits = int(license_data.get("credits", 2))
 */
   {
-    PyObject* __pyx_temp[9] = {__pyx_mstate_global->__pyx_n_u_license_id, __pyx_mstate_global->__pyx_n_u_user_email, __pyx_mstate_global->__pyx_n_u_user_name, __pyx_mstate_global->__pyx_n_u_machine_fingerprint, __pyx_mstate_global->__pyx_n_u_machine_info, __pyx_mstate_global->__pyx_n_u_activated_at, __pyx_mstate_global->__pyx_n_u_server_timestamp, __pyx_mstate_global->__pyx_n_u_last_validated, __pyx_mstate_global->__pyx_n_u_is_valid};
-    __pyx_mstate_global->__pyx_tuple[3] = __Pyx_PyTuple_FromArray(__pyx_temp, 9); if (unlikely(!__pyx_mstate_global->__pyx_tuple[3])) __PYX_ERR(0, 182, __pyx_L1_error)
+    PyObject* __pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_days};
+    __pyx_mstate_global->__pyx_tuple[3] = __Pyx_PyTuple_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_mstate_global->__pyx_tuple[3])) __PYX_ERR(0, 171, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[3]);
   }
   __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[3]);
 
+  /* "licensing/api.py":173
+ *                 expiry_dt = datetime.now() + timedelta(days=365)
+ * 
+ *             initial_credits = int(license_data.get("credits", 2))             # <<<<<<<<<<<<<<
+ *             license_record = ProductLicense(
+ *                 product_key=clean_key,
+*/
+  {
+    PyObject* __pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_credits, __pyx_mstate_global->__pyx_int_2};
+    __pyx_mstate_global->__pyx_tuple[4] = __Pyx_PyTuple_FromArray(__pyx_temp, 2); if (unlikely(!__pyx_mstate_global->__pyx_tuple[4])) __PYX_ERR(0, 173, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[4]);
+  }
+  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[4]);
+
+  /* "licensing/api.py":174
+ * 
+ *             initial_credits = int(license_data.get("credits", 2))
+ *             license_record = ProductLicense(             # <<<<<<<<<<<<<<
+ *                 product_key=clean_key,
+ *                 product_name=license_data.get("product", "LLS CBT"),
+*/
+  {
+    PyObject* __pyx_temp[7] = {__pyx_mstate_global->__pyx_n_u_product_key, __pyx_mstate_global->__pyx_n_u_product_name, __pyx_mstate_global->__pyx_n_u_version, __pyx_mstate_global->__pyx_n_u_credits, __pyx_mstate_global->__pyx_n_u_expiry_date, __pyx_mstate_global->__pyx_n_u_license_metadata, __pyx_mstate_global->__pyx_n_u_is_active};
+    __pyx_mstate_global->__pyx_tuple[5] = __Pyx_PyTuple_FromArray(__pyx_temp, 7); if (unlikely(!__pyx_mstate_global->__pyx_tuple[5])) __PYX_ERR(0, 174, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[5]);
+  }
+  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[5]);
+
+  /* "licensing/api.py":176
+ *             license_record = ProductLicense(
+ *                 product_key=clean_key,
+ *                 product_name=license_data.get("product", "LLS CBT"),             # <<<<<<<<<<<<<<
+ *                 version=license_data.get("version", "1.0.0"),
+ *                 credits=initial_credits,
+*/
+  {
+    PyObject* __pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_product, __pyx_mstate_global->__pyx_kp_u_LLS_CBT};
+    __pyx_mstate_global->__pyx_tuple[6] = __Pyx_PyTuple_FromArray(__pyx_temp, 2); if (unlikely(!__pyx_mstate_global->__pyx_tuple[6])) __PYX_ERR(0, 176, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[6]);
+  }
+  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[6]);
+
+  /* "licensing/api.py":177
+ *                 product_key=clean_key,
+ *                 product_name=license_data.get("product", "LLS CBT"),
+ *                 version=license_data.get("version", "1.0.0"),             # <<<<<<<<<<<<<<
+ *                 credits=initial_credits,
+ *                 expiry_date=expiry_dt,
+*/
+  {
+    PyObject* __pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_version, __pyx_mstate_global->__pyx_kp_u_1_0_0};
+    __pyx_mstate_global->__pyx_tuple[7] = __Pyx_PyTuple_FromArray(__pyx_temp, 2); if (unlikely(!__pyx_mstate_global->__pyx_tuple[7])) __PYX_ERR(0, 177, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[7]);
+  }
+  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[7]);
+
+  /* "licensing/api.py":213
+ *             db.commit()
+ * 
+ *             return ActivationResponse(             # <<<<<<<<<<<<<<
+ *                 success=True,
+ *                 message="License reactivated successfully on this machine",
+*/
+  {
+    PyObject* __pyx_temp[6] = {__pyx_mstate_global->__pyx_n_u_success, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_n_u_license_data, __pyx_mstate_global->__pyx_n_u_remaining_credits, __pyx_mstate_global->__pyx_n_u_expiry_date, __pyx_mstate_global->__pyx_n_u_activation_id};
+    __pyx_mstate_global->__pyx_tuple[8] = __Pyx_PyTuple_FromArray(__pyx_temp, 6); if (unlikely(!__pyx_mstate_global->__pyx_tuple[8])) __PYX_ERR(0, 213, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[8]);
+  }
+  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[8]);
+
   /* "licensing/api.py":241
- *             license_data = crypto.verify_product_key(request.product_key)
+ *         license_record.credits -= 1
+ * 
+ *         new_activation = LicenseActivation(             # <<<<<<<<<<<<<<
+ *             license_id=license_record.id,
+ *             machine_fingerprint=request.machine_fingerprint,
+*/
+  {
+    PyObject* __pyx_temp[6] = {__pyx_mstate_global->__pyx_n_u_license_id, __pyx_mstate_global->__pyx_n_u_machine_fingerprint, __pyx_mstate_global->__pyx_n_u_user_email, __pyx_mstate_global->__pyx_n_u_user_name, __pyx_mstate_global->__pyx_n_u_machine_info, __pyx_mstate_global->__pyx_n_u_is_valid};
+    __pyx_mstate_global->__pyx_tuple[9] = __Pyx_PyTuple_FromArray(__pyx_temp, 6); if (unlikely(!__pyx_mstate_global->__pyx_tuple[9])) __PYX_ERR(0, 241, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[9]);
+  }
+  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[9]);
+
+  /* "licensing/api.py":285
+ *             license_data = crypto.verify_product_key(clean_key)
  *         except ValueError as e:
  *             return ValidationResponse(             # <<<<<<<<<<<<<<
  *                 success=False,
@@ -11519,12 +14471,12 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
 */
   {
     PyObject* __pyx_temp[3] = {__pyx_mstate_global->__pyx_n_u_success, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_n_u_is_valid};
-    __pyx_mstate_global->__pyx_tuple[4] = __Pyx_PyTuple_FromArray(__pyx_temp, 3); if (unlikely(!__pyx_mstate_global->__pyx_tuple[4])) __PYX_ERR(0, 241, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[4]);
+    __pyx_mstate_global->__pyx_tuple[10] = __Pyx_PyTuple_FromArray(__pyx_temp, 3); if (unlikely(!__pyx_mstate_global->__pyx_tuple[10])) __PYX_ERR(0, 285, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[10]);
   }
-  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[4]);
+  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[10]);
 
-  /* "licensing/api.py":319
+  /* "licensing/api.py":332
  *         db.commit()
  * 
  *         return ValidationResponse(             # <<<<<<<<<<<<<<
@@ -11533,12 +14485,12 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
 */
   {
     PyObject* __pyx_temp[5] = {__pyx_mstate_global->__pyx_n_u_success, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_n_u_is_valid, __pyx_mstate_global->__pyx_n_u_license_data, __pyx_mstate_global->__pyx_n_u_remaining_credits};
-    __pyx_mstate_global->__pyx_tuple[5] = __Pyx_PyTuple_FromArray(__pyx_temp, 5); if (unlikely(!__pyx_mstate_global->__pyx_tuple[5])) __PYX_ERR(0, 319, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[5]);
+    __pyx_mstate_global->__pyx_tuple[11] = __Pyx_PyTuple_FromArray(__pyx_temp, 5); if (unlikely(!__pyx_mstate_global->__pyx_tuple[11])) __PYX_ERR(0, 332, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[11]);
   }
-  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[5]);
+  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[11]);
 
-  /* "licensing/api.py":379
+  /* "licensing/api.py":382
  *         db.commit()
  * 
  *         return DeactivationResponse(             # <<<<<<<<<<<<<<
@@ -11547,12 +14499,54 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
 */
   {
     PyObject* __pyx_temp[3] = {__pyx_mstate_global->__pyx_n_u_success, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_n_u_credits_restored};
-    __pyx_mstate_global->__pyx_tuple[6] = __Pyx_PyTuple_FromArray(__pyx_temp, 3); if (unlikely(!__pyx_mstate_global->__pyx_tuple[6])) __PYX_ERR(0, 379, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[6]);
+    __pyx_mstate_global->__pyx_tuple[12] = __Pyx_PyTuple_FromArray(__pyx_temp, 3); if (unlikely(!__pyx_mstate_global->__pyx_tuple[12])) __PYX_ERR(0, 382, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[12]);
   }
-  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[6]);
+  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[12]);
 
-  /* "licensing/api.py":15
+  /* "licensing/api.py":403
+ *     clean_key = _clean_product_key(request.product_key)
+ * 
+ *     expected_secret = os.getenv("LICENSE_ADMIN_SECRET", "")             # <<<<<<<<<<<<<<
+ *     if expected_secret and request.admin_secret != expected_secret:
+ *         raise HTTPException(status_code=403, detail="Invalid admin secret")
+*/
+  {
+    PyObject* __pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_LICENSE_ADMIN_SECRET, __pyx_mstate_global->__pyx_kp_u__3};
+    __pyx_mstate_global->__pyx_tuple[13] = __Pyx_PyTuple_FromArray(__pyx_temp, 2); if (unlikely(!__pyx_mstate_global->__pyx_tuple[13])) __PYX_ERR(0, 403, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[13]);
+  }
+  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[13]);
+
+  /* "licensing/api.py":419
+ * 
+ *     if existing:
+ *         return RegisterLicenseResponse(             # <<<<<<<<<<<<<<
+ *             success=True,
+ *             message="License already registered",
+*/
+  {
+    PyObject* __pyx_temp[3] = {__pyx_mstate_global->__pyx_n_u_success, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_n_u_license_id};
+    __pyx_mstate_global->__pyx_tuple[14] = __Pyx_PyTuple_FromArray(__pyx_temp, 3); if (unlikely(!__pyx_mstate_global->__pyx_tuple[14])) __PYX_ERR(0, 419, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[14]);
+  }
+  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[14]);
+
+  /* "licensing/api.py":427
+ *     try:
+ *         try:
+ *             expiry_dt = datetime.fromisoformat(license_data.get("expiry", ""))             # <<<<<<<<<<<<<<
+ *         except Exception:
+ *             expiry_dt = datetime.now() + timedelta(days=request.expiry_days)
+*/
+  {
+    PyObject* __pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_expiry, __pyx_mstate_global->__pyx_kp_u__3};
+    __pyx_mstate_global->__pyx_tuple[15] = __Pyx_PyTuple_FromArray(__pyx_temp, 2); if (unlikely(!__pyx_mstate_global->__pyx_tuple[15])) __PYX_ERR(0, 427, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[15]);
+  }
+  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[15]);
+
+  /* "licensing/api.py":16
  * 
  * 
  * router = APIRouter(prefix="/api/license", tags=["licensing"])             # <<<<<<<<<<<<<<
@@ -11561,41 +14555,41 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
 */
   {
     PyObject* __pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_prefix, __pyx_mstate_global->__pyx_n_u_tags};
-    __pyx_mstate_global->__pyx_tuple[7] = __Pyx_PyTuple_FromArray(__pyx_temp, 2); if (unlikely(!__pyx_mstate_global->__pyx_tuple[7])) __PYX_ERR(0, 15, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[7]);
+    __pyx_mstate_global->__pyx_tuple[16] = __Pyx_PyTuple_FromArray(__pyx_temp, 2); if (unlikely(!__pyx_mstate_global->__pyx_tuple[16])) __PYX_ERR(0, 16, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[16]);
   }
-  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[7]);
+  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[16]);
 
   /* "licensing/api.py":26
+ * class ActivationRequest(BaseModel):
  *     """Request model for license activation."""
- * 
  *     product_key: str = Field(..., description="The product key to activate")             # <<<<<<<<<<<<<<
  *     machine_fingerprint: str = Field(..., description="Machine fingerprint hash")
- *     user_email: str = Field(..., description="User email for support and tracking")
+ *     user_email: str = Field(default="", description="User email for support and tracking")
 */
   {
     PyObject* __pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_description};
-    __pyx_mstate_global->__pyx_tuple[8] = __Pyx_PyTuple_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_mstate_global->__pyx_tuple[8])) __PYX_ERR(0, 26, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[8]);
+    __pyx_mstate_global->__pyx_tuple[17] = __Pyx_PyTuple_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_mstate_global->__pyx_tuple[17])) __PYX_ERR(0, 26, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[17]);
   }
-  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[8]);
+  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[17]);
 
-  /* "licensing/api.py":29
+  /* "licensing/api.py":28
+ *     product_key: str = Field(..., description="The product key to activate")
  *     machine_fingerprint: str = Field(..., description="Machine fingerprint hash")
- *     user_email: str = Field(..., description="User email for support and tracking")
- *     user_name: str = Field(default="", description="User name for support")             # <<<<<<<<<<<<<<
+ *     user_email: str = Field(default="", description="User email for support and tracking")             # <<<<<<<<<<<<<<
+ *     user_name: str = Field(default="", description="User name for support")
  *     machine_info: Dict[str, Any] = Field(default_factory=dict, description="Additional machine info")
- * 
 */
   {
     PyObject* __pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_default, __pyx_mstate_global->__pyx_n_u_description};
-    __pyx_mstate_global->__pyx_tuple[9] = __Pyx_PyTuple_FromArray(__pyx_temp, 2); if (unlikely(!__pyx_mstate_global->__pyx_tuple[9])) __PYX_ERR(0, 29, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[9]);
+    __pyx_mstate_global->__pyx_tuple[18] = __Pyx_PyTuple_FromArray(__pyx_temp, 2); if (unlikely(!__pyx_mstate_global->__pyx_tuple[18])) __PYX_ERR(0, 28, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[18]);
   }
-  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[9]);
+  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[18]);
 
   /* "licensing/api.py":30
- *     user_email: str = Field(..., description="User email for support and tracking")
+ *     user_email: str = Field(default="", description="User email for support and tracking")
  *     user_name: str = Field(default="", description="User name for support")
  *     machine_info: Dict[str, Any] = Field(default_factory=dict, description="Additional machine info")             # <<<<<<<<<<<<<<
  * 
@@ -11603,12 +14597,26 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
 */
   {
     PyObject* __pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_default_factory, __pyx_mstate_global->__pyx_n_u_description};
-    __pyx_mstate_global->__pyx_tuple[10] = __Pyx_PyTuple_FromArray(__pyx_temp, 2); if (unlikely(!__pyx_mstate_global->__pyx_tuple[10])) __PYX_ERR(0, 30, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[10]);
+    __pyx_mstate_global->__pyx_tuple[19] = __Pyx_PyTuple_FromArray(__pyx_temp, 2); if (unlikely(!__pyx_mstate_global->__pyx_tuple[19])) __PYX_ERR(0, 30, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[19]);
   }
-  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[10]);
+  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[19]);
 
-  /* "licensing/api.py":83
+  /* "licensing/api.py":81
+ *     expiry_days: int = Field(default=365, description="Days until expiry")
+ *     admin_secret: str = Field(default="", description="Admin secret for authorization")
+ *     metadata: Dict[str, Any] = Field(default_factory=dict)             # <<<<<<<<<<<<<<
+ * 
+ * 
+*/
+  {
+    PyObject* __pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_default_factory};
+    __pyx_mstate_global->__pyx_tuple[20] = __Pyx_PyTuple_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_mstate_global->__pyx_tuple[20])) __PYX_ERR(0, 81, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[20]);
+  }
+  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[20]);
+
+  /* "licensing/api.py":136
  * 
  * 
  * @router.post("/activate", response_model=ActivationResponse)             # <<<<<<<<<<<<<<
@@ -11617,14 +14625,14 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
 */
   {
     PyObject* __pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_response_model};
-    __pyx_mstate_global->__pyx_tuple[11] = __Pyx_PyTuple_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_mstate_global->__pyx_tuple[11])) __PYX_ERR(0, 83, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[11]);
+    __pyx_mstate_global->__pyx_tuple[21] = __Pyx_PyTuple_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_mstate_global->__pyx_tuple[21])) __PYX_ERR(0, 136, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[21]);
   }
-  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[11]);
+  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[21]);
   #if CYTHON_IMMORTAL_CONSTANTS
   {
     PyObject **table = __pyx_mstate->__pyx_tuple;
-    for (Py_ssize_t i=0; i<12; ++i) {
+    for (Py_ssize_t i=0; i<22; ++i) {
       #if PY_VERSION_HEX >= 0x030F0000
       PyUnstable_SetImmortal(table[i]);
       #elif CYTHON_COMPILING_IN_CPYTHON_FREETHREADING
@@ -11658,41 +14666,41 @@ static int __Pyx_InitConstants(__pyx_mstatetype *__pyx_mstate) {
   int __pyx_clineno = 0;
   CYTHON_UNUSED_VAR(__pyx_mstate);
   {
-    const struct { const unsigned int length: 9; } str_length_index[] = {{0},{39},{450},{1},{9},{12},{11},{9},{1},{27},{19},{31},{33},{20},{23},{27},{21},{14},{21},{21},{30},{29},{32},{28},{23},{16},{17},{29},{48},{57},{24},{28},{31},{22},{23},{37},{39},{37},{32},{38},{41},{27},{29},{27},{35},{21},{27},{19},{29},{7},{6},{2},{10},{9},{22},{14},{9},{17},{18},{3},{9},{19},{20},{7},{4},{5},{13},{18},{17},{13},{18},{4},{14},{7},{17},{18},{20},{12},{15},{7},{8},{8},{8},{13},{10},{15},{8},{11},{12},{8},{15},{13},{16},{12},{10},{16},{13},{3},{21},{19},{29},{42},{18},{4},{18},{5},{6},{5},{10},{7},{16},{6},{8},{4},{19},{2},{18},{14},{19},{7},{15},{11},{6},{1},{12},{12},{19},{6},{11},{7},{6},{5},{6},{6},{2},{3},{9},{8},{9},{5},{8},{14},{12},{10},{14},{9},{13},{19},{12},{7},{14},{4},{3},{2},{6},{7},{3},{4},{6},{11},{10},{14},{8},{5},{9},{6},{7},{17},{7},{7},{14},{6},{8},{13},{6},{4},{10},{16},{10},{14},{11},{3},{7},{4},{5},{6},{10},{9},{16},{5},{6},{18}};
-    const struct { const unsigned int length: 7; } bytes_length_index[] = {{14},{127}};
+    const struct { const unsigned int length: 9; } str_length_index[] = {{0},{1},{1},{1},{30},{1},{450},{1},{9},{12},{11},{9},{9},{5},{1},{1},{27},{19},{33},{20},{39},{23},{30},{27},{17},{21},{14},{20},{31},{21},{7},{30},{29},{26},{32},{19},{28},{23},{16},{17},{32},{48},{31},{24},{28},{48},{179},{28},{24},{13},{22},{12},{15},{23},{21},{37},{39},{37},{48},{32},{40},{38},{41},{27},{29},{27},{27},{35},{21},{27},{19},{8},{29},{7},{6},{2},{9},{22},{14},{5},{9},{17},{18},{3},{9},{19},{20},{7},{4},{5},{13},{20},{18},{17},{13},{8},{4},{14},{22},{23},{7},{17},{18},{20},{12},{15},{7},{8},{8},{8},{13},{10},{15},{8},{11},{12},{8},{18},{15},{13},{16},{10},{13},{20},{3},{12},{21},{19},{29},{18},{4},{5},{9},{18},{5},{6},{5},{7},{16},{6},{8},{4},{2},{18},{14},{19},{7},{15},{11},{6},{5},{1},{12},{8},{8},{19},{6},{15},{6},{11},{11},{9},{7},{6},{5},{13},{3},{6},{6},{2},{15},{3},{9},{8},{9},{5},{4},{8},{14},{12},{10},{16},{14},{9},{13},{19},{12},{11},{7},{8},{7},{14},{4},{3},{2},{6},{7},{3},{4},{6},{7},{11},{12},{10},{14},{8},{5},{9},{6},{7},{16},{17},{7},{7},{14},{6},{8},{13},{6},{4},{10},{10},{14},{11},{3},{5},{7},{4},{5},{9},{6},{10},{9},{16},{5},{6},{18},{7}};
+    const struct { const unsigned int length: 7; } bytes_length_index[] = {{14},{122},{89}};
     #ifndef CYTHON_COMPRESS_STRINGS
       #define CYTHON_COMPRESS_STRINGS 90
     #endif
-    #if (CYTHON_COMPRESS_STRINGS) == 1 /* compression: zlib (1673 bytes) */
-static const char cstring[] = "x\332\215V\315o\333F\026w\200f70\322\335M\320\005\2667f/)\320V\037\216%+\275,\250/\207\222-\313\226?\342,\026\304\2103\224\306\032r\250\231\241(\032\r\320c\216:\352\350c\217{\354\261\307\036{\314\261\177B\376\204\276\241H\211\216\235\242\006\254\031\276\367\370\346\275\367\373\275740u]\"\210\257\014\0179c\352\023Y0\016\321\234z\241g \306xD\360w\306\316\267\372\257\336\332\267zF\377\254~`5\214n\3532\021n\037ZV\335\2722{\365\321d:\236\320\375\227Q\251n\036\267\332\246y\3240\217k\246\3267F]\330\267\314hZ|}h\235\267_\366^4\253\307]\327GNq\273T\232\204\225\200\342x\247\210\312\273\227\203\023\332)\017T\253\025\312\200\235\233W\347\243\016/7j\225\360\330\253\240\372\251\245\232\242\037V\347\245\306\336\313\372\365\233\366\313h\333\272\330\353\r\312\355\253\2717\342\3552\352\235Y\245z\351\242\277sr\306{\225\306+\256\242\322\325\213\352\327\345\353~iw\317\354\236VGc\363\2723\255\034\224v\242\275c\363`\273\333-\236\356F\235\353\251\357\234\230U\347z|\355w\307\316E\351\274N\245\025\006\014\275f\263hP\234T\367\347\305\341\233~\315#\362\022E\355\303\332\344\352M\343\224\034m\267;\341\031\273t|\266?\352\036\277\340\224x\316N\345hP\013;G\225\362\231j:r4b\345Z\345\364\270\334\262\342\303\250\264\027\316\217\312\273\252\032\004\243\311\244\216\267\243v\251R{]-\306\225\013s\364\306)\266\272x\027\263a\355\322=\210k\203\216\265\177t\321\nq\273j]\355z\265b\367|fF\257z\023\363\353\216?\0354\033\347\263\355Vd5\315c\263\276\235\200\322\3525?\306\251PD\216\2423\244H\021\005\264\310\250C|I\212\230\254\3053\304(\206\315\177\314\225\204r\337\260\232\206\342\306\306(\247r\021e\232\0339\321\030IcH\210\237{\001\347\324T\002\243\004A8\376\204\201\317\225\341\362\320\307&\306TK\020\313XiP\337\345\215P\344\231j\270\324\037\021\021\010\352\253f\3460\037Z\223:\352\277R\211o\014\323\217\377w\373\311\370\336\350q\237X~\222\266\021\010\216CG\031\023\022\177g\034\254\212c\254c4d\3508DJ7d,^k\323\\6Vpt\246\314%x\357\313\367\225*\257#\363\200\212\333.\241|I\254\331\363\272Zw\004P,\003\220DC$I\246\024\237""\010H\237 \221G\262\242f\366\311QT\305F@\004\345\030\002r\010\301\004\027\214>#\340\327p\270\257\300%8\013\002.T\341\360.(:\223\361}r\217J\017)g\334\343F\0166\007\022\246JB\250\036\242>\230\367\005\231Q\036\312\274\221\325<\201\3435\310\\l\212\007\232\0232\r\211\004\337\034\023\226h\331m\030\301\246\360i\243\274\253?0K\233de$\003\256e\033\253\217\234\334\321\3779/\033x\362\241\237\216I\236\245\272/3D\357Qmhu\2172\353\3643I\204\241\213\235\235\233 i `\220\022\310\231\000\004\211\211\257\371\221\263H\204bU#\240S>\353\363uf\353.DAP\204\027f\220\273L\347\0168\326S\250\020\304\230J4d\320\010\372w\344hr\254\032\223\312\225\014\2475\263\203p\010[\033R(\004\304\273\375d\366\255\023\036*\"\314\217\351\220\027\254\n\r\315_\007\376\036\352r7\357\362\347\266h\365J\223\004\304\307R\017\2206%\014\277:=\355\267\240\037\002m\004C\266\325\033\264\354\325\274\265a\336\246-\2649:\0254D\034(\236\366C{\323\016}\244\306\375\025B\251\345\000\340\277U\3144\270\274`\025\232m\367\3439\374\353\330\354\036\231\253\023\342\3326\362a\026\000\300\266\275\336\303;R?b\356\350\305\005l\2225\364\223g\335q\311J\240\251\031\222\211-P2\\\231y\202\3330y\005%\211B\023B\257\201 \001\022\311v\032\"\226\211\025\204\n\313\210\250\034j6\225\266\303\005\300\004\331g\344\264St\327\263\311FjS\377\315\016\336\014\375\234\306\2062`\014\314*dsn\275\271%L\232JjQ\306\300\302\232\201\005\047\301\343\023\312t\034\332\271\261\205d\354;\224\027\326Y\310!\347\314a\332\014\252\247[\206\014\241m\034\306%q\270\347Q\225\204\rs-M-\235p\351b\013\250\023\207\375*\020\335\221\212z\004\243X\352\177\033\342p\210\235\274\r)\343!\276S6|\253p\371>\004\337zJb\342\242\220\251t\261]0\340\"\306\004B\240\t{1\340\rT \014\005\340\316\326\347\022oH0Lz\r\032\231S\t\231\216\354\215\347D$\223\373)\266u\314.\222\n\232\031\030\005\r\350R!\225\006\036\017\341\227\3703\270D|\005\320\047\016\240\253\355\325\305\"9\314\023\270\003\250\"\236\324\354\320\204\004\336);\033N\353\306\327`f{\272\226\n\250\260\300k\2746\300A(\367`\227\211\364g\004|\276I4\">""\211riA^\312\347\021\227\232\320\276\n\240\047\031\035\006\034\006\236T\300s\227\316\323)\252\353\262\241u\216\340z,\305\030A\272\016t\253\210\365\347\001\364\302\\\255\260\000\037\000\370x}\273\331)\r\322A\n:\316f\360)\2366vB]AT(|\301\031\323\304\022\234\047\247\047\305\022\311\300\223z0\001{\211\260!\372t\247Y\004\230x\000i\006\275\2342\304\2341\361\342\002\324\035\224*\324\355\210\365\301\351}\243\320H\252\261\340\221\212\003\010/\004gvr9$;\335\333\0314\031\375\3409\\\375H8\226\272P\202M\211~x\360\333\347\177{\377\350\351\342\371\362\311\362\331\257[_.\237|x\274\365\370\363\017\177\331z\370t\361t\261\267|\266,\277\377\354\257?L\337?\372\373\273\251\026\377\343\235Z\224\027\326\362\365\315\311\315T\253\346\357\242\005\322\352\371\342\372\346\2116\371\347\242\271|\260\374\362\346\253\037\377\375\343\376\377\367~z\376\363\277~y\372K\342\347\355b\037\034\202\361\333e\347\006}x\264\365\360\213E\371\303\027[\017\037\277+\377\016\276\020\352\325";
-    PyObject *data = __Pyx_DecompressString(cstring, 1673, 1);
+    #if (CYTHON_COMPRESS_STRINGS) == 1 /* compression: zlib (2061 bytes) */
+static const char cstring[] = "x\332\205WIo\333H\026N\006nL\340\351\005\366\364\000\3237vc0\351FO\264$^\224\000\203\001\2659\264lY\226\274\304I\007D\211,Ie\221,\252\252(\211\006\032\350\243\217:\352\350\243\2179\3468\307\034}\364\321?a~\302\274*.\242b\367\214\001\223\305\267T\275\345{\357\225V\277\3224\027Y\003\342\341\037\371O9m\037M\211\033\270\032r\034:\301\366+\355\231\372+\327v\214\246\326:.\357\031\025\255Q;S\304\325}\303(\033\347z\263\334\037\216\006C\262\363rR(\353\207\265\272\256\037T\364\303\222.\371\225~\003\3265}2\312\277\3317N\352/\233/\252[\207\215\236\207\254\374j\2410\0146}b\207\317\363\250\270q\326i\223\335bG\324j\001\367\235\023\375\374\244\277K\213\225\322fp\350n\242\362\221!\252\254\025lM\013\225\355\227\345\213\267\365\227\223U\343t\273\331)\326\317\247n\237\326\213\250yl\024\312\205\323\326\363\3661mnV^S1)\234\277\330\372\271x\321*ll\353\215\243\255\376@\277\330\035m\356\025\236O\266\017\365\275\325F#\177\2641\331\275\030yV[\337\262.\006\027^c`\235\026N\312\204\033\201\357\2407\316x\322\311\017\267v\246\371\356\333V\311\305\374\014M\352\373\245\341\371\333\312\021>X\255\357\006\307\316\231\3459;\375\306\341\013J\260k=\337<\350\224\202\335\203\315\342\261\250Z\274\337w\212\245\315\243\303b\315\010\367\047\205\355`zP\334\020[\276\337\037\016\313\366\352\244^\330,\275\331\312\207\233\247z\377\255\225\2575\354\r\333\351\226\316z{a\251\263k\354\034\234\326\002\273\276e\234o\270\245|\343d\254O^7\207\372\317\273\336\250S\255\234\214Wk\023\243\252\037\352\345U\225\224Z\263\372y\236ryd\t2F\002\347\221O\362\016\261\260\307q\336\306)\231\341>\341\002\263\374\0309\304\006J1W\310\025\376\371/=\022 \324\323\214\252&\250\266\320\311\260z\2108\022*\031\022\341\200 \206\221\035fT\354\214\200G\205\326\243\201\227\2451lQf/X\032e\032\361\2246\326m\233H!\344$p\005V\217\352\266K<\215c\213a\251\3044\024\210\001e\344B\355X\t\030\303\236H5z\304\353c\3463\342\211*\n\271\026x\2028\032\236\372\204\205\325\304\314\254GUb\211w\\\260\177h\272\027\2767<\025\036\re\016Mh>\243v`\tm\210C\215\223\276\207D\300""\360+\355\001\366+mo\257\243U\312G{Q\036\2644<\032\017,\013s\336\013\034\047L\271q\030\027R`\337\347\314$\177\330N8\231\250?\270\255rzy\263\001\342Z\027c/\253\233\345=\240\002iV\376%\337i\352\356\021d.\037\330\227\375\216\231\362\0201\200\355\343\324-\344\023G\227\304\367\357\047X\232<x\210\356\022\356\"a\r\232T\313d\034r\t\000\343p\200\213\210\007\342\nM\312\204\270^\232T`  \241UB\300\230\302\270\215\035\322\305\014\314\007\223\001\047\000\027,\265\220\247\265j\255g\033\245\r\r\201\357\014\237c\0136\347A\327r\020\347\230k\264\247u\003\342\010\000\222\010}\314s\232\321\323B\032h\036\006\337\240\322|\220\313*\210\001\226\230\023r\241=E\036DVYn\202:\230\373T\263!9\252T\244v\0359\034\347\232\201\013\326\311\263\356{z\340G\345\364n\031\343\357S:\304\352}\213\3411\241\001\317\352\033\325V\014f\017\2718Y\2171\343\300mc\304e\375d\263\255\3102ml\271\270\332x\024`\016\t\241\020F\245\342,W\004\010\347~_(\273\377\377\020\213;\332\303B\t\234d\276\021\204~\222\252A\241\202<\367\251\374X(|v\350=\276\263\204S\366\177\345\226\254\273\047\265\200x6$G\000\200l\273\021)\220\361\003\254E\321=\300L\374\177\200\225L\202c\016\010\222E\221\230\344\373\224\t\005k\360\317\032B\350\224\210\004CVB\021Y\024q@t6p\047\251\323)\026\220m\233\200h\214|?\017\212c\010\017\217\007\025\034 \307V\316\017m\302Q\327\201\016%\237}\213\360he\307\3014\375\240\013KS\246\316\307\356\362W z\317Jz\313h\323\000\374\3253\310T\026f\tQ\032\240\030\312\210\343}\231\214\352\022\224\225\3022)R\251b\037{6\227\005U\047\330\261_\037\035\265jS\013\253\212\202\201\\kvj\246^\3357\232f\247Vi\327\216\022Z4\257M\230\327q\237[\230\023\023*,\364\005Mj\263\205\304 .\274\230\337\216\023\231~*#\357Q#;;\200\251\2454\304\342YB$i\232\255p\n\377\322%\263\211\247\260c\3174\343\346\003\334t\r:\\~\332\324\222\257\036dU\275\003O}\313\236\252\336X \325\320\324\0078\020\211\271\214\2320\247\031\301\212!\241$\337>\303>bj9\n\220\223\220\005\230\n/\313\301\3103c\324\3124\233},2\0300\t7\341>\001\371\206\t\220\324\200\031ce\221\274\305\312\004\347U""\0035\343\241\003\352pC\000h\252\201oF\003\037\020\232\203 \241.\200#],\021U\375rIJ\220\234K\221\234\263T\"\021\017=\213\320\\j\037\357R\352(\217\"\267\300~\313\221&\300\271\262\314p\027J\315r(\330@]\227\010eY\334\311\343\227\311 .\024\326\321\021\262v\005q\261\r\027\035\273k\337\213@f\030\233Hd\313\0236\222M\334\306=\0248\"~\231=\020\240,\2641\234G\024\016m\010\006q\354\300\3659\3060hl\033\266\002\303\261gQ[\016\334)\200/\3636\027G(\022\207\013\005L,P\212\"\033\335\303\242\247)\315O\227!O\226\242\2078\244\200\000\300\000\327=\302\270\3501\n#\235B\353\201\261\016\020\220(\260\273\360\304\336\230\200\035pmD\216\031\007\t\206\032\300\"J3,T\223K\225\211\300.?\007\327%z$\204\001\251\302L\032a\332fd\242\2235I\251\022\332YNt\231M\023\277@\000X\237\340+s-IH\362R\353\242\251\031\377\376\202\237\033\034\365q\26298*\367\200A\225\t&DSxtB\271,\026O\370\320\034\340V\342Sh\303\\@\r\365\3104\256\222L\261$KYT\213\232\311T\217\354\240\241\215 ^\0264\007\026\312\213&\224\336TD\350\200m\001o\203d\200$\250J\257OI\300\343\t\000\262\324\201;B\322WT\215@\316\003\3461\3528\022\335\214\322\250\214e\344\231j\323\\\266S\250!\330\037\034\204\313O\014F>r\220c\r\260\033\346 q\000\010\021\310Z\267\345A\362\026\346\307\203S\240>\027\003F\047\252\020\260\003\202\352\262\024\300\246\246\232ij%c\220d9q\004\276\203\350\301\341x\322\013\263\235&\276\354\374\366\370\356\253\257o\237\254\317\236\316\327\346\337\337<\372n\276v\267\2626[\237m\317\277\237\027oW\376\370\333\350\366\3117\227\243\273\225o.\305\25483\346o\256\332W#\311\230^NfH2\247\263\213\253\265\253\237\256\213w+\337\316\252\363\307\363\357\256~\274\376\341z\347\303\366\307\247\377\376\353\247\365Oj\237_g;\260!\210\377:\337\275BW\341\207\307w+\177\236\025\377\263\376\350\213//\2137\217\376v\365\372Z\277[\371\362\2621\033\317\333\363\351\325\350\372\213\353\316\207\047\037\037\177\374\313G\013\366Y\373\364\367\233V\347\246\363\356\346\335/7\277to\272\326\355\312\327\227\326l\rl_Om]\233};\353\314\3770\377a\256\337\256\374\351\262\370_\201\321+8";
+    PyObject *data = __Pyx_DecompressString(cstring, 2061, 1);
     #define __Pyx_DecompressString_LZSS_UNUSED
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #elif (CYTHON_COMPRESS_STRINGS) > 0 && (CYTHON_COMPRESS_STRINGS) <= 90 /* compression: lzss (2226 bytes) */
-static const char cstring[] = "\377 differe\377nt machi\377nes. Max\377imum all\377owed: 2-\377----BEGI\377N PUBLIC\357 KEY\020\002\nMI\377IBIjANBg\377kqhkiG9w\3770BAQEFAA\277OCAQ8A\034\001C\373gK\t\000EAwq/\377XMIVF9N3\377D6QKfnac\377/\n00ku5p\377idy2/a14\377YSRiJ1St\377EEusplVA\377jVgJo1C8\3775uQm5aBT\377ItDrPu6x\3770C79BzZF\3779w\nIW7NS\3771FjxmgoF\3771aNUI0B0\377WP2RUoN5\377CHotw0j3\3776+1zP047\377AKT6ghAz\377Jq5L02w7\377QAL\nKK/T\3774wJzqncR\377A6czhznK\377hcW0VBis\377IuplaXlv\377wS/k6Gx/\377bZP8mesY\377awFM8kjZ\377CTeO\nFJu\377UlYcnlGg\377KQ3oiemc\37725OS8uJO\37751UtDcsg\377gl185TQ1\377EIyMw07u\377xO14t6pp\377gkkBd\nwF\377058X6/y5\377WAgZc/EK\377d4dlb8Yf\377Ly8SJIGO\377WEudF6Ij\3774m8/KVvA\377wHNkA+Jn\377qSDCVv\nE\377wIDAQAB\n\356\245BEND\230M./a\377ctivate/\377api/lice\277nse/de\016\006voalid\035\000?A#\003\377ion ID t\363o \033\007\020\010fail\374\230a#\010has beken&\010dB\010is\317`\337ready\n\024no\377t foundAoddit}\000al\216\204\005\377 infoCur\376\236\204\t finger?printD\300\005\262\001\376\223\005Dict[st\177r, Any]\000\013\377 | NoneI\375n\362\002 produ\377ct key: \365L\227# \252%d su\377ccessful\013ly\025\006l\306\003\034\007\256 3\005\340\316\047\047\023\2271o\005\303!exp\037ired H\010\274 \236B\320\226\005\245&\000\016\252  \307@ab7ase\304\005re\270\023^\001\217same\367\206\005\364\005\211bi\377ty perio\377d exceed\177ed. PleU\000\237 cont\320`\230 p?port.M\271\207\003\211I\365 \216`h\004\021mism?atchNo\334%\351a\375c\356\000its re\357main\331@Pre\337vious\031\tID\255R|\000on\246`r\217\204\007i\377onReques\177t model\031\002\275l\271Kion.\013\027d\360\266h\014\030\236\205\004F\003spon\003seg\0106\014\017\016\212\005(\033\343g\036\223(.The\232\204\t\224\206\001\312\206\005\360\010\020\316\206\007%\020\342\206\005User\331 \351!\252#su\305B a\377nd track\327ing\036\002n\234afoir\344E3\002r\352#ed\371*yV\277\207\003\372\205\tapp/f\000\337vices\361\207\004in\375g\202\210\001.pydis\277ableen\002\001gocint\222\206\004is\016\003\375d\243\210\004_publi\377c_key.pe\375m\000\013APIRou\207ter""\261\210\007\210d\005\t\251CA\177nyBaseM\243a\360\252\207\t\271d\005\013\334CDepe\367nds\313\207\001Fiel\377dHTTPExc\373ep\240\210\001LICEN\367SE_\222\215\003_KEY\370\270\207\004\275\211\007\311\207\004Crypt\365o\241\205\004F\262\210\007Path\371P\372\207\003\363\207\004Sessi\303on\303\047\326\204\004\005\t\367c__\347Pyx\001\000\347\210\001_Ne\377xtRef__a\377nnotate_\275_\003\006ions\013\001d\273oc\022\001fil\031\002f\343un\013\002\356\205\001*\001met\337aclas\047\002mo\373du!\003mro_e\037ntrie@\002\215aX\001\277preparb\002q\367ual\017\005test\356x\000get\253H_iso_cor\244@in\354\213\006y_\201\214\004\341\211\006_ata\366\213\006\354\000\0077\000un\017\010_id\027add\327`.\340\210\005\000\006\010\n\322\210\207\002s$\001\372e.\364\214\003inGg.c\213B\006\024\207\221\004_\331\213\010\377asyncio.\376\275\006sboolcl\177ine_in_\257\205\001\377ebackclo\377secommit\373co\264\000creat\343ed\330\000\333\210\004\342\210\004_re?stored\203\003\370\215\001\377timedays\376\000\001_since_~9\002iondbd\246.\260\333\213\010\266 \267\210\tY\000as2\000e\277faultd\001\003_\367facn\000ydes\327cri\271\204\002d\355@il?eelaps\240\000x\001\277embedd\255\000k\377eyexisti\247ng_\213G\016\002s\233\214\002y\375_\254\217\001fastap\375i\317`terfir\333st\365Adb\374@en?vidint\370@\371\217\002\371e\201`\323\213\003sofor\377matitems\027key\345 l\202\000\265`\377\217\005\250\360\206\006\306\214\001\375\206\005i\206\207\006r\337 r9d\304F\314Gapi\251P\307E\376\303\217\001message\367new\314\010next\337nowos\315\204\001nt\377pathlibp\377oppostpr\017efix\235\217\004\377\207\001\203\210\007\215\210\007\335_\223\210\001yda\354\000cq\357uery\347\220\001_teGxtr\255\214\002A\000\356@h\325\214\006\361_\351\214\004\302\211\004\212`olve\364\221`\321\213\002_\303\214\002retu\277rnroll\325ar\317oot_\245%\306\205\001er\255s\225\210\001er5\000_\273\000s\310\004\003\302a\221@m\320@\363Esq\377lalchemy\231.\365 \256@tu\213\206\001\207`t\375r\326\220\004tagsth\377rowtypin?guser_\230\213\002\005\002\370\200\213\001\232\223\005""\256\206\005valuez\000\002s\266\000ify_\230(\377\200\001\340\r\016\330\010\022\377\220\047\230\021\230!\320\000\377\031\230\021\360\014\000\014\r\377\360\006\000\005\022\220\022\220\3777\230!\2301\330\004\007\177\200q\330\010\017\210q\023\001\377\020\210t\2201\220I\230\337X\240R\240q\027\001x\210\367w\220a\033\001x\220z\240\375\0216\001\025\220D\230\001\230\377\031\240(\250\"\250G\260\3777\270\047\300\030\310\022\310\316C\002}\220GN\000I\000}\230\377J\240a\360\010\000\005\024\377\2201\360\024\000\005\014\210\0011";
-    PyObject *data = __Pyx_DecompressString_LZSS(cstring, 2226, 3303);
+    #elif (CYTHON_COMPRESS_STRINGS) > 0 && (CYTHON_COMPRESS_STRINGS) <= 90 /* compression: lzss (2769 bytes) */
+static const char cstring[] = "\377\n\r  mach\377ine(s). \377Maximum \377allowed:\357 ---\000\000BEG\377IN PUBLI\337C KEY\021\002\nM\377IIBIjANB\377gkqhkiG9\377w0BAQEFA\177AOCAQ8A\034\001\367CgK\t\000EAwq\377/XMIVF9N\3773D6QKfna\377c/\n00ku5\377pidy2/a1\3774YSRiJ1S\377tEEusplV\377AjVgJo1C\37785uQm5aB\377TItDrPu6\377x0C79BzZ\377F9w\nIW7N\377S1Fjxmgo\377F1aNUI0B\3770WP2RUoN\3775CHotw0j\37736+1zP04\3777AKT6ghA\377zJq5L02w\3777QAL\nKK/\377T4wJzqnc\377RA6czhzn\377KhcW0VBi\377sIuplaXl\377vwS/k6Gx\377/bZP8mes\377YawFM8kj\377ZCTeO\nFJ\377uUlYcnlG\377gKQ3oiem\377c25OS8uJ\377O51UtDcs\377ggl185TQ\3771EIyMw07\377uxO14t6p\377pgkkBd\nw\377F058X6/y\3775WAgZc/E\377Kd4dlb8Y\377fLy8SJIG\377OWEudF6I\377j4m8/KVv\377AwHNkA+J\377nqSDCVv\n\377EwIDAQAB\335\n\246BEND\230M./\377activate\377/api/lic\177ense/de\016\006\377register\277/valid&\0001\177.0.0=?A2\003\377ion ID t\363o *\007\020\010fail\354\247a#\010is\277`rea\353dy(\010dD\010not\337 foun\010\tre\337cord \022\006 o\357r in\267\002eAd7dit\205\000al\247\204\005\030\000\377foAdmin \337secreL\001r \377authoriz\375a)\001Curren\375t)\006finger\377printDay\377s until \177expiryD\206%\374\351\001\312\005Dict[s\377tr, Any]\233In\232\" aj\010\014\005p\377roduct k\377ey signa\277ture: \014\020:\377 LLS CBT\365L\202C \225Ed su\377ccessful\013ly\025\006l\301#\034\007\212@\r\r\206\270EedM\005\323GA\023\360\002e\373d B\010has b\007een\246I\234\005\030\001 \020\344@\200\255b\303\005\315F\000\016\310A\211\010\364\005r\031e\350\023\224\001th\303`\225\210\004&\007\252\243\204\003e\237+M\274\210\003 \326H \372\314\000h\004\021misma\037tchNo\362%\333\204\001\276`\376\336`s remai\215n\245` f\373`~\002\251\205\004N\377ote that\367 Cy\341`n is\377 deliberoatel\364@tr\254`\373er!\001n PEP\377-484 and\276R\000jects\335@b\377classes \377of built\377in types\377. If you\367 ne\223@to p\354%\000%\tth\227@set\376\200\000e \047anno\365t\337\204\002_<\000ing\047o dirb\000iv\242\000\377o False.\047Num\233\000h\001a\277\206\007\343\004\253Op\311\205\003[\326\204\013]\017\006i\377nt]Previwous\236)I""DP\345\204\004\357name\004\005ver\377sionReas\253on\267\"d\306\205\010R\333\207\002r\372\220\206\002 \247\207\005Reque\237st mo\304 \352\"l\036\204\205\013ion.\013\027T\t\014\030\320\313\210\0046\023\360\210\005\354Aa\370 w \356{\005keyy\000spo\207nse\227\010f\014\017\016\272\005r\200\346\0104\021\342\005\221\n]\016\206\207\007\240\204\010.\257The \343\207\tt\300\204\006e\300\010\020\334\212\007%\020\360\212\005@\020\202\213\005Us\327er \221\205\001l\215\205\002su\337pport\322\204\002tr?acking\036\002\211at\026\t3\002r\335Ced \202i\371V\337\213\003\335\211\tadd_n\177oteapp/n\000\337vices\242\214\004in\375g\263\214\001.pydis\277ableen\002\001g\327cis\004\003d\312\214\004_p\277ublic_\267Ap\373em\000\013utf-8\377APIRoute\341r\316\214\007\376d\005\t\357CAny\037BaseM\231\204\001\220\213\t\257\204\004\374\005\013\242cDepend\375s\261\213\001FieldH\177TTPExce\345\205\002\377LICENSE_\377ADMIN_SE\317CRET\014\005\322\221\003_K\343EY\215\213\004\356\215\007\236\213\004Cry\367pto\254\206\005Path\030\376\205\004\276\213\004\333\205\003er\006\006\326\205\002\005\016\016\312\204\003Ses\250\206\001\375\047\203\206\004\005\t>\364\204\003__Pyx\001\000\204\215\001\377_NextRef\273__\366\207\004e__\003\006iwons\013\001doc\022\001wfil\031\002fun\013\002<\320\211\001*\001meta\375\210\002\010\002\367odu!\003mro_?entrie@\002\324\207\001~X\001preparb\002\357qual\017\005tes\375tx\000clean_\274\361\215\004\361A_get\371H_\277is_cor\355@i\305n\341\220\006_\366\220\004\206\211\007\220\211\007_i\345d\346\217\003_\212\225\004<\000unt\327add\354\216\002_\340\217\003ap\177p.datab\232`H\000\006\010\n\313\210\002s$\001\302\204\005.\355\221\003\337ing.c\304Bas\277yncio.\227\006s\317bool\315\002\321\003ke\377ycline_i\373n_\343\205\001eback\377closecom\377mitcount\374\255\214\004\264\214\004_resto\347red]\003\302\222\001tim\377edaysdbd\034\361\016\226\217\010_at\241\212\tF\000\301\212\001\177default\000\004\357_fac[\000yde\257scri\267\213\002d\312@i\377ldumpsee\177mbedded\371\205\001\337encod\346\221\001xi""{st\000\005ing_\373\213\007\375e\027\001sexpec!t2\000\272\222\003\202\222\003\210\222\003_\201\224\001\002\006\373ys\016\005tfast\367api\336`terf\377irstfrom\377isoforma\331t\200`\202adb\211`en\373vi\205\000itial\035_\331\216\004int\224`\315\223\003\235`\374\352\224\0024\006itemsj\177sonkey_\277\204\001\205lj\000_\213\225\005\336\207\006\372A\353\207\005i\300\364\207\006\327\204\001\016\t\307\224\003\360F\370Gap\361i\330e\205\224\010\353einfo\357max_\371\231\004mes\357sageU\005mis\177singnew\302(\377nextnowo\375s\251\205\001ntpath\377libpoppo\377stprefix@\227\224\004\242\205\010\260\205\005\300\216\001\256\211\007\270\211\007_\276\211\001\377ydanticq\357uery\311\226\001_teGxtr\336\216\002T\000\355`h\261\227\005\360\320\205\005\266\221\006\351%\373\212\004reso\237lvere\321\207\004\357\216\002r\377eturnrol}l\332\204\001root_\362%\356\263\206\001ers\313\211\001erv\267er_\336\000se\205\204\005s\377qlalchem\263y.\363@\216`tu\350\206\001dwest\216`rip\302\225\004\377tagsthro\275w\204\205\002elta\247\221\003u\201sO\000\317\214\002\005\002\304\220\001\361\230\005\231\207\005v\357alue\000\002sve\317rify\336\207\t\346\220\004\200\001\377\340\r\016\330\010\022\220\047\377\230\021\230!\320\000\031\230\377\021\340\004\021\220\022\2207\377\230!\2301\330\004\007\200\377q\330\010\017\210q\340\004\377\017\210t\2201\220I\230\337X\240R\240q\025\001x\210\367w\220a\031\001x\220z\240\377\021\240)\2501\340\004\024\377\220D\230\001\230\031\240(\377\250\"\250G\2607\270\047\337\300\030\310\022\310C\002}\220\371GN\000I\000}\230J\240a\377\240y\260\001\340\004\023\220\3771\360\022\000\005\014\2101\377\320\000$\240H\250A\340\377\004\014\210K\220v\230R\377\230x\240q\250\005\250S\377\260\010\270\001\270\025\270c\376E\000\021\310&\320PS\320\377S[\320[\\\320\\b\377\320bc\330\004\016\210c\353\220\021\271\000\022\243\006\021\220\024\377\220S\230\002\230\"\230A\037\330\004\013\2101";
+    PyObject *data = __Pyx_DecompressString_LZSS(cstring, 2769, 4125);
     #define __Pyx_DecompressString_UNUSED
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #else /* compression: none (3303 bytes) */
-static const char bytes[] = " different machines. Maximum allowed: 2-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwq/XMIVF9N3D6QKfnac/\n00ku5pidy2/a14YSRiJ1StEEusplVAjVgJo1C85uQm5aBTItDrPu6x0C79BzZF9w\nIW7NS1FjxmgoF1aNUI0B0WP2RUoN5CHotw0j36+1zP047AKT6ghAzJq5L02w7QAL\nKK/T4wJzqncRA6czhznKhcW0VBisIuplaXlvwS/k6Gx/bZP8mesYawFM8kjZCTeO\nFJuUlYcnlGgKQ3oiemc25OS8uJO51UtDcsggl185TQ1EIyMw07uxO14t6ppgkkBd\nwF058X6/y5WAgZc/EKd4dlb8YfLy8SJIGOWEudF6Ij4m8/KVvAwHNkA+JnqSDCVv\nEwIDAQAB\n-----END PUBLIC KEY-----./activate/api/license/deactivate/validate?Activation ID to deactivateActivation failed: Activation has been deactivatedActivation is already deactivatedActivation not foundAdditional machine infoCurrent machine fingerprintDeactivation failed: Dict[str, Any]Dict[str, Any] | NoneInvalid product key: License activated successfullyLicense already activated on License deactivated successfullyLicense has been deactivatedLicense has expired on License is validLicense not foundLicense not found in databaseLicense reactivated successfully on same machineLicense validity period exceeded. Please contact support.Machine fingerprint hashMachine fingerprint mismatchNo activation credits remainingPrevious activation IDReason for deactivationRequest model for license activation.Request model for license deactivation.Request model for license validation.Response model for deactivation.Response model for license validation.Response model for successful activation.The product key to activateThe product key to deactivateThe product key to validateUser email for support and trackingUser name for supportUser requested deactivationValidation failed: app/services/licensing/api.pydisableenablegcint | Noneisenabledlicense_public_key.pempublic_key.pemAPIRouterActivationRequestActivationResponseAnyBaseModelDeactivationRequestDeactivationResponseDependsDictFieldHTTPExceptionLICENSE_PUBLIC_KEYLicenseActivationLicenseCryptoMachineFingerprintPathProductLicenseSessionValidationRequestValidationResponse__Pyx_Py""Dict_NextRef__annotate____annotations____doc____file____func____main____metaclass____module____mro_entries____name____prepare____qualname____test___get_public_key_is_coroutineactivate_licenseactivated_atactivationactivation_countactivation_idaddapp.database.databaseapp.database.modelsapp.services.licensing.cryptoapp.services.licensing.machine_fingerprintasyncio.coroutinesboolcline_in_tracebackclosecommitcountcreated_atcreditscredits_restoredcryptodatetimedaysdays_since_creationdbdeactivate_licensedeactivated_atdeactivation_reasondefaultdefault_factorydescriptiondetaileelapsed_daysembedded_keyexisting_activationexistsexpiry_datefastapifilterfirstget_dbgetenvidintis_activeis_validisoformatitemskey_filelast_validatedlicense_datalicense_idlicense_recordlicensinglicensing.apimachine_fingerprintmachine_infomessagenew_activationnextnowosparentpathlibpoppostprefixproduct_keypublic_keypublic_key_pempydanticqueryread_textreasonrefreshremaining_creditsrequestresolveresponse_modelreturnrollbackroot_key_fileroutersendserver_nowserver_timestampsetdefaultsqlalchemy.ormstatus_codestrsuccesstagsthrowtypinguser_emailuser_namevalidate_licensevaluevaluesverify_product_key\200\001\340\r\016\330\010\022\220\047\230\021\230!\320\000\031\230\021\360\014\000\014\r\360\006\000\005\022\220\022\2207\230!\2301\330\004\007\200q\330\010\017\210q\360\006\000\005\020\210t\2201\220I\230X\240R\240q\330\004\007\200x\210w\220a\330\010\017\210x\220z\240\021\360\006\000\005\025\220D\230\001\230\031\240(\250\"\250G\2607\270\047\300\030\310\022\3101\330\004\007\200}\220G\2301\330\010\017\210}\230J\240a\360\010\000\005\024\2201\360\024\000\005\014\2101";
+    #else /* compression: none (4125 bytes) */
+static const char bytes[] = "\n\r  machine(s). Maximum allowed: ------BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwq/XMIVF9N3D6QKfnac/\n00ku5pidy2/a14YSRiJ1StEEusplVAjVgJo1C85uQm5aBTItDrPu6x0C79BzZF9w\nIW7NS1FjxmgoF1aNUI0B0WP2RUoN5CHotw0j36+1zP047AKT6ghAzJq5L02w7QAL\nKK/T4wJzqncRA6czhznKhcW0VBisIuplaXlvwS/k6Gx/bZP8mesYawFM8kjZCTeO\nFJuUlYcnlGgKQ3oiemc25OS8uJO51UtDcsggl185TQ1EIyMw07uxO14t6ppgkkBd\nwF058X6/y5WAgZc/EKd4dlb8YfLy8SJIGOWEudF6Ij4m8/KVvAwHNkA+JnqSDCVv\nEwIDAQAB\n-----END PUBLIC KEY-----./activate/api/license/deactivate/register/validate1.0.0=?Activation ID to deactivateActivation failed: Activation is already deactivatedActivation not foundActivation record not found or inactiveAdditional machine infoAdmin secret for authorizationCurrent machine fingerprintDays until expiryDeactivation failed: Dict[str, Any]Invalid admin secretInvalid product key signature: Invalid product key: LLS CBTLicense activated successfullyLicense already activated on License already registeredLicense deactivated successfullyLicense expired on License has been deactivatedLicense has expired on License is validLicense not foundLicense not found or deactivatedLicense reactivated successfully on this machineLicense registered successfullyMachine fingerprint hashMachine fingerprint mismatchNo activation credits remaining for this licenseNote that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the \047annotation_typing\047 directive to False.Number of activation creditsOptional[Dict[str, Any]]Optional[int]Previous activation IDProduct nameProduct versionReason for deactivationRegistration failed: Request model for license activation.Request model for license deactivation.Request model for license validation.Request model for registering a new license key.Response model for deactivation.Response model for license registration.Response model for license validation.Response model for successful activation.The product k""ey to activateThe product key to deactivateThe product key to registerThe product key to validateUser email for support and trackingUser name for supportUser requested deactivationValidation failed: add_noteapp/services/licensing/api.pydisableenablegcisenabledlicense_public_key.pempublic_key.pemutf-8APIRouterActivationRequestActivationResponseAnyBaseModelDeactivationRequestDeactivationResponseDependsDictFieldHTTPExceptionLICENSE_ADMIN_SECRETLICENSE_PUBLIC_KEYLicenseActivationLicenseCryptoOptionalPathProductLicenseRegisterLicenseRequestRegisterLicenseResponseSessionValidationRequestValidationResponse__Pyx_PyDict_NextRef__annotate____annotations____doc____file____func____main____metaclass____module____mro_entries____name____prepare____qualname____test___clean_product_key_get_public_key_is_coroutineactivate_licenseactivationactivation_idactive_machine_countaddadmin_secretapp.database.databaseapp.database.modelsapp.services.licensing.cryptoasyncio.coroutinesboolcleanclean_keycline_in_tracebackclosecommitcountcreditscredits_restoredcryptodatetimedaysdbdeactivate_licensedeactivated_atdeactivation_reasondefaultdefault_factorydescriptiondetaildumpseembedded_keyencodingexistingexisting_activationexistsexpected_secretexpiryexpiry_dateexpiry_daysexpiry_dtfastapifilterfirstfromisoformatgetget_dbgetenvidinitial_creditsintis_activeis_validisoformatitemsjsonkey_filelast_validatedlicense_datalicense_idlicense_metadatalicense_recordlicensinglicensing.apimachine_fingerprintmachine_infomax_allowedmessagemetadatamissingnew_activationnextnowosparentpathlibpoppostprefixproductproduct_keyproduct_namepublic_keypublic_key_pempydanticqueryread_textreasonrefreshregister_licenseremaining_creditsrequestresolveresponse_modelreturnrollbackroot_key_fileroutersendserver_nowsetdefaultsqlalchemy.ormstatus_codestrstripsuccesstagsthrowtimedeltatypinguser_emailuser_namevalidate_licensevaluevaluesverify_product_keyversion\200\001\340\r\016\330\010\022\220\047\230\021\230!\320\000\031\230\021\340\004\021""\220\022\2207\230!\2301\330\004\007\200q\330\010\017\210q\340\004\017\210t\2201\220I\230X\240R\240q\330\004\007\200x\210w\220a\330\010\017\210x\220z\240\021\240)\2501\340\004\024\220D\230\001\230\031\240(\250\"\250G\2607\270\047\300\030\310\022\3101\330\004\007\200}\220G\2301\330\010\017\210}\230J\240a\240y\260\001\340\004\023\2201\360\022\000\005\014\2101\320\000$\240H\250A\340\004\014\210K\220v\230R\230x\240q\250\005\250S\260\010\270\001\270\025\270c\300\030\310\021\310&\320PS\320S[\320[\\\320\\b\320bc\330\004\016\210c\220\021\220\047\230\022\2301\330\004\007\200q\330\010\021\220\024\220S\230\002\230\"\230A\330\004\013\2101";
     PyObject *data = NULL;
     #define __Pyx_DecompressString_UNUSED
     #define __Pyx_DecompressString_LZSS_UNUSED
     #endif
     PyObject **stringtab = __pyx_mstate->__pyx_string_tab;
     Py_ssize_t pos = 0;
-    for (int i = 0; i < 192; i++) {
+    for (int i = 0; i < 238; i++) {
       Py_ssize_t bytes_length = str_length_index[i].length;
       PyObject *string = PyUnicode_DecodeUTF8(bytes + pos, bytes_length, NULL);
-      if (likely(string) && i >= 56) PyUnicode_InternInPlace(&string);
+      if (likely(string) && i >= 80) PyUnicode_InternInPlace(&string);
       if (unlikely(!string)) {
         Py_XDECREF(data);
         __PYX_ERR(0, 1, __pyx_L1_error)
@@ -11700,8 +14708,8 @@ static const char bytes[] = " different machines. Maximum allowed: 2-----BEGIN P
       stringtab[i] = string;
       pos += bytes_length;
     }
-    for (int i = 192; i < 194; i++) {
-      Py_ssize_t bytes_length = bytes_length_index[i-192].length;
+    for (int i = 238; i < 241; i++) {
+      Py_ssize_t bytes_length = bytes_length_index[i-238].length;
       PyObject *string = PyBytes_FromStringAndSize(bytes + pos, bytes_length);
       stringtab[i] = string;
       pos += bytes_length;
@@ -11711,15 +14719,15 @@ static const char bytes[] = " different machines. Maximum allowed: 2-----BEGIN P
       }
     }
     Py_XDECREF(data);
-    for (Py_ssize_t i = 0; i < 194; i++) {
+    for (Py_ssize_t i = 0; i < 241; i++) {
       if (unlikely(PyObject_Hash(stringtab[i]) == -1)) {
         __PYX_ERR(0, 1, __pyx_L1_error)
       }
     }
     #if CYTHON_IMMORTAL_CONSTANTS
     {
-      PyObject **table = stringtab + 192;
-      for (Py_ssize_t i=0; i<2; ++i) {
+      PyObject **table = stringtab + 238;
+      for (Py_ssize_t i=0; i<3; ++i) {
         #if PY_VERSION_HEX >= 0x030F0000
         PyUnstable_SetImmortal(table[i]);
         #elif CYTHON_COMPILING_IN_CPYTHON_FREETHREADING
@@ -11742,17 +14750,17 @@ static const char bytes[] = " different machines. Maximum allowed: 2-----BEGIN P
   }
   {
     PyObject **numbertab = __pyx_mstate->__pyx_number_tab + 0;
-    int8_t const cint_constants_1[] = {0,1,2};
-    int16_t const cint_constants_2[] = {400,403,404,500};
-    for (int i = 0; i < 7; i++) {
-      numbertab[i] = PyLong_FromLong((i < 3 ? cint_constants_1[i - 0] : cint_constants_2[i - 3]));
+    int8_t const cint_constants_1[] = {0,1,2,4};
+    int16_t const cint_constants_2[] = {365,400,403,404,500};
+    for (int i = 0; i < 9; i++) {
+      numbertab[i] = PyLong_FromLong((i < 4 ? cint_constants_1[i - 0] : cint_constants_2[i - 4]));
       if (unlikely(!numbertab[i])) __PYX_ERR(0, 1, __pyx_L1_error)
     }
   }
   #if CYTHON_IMMORTAL_CONSTANTS
   {
     PyObject **table = __pyx_mstate->__pyx_number_tab;
-    for (Py_ssize_t i=0; i<7; ++i) {
+    for (Py_ssize_t i=0; i<9; ++i) {
       #if PY_VERSION_HEX >= 0x030F0000
       PyUnstable_SetImmortal(table[i]);
       #elif CYTHON_COMPILING_IN_CPYTHON_FREETHREADING
@@ -11806,24 +14814,34 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
   PyObject* tuple_dedup_map = PyDict_New();
   if (unlikely(!tuple_dedup_map)) return -1;
   {
-    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 12, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 83};
-    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_request, __pyx_mstate->__pyx_n_u_db, __pyx_mstate->__pyx_n_u_public_key_pem, __pyx_mstate->__pyx_n_u_crypto, __pyx_mstate->__pyx_n_u_license_data, __pyx_mstate->__pyx_n_u_e, __pyx_mstate->__pyx_n_u_license_record, __pyx_mstate->__pyx_n_u_server_now, __pyx_mstate->__pyx_n_u_days_since_creation, __pyx_mstate->__pyx_n_u_existing_activation, __pyx_mstate->__pyx_n_u_activation_count, __pyx_mstate->__pyx_n_u_new_activation};
-    __pyx_mstate_global->__pyx_codeobj_tab[0] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_services_licensing_api_py, __pyx_mstate->__pyx_n_u_activate_license, __pyx_mstate->__pyx_kp_b_iso88591__4, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[0])) goto bad;
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 15, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 136};
+    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_request, __pyx_mstate->__pyx_n_u_db, __pyx_mstate->__pyx_n_u_clean_key, __pyx_mstate->__pyx_n_u_public_key_pem_2, __pyx_mstate->__pyx_n_u_crypto, __pyx_mstate->__pyx_n_u_license_data, __pyx_mstate->__pyx_n_u_e, __pyx_mstate->__pyx_n_u_license_record, __pyx_mstate->__pyx_n_u_expiry_dt, __pyx_mstate->__pyx_n_u_initial_credits, __pyx_mstate->__pyx_n_u_server_now, __pyx_mstate->__pyx_n_u_existing_activation, __pyx_mstate->__pyx_n_u_max_allowed, __pyx_mstate->__pyx_n_u_active_machine_count, __pyx_mstate->__pyx_n_u_new_activation};
+    __pyx_mstate_global->__pyx_codeobj_tab[0] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_services_licensing_api_py, __pyx_mstate->__pyx_n_u_activate_license, __pyx_mstate->__pyx_kp_b_iso88591__9, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[0])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 10, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 217};
-    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_request, __pyx_mstate->__pyx_n_u_db, __pyx_mstate->__pyx_n_u_public_key_pem, __pyx_mstate->__pyx_n_u_crypto, __pyx_mstate->__pyx_n_u_license_data, __pyx_mstate->__pyx_n_u_e, __pyx_mstate->__pyx_n_u_license_record, __pyx_mstate->__pyx_n_u_activation, __pyx_mstate->__pyx_n_u_server_now, __pyx_mstate->__pyx_n_u_elapsed_days};
-    __pyx_mstate_global->__pyx_codeobj_tab[1] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_services_licensing_api_py, __pyx_mstate->__pyx_n_u_validate_license, __pyx_mstate->__pyx_kp_b_iso88591__4, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[1])) goto bad;
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 10, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 270};
+    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_request, __pyx_mstate->__pyx_n_u_db, __pyx_mstate->__pyx_n_u_clean_key, __pyx_mstate->__pyx_n_u_public_key_pem_2, __pyx_mstate->__pyx_n_u_crypto, __pyx_mstate->__pyx_n_u_license_data, __pyx_mstate->__pyx_n_u_e, __pyx_mstate->__pyx_n_u_license_record, __pyx_mstate->__pyx_n_u_server_now, __pyx_mstate->__pyx_n_u_activation};
+    __pyx_mstate_global->__pyx_codeobj_tab[1] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_services_licensing_api_py, __pyx_mstate->__pyx_n_u_validate_license, __pyx_mstate->__pyx_kp_b_iso88591__9, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[1])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 5, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 335};
-    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_request, __pyx_mstate->__pyx_n_u_db, __pyx_mstate->__pyx_n_u_license_record, __pyx_mstate->__pyx_n_u_activation, __pyx_mstate->__pyx_n_u_e};
-    __pyx_mstate_global->__pyx_codeobj_tab[2] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_services_licensing_api_py, __pyx_mstate->__pyx_n_u_deactivate_license, __pyx_mstate->__pyx_kp_b_iso88591__4, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[2])) goto bad;
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 6, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 348};
+    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_request, __pyx_mstate->__pyx_n_u_db, __pyx_mstate->__pyx_n_u_clean_key, __pyx_mstate->__pyx_n_u_license_record, __pyx_mstate->__pyx_n_u_activation, __pyx_mstate->__pyx_n_u_e};
+    __pyx_mstate_global->__pyx_codeobj_tab[2] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_services_licensing_api_py, __pyx_mstate->__pyx_n_u_deactivate_license, __pyx_mstate->__pyx_kp_b_iso88591__9, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[2])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {0, 0, 0, 5, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 397};
-    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_os, __pyx_mstate->__pyx_n_u_public_key, __pyx_mstate->__pyx_n_u_key_file, __pyx_mstate->__pyx_n_u_root_key_file, __pyx_mstate->__pyx_n_u_embedded_key};
-    __pyx_mstate_global->__pyx_codeobj_tab[3] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_services_licensing_api_py, __pyx_mstate->__pyx_n_u_get_public_key, __pyx_mstate->__pyx_kp_b_iso88591_7_1_q_q_t1IXRq_xwa_xz_D_G7_1_G1, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[3])) goto bad;
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 11, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 395};
+    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_request, __pyx_mstate->__pyx_n_u_db, __pyx_mstate->__pyx_n_u_clean_key, __pyx_mstate->__pyx_n_u_expected_secret, __pyx_mstate->__pyx_n_u_public_key_pem_2, __pyx_mstate->__pyx_n_u_crypto, __pyx_mstate->__pyx_n_u_license_data, __pyx_mstate->__pyx_n_u_e, __pyx_mstate->__pyx_n_u_existing, __pyx_mstate->__pyx_n_u_expiry_dt, __pyx_mstate->__pyx_n_u_license_record};
+    __pyx_mstate_global->__pyx_codeobj_tab[3] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_services_licensing_api_py, __pyx_mstate->__pyx_n_u_register_license, __pyx_mstate->__pyx_kp_b_iso88591__9, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[3])) goto bad;
+  }
+  {
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 3, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 96};
+    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_product_key, __pyx_mstate->__pyx_n_u_clean, __pyx_mstate->__pyx_n_u_missing};
+    __pyx_mstate_global->__pyx_codeobj_tab[4] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_services_licensing_api_py, __pyx_mstate->__pyx_n_u_clean_product_key, __pyx_mstate->__pyx_kp_b_iso88591_HA_KvRxq_S_c_PSS_bbc_c_1_q_S_A, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[4])) goto bad;
+  }
+  {
+    const __Pyx_PyCode_New_function_description descr = {0, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 105};
+    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_public_key, __pyx_mstate->__pyx_n_u_key_file, __pyx_mstate->__pyx_n_u_root_key_file, __pyx_mstate->__pyx_n_u_embedded_key};
+    __pyx_mstate_global->__pyx_codeobj_tab[5] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_services_licensing_api_py, __pyx_mstate->__pyx_n_u_get_public_key, __pyx_mstate->__pyx_kp_b_iso88591_7_1_q_q_t1IXRq_xwa_xz_1_D_G7_1, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[5])) goto bad;
   }
   Py_DECREF(tuple_dedup_map);
   return 0;
@@ -11839,6 +14857,28 @@ static int __Pyx_InitGlobals(void) {
   int __pyx_clineno = 0;
   /* PythonCompatibility.init */
   if (likely(__Pyx_init_co_variables() == 0 && __Pyx_init_tpflags_variables() == 0)); else
+  
+  if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 1, __pyx_L1_error)
+
+  /* PyFrozenDict.init */
+  #if CYTHON_COMPILING_IN_LIMITED_API
+  {
+      PyObject *builtins = PyEval_GetBuiltins(); // borrowed
+      if (likely(builtins)) {
+          PyObject *type_name = PyUnicode_FromStringAndSize("frozendict", sizeof("frozendict")-1);
+          if (likely(type_name)) {
+              PyObject *frozendict_type = PyObject_GetItem(builtins, type_name);
+              Py_DECREF(type_name);
+              if (!frozendict_type && PyErr_ExceptionMatches(PyExc_KeyError)) {
+                  PyErr_Clear();
+                  frozendict_type = (PyObject*) &PyDict_Type;
+                  Py_INCREF(frozendict_type);
+              }
+              __pyx_mstate_global->__Pyx_PyFrozenDictType = frozendict_type;
+          }
+      }
+  } // error handling follows
+  #endif
   
   if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 1, __pyx_L1_error)
 
@@ -12908,6 +15948,365 @@ static void __Pyx_RaiseArgtupleInvalid(
                  (num_expected == 1) ? "" : "s", num_found);
 }
 
+/* ArgTypeTestError (used by ArgTypeTest) */
+static void __Pyx_ArgTypeError(PyObject *obj, PyTypeObject *type, const char *name, int exact)
+{
+    __Pyx_TypeName type_name;
+    __Pyx_TypeName obj_type_name;
+    PyObject *extra_info = __pyx_mstate_global->__pyx_empty_unicode;
+    int from_annotation_subclass = 0;
+    if (unlikely(!type)) {
+        PyErr_SetString(PyExc_SystemError, "Missing type object");
+        return;
+    } else if (exact == 2) {
+        if (__Pyx_TypeCheck(obj, type)) {
+            from_annotation_subclass = 1;
+            extra_info = __pyx_mstate_global->__pyx_kp_u_Note_that_Cython_is_deliberately;
+        }
+    }
+    type_name = __Pyx_PyType_GetFullyQualifiedName(type);
+    #if CYTHON_COMPILING_IN_LIMITED_API && __PYX_LIMITED_VERSION_HEX < 0x030d0000
+    if (unlikely(!type_name)) return;
+    #endif
+    obj_type_name = __Pyx_PyType_GetFullyQualifiedName(Py_TYPE(obj));
+    #if CYTHON_COMPILING_IN_LIMITED_API && __PYX_LIMITED_VERSION_HEX < 0x030d0000
+    if (unlikely(!obj_type_name)) goto obj_type_name_failed;
+    #endif
+    PyErr_Format(PyExc_TypeError,
+        "Argument '%.200s' has incorrect type (expected " __Pyx_FMT_TYPENAME ", got " __Pyx_FMT_TYPENAME ")"
+#if __PYX_LIMITED_VERSION_HEX < 0x030C0000
+        "%s%U"
+#endif
+        , name, type_name, obj_type_name
+#if __PYX_LIMITED_VERSION_HEX < 0x030C0000
+        , (from_annotation_subclass ? ". " : ""), extra_info
+#endif
+        );
+#if __PYX_LIMITED_VERSION_HEX >= 0x030C0000
+    if (exact == 2 && from_annotation_subclass) {
+        PyObject *res;
+        PyObject *vargs[2];
+        vargs[0] = PyErr_GetRaisedException();
+        vargs[1] = extra_info;
+        res = PyObject_VectorcallMethod(__pyx_mstate_global->__pyx_kp_u_add_note, vargs, 2, NULL);
+        Py_XDECREF(res);
+        PyErr_SetRaisedException(vargs[0]);
+    }
+#endif
+    __Pyx_DECREF_TypeName(obj_type_name);
+#if CYTHON_COMPILING_IN_LIMITED_API && __PYX_LIMITED_VERSION_HEX < 0x030d0000
+obj_type_name_failed:
+#endif
+    __Pyx_DECREF_TypeName(type_name);
+    return;
+}
+
+/* ArgTypeTest */
+static CYTHON_INLINE int __Pyx_ArgTypeTest(PyObject *obj, PyTypeObject *type, int none_allowed, const char *name, int exact) {
+    if (likely(Py_IS_TYPE(obj, type) | (none_allowed && (obj == Py_None))))
+        return 1;
+    if (!exact && likely(type) && likely(__Pyx_TypeCheck(obj, type)))
+        return 1;
+    __Pyx_ArgTypeError(obj, type, name, exact);
+    return 0;
+}
+
+/* FormatTypeName (used by RaiseErrorWithObjectType1) */
+#if CYTHON_COMPILING_IN_LIMITED_API && __PYX_LIMITED_VERSION_HEX < 0x030d0000
+static __Pyx_TypeName
+__Pyx_PyType_GetFullyQualifiedName(PyTypeObject* tp)
+{
+    PyObject *module = NULL, *name = NULL, *result = NULL;
+    #if __PYX_LIMITED_VERSION_HEX < 0x030b0000
+    name = __Pyx_PyObject_GetAttrStr((PyObject *)tp,
+                                               __pyx_mstate_global->__pyx_n_u_qualname);
+    #else
+    name = PyType_GetQualName(tp);
+    #endif
+    if (unlikely(name == NULL) || unlikely(!PyUnicode_Check(name))) goto bad;
+    module = __Pyx_PyObject_GetAttrStr((PyObject *)tp,
+                                               __pyx_mstate_global->__pyx_n_u_module);
+    if (unlikely(module == NULL) || unlikely(!PyUnicode_Check(module))) goto bad;
+    if (PyUnicode_CompareWithASCIIString(module, "builtins") == 0) {
+        result = name;
+        name = NULL;
+        goto done;
+    }
+    result = PyUnicode_FromFormat("%U.%U", module, name);
+    if (unlikely(result == NULL)) goto bad;
+  done:
+    Py_XDECREF(name);
+    Py_XDECREF(module);
+    return result;
+  bad:
+    PyErr_Clear();
+    if (name) {
+        result = name;
+        name = NULL;
+    } else {
+        result = __Pyx_NewRef(__pyx_mstate_global->__pyx_kp_u_);
+    }
+    goto done;
+}
+#endif
+
+/* RaiseErrorWithObjectType1 (used by RaiseUnexpectedTypeError) */
+static void __Pyx_RaiseErrorWithType1(PyObject* exc_type, const char* message, const char *arg, PyTypeObject *type_obj) {
+    __Pyx_TypeName type_name = __Pyx_PyType_GetFullyQualifiedName(type_obj);
+    #if CYTHON_COMPILING_IN_LIMITED_API && __PYX_LIMITED_VERSION_HEX < 0x030d0000
+    if (unlikely(!type_name)) return;
+    #endif
+    PyErr_Format(exc_type, message, arg, type_name);
+    __Pyx_DECREF_TypeName(type_name);
+}
+
+/* RaiseUnexpectedTypeError */
+static int __Pyx_RaiseUnexpectedTypeError(const char *expected, PyObject *obj) {
+    __Pyx_RaiseTypeErrorWithObjectType1(
+        "Expected %.42s, got " __Pyx_FMT_TYPENAME,
+        expected, obj);
+    return 0;
+}
+
+/* ModInt[Py_ssize_t] */
+static CYTHON_INLINE Py_ssize_t __Pyx_mod_Py_ssize_t(Py_ssize_t a, Py_ssize_t b, int b_is_constant) {
+    Py_ssize_t r = a % b;
+    Py_ssize_t adapt_python = (b_is_constant ?
+        ((r != 0) & ((r < 0) ^ (b < 0))) :
+        ((r != 0) & ((r ^ b) < 0))
+    );
+    return r + adapt_python * b;
+}
+
+/* pybuiltin_invalid (used by pyint_simplify) */
+static void __Pyx_PyBuiltin_Invalid(PyObject *obj, const char *builtin_type_name, const char *argname) {
+    __Pyx_TypeName obj_type_name = __Pyx_PyType_GetFullyQualifiedName(Py_TYPE(obj));
+    #if CYTHON_COMPILING_IN_LIMITED_API && __PYX_LIMITED_VERSION_HEX < 0x030d0000
+    if (unlikely(!obj_type_name)) return;
+    #endif
+    if (argname) {
+        PyErr_Format(PyExc_TypeError,
+            "Argument '%.200s' has incorrect type (expected %.5s, got " __Pyx_FMT_TYPENAME ")",
+            argname, builtin_type_name, obj_type_name
+        );
+    } else {
+        PyErr_Format(PyExc_TypeError,
+            "Expected %.5s, got " __Pyx_FMT_TYPENAME,
+            builtin_type_name, obj_type_name
+        );
+    }
+    __Pyx_DECREF_TypeName(obj_type_name);
+}
+
+/* pyint_simplify */
+static int __Pyx__PyInt_FromNumber(PyObject **number_var, const char *argname);
+static CYTHON_INLINE int __Pyx_PyInt_FromNumber(PyObject **number_var, const char *argname, int accept_none) {
+    PyObject *number = *number_var;
+    if (likely((accept_none && number == Py_None) || PyLong_CheckExact(number))) {
+        return 0;
+    }
+    return __Pyx__PyInt_FromNumber(number_var, argname);
+}
+static int __Pyx__PyInt_FromNumber(PyObject **number_var, const char *argname) {
+    PyObject *number = *number_var;
+    PyObject *int_object;
+    if (likely(PyNumber_Check(number))) {
+        int_object = PyNumber_Long(number);
+        if (unlikely(!int_object)) goto bad;
+    } else {
+        __Pyx_PyBuiltin_Invalid(number, "int", argname);
+        goto bad;
+    }
+    *number_var = int_object;
+    Py_DECREF(number);
+    return 0;
+bad:
+    *number_var = NULL;
+    Py_DECREF(number);
+    return -1;
+}
+
+/* PyLongBinop */
+#if !CYTHON_COMPILING_IN_PYPY
+static PyObject* __Pyx_Fallback___Pyx_PyLong_SubtractCObj(PyObject *op1, PyObject *op2, int inplace) {
+    return (inplace ? PyNumber_InPlaceSubtract : PyNumber_Subtract)(op1, op2);
+}
+#if CYTHON_USE_PYLONG_INTERNALS
+static PyObject* __Pyx_Unpacked___Pyx_PyLong_SubtractCObj(PyObject *op1, PyObject *op2, long intval, int inplace, int zerodivision_check) {
+    CYTHON_MAYBE_UNUSED_VAR(inplace);
+    CYTHON_UNUSED_VAR(zerodivision_check);
+    const long a = intval;
+    long b;
+    const PY_LONG_LONG lla = intval;
+    PY_LONG_LONG llb;
+    if (unlikely(__Pyx_PyLong_IsZero(op2))) {
+        return __Pyx_NewRef(op1);
+    }
+    const int is_positive = __Pyx_PyLong_IsPos(op2);
+    const digit* digits = __Pyx_PyLong_Digits(op2);
+    const Py_ssize_t size = __Pyx_PyLong_DigitCount(op2);
+    if (likely(size == 1)) {
+        b = (long) digits[0];
+        if (!is_positive) b *= -1;
+    } else {
+        if (size == 2 && 8 * sizeof(long) - 1 > 2 * PyLong_SHIFT) {
+            b = (long) (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0]));
+            if (!is_positive) b *= -1;
+            goto calculate_long;
+        } else if (size == 2 && 8 * sizeof(PY_LONG_LONG) - 1 > 2 * PyLong_SHIFT) {
+            llb = (PY_LONG_LONG) (((((unsigned PY_LONG_LONG)digits[1]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[0]));
+            if (!is_positive) llb *= -1;
+            goto calculate_long_long;
+        } else
+        if (size == 3 && 8 * sizeof(long) - 1 > 3 * PyLong_SHIFT) {
+            b = (long) (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0]));
+            if (!is_positive) b *= -1;
+            goto calculate_long;
+        } else if (size == 3 && 8 * sizeof(PY_LONG_LONG) - 1 > 3 * PyLong_SHIFT) {
+            llb = (PY_LONG_LONG) (((((((unsigned PY_LONG_LONG)digits[2]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[1]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[0]));
+            if (!is_positive) llb *= -1;
+            goto calculate_long_long;
+        } else
+        if (size == 4 && 8 * sizeof(long) - 1 > 4 * PyLong_SHIFT) {
+            b = (long) (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0]));
+            if (!is_positive) b *= -1;
+            goto calculate_long;
+        } else if (size == 4 && 8 * sizeof(PY_LONG_LONG) - 1 > 4 * PyLong_SHIFT) {
+            llb = (PY_LONG_LONG) (((((((((unsigned PY_LONG_LONG)digits[3]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[2]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[1]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[0]));
+            if (!is_positive) llb *= -1;
+            goto calculate_long_long;
+        } else
+        {}
+        return PyLong_Type.tp_as_number->nb_subtract(op1, op2);
+    }
+    calculate_long:
+        {
+            long x;
+            x = a - b;
+            return PyLong_FromLong(x);
+        }
+    calculate_long_long:
+        {
+            PY_LONG_LONG llx;
+            llx = lla - llb;
+            return PyLong_FromLongLong(llx);
+        }
+    
+}
+#endif
+static PyObject* __Pyx_Float___Pyx_PyLong_SubtractCObj(PyObject *float_val, long intval, int zerodivision_check) {
+    CYTHON_UNUSED_VAR(zerodivision_check);
+    const long a = intval;
+    double b = __Pyx_PyFloat_AS_DOUBLE(float_val);
+        double result;
+        
+        result = ((double)a) - (double)b;
+        return PyFloat_FromDouble(result);
+}
+static CYTHON_INLINE PyObject* __Pyx_PyLong_SubtractCObj(PyObject *op1, PyObject *op2, long intval, int inplace, int zerodivision_check) {
+    CYTHON_MAYBE_UNUSED_VAR(intval);
+    CYTHON_UNUSED_VAR(zerodivision_check);
+    #if CYTHON_USE_PYLONG_INTERNALS
+    if (likely(PyLong_CheckExact(op2))) {
+        return __Pyx_Unpacked___Pyx_PyLong_SubtractCObj(op1, op2, intval, inplace, zerodivision_check);
+    }
+    #endif
+    if (PyFloat_CheckExact(op2)) {
+        return __Pyx_Float___Pyx_PyLong_SubtractCObj(op2, intval, zerodivision_check);
+    }
+    return __Pyx_Fallback___Pyx_PyLong_SubtractCObj(op1, op2, inplace);
+}
+#endif
+
+/* PySequenceMultiply */
+#if CYTHON_USE_TYPE_SLOTS
+static PyObject* __Pyx_PySequence_Multiply_Generic(PyObject *seq, Py_ssize_t mul) {
+    PyObject *result, *pymul = PyLong_FromSsize_t(mul);
+    if (unlikely(!pymul))
+        return NULL;
+    result = PyNumber_Multiply(seq, pymul);
+    Py_DECREF(pymul);
+    return result;
+}
+static CYTHON_INLINE PyObject* __Pyx_PySequence_Multiply(PyObject *seq, Py_ssize_t mul) {
+    PyTypeObject *type = Py_TYPE(seq);
+    if (likely(type->tp_as_sequence && type->tp_as_sequence->sq_repeat)) {
+        return type->tp_as_sequence->sq_repeat(seq, mul);
+    } else {
+        return __Pyx_PySequence_Multiply_Generic(seq, mul);
+    }
+}
+#endif
+
+/* UnicodeConcatInPlace */
+# if CYTHON_COMPILING_IN_CPYTHON
+static int
+__Pyx_unicode_modifiable(PyObject *unicode, int unsafe_shared)
+{
+    if (!__Pyx_IS_UNIQUELY_REFERENCED(unicode, unsafe_shared))
+        return 0;
+#if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX > 0x030F0000
+    if (PyUnstable_Unicode_GET_CACHED_HASH(unicode) != -1)
+        return 0;
+#endif
+    if (!PyUnicode_CheckExact(unicode))
+        return 0;
+    if (PyUnicode_CHECK_INTERNED(unicode))
+        return 0;
+    return 1;
+}
+static CYTHON_INLINE PyObject *__Pyx_PyUnicode_ConcatInPlaceImpl(PyObject **p_left, PyObject *right, int unsafe_shared
+        #if CYTHON_REFNANNY
+        , void* __pyx_refnanny
+        #endif
+    ) {
+    PyObject *left = *p_left;
+    Py_ssize_t left_len, right_len, new_len;
+    if (unlikely(__Pyx_PyUnicode_READY(left) == -1))
+        return NULL;
+    if (unlikely(__Pyx_PyUnicode_READY(right) == -1))
+        return NULL;
+    left_len = PyUnicode_GET_LENGTH(left);
+    if (left_len == 0) {
+        Py_INCREF(right);
+        return right;
+    }
+    right_len = PyUnicode_GET_LENGTH(right);
+    if (right_len == 0) {
+        Py_INCREF(left);
+        return left;
+    }
+    if (unlikely(left_len > PY_SSIZE_T_MAX - right_len)) {
+        PyErr_SetString(PyExc_OverflowError,
+                        "strings are too large to concat");
+        return NULL;
+    }
+    new_len = left_len + right_len;
+    if (left != right
+            && __Pyx_unicode_modifiable(left, unsafe_shared)
+            && PyUnicode_CheckExact(right)
+            && PyUnicode_KIND(right) <= PyUnicode_KIND(left)
+            && !(PyUnicode_IS_ASCII(left) && !PyUnicode_IS_ASCII(right))) {
+        int ret;
+        __Pyx_GIVEREF(*p_left);
+        ret = PyUnicode_Resize(p_left, new_len);
+        __Pyx_GOTREF(*p_left);
+        if (unlikely(ret != 0))
+            return NULL;
+        #if PY_VERSION_HEX >= 0x030d0000
+        if (unlikely(PyUnicode_CopyCharacters(*p_left, left_len, right, 0, right_len) < 0)) return NULL;
+        #else
+        _PyUnicode_FastCopyCharacters(*p_left, left_len, right, 0, right_len);
+        #endif
+        __Pyx_INCREF(*p_left);
+        __Pyx_GIVEREF(*p_left);
+        return *p_left;
+    } else {
+        return __Pyx_PyUnicode_Concat(left, right);
+    }
+  }
+#endif
+
 /* PyErrFetchRestore (used by GivenExceptionMatches) */
 #if CYTHON_FAST_THREAD_STATE
 static CYTHON_INLINE void __Pyx_ErrRestoreInState(PyThreadState *tstate, PyObject *type, PyObject *value, PyObject *tb) {
@@ -13166,7 +16565,32 @@ static CYTHON_INLINE PyObject *__Pyx__GetModuleGlobalName(PyObject *name)
     return __Pyx_GetBuiltinName(name);
 }
 
-/* PyObjectVectorcallKwds */
+/* PyObjectFastCallMethod */
+#if !CYTHON_VECTORCALL
+static PyObject *__Pyx_PyObject_FastCallMethod(PyObject *name, PyObject *const *args, size_t nargsf) {
+    PyObject *result;
+    switch (__Pyx_PyVectorcall_NARGS(nargsf)) {
+        case 1:
+            return PyObject_CallMethodObjArgs(args[0], name, NULL);
+        case 2:
+            return PyObject_CallMethodObjArgs(args[0], name, args[1], NULL);
+        case 3:
+            return PyObject_CallMethodObjArgs(args[0], name, args[1], args[2], NULL);
+        case 4:
+            return PyObject_CallMethodObjArgs(args[0], name, args[1], args[2], args[3], NULL);
+        case 5:
+            return PyObject_CallMethodObjArgs(args[0], name, args[1], args[2], args[3], args[4], NULL);
+    }
+    PyObject *attr = PyObject_GetAttr(args[0], name);
+    if (unlikely(!attr))
+        return NULL;
+    result = __Pyx_PyObject_FastCall(attr, args+1, nargsf - 1);
+    Py_DECREF(attr);
+    return result;
+}
+#endif
+
+/* PyObjectVectorcallKwds (used by PyObjectVectorcallMethodKwds) */
 #if CYTHON_VECTORCALL
 CYTHON_UNUSED static int __Pyx_CheckVectorcallKwarg(PyObject *kwnames, Py_ssize_t i) {
     PyObject *key = __Pyx_PyTuple_GET_ITEM(kwnames, i);
@@ -13201,27 +16625,15 @@ CYTHON_UNUSED static int __Pyx_CheckVectorcallKwarg(PyObject **kwnames, Py_ssize
 }
 #endif
 
-/* PyObjectFastCallMethod */
+/* PyObjectVectorcallMethodKwds */
 #if !CYTHON_VECTORCALL
-static PyObject *__Pyx_PyObject_FastCallMethod(PyObject *name, PyObject *const *args, size_t nargsf) {
+static PyObject *__Pyx_Object_VectorcallMethodKwds(PyObject *name, PyObject *const *args, size_t nargsf, PyObject *kwnames) {
     PyObject *result;
-    switch (__Pyx_PyVectorcall_NARGS(nargsf)) {
-        case 1:
-            return PyObject_CallMethodObjArgs(args[0], name, NULL);
-        case 2:
-            return PyObject_CallMethodObjArgs(args[0], name, args[1], NULL);
-        case 3:
-            return PyObject_CallMethodObjArgs(args[0], name, args[1], args[2], NULL);
-        case 4:
-            return PyObject_CallMethodObjArgs(args[0], name, args[1], args[2], args[3], NULL);
-        case 5:
-            return PyObject_CallMethodObjArgs(args[0], name, args[1], args[2], args[3], args[4], NULL);
-    }
-    PyObject *attr = PyObject_GetAttr(args[0], name);
-    if (unlikely(!attr))
+    PyObject *obj = PyObject_GetAttr(args[0], name);
+    if (unlikely(!obj))
         return NULL;
-    result = __Pyx_PyObject_FastCall(attr, args+1, nargsf - 1);
-    Py_DECREF(attr);
+    result = __Pyx_Object_VectorcallKwds(obj, args+1, nargsf-1, kwnames);
+    Py_DECREF(obj);
     return result;
 }
 #endif
@@ -13950,6 +17362,201 @@ __pyx_return_false:
     Py_RETURN_FALSE;
 }
 
+/* PyFrozenDict (used by DictGetItem) */
+#if CYTHON_COMPILING_IN_LIMITED_API
+static CYTHON_INLINE PyObject* __Pyx__PyFrozenDict_New(PyObject* frozendict_type, PyObject* it) {
+    return PyObject_CallFunctionObjArgs(frozendict_type, it, NULL);
+}
+#endif
+
+/* DictGetItem */
+#if !CYTHON_COMPILING_IN_PYPY
+static PyObject *__Pyx_PyDict_GetItem(PyObject *d, PyObject* key) {
+    PyObject *value;
+    if (unlikely(__Pyx_PyDict_GetItemRef(d, key, &value) == 0)) { // no value, no error
+        if (unlikely(PyTuple_Check(key))) {
+            PyObject* args = PyTuple_Pack(1, key);
+            if (likely(args)) {
+                PyErr_SetObject(PyExc_KeyError, args);
+                Py_DECREF(args);
+            }
+        } else {
+            PyErr_SetObject(PyExc_KeyError, key);
+        }
+    }
+    return value;
+}
+#endif
+
+/* RaiseErrorWithObjectTypes (used by PyNumberBinop) */
+static void __Pyx_RaiseErrorWithTypes1(PyObject* exc_type, const char *message, const char *arg, PyTypeObject *type_obj1, PyTypeObject *type_obj2) {
+    __Pyx_TypeName type_name1 = __Pyx_PyType_GetFullyQualifiedName(type_obj1);
+    #if CYTHON_COMPILING_IN_LIMITED_API && __PYX_LIMITED_VERSION_HEX < 0x030d0000
+    if (unlikely(!type_name1)) return;
+    #endif
+    __Pyx_TypeName type_name2 = __Pyx_PyType_GetFullyQualifiedName(type_obj2);
+    #if CYTHON_COMPILING_IN_LIMITED_API && __PYX_LIMITED_VERSION_HEX < 0x030d0000
+    if (unlikely(!type_name2)) goto type2_failed;
+    #endif
+    PyErr_Format(exc_type, message, arg, type_name1, type_name2);
+    __Pyx_DECREF_TypeName(type_name2);
+#if CYTHON_COMPILING_IN_LIMITED_API && __PYX_LIMITED_VERSION_HEX < 0x030d0000
+type2_failed:
+#endif
+    __Pyx_DECREF_TypeName(type_name1);
+}
+
+/* PyNumberBinop */
+#if !(CYTHON_COMPILING_IN_PYPY || CYTHON_COMPILING_IN_GRAAL || CYTHON_COMPILING_IN_LIMITED_API)
+#if CYTHON_USE_TYPE_SLOTS || __PYX_LIMITED_VERSION_HEX >= 0x030A0000
+#ifndef __Pyx_DEFINED_BinopTypeError
+#define __Pyx_DEFINED_BinopTypeError
+static void __Pyx_BinopTypeError(PyObject *op1, PyObject *op2, const char* op, int inplace) {
+    char opname[4] = {op[0], op[1], 0, 0};
+    if (inplace) {
+        opname[op[1] ? 2 : 1] = '=';
+    }
+    __Pyx_RaiseErrorWithObjectTypes1(
+        PyExc_TypeError,
+        "unsupported operand type(s) for %.3s: '" __Pyx_FMT_TYPENAME "' and '" __Pyx_FMT_TYPENAME "'",
+        opname, op1, op2);
+}
+#endif
+#endif
+#ifndef __Pyx_DEFINED_PyNumber_Add_xfloat_object
+#define __Pyx_DEFINED_PyNumber_Add_xfloat_object
+static PyObject* __Pyx_PyNumber_Add_xfloat_object(PyObject *op1, PyObject *op2, int inplace) {
+    if (PyLong_CheckExact(op2)) {
+        double int_op2;
+        #if CYTHON_USE_PYLONG_INTERNALS
+        if (__Pyx_PyLong_IsCompact(op2)) {
+            Py_ssize_t compact_op2 = __Pyx_PyLong_CompactValue(op2);
+            if (compact_op2 == 0) return __Pyx_NewRef(op1);
+            int_op2 = (double) compact_op2;
+        } else
+        #endif
+        {
+            int_op2 = PyLong_AsDouble(op2);
+            if (unlikely((int_op2 == -1.) && PyErr_Occurred())) return NULL;
+            #if !CYTHON_USE_PYLONG_INTERNALS
+            if (int_op2 == 0.) return __Pyx_NewRef(op1);
+            #endif
+        }
+        double float_op1 = __Pyx_PyFloat_AS_DOUBLE(op1);
+        #if !CYTHON_ASSUME_SAFE_MACROS
+        if (unlikely((float_op1 == -1.) && PyErr_Occurred())) return NULL;
+        #endif
+        return PyFloat_FromDouble(float_op1 + int_op2);
+    }
+    if (PyLong_Check(op2)) {
+        binaryfunc slot_func = __Pyx_PyType_GetSubSlot(&PyFloat_Type, tp_as_number, nb_add, binaryfunc);
+        if (likely(slot_func)) {
+            return slot_func(op1, op2);
+        }
+    }
+    #if CYTHON_USE_TYPE_SLOTS || __PYX_LIMITED_VERSION_HEX >= 0x030A0000
+    {
+        PyTypeObject *type_op2 = Py_TYPE(op2);
+        binaryfunc slot_func = __Pyx_PyType_GetSubSlot(type_op2, tp_as_number, nb_add, binaryfunc);
+        if (likely(slot_func)) {
+            PyObject *result = slot_func(op1, op2);
+            if (likely(result != Py_NotImplemented)) {
+                return result;
+            }
+            Py_DECREF(result);
+        }
+        __Pyx_BinopTypeError(op1, op2, "+", inplace);
+        return NULL;
+    }
+    #else
+    return (inplace) ? PyNumber_InPlaceAdd(op1, op2) : PyNumber_Add(op1, op2);
+    #endif
+}
+#endif
+#ifndef __Pyx_DEFINED_PyNumber_Add_xint_object
+#define __Pyx_DEFINED_PyNumber_Add_xint_object
+static PyObject* __Pyx_PyNumber_Add_xint_object(PyObject *op1, PyObject *op2, int inplace) {
+    if (PyFloat_CheckExact(op2)) {
+        double int_op1;
+        #if CYTHON_USE_PYLONG_INTERNALS
+        if (__Pyx_PyLong_IsCompact(op1)) {
+            Py_ssize_t compact_op1 = __Pyx_PyLong_CompactValue(op1);
+            if (compact_op1 == 0) return __Pyx_NewRef(op2);
+            int_op1 = (double) compact_op1;
+        } else
+        #endif
+        {
+            int_op1 = PyLong_AsDouble(op1);
+            if (unlikely((int_op1 == -1.) && PyErr_Occurred())) return NULL;
+            #if !CYTHON_USE_PYLONG_INTERNALS
+            if (int_op1 == 0.) return __Pyx_NewRef(op2);
+            #endif
+        }
+        double float_op2 = __Pyx_PyFloat_AS_DOUBLE(op2);
+        #if !CYTHON_ASSUME_SAFE_MACROS
+        if (unlikely((float_op2 == -1.) && PyErr_Occurred())) return NULL;
+        #endif
+        return PyFloat_FromDouble(int_op1 + float_op2);
+    }
+    #if CYTHON_USE_TYPE_SLOTS || __PYX_LIMITED_VERSION_HEX >= 0x030A0000
+    {
+        PyTypeObject *type_op2 = Py_TYPE(op2);
+        binaryfunc slot_func = __Pyx_PyType_GetSubSlot(type_op2, tp_as_number, nb_add, binaryfunc);
+        if (likely(slot_func)) {
+            PyObject *result = slot_func(op1, op2);
+            if (likely(result != Py_NotImplemented)) {
+                return result;
+            }
+            Py_DECREF(result);
+        }
+        __Pyx_BinopTypeError(op1, op2, "+", inplace);
+        return NULL;
+    }
+    #else
+    return (inplace) ? PyNumber_InPlaceAdd(op1, op2) : PyNumber_Add(op1, op2);
+    #endif
+}
+#endif
+static CYTHON_INLINE PyObject* __Pyx__PyNumber_Add_object_object(PyObject *op1, PyObject *op2, int inplace) {
+    if (PyFloat_CheckExact(op1)) {
+        if (PyFloat_CheckExact(op2)) {
+            double float_op2 = __Pyx_PyFloat_AS_DOUBLE(op2);
+            #if !CYTHON_ASSUME_SAFE_MACROS
+            if (unlikely((float_op2 == -1.) && PyErr_Occurred())) return NULL;
+            #endif
+            double float_op1 = __Pyx_PyFloat_AS_DOUBLE(op1);
+            #if !CYTHON_ASSUME_SAFE_MACROS
+            if (unlikely((float_op1 == -1.) && PyErr_Occurred())) return NULL;
+            #endif
+            return PyFloat_FromDouble(float_op1 + float_op2);
+        }
+        return __Pyx_PyNumber_Add_xfloat_object(op1, op2, inplace);
+    }
+    if (PyLong_CheckExact(op1)) {
+        if (PyLong_CheckExact(op2)) {
+            #if CYTHON_USE_PYLONG_INTERNALS
+            if (__Pyx_PyLong_IsCompact(op1)) {
+                Py_ssize_t int_op1 = __Pyx_PyLong_CompactValue(op1);
+                if (int_op1 == 0) return __Pyx_NewRef(op2);
+                if (__Pyx_PyLong_IsCompact(op2)) {
+                    Py_ssize_t int_op2 = __Pyx_PyLong_CompactValue(op2);
+                    if (int_op2 == 0) return __Pyx_NewRef(op1);
+                    return PyLong_FromSsize_t(int_op1 + int_op2);
+                }
+            }
+            else if (__Pyx_PyLong_IsZero(op2)) return __Pyx_NewRef(op1);
+            #endif
+            binaryfunc slot_func = __Pyx_PyType_GetSubSlot(&PyLong_Type, tp_as_number, nb_add, binaryfunc);
+            if (likely(slot_func)) {
+                return slot_func(op1, op2);
+            }
+        }
+        return __Pyx_PyNumber_Add_xint_object(op1, op2, inplace);
+    }
+    return (inplace) ? PyNumber_InPlaceAdd(op1, op2) : PyNumber_Add(op1, op2);
+}
+#endif
+
 /* PyObjectCompare */
 #ifndef __Pyx_DEFINED_PyObject_CompareStrStrBoolLt
 #define __Pyx_DEFINED_PyObject_CompareStrStrBoolLt
@@ -14340,461 +17947,6 @@ __pyx_return_false:
     return 0;
 }
 
-/* FormatTypeName (used by RaiseErrorWithObjectTypes) */
-#if CYTHON_COMPILING_IN_LIMITED_API && __PYX_LIMITED_VERSION_HEX < 0x030d0000
-static __Pyx_TypeName
-__Pyx_PyType_GetFullyQualifiedName(PyTypeObject* tp)
-{
-    PyObject *module = NULL, *name = NULL, *result = NULL;
-    #if __PYX_LIMITED_VERSION_HEX < 0x030b0000
-    name = __Pyx_PyObject_GetAttrStr((PyObject *)tp,
-                                               __pyx_mstate_global->__pyx_n_u_qualname);
-    #else
-    name = PyType_GetQualName(tp);
-    #endif
-    if (unlikely(name == NULL) || unlikely(!PyUnicode_Check(name))) goto bad;
-    module = __Pyx_PyObject_GetAttrStr((PyObject *)tp,
-                                               __pyx_mstate_global->__pyx_n_u_module);
-    if (unlikely(module == NULL) || unlikely(!PyUnicode_Check(module))) goto bad;
-    if (PyUnicode_CompareWithASCIIString(module, "builtins") == 0) {
-        result = name;
-        name = NULL;
-        goto done;
-    }
-    result = PyUnicode_FromFormat("%U.%U", module, name);
-    if (unlikely(result == NULL)) goto bad;
-  done:
-    Py_XDECREF(name);
-    Py_XDECREF(module);
-    return result;
-  bad:
-    PyErr_Clear();
-    if (name) {
-        result = name;
-        name = NULL;
-    } else {
-        result = __Pyx_NewRef(__pyx_mstate_global->__pyx_kp_u_);
-    }
-    goto done;
-}
-#endif
-
-/* RaiseErrorWithObjectTypes (used by PyNumberBinop) */
-static void __Pyx_RaiseErrorWithTypes1(PyObject* exc_type, const char *message, const char *arg, PyTypeObject *type_obj1, PyTypeObject *type_obj2) {
-    __Pyx_TypeName type_name1 = __Pyx_PyType_GetFullyQualifiedName(type_obj1);
-    #if CYTHON_COMPILING_IN_LIMITED_API && __PYX_LIMITED_VERSION_HEX < 0x030d0000
-    if (unlikely(!type_name1)) return;
-    #endif
-    __Pyx_TypeName type_name2 = __Pyx_PyType_GetFullyQualifiedName(type_obj2);
-    #if CYTHON_COMPILING_IN_LIMITED_API && __PYX_LIMITED_VERSION_HEX < 0x030d0000
-    if (unlikely(!type_name2)) goto type2_failed;
-    #endif
-    PyErr_Format(exc_type, message, arg, type_name1, type_name2);
-    __Pyx_DECREF_TypeName(type_name2);
-#if CYTHON_COMPILING_IN_LIMITED_API && __PYX_LIMITED_VERSION_HEX < 0x030d0000
-type2_failed:
-#endif
-    __Pyx_DECREF_TypeName(type_name1);
-}
-
-/* PyNumberBinop */
-#if !(CYTHON_COMPILING_IN_PYPY || CYTHON_COMPILING_IN_GRAAL || CYTHON_COMPILING_IN_LIMITED_API)
-#if CYTHON_USE_TYPE_SLOTS || __PYX_LIMITED_VERSION_HEX >= 0x030A0000
-#ifndef __Pyx_DEFINED_BinopTypeError
-#define __Pyx_DEFINED_BinopTypeError
-static void __Pyx_BinopTypeError(PyObject *op1, PyObject *op2, const char* op, int inplace) {
-    char opname[4] = {op[0], op[1], 0, 0};
-    if (inplace) {
-        opname[op[1] ? 2 : 1] = '=';
-    }
-    __Pyx_RaiseErrorWithObjectTypes1(
-        PyExc_TypeError,
-        "unsupported operand type(s) for %.3s: '" __Pyx_FMT_TYPENAME "' and '" __Pyx_FMT_TYPENAME "'",
-        opname, op1, op2);
-}
-#endif
-#endif
-#ifndef __Pyx_DEFINED_PyNumber_Subtract_xfloat_object
-#define __Pyx_DEFINED_PyNumber_Subtract_xfloat_object
-static PyObject* __Pyx_PyNumber_Subtract_xfloat_object(PyObject *op1, PyObject *op2, int inplace) {
-    if (PyLong_CheckExact(op2)) {
-        double int_op2;
-        #if CYTHON_USE_PYLONG_INTERNALS
-        if (__Pyx_PyLong_IsCompact(op2)) {
-            Py_ssize_t compact_op2 = __Pyx_PyLong_CompactValue(op2);
-            if (compact_op2 == 0) return __Pyx_NewRef(op1);
-            int_op2 = (double) compact_op2;
-        } else
-        #endif
-        {
-            int_op2 = PyLong_AsDouble(op2);
-            if (unlikely((int_op2 == -1.) && PyErr_Occurred())) return NULL;
-            #if !CYTHON_USE_PYLONG_INTERNALS
-            if (int_op2 == 0.) return __Pyx_NewRef(op1);
-            #endif
-        }
-        double float_op1 = __Pyx_PyFloat_AS_DOUBLE(op1);
-        #if !CYTHON_ASSUME_SAFE_MACROS
-        if (unlikely((float_op1 == -1.) && PyErr_Occurred())) return NULL;
-        #endif
-        return PyFloat_FromDouble(float_op1 - int_op2);
-    }
-    if (PyLong_Check(op2)) {
-        binaryfunc slot_func = __Pyx_PyType_GetSubSlot(&PyFloat_Type, tp_as_number, nb_subtract, binaryfunc);
-        if (likely(slot_func)) {
-            return slot_func(op1, op2);
-        }
-    }
-    #if CYTHON_USE_TYPE_SLOTS || __PYX_LIMITED_VERSION_HEX >= 0x030A0000
-    {
-        PyTypeObject *type_op2 = Py_TYPE(op2);
-        binaryfunc slot_func = __Pyx_PyType_GetSubSlot(type_op2, tp_as_number, nb_subtract, binaryfunc);
-        if (likely(slot_func)) {
-            PyObject *result = slot_func(op1, op2);
-            if (likely(result != Py_NotImplemented)) {
-                return result;
-            }
-            Py_DECREF(result);
-        }
-        __Pyx_BinopTypeError(op1, op2, "-", inplace);
-        return NULL;
-    }
-    #else
-    return (inplace) ? PyNumber_InPlaceSubtract(op1, op2) : PyNumber_Subtract(op1, op2);
-    #endif
-}
-#endif
-#ifndef __Pyx_DEFINED_PyNumber_Subtract_xint_object
-#define __Pyx_DEFINED_PyNumber_Subtract_xint_object
-static PyObject* __Pyx_PyNumber_Subtract_xint_object(PyObject *op1, PyObject *op2, int inplace) {
-    if (PyFloat_CheckExact(op2)) {
-        double int_op1;
-        #if CYTHON_USE_PYLONG_INTERNALS
-        if (__Pyx_PyLong_IsCompact(op1)) {
-            Py_ssize_t compact_op1 = __Pyx_PyLong_CompactValue(op1);
-            int_op1 = (double) compact_op1;
-        } else
-        #endif
-        {
-            int_op1 = PyLong_AsDouble(op1);
-            if (unlikely((int_op1 == -1.) && PyErr_Occurred())) return NULL;
-        }
-        double float_op2 = __Pyx_PyFloat_AS_DOUBLE(op2);
-        #if !CYTHON_ASSUME_SAFE_MACROS
-        if (unlikely((float_op2 == -1.) && PyErr_Occurred())) return NULL;
-        #endif
-        return PyFloat_FromDouble(int_op1 - float_op2);
-    }
-    #if CYTHON_USE_TYPE_SLOTS || __PYX_LIMITED_VERSION_HEX >= 0x030A0000
-    {
-        PyTypeObject *type_op2 = Py_TYPE(op2);
-        binaryfunc slot_func = __Pyx_PyType_GetSubSlot(type_op2, tp_as_number, nb_subtract, binaryfunc);
-        if (likely(slot_func)) {
-            PyObject *result = slot_func(op1, op2);
-            if (likely(result != Py_NotImplemented)) {
-                return result;
-            }
-            Py_DECREF(result);
-        }
-        __Pyx_BinopTypeError(op1, op2, "-", inplace);
-        return NULL;
-    }
-    #else
-    return (inplace) ? PyNumber_InPlaceSubtract(op1, op2) : PyNumber_Subtract(op1, op2);
-    #endif
-}
-#endif
-static CYTHON_INLINE PyObject* __Pyx__PyNumber_Subtract_object_object(PyObject *op1, PyObject *op2, int inplace) {
-    if (PyFloat_CheckExact(op1)) {
-        if (PyFloat_CheckExact(op2)) {
-            double float_op2 = __Pyx_PyFloat_AS_DOUBLE(op2);
-            #if !CYTHON_ASSUME_SAFE_MACROS
-            if (unlikely((float_op2 == -1.) && PyErr_Occurred())) return NULL;
-            #endif
-            double float_op1 = __Pyx_PyFloat_AS_DOUBLE(op1);
-            #if !CYTHON_ASSUME_SAFE_MACROS
-            if (unlikely((float_op1 == -1.) && PyErr_Occurred())) return NULL;
-            #endif
-            return PyFloat_FromDouble(float_op1 - float_op2);
-        }
-        return __Pyx_PyNumber_Subtract_xfloat_object(op1, op2, inplace);
-    }
-    if (PyLong_CheckExact(op1)) {
-        if (PyLong_CheckExact(op2)) {
-            #if CYTHON_USE_PYLONG_INTERNALS
-            if (__Pyx_PyLong_IsCompact(op1)) {
-                Py_ssize_t int_op1 = __Pyx_PyLong_CompactValue(op1);
-                if (__Pyx_PyLong_IsCompact(op2)) {
-                    Py_ssize_t int_op2 = __Pyx_PyLong_CompactValue(op2);
-                    if (int_op2 == 0) return __Pyx_NewRef(op1);
-                    return PyLong_FromSsize_t(int_op1 - int_op2);
-                }
-            }
-            else if (__Pyx_PyLong_IsZero(op2)) return __Pyx_NewRef(op1);
-            #endif
-            binaryfunc slot_func = __Pyx_PyType_GetSubSlot(&PyLong_Type, tp_as_number, nb_subtract, binaryfunc);
-            if (likely(slot_func)) {
-                return slot_func(op1, op2);
-            }
-        }
-        return __Pyx_PyNumber_Subtract_xint_object(op1, op2, inplace);
-    }
-    return (inplace) ? PyNumber_InPlaceSubtract(op1, op2) : PyNumber_Subtract(op1, op2);
-}
-#endif
-
-/* PyObjectCompare */
-#ifndef __Pyx_DEFINED_PyObject_CompareFloatIntBoolGt
-#define __Pyx_DEFINED_PyObject_CompareFloatIntBoolGt
-static int __Pyx_PyObject_CompareFloatIntBoolGt(PyObject *op1, PyObject *op2) {
-    double float_op1 = __Pyx_PyFloat_AS_DOUBLE(op1);
-    #if !CYTHON_ASSUME_SAFE_MACROS
-    if (unlikely(float_op1 == -1. && PyErr_Occurred())) return -1;
-    #endif
-    #if CYTHON_USE_PYLONG_INTERNALS
-    if (__Pyx_PyLong_IsCompact(op2)) {
-        Py_ssize_t iop2 = __Pyx_PyLong_CompactValue(op2);
-        if (float_op1 > ((double)iop2)) goto __pyx_return_true; else goto __pyx_return_false;
-    }
-    if (unlikely(!isfinite(float_op1))) {
-        if (float_op1 > 0.0) goto __pyx_return_true; else goto __pyx_return_false;
-    } else {
-        int sign2 = __Pyx_PyLong_Sign(op2);
-        if (float_op1 >= 0.) {
-            if (sign2 < 0) goto __pyx_return_true;
-            if (float_op1 < (double) (1L << PyLong_SHIFT)) goto __pyx_return_false;
-        } else {
-            if (sign2 > 0) goto __pyx_return_false;
-            if (float_op1 > -(double) (1L << PyLong_SHIFT)) goto __pyx_return_true;
-        }
-    }
-    #else
-    if (unlikely(!isfinite(float_op1))) {
-        if (float_op1 > 0.0) goto __pyx_return_true; else goto __pyx_return_false;
-    } else {
-        int overflow2;
-        long iop2 = PyLong_AsLongAndOverflow(op2, &overflow2);
-        if (likely(!overflow2)) {
-            if ((long long) iop2 >= (1LL << 53)) {
-                overflow2 = 1;
-            } else if ((long long) iop2 <= - (1LL << 53)) {
-                overflow2 = -1;
-            } else {
-                if (float_op1 > ((double) iop2)) goto __pyx_return_true; else goto __pyx_return_false;
-            }
-        }
-        if (overflow2 > 0) {
-            if (float_op1 < ((double) (1LL << 53))) goto __pyx_return_false;
-        } else {
-            if (float_op1 > - ((double) (1LL << 53))) goto __pyx_return_true;
-        }
-    }
-    #endif
-    return __Pyx_PyObject_RichCompareBool(op1, op2, Py_GT);
-__pyx_return_true:
-    return 1;
-__pyx_return_false:
-    return 0;
-}
-#endif
-#ifndef __Pyx_DEFINED_PyObject_CompareIntIntBoolGt
-#define __Pyx_DEFINED_PyObject_CompareIntIntBoolGt
-static int __Pyx_PyObject_CompareIntIntBoolGt(PyObject *op1, PyObject *op2) {
-#if CYTHON_USE_PYLONG_INTERNALS
-    Py_ssize_t cmp = __Pyx_PyLong_CompareSignAndSize(op1, op2);
-    if (cmp == 0) {
-        Py_ssize_t size = __Pyx_PyLong_DigitCount(op1);
-        if (size > 0) {
-            const digit* digits1 = __Pyx_PyLong_Digits(op1);
-            const digit* digits2 = __Pyx_PyLong_Digits(op2);
-            if (size == 1) {
-                cmp = (Py_ssize_t) digits1[0] - (Py_ssize_t) digits2[0];
-            } else if ((size == 2) && (8 * sizeof(Py_ssize_t) >= 2 * PyLong_SHIFT)) {
-                cmp = (Py_ssize_t) (((((size_t)digits1[1]) << PyLong_SHIFT) | (size_t)digits1[0])) - (Py_ssize_t) (((((size_t)digits2[1]) << PyLong_SHIFT) | (size_t)digits2[0]));
-            } else {
-                for (Py_ssize_t i=size-1; i >= 0 && !cmp; --i) {
-                    cmp = (Py_ssize_t) digits1[i] - (Py_ssize_t) digits2[i];
-                }
-            }
-        }
-        if (cmp == 0) goto __pyx_return_false;
-        if (__Pyx_PyLong_IsNeg(op1)) cmp = -cmp;
-    }
-    if (cmp < 0) goto __pyx_return_false; else goto __pyx_return_true;
-#else
-    int overflow1, overflow2;
-    long long iop1 = PyLong_AsLongLongAndOverflow(op1, &overflow1);
-    long long iop2 = PyLong_AsLongLongAndOverflow(op2, &overflow2);
-    if (likely(!(overflow1 | overflow2))) {
-        if (iop1 > iop2) goto __pyx_return_true; else goto __pyx_return_false;
-    } else if (overflow1 != overflow2) {
-        if (overflow1 > overflow2) goto __pyx_return_true; else goto __pyx_return_false;
-    } else {
-        return __Pyx_PyObject_RichCompareBool(op1, op2, Py_GT);
-    }
-#endif
-__pyx_return_true:
-    return 1;
-__pyx_return_false:
-    return 0;
-}
-#endif
-static CYTHON_INLINE int __Pyx_PyObject_CompareBoolGt_object_int(PyObject *op1, PyObject *op2, int pyop) {
-    CYTHON_UNUSED_VAR(pyop);
-    if (unlikely(op2 == Py_None)) {
-        goto __pyx_richcmp;
-    }
-    if (op1 == op2) goto __pyx_return_false;
-    if (PyFloat_CheckExact(op1)) {
-        if (likely(op2 != Py_None)) {
-            return __Pyx_PyObject_CompareFloatIntBoolGt(op1, op2);
-        }
-        goto __pyx_richcmp;
-    }
-    if (likely(PyLong_CheckExact(op1))) {
-        if (op1 == op2) goto __pyx_return_false;
-        if (likely(op2 != Py_None)) {
-            return __Pyx_PyObject_CompareIntIntBoolGt(op1, op2);
-        }
-        goto __pyx_richcmp;
-    }
-    if ((0)) goto __pyx_richcmp;
-    if ((0)) goto __pyx_return_true;
-    if ((0)) goto __pyx_return_false;
-__pyx_richcmp:
-    return __Pyx_PyObject_RichCompareBool(op1, op2, Py_GT);
-__pyx_return_true:
-    return 1;
-__pyx_return_false:
-    return 0;
-}
-
-/* PyObjectCompare */
-#ifndef __Pyx_DEFINED_PyObject_CompareFloatIntBoolLe
-#define __Pyx_DEFINED_PyObject_CompareFloatIntBoolLe
-static int __Pyx_PyObject_CompareFloatIntBoolLe(PyObject *op1, PyObject *op2) {
-    double float_op1 = __Pyx_PyFloat_AS_DOUBLE(op1);
-    #if !CYTHON_ASSUME_SAFE_MACROS
-    if (unlikely(float_op1 == -1. && PyErr_Occurred())) return -1;
-    #endif
-    #if CYTHON_USE_PYLONG_INTERNALS
-    if (__Pyx_PyLong_IsCompact(op2)) {
-        Py_ssize_t iop2 = __Pyx_PyLong_CompactValue(op2);
-        if (float_op1 <= ((double)iop2)) goto __pyx_return_true; else goto __pyx_return_false;
-    }
-    if (unlikely(!isfinite(float_op1))) {
-        if (float_op1 <= 0.0) goto __pyx_return_true; else goto __pyx_return_false;
-    } else {
-        int sign2 = __Pyx_PyLong_Sign(op2);
-        if (float_op1 >= 0.) {
-            if (sign2 < 0) goto __pyx_return_false;
-            if (float_op1 < (double) (1L << PyLong_SHIFT)) goto __pyx_return_true;
-        } else {
-            if (sign2 > 0) goto __pyx_return_true;
-            if (float_op1 > -(double) (1L << PyLong_SHIFT)) goto __pyx_return_false;
-        }
-    }
-    #else
-    if (unlikely(!isfinite(float_op1))) {
-        if (float_op1 <= 0.0) goto __pyx_return_true; else goto __pyx_return_false;
-    } else {
-        int overflow2;
-        long iop2 = PyLong_AsLongAndOverflow(op2, &overflow2);
-        if (likely(!overflow2)) {
-            if ((long long) iop2 >= (1LL << 53)) {
-                overflow2 = 1;
-            } else if ((long long) iop2 <= - (1LL << 53)) {
-                overflow2 = -1;
-            } else {
-                if (float_op1 <= ((double) iop2)) goto __pyx_return_true; else goto __pyx_return_false;
-            }
-        }
-        if (overflow2 > 0) {
-            if (float_op1 < ((double) (1LL << 53))) goto __pyx_return_true;
-        } else {
-            if (float_op1 > - ((double) (1LL << 53))) goto __pyx_return_false;
-        }
-    }
-    #endif
-    return __Pyx_PyObject_RichCompareBool(op1, op2, Py_LE);
-__pyx_return_true:
-    return 1;
-__pyx_return_false:
-    return 0;
-}
-#endif
-#ifndef __Pyx_DEFINED_PyObject_CompareIntIntBoolLe
-#define __Pyx_DEFINED_PyObject_CompareIntIntBoolLe
-static int __Pyx_PyObject_CompareIntIntBoolLe(PyObject *op1, PyObject *op2) {
-#if CYTHON_USE_PYLONG_INTERNALS
-    Py_ssize_t cmp = __Pyx_PyLong_CompareSignAndSize(op1, op2);
-    if (cmp == 0) {
-        Py_ssize_t size = __Pyx_PyLong_DigitCount(op1);
-        if (size > 0) {
-            const digit* digits1 = __Pyx_PyLong_Digits(op1);
-            const digit* digits2 = __Pyx_PyLong_Digits(op2);
-            if (size == 1) {
-                cmp = (Py_ssize_t) digits1[0] - (Py_ssize_t) digits2[0];
-            } else if ((size == 2) && (8 * sizeof(Py_ssize_t) >= 2 * PyLong_SHIFT)) {
-                cmp = (Py_ssize_t) (((((size_t)digits1[1]) << PyLong_SHIFT) | (size_t)digits1[0])) - (Py_ssize_t) (((((size_t)digits2[1]) << PyLong_SHIFT) | (size_t)digits2[0]));
-            } else {
-                for (Py_ssize_t i=size-1; i >= 0 && !cmp; --i) {
-                    cmp = (Py_ssize_t) digits1[i] - (Py_ssize_t) digits2[i];
-                }
-            }
-        }
-        if (cmp == 0) goto __pyx_return_true;
-        if (__Pyx_PyLong_IsNeg(op1)) cmp = -cmp;
-    }
-    if (cmp < 0) goto __pyx_return_true; else goto __pyx_return_false;
-#else
-    int overflow1, overflow2;
-    long long iop1 = PyLong_AsLongLongAndOverflow(op1, &overflow1);
-    long long iop2 = PyLong_AsLongLongAndOverflow(op2, &overflow2);
-    if (likely(!(overflow1 | overflow2))) {
-        if (iop1 <= iop2) goto __pyx_return_true; else goto __pyx_return_false;
-    } else if (overflow1 != overflow2) {
-        if (overflow1 <= overflow2) goto __pyx_return_true; else goto __pyx_return_false;
-    } else {
-        return __Pyx_PyObject_RichCompareBool(op1, op2, Py_LE);
-    }
-#endif
-__pyx_return_true:
-    return 1;
-__pyx_return_false:
-    return 0;
-}
-#endif
-static CYTHON_INLINE int __Pyx_PyObject_CompareBoolLe_object_int(PyObject *op1, PyObject *op2, int pyop) {
-    CYTHON_UNUSED_VAR(pyop);
-    if (unlikely(op2 == Py_None)) {
-        goto __pyx_richcmp;
-    }
-    if (op1 == op2) goto __pyx_return_true;
-    if (PyFloat_CheckExact(op1)) {
-        if (likely(op2 != Py_None)) {
-            return __Pyx_PyObject_CompareFloatIntBoolLe(op1, op2);
-        }
-        goto __pyx_richcmp;
-    }
-    if (likely(PyLong_CheckExact(op1))) {
-        if (op1 == op2) goto __pyx_return_true;
-        if (likely(op2 != Py_None)) {
-            return __Pyx_PyObject_CompareIntIntBoolLe(op1, op2);
-        }
-        goto __pyx_richcmp;
-    }
-    if ((0)) goto __pyx_richcmp;
-    if ((0)) goto __pyx_return_true;
-    if ((0)) goto __pyx_return_false;
-__pyx_richcmp:
-    return __Pyx_PyObject_RichCompareBool(op1, op2, Py_LE);
-__pyx_return_true:
-    return 1;
-__pyx_return_false:
-    return 0;
-}
-
 /* PyObjectSetAttrStr */
 #if CYTHON_USE_TYPE_SLOTS
 static CYTHON_INLINE int __Pyx_PyObject_SetAttrStr(PyObject* obj, PyObject* attr_name, PyObject* value) {
@@ -15006,6 +18158,132 @@ bad:
     Py_DECREF(value_tuple);
     return result;
 #endif
+}
+
+/* PyObjectCompare */
+#ifndef __Pyx_DEFINED_PyObject_CompareFloatIntBoolLe
+#define __Pyx_DEFINED_PyObject_CompareFloatIntBoolLe
+static int __Pyx_PyObject_CompareFloatIntBoolLe(PyObject *op1, PyObject *op2) {
+    double float_op1 = __Pyx_PyFloat_AS_DOUBLE(op1);
+    #if !CYTHON_ASSUME_SAFE_MACROS
+    if (unlikely(float_op1 == -1. && PyErr_Occurred())) return -1;
+    #endif
+    #if CYTHON_USE_PYLONG_INTERNALS
+    if (__Pyx_PyLong_IsCompact(op2)) {
+        Py_ssize_t iop2 = __Pyx_PyLong_CompactValue(op2);
+        if (float_op1 <= ((double)iop2)) goto __pyx_return_true; else goto __pyx_return_false;
+    }
+    if (unlikely(!isfinite(float_op1))) {
+        if (float_op1 <= 0.0) goto __pyx_return_true; else goto __pyx_return_false;
+    } else {
+        int sign2 = __Pyx_PyLong_Sign(op2);
+        if (float_op1 >= 0.) {
+            if (sign2 < 0) goto __pyx_return_false;
+            if (float_op1 < (double) (1L << PyLong_SHIFT)) goto __pyx_return_true;
+        } else {
+            if (sign2 > 0) goto __pyx_return_true;
+            if (float_op1 > -(double) (1L << PyLong_SHIFT)) goto __pyx_return_false;
+        }
+    }
+    #else
+    if (unlikely(!isfinite(float_op1))) {
+        if (float_op1 <= 0.0) goto __pyx_return_true; else goto __pyx_return_false;
+    } else {
+        int overflow2;
+        long iop2 = PyLong_AsLongAndOverflow(op2, &overflow2);
+        if (likely(!overflow2)) {
+            if ((long long) iop2 >= (1LL << 53)) {
+                overflow2 = 1;
+            } else if ((long long) iop2 <= - (1LL << 53)) {
+                overflow2 = -1;
+            } else {
+                if (float_op1 <= ((double) iop2)) goto __pyx_return_true; else goto __pyx_return_false;
+            }
+        }
+        if (overflow2 > 0) {
+            if (float_op1 < ((double) (1LL << 53))) goto __pyx_return_true;
+        } else {
+            if (float_op1 > - ((double) (1LL << 53))) goto __pyx_return_false;
+        }
+    }
+    #endif
+    return __Pyx_PyObject_RichCompareBool(op1, op2, Py_LE);
+__pyx_return_true:
+    return 1;
+__pyx_return_false:
+    return 0;
+}
+#endif
+#ifndef __Pyx_DEFINED_PyObject_CompareIntIntBoolLe
+#define __Pyx_DEFINED_PyObject_CompareIntIntBoolLe
+static int __Pyx_PyObject_CompareIntIntBoolLe(PyObject *op1, PyObject *op2) {
+#if CYTHON_USE_PYLONG_INTERNALS
+    Py_ssize_t cmp = __Pyx_PyLong_CompareSignAndSize(op1, op2);
+    if (cmp == 0) {
+        Py_ssize_t size = __Pyx_PyLong_DigitCount(op1);
+        if (size > 0) {
+            const digit* digits1 = __Pyx_PyLong_Digits(op1);
+            const digit* digits2 = __Pyx_PyLong_Digits(op2);
+            if (size == 1) {
+                cmp = (Py_ssize_t) digits1[0] - (Py_ssize_t) digits2[0];
+            } else if ((size == 2) && (8 * sizeof(Py_ssize_t) >= 2 * PyLong_SHIFT)) {
+                cmp = (Py_ssize_t) (((((size_t)digits1[1]) << PyLong_SHIFT) | (size_t)digits1[0])) - (Py_ssize_t) (((((size_t)digits2[1]) << PyLong_SHIFT) | (size_t)digits2[0]));
+            } else {
+                for (Py_ssize_t i=size-1; i >= 0 && !cmp; --i) {
+                    cmp = (Py_ssize_t) digits1[i] - (Py_ssize_t) digits2[i];
+                }
+            }
+        }
+        if (cmp == 0) goto __pyx_return_true;
+        if (__Pyx_PyLong_IsNeg(op1)) cmp = -cmp;
+    }
+    if (cmp < 0) goto __pyx_return_true; else goto __pyx_return_false;
+#else
+    int overflow1, overflow2;
+    long long iop1 = PyLong_AsLongLongAndOverflow(op1, &overflow1);
+    long long iop2 = PyLong_AsLongLongAndOverflow(op2, &overflow2);
+    if (likely(!(overflow1 | overflow2))) {
+        if (iop1 <= iop2) goto __pyx_return_true; else goto __pyx_return_false;
+    } else if (overflow1 != overflow2) {
+        if (overflow1 <= overflow2) goto __pyx_return_true; else goto __pyx_return_false;
+    } else {
+        return __Pyx_PyObject_RichCompareBool(op1, op2, Py_LE);
+    }
+#endif
+__pyx_return_true:
+    return 1;
+__pyx_return_false:
+    return 0;
+}
+#endif
+static CYTHON_INLINE int __Pyx_PyObject_CompareBoolLe_object_int(PyObject *op1, PyObject *op2, int pyop) {
+    CYTHON_UNUSED_VAR(pyop);
+    if (unlikely(op2 == Py_None)) {
+        goto __pyx_richcmp;
+    }
+    if (op1 == op2) goto __pyx_return_true;
+    if (PyFloat_CheckExact(op1)) {
+        if (likely(op2 != Py_None)) {
+            return __Pyx_PyObject_CompareFloatIntBoolLe(op1, op2);
+        }
+        goto __pyx_richcmp;
+    }
+    if (likely(PyLong_CheckExact(op1))) {
+        if (op1 == op2) goto __pyx_return_true;
+        if (likely(op2 != Py_None)) {
+            return __Pyx_PyObject_CompareIntIntBoolLe(op1, op2);
+        }
+        goto __pyx_richcmp;
+    }
+    if ((0)) goto __pyx_richcmp;
+    if ((0)) goto __pyx_return_true;
+    if ((0)) goto __pyx_return_false;
+__pyx_richcmp:
+    return __Pyx_PyObject_RichCompareBool(op1, op2, Py_LE);
+__pyx_return_true:
+    return 1;
+__pyx_return_false:
+    return 0;
 }
 
 /* PyLongBinop */
@@ -15600,178 +18878,6 @@ static CYTHON_INLINE PyObject* __Pyx_PyLong_AddObjC(PyObject *op1, PyObject *op2
 }
 #endif
 
-/* HasAttr (used by ImportImpl) */
-#if __PYX_LIMITED_VERSION_HEX < 0x030d0000
-static CYTHON_INLINE int __Pyx_HasAttr(PyObject *o, PyObject *n) {
-    PyObject *r;
-    if (unlikely(!PyUnicode_Check(n))) {
-        PyErr_SetString(PyExc_TypeError,
-                        "hasattr(): attribute name must be string");
-        return -1;
-    }
-    r = __Pyx_PyObject_GetAttrStrNoError(o, n);
-    if (!r) {
-        return (unlikely(PyErr_Occurred())) ? -1 : 0;
-    } else {
-        Py_DECREF(r);
-        return 1;
-    }
-}
-#endif
-
-/* TupleOrListFromArrayImpl (used by ListFromArray) */
-CYTHON_UNUSED static PyObject *
-__Pyx_PyList_FromArray(PyObject *const *src, Py_ssize_t n) {
-    PyObject *res = PyList_New(n);
-    if (unlikely(res == NULL)) return NULL;
-    #if CYTHON_COMPILING_IN_CPYTHON
-    __Pyx_copy_object_array(src, ((PyListObject*)res)->ob_item, n);
-    #else
-    Py_ssize_t i;
-    for (i = 0; i < n; i++) {
-        Py_INCREF(src[i]);
-        if (unlikely(__Pyx_PyList_SET_ITEM(res, i, src[i]) < (0))) {
-            Py_DECREF(res);
-            return NULL;
-        }
-    }
-    #endif
-    return res;
-}
-
-/* ImportImpl (used by Import) */
-static int __Pyx__Import_GetModule(PyObject *qualname, PyObject **module) {
-    PyObject *imported_module = PyImport_GetModule(qualname);
-    if (unlikely(!imported_module)) {
-        *module = NULL;
-        if (PyErr_Occurred()) {
-            return -1;
-        }
-        return 0;
-    }
-    *module = imported_module;
-    return 1;
-}
-static int __Pyx__Import_Lookup(PyObject *qualname, PyObject *const *imported_names, Py_ssize_t len_imported_names, PyObject **module) {
-    PyObject *imported_module;
-    PyObject *top_level_package_name;
-    Py_ssize_t i;
-    int status, module_found;
-    Py_ssize_t dot_index;
-    module_found = __Pyx__Import_GetModule(qualname, &imported_module);
-    if (unlikely(!module_found || module_found == -1)) {
-        *module = NULL;
-        return module_found;
-    }
-    if (imported_names) {
-        for (i = 0; i < len_imported_names; i++) {
-            PyObject *imported_name = imported_names[i];
-#if __PYX_LIMITED_VERSION_HEX < 0x030d0000
-            int has_imported_attribute = PyObject_HasAttr(imported_module, imported_name);
-#else
-            int has_imported_attribute = PyObject_HasAttrWithError(imported_module, imported_name);
-            if (unlikely(has_imported_attribute == -1)) goto error;
-#endif
-            if (!has_imported_attribute) {
-                goto not_found;
-            }
-        }
-        *module = imported_module;
-        return 1;
-    }
-    dot_index = PyUnicode_FindChar(qualname, '.', 0, PY_SSIZE_T_MAX, 1);
-    if (dot_index == -1) {
-        *module = imported_module;
-        return 1;
-    }
-    if (unlikely(dot_index == -2)) goto error;
-    top_level_package_name = PyUnicode_Substring(qualname, 0, dot_index);
-    if (unlikely(!top_level_package_name)) goto error;
-    Py_DECREF(imported_module);
-    status = __Pyx__Import_GetModule(top_level_package_name, module);
-    Py_DECREF(top_level_package_name);
-    return status;
-error:
-    Py_DECREF(imported_module);
-    *module = NULL;
-    return -1;
-not_found:
-    Py_DECREF(imported_module);
-    *module = NULL;
-    return 0;
-}
-static PyObject *__Pyx__Import(PyObject *name, PyObject *const *imported_names, Py_ssize_t len_imported_names, PyObject *qualname, PyObject *moddict, int level) {
-    PyObject *module = 0;
-    PyObject *empty_dict = 0;
-    PyObject *from_list = 0;
-    int module_found;
-    if (!qualname) {
-        qualname = name;
-    }
-    module_found = __Pyx__Import_Lookup(qualname, imported_names, len_imported_names, &module);
-    if (likely(module_found == 1)) {
-        return module;
-    } else if (unlikely(module_found == -1)) {
-        return NULL;
-    }
-    #if !CYTHON_COMPILING_IN_LIMITED_API && PY_VERSION_HEX >= 0x030f00a6
-    empty_dict = PyFrozenDict_New(NULL);
-    #else
-    empty_dict = PyDict_New();
-    #endif
-    if (unlikely(!empty_dict))
-        goto bad;
-    if (imported_names) {
-        from_list = __Pyx_PyList_FromArray(imported_names, len_imported_names);
-        if (unlikely(!from_list))
-            goto bad;
-    }
-    if (level == -1) {
-        const char* package_sep = strchr(__Pyx_MODULE_NAME, '.');
-        if (package_sep != (0)) {
-            module = PyImport_ImportModuleLevelObject(
-                name, moddict, empty_dict, from_list, 1);
-            if (unlikely(!module)) {
-                if (unlikely(!PyErr_ExceptionMatches(PyExc_ImportError)))
-                    goto bad;
-                PyErr_Clear();
-            }
-        }
-        level = 0;
-    }
-    if (!module) {
-        module = PyImport_ImportModuleLevelObject(
-            name, moddict, empty_dict, from_list, level);
-    }
-bad:
-    Py_XDECREF(from_list);
-    Py_XDECREF(empty_dict);
-    return module;
-}
-
-/* Import */
-static PyObject *__Pyx_Import(PyObject *name, PyObject *const *imported_names, Py_ssize_t len_imported_names, PyObject *qualname, int level) {
-    return __Pyx__Import(name, imported_names, len_imported_names, qualname, __pyx_mstate_global->__pyx_d, level);
-}
-
-/* RaiseErrorWithObjectType1 (used by RaiseUnexpectedTypeError) */
-static void __Pyx_RaiseErrorWithType1(PyObject* exc_type, const char* message, const char *arg, PyTypeObject *type_obj) {
-    __Pyx_TypeName type_name = __Pyx_PyType_GetFullyQualifiedName(type_obj);
-    #if CYTHON_COMPILING_IN_LIMITED_API && __PYX_LIMITED_VERSION_HEX < 0x030d0000
-    if (unlikely(!type_name)) return;
-    #endif
-    PyErr_Format(exc_type, message, arg, type_name);
-    __Pyx_DECREF_TypeName(type_name);
-}
-
-/* RaiseUnexpectedTypeError */
-static int __Pyx_RaiseUnexpectedTypeError(const char *expected, PyObject *obj) {
-    __Pyx_RaiseTypeErrorWithObjectType1(
-        "Expected %.42s, got " __Pyx_FMT_TYPENAME,
-        expected, obj);
-    return 0;
-}
-
 /* AllocateExtensionType */
 static PyObject *__Pyx_AllocateExtensionType(PyTypeObject *t, int is_final) {
     if (is_final || likely(!__Pyx_PyType_HasFeature(t, Py_TPFLAGS_IS_ABSTRACT))) {
@@ -16180,6 +19286,160 @@ static int __Pyx_PyType_Ready(PyTypeObject *t) {
 #endif
 }
 
+/* HasAttr (used by ImportImpl) */
+#if __PYX_LIMITED_VERSION_HEX < 0x030d0000
+static CYTHON_INLINE int __Pyx_HasAttr(PyObject *o, PyObject *n) {
+    PyObject *r;
+    if (unlikely(!PyUnicode_Check(n))) {
+        PyErr_SetString(PyExc_TypeError,
+                        "hasattr(): attribute name must be string");
+        return -1;
+    }
+    r = __Pyx_PyObject_GetAttrStrNoError(o, n);
+    if (!r) {
+        return (unlikely(PyErr_Occurred())) ? -1 : 0;
+    } else {
+        Py_DECREF(r);
+        return 1;
+    }
+}
+#endif
+
+/* TupleOrListFromArrayImpl (used by ListFromArray) */
+CYTHON_UNUSED static PyObject *
+__Pyx_PyList_FromArray(PyObject *const *src, Py_ssize_t n) {
+    PyObject *res = PyList_New(n);
+    if (unlikely(res == NULL)) return NULL;
+    #if CYTHON_COMPILING_IN_CPYTHON
+    __Pyx_copy_object_array(src, ((PyListObject*)res)->ob_item, n);
+    #else
+    Py_ssize_t i;
+    for (i = 0; i < n; i++) {
+        Py_INCREF(src[i]);
+        if (unlikely(__Pyx_PyList_SET_ITEM(res, i, src[i]) < (0))) {
+            Py_DECREF(res);
+            return NULL;
+        }
+    }
+    #endif
+    return res;
+}
+
+/* ImportImpl (used by Import) */
+static int __Pyx__Import_GetModule(PyObject *qualname, PyObject **module) {
+    PyObject *imported_module = PyImport_GetModule(qualname);
+    if (unlikely(!imported_module)) {
+        *module = NULL;
+        if (PyErr_Occurred()) {
+            return -1;
+        }
+        return 0;
+    }
+    *module = imported_module;
+    return 1;
+}
+static int __Pyx__Import_Lookup(PyObject *qualname, PyObject *const *imported_names, Py_ssize_t len_imported_names, PyObject **module) {
+    PyObject *imported_module;
+    PyObject *top_level_package_name;
+    Py_ssize_t i;
+    int status, module_found;
+    Py_ssize_t dot_index;
+    module_found = __Pyx__Import_GetModule(qualname, &imported_module);
+    if (unlikely(!module_found || module_found == -1)) {
+        *module = NULL;
+        return module_found;
+    }
+    if (imported_names) {
+        for (i = 0; i < len_imported_names; i++) {
+            PyObject *imported_name = imported_names[i];
+#if __PYX_LIMITED_VERSION_HEX < 0x030d0000
+            int has_imported_attribute = PyObject_HasAttr(imported_module, imported_name);
+#else
+            int has_imported_attribute = PyObject_HasAttrWithError(imported_module, imported_name);
+            if (unlikely(has_imported_attribute == -1)) goto error;
+#endif
+            if (!has_imported_attribute) {
+                goto not_found;
+            }
+        }
+        *module = imported_module;
+        return 1;
+    }
+    dot_index = PyUnicode_FindChar(qualname, '.', 0, PY_SSIZE_T_MAX, 1);
+    if (dot_index == -1) {
+        *module = imported_module;
+        return 1;
+    }
+    if (unlikely(dot_index == -2)) goto error;
+    top_level_package_name = PyUnicode_Substring(qualname, 0, dot_index);
+    if (unlikely(!top_level_package_name)) goto error;
+    Py_DECREF(imported_module);
+    status = __Pyx__Import_GetModule(top_level_package_name, module);
+    Py_DECREF(top_level_package_name);
+    return status;
+error:
+    Py_DECREF(imported_module);
+    *module = NULL;
+    return -1;
+not_found:
+    Py_DECREF(imported_module);
+    *module = NULL;
+    return 0;
+}
+static PyObject *__Pyx__Import(PyObject *name, PyObject *const *imported_names, Py_ssize_t len_imported_names, PyObject *qualname, PyObject *moddict, int level) {
+    PyObject *module = 0;
+    PyObject *empty_dict = 0;
+    PyObject *from_list = 0;
+    int module_found;
+    if (!qualname) {
+        qualname = name;
+    }
+    module_found = __Pyx__Import_Lookup(qualname, imported_names, len_imported_names, &module);
+    if (likely(module_found == 1)) {
+        return module;
+    } else if (unlikely(module_found == -1)) {
+        return NULL;
+    }
+    #if !CYTHON_COMPILING_IN_LIMITED_API && PY_VERSION_HEX >= 0x030f00a6
+    empty_dict = PyFrozenDict_New(NULL);
+    #else
+    empty_dict = PyDict_New();
+    #endif
+    if (unlikely(!empty_dict))
+        goto bad;
+    if (imported_names) {
+        from_list = __Pyx_PyList_FromArray(imported_names, len_imported_names);
+        if (unlikely(!from_list))
+            goto bad;
+    }
+    if (level == -1) {
+        const char* package_sep = strchr(__Pyx_MODULE_NAME, '.');
+        if (package_sep != (0)) {
+            module = PyImport_ImportModuleLevelObject(
+                name, moddict, empty_dict, from_list, 1);
+            if (unlikely(!module)) {
+                if (unlikely(!PyErr_ExceptionMatches(PyExc_ImportError)))
+                    goto bad;
+                PyErr_Clear();
+            }
+        }
+        level = 0;
+    }
+    if (!module) {
+        module = PyImport_ImportModuleLevelObject(
+            name, moddict, empty_dict, from_list, level);
+    }
+bad:
+    Py_XDECREF(from_list);
+    Py_XDECREF(empty_dict);
+    return module;
+}
+
+/* Import */
+static PyObject *__Pyx_Import(PyObject *name, PyObject *const *imported_names, Py_ssize_t len_imported_names, PyObject *qualname, int level) {
+    return __Pyx__Import(name, imported_names, len_imported_names, qualname, __pyx_mstate_global->__pyx_d, level);
+}
+
 /* ImportFrom */
 static PyObject* __Pyx_ImportFrom(PyObject* module, PyObject* name) {
     PyObject* value = __Pyx_PyObject_GetAttrStr(module, name);
@@ -16193,7 +19453,7 @@ static PyObject* __Pyx_ImportFrom(PyObject* module, PyObject* name) {
         if (unlikely(!module_name_str)) { goto modbad; }
         module_name = PyUnicode_FromString(module_name_str);
         if (unlikely(!module_name)) { goto modbad; }
-        module_dot = PyUnicode_Concat(module_name, __pyx_mstate_global->__pyx_kp_u__2);
+        module_dot = PyUnicode_Concat(module_name, __pyx_mstate_global->__pyx_kp_u__8);
         if (unlikely(!module_dot)) { goto modbad; }
         full_name = PyUnicode_Concat(module_dot, name);
         if (unlikely(!full_name)) { goto modbad; }
@@ -18283,19 +21543,6 @@ static void __Pyx_AddTraceback(const char *funcname, int c_line,
 bad:
     Py_XDECREF(py_code);
     Py_XDECREF(py_frame);
-}
-#endif
-
-/* PyObjectVectorcallMethodKwds (used by CIntToPy) */
-#if !CYTHON_VECTORCALL
-static PyObject *__Pyx_Object_VectorcallMethodKwds(PyObject *name, PyObject *const *args, size_t nargsf, PyObject *kwnames) {
-    PyObject *result;
-    PyObject *obj = PyObject_GetAttr(args[0], name);
-    if (unlikely(!obj))
-        return NULL;
-    result = __Pyx_Object_VectorcallKwds(obj, args+1, nargsf-1, kwnames);
-    Py_DECREF(obj);
-    return result;
 }
 #endif
 

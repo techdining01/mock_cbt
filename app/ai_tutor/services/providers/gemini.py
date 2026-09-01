@@ -1,35 +1,50 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import asyncio
 import json
 import os
+import sys
+from pathlib import Path
 
 from google import genai
+from dotenv import load_dotenv
 
 from app.ai_tutor.schemas import TutorRequest
 from app.ai_tutor.services.providers.base import AIProvider
-from dotenv import load_dotenv
 
-
-load_dotenv(".env")
+# Load .env from multiple potential locations (frozen exe dir, cwd, project root)
+load_dotenv()
+if getattr(sys, "frozen", False) or hasattr(sys, "_MEIPASS"):
+    exe_dir = Path(sys.executable).resolve().parent
+    load_dotenv(exe_dir / ".env")
+    if hasattr(sys, "_MEIPASS"):
+        load_dotenv(Path(sys._MEIPASS) / ".env")
+else:
+    for p in Path(__file__).resolve().parents:
+        env_file = p / ".env"
+        if env_file.exists():
+            load_dotenv(env_file)
+            break
 
 
 class GeminiProvider(AIProvider):
     def __init__(self):
-
-        self.api_key = os.getenv("GEMINI_API_KEY")
-
-        self.model = os.getenv(
-            "GEMINI_MODEL",
-            "gemini-3.6-flash",
-        )
-
-        self.timeout = float(os.getenv("GEMINI_TIMEOUT", "8"))
-
+        self.api_key = None
         self.client = None
+        self.model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+        self.timeout = float(os.getenv("GEMINI_TIMEOUT", "15"))
+        self._ensure_client()
 
-        if self.api_key:
-            self.client = genai.Client(api_key=self.api_key)
+    def _ensure_client(self):
+        """Dynamically initialize or refresh Gemini client if API key is present."""
+        key = os.getenv("GEMINI_API_KEY")
+        if key and (self.client is None or key != self.api_key):
+            self.api_key = key
+            try:
+                self.client = genai.Client(api_key=self.api_key)
+            except Exception as err:
+                print(f"[GeminiProvider] Client initialization error: {err}")
+                self.client = None
 
     @property
     def name(self) -> str:
@@ -37,18 +52,16 @@ class GeminiProvider(AIProvider):
 
     @property
     def available(self) -> bool:
-        # Check if client is initialized and API key exists
-        # We don't check connectivity here to avoid blocking initialization
-        # Connectivity will be tested during actual usage with proper timeout
-        return self.client is not None and self.api_key is not None
+        self._ensure_client()
+        return self.client is not None and bool(self.api_key)
 
     async def ask_tutor(
         self,
         request: TutorRequest,
     ) -> dict:
-
+        self._ensure_client()
         if not self.available:
-            raise RuntimeError("Gemini provider is not configured.")
+            raise RuntimeError("Gemini provider is not configured. Missing GEMINI_API_KEY.")
 
         options_text = "\n".join(
             f"{option.label}. {option.text}" for option in request.options
@@ -68,12 +81,13 @@ class GeminiProvider(AIProvider):
         )
 
         raw = response.text.strip()
-
         return self._parse_response(raw)
 
     async def chat(self, prompt: str) -> str:
+        self._ensure_client()
         if not self.available:
-            raise RuntimeError("Gemini provider is not configured.")
+            raise RuntimeError("Gemini provider is not configured. Missing GEMINI_API_KEY.")
+
         response = await asyncio.wait_for(
             self.client.aio.models.generate_content(
                 model=self.model,
@@ -88,18 +102,14 @@ class GeminiProvider(AIProvider):
         request: TutorRequest,
         options_text: str,
     ) -> str:
-
         return f"""
 You are an excellent secondary-school teacher
 helping a student understand a CBT examination question.
 
 CRITICAL RULE:
-
 The CORRECT ANSWER supplied by the CBT system is authoritative.
-
 You MUST NOT change it, recalculate it, reinterpret it,
 or choose another option.
-
 Your job is to explain the supplied correct answer.
 
 If the student's answer differs from the CORRECT ANSWER,
@@ -127,22 +137,17 @@ STORED EXPLANATION:
 {request.explanation or "No stored explanation available"}
 
 Give a clear, friendly teaching explanation.
-
 If the student selected the wrong answer:
-
 - explain why their choice is wrong
 - explain why the correct answer is correct
 - do not embarrass the student
 
-If the question requires reasoning,
-explain the reasoning step by step.
+If the question requires reasoning, explain the reasoning step by step.
 
 IMPORTANT: For the "steps" field:
 - Only include actual, meaningful step-by-step reasoning if the question requires it (mathematics, calculations, logical reasoning, etc.)
 - Each step should be a complete, clear explanation of one part of the solution
-- Example of good steps: ["First, identify the formula needed", "Substitute the given values into the formula", "Calculate the result step by step", "Verify the answer makes sense"]
 - If the question does NOT require step-by-step reasoning, return an empty array: []
-- NEVER use placeholder text like "step one", "step two" - either give real steps or return []
 
 CRITICAL: You MUST provide content for ALL fields. Do not leave any field empty:
 - "greeting": Always provide a short, friendly greeting appropriate for the context
@@ -155,7 +160,6 @@ CRITICAL: You MUST provide content for ALL fields. Do not leave any field empty:
 Return ONLY valid JSON.
 
 Use exactly this structure:
-
 {{
     "greeting": "short friendly greeting",
     "explanation": "clear explanation",
@@ -167,24 +171,16 @@ Use exactly this structure:
 """
 
     @staticmethod
-    def _parse_response(
-        raw: str,
-    ) -> dict:
-
+    def _parse_response(raw: str) -> dict:
         if raw.startswith("```json"):
             raw = raw[7:]
-
         elif raw.startswith("```"):
             raw = raw[3:]
-
         if raw.endswith("```"):
             raw = raw[:-3]
-
         raw = raw.strip()
 
         result = json.loads(raw)
-
         if not isinstance(result, dict):
             raise ValueError("Gemini returned an invalid response.")
-
         return result

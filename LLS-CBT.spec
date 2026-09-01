@@ -1,13 +1,17 @@
 ﻿# -*- mode: python ; coding: utf-8 -*-
 import os
-from PyInstaller.utils.hooks import collect_all
+import sys
+from PyInstaller.utils.hooks import collect_all, collect_dynamic_libs
 
+# Bundle web assets and data template (never bundle .env or private keys!)
 datas = [('app/web', 'app/web'), ('data', 'data')]
+
 binaries = []
 hiddenimports = [
     'sqlalchemy',
     'cryptography',
     'pydantic',
+    'pydantic_core',
     'ssl',
     '_ssl',
     'hashlib',
@@ -17,16 +21,29 @@ hiddenimports = [
     'charset_normalizer',
     'idna',
     'urllib3',
+    'dotenv',
+    'google',
+    'google.genai',
+    'google.genai.types',
+    'google.auth',
+    'httpx',
+    'httpcore',
+    'anyio',
+    'sniffio',
+    'pyttsx3',
+    'pyttsx3.drivers',
+    'pyttsx3.drivers.sapi5',
 ]
 
-tmp_ret = collect_all('pyside6')
-datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
-tmp_ret = collect_all('uvicorn')
-datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
-tmp_ret = collect_all('fastapi')
-datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
-tmp_ret = collect_all('certifi')
-datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
+# Collect full packages
+for pkg in ['pyside6', 'uvicorn', 'fastapi', 'certifi', 'google.genai', 'httpx', 'httpcore', 'anyio', 'pyttsx3']:
+    try:
+        tmp_ret = collect_all(pkg)
+        datas += tmp_ret[0]
+        binaries += tmp_ret[1]
+        hiddenimports += tmp_ret[2]
+    except Exception as e:
+        print(f"[Warning] Hook collect_all({pkg}) notice: {e}")
 
 # Explicitly bundle OpenSSL DLLs from the uv-managed Python installation
 _ssl_search_dirs = []
@@ -37,7 +54,6 @@ if os.path.isdir(_uv_python):
     _ssl_search_dirs.append(_uv_python)
 
 # Fallback: walk common locations
-import sys
 for _candidate in [
     os.path.join(os.path.dirname(sys.executable), '..', 'DLLs'),
     os.path.join(sys.prefix, 'DLLs'),

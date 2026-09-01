@@ -2787,8 +2787,8 @@ namespace {
     __Pyx_CachedCFunction __pyx_umethod_PyUnicode_Type__strip;
     PyObject *__pyx_tuple[9];
     PyObject *__pyx_codeobj_tab[10];
-    PyObject *__pyx_string_tab[177];
-    PyObject *__pyx_number_tab[6];
+    PyObject *__pyx_string_tab[179];
+    PyObject *__pyx_number_tab[7];
 /* #### Code section: module_state_contents ### */
 /* PyFrozenDict.module_state_decls */
 #if CYTHON_COMPILING_IN_LIMITED_API
@@ -2849,7 +2849,7 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_kp_u_api_license_activate __pyx_string_tab[9]
 #define __pyx_kp_u_api_license_deactivate __pyx_string_tab[10]
 #define __pyx_kp_u_api_license_validate __pyx_string_tab[11]
-#define __pyx_kp_u_2026_09_20 __pyx_string_tab[12]
+#define __pyx_kp_u_2026_09_01T00_00_00 __pyx_string_tab[12]
 #define __pyx_kp_u__7 __pyx_string_tab[13]
 #define __pyx_kp_u_ __pyx_string_tab[14]
 #define __pyx_kp_u_Activation_error __pyx_string_tab[15]
@@ -2859,19 +2859,19 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_kp_u_Deactivation_failed __pyx_string_tab[19]
 #define __pyx_kp_u_Dict_str_Any __pyx_string_tab[20]
 #define __pyx_kp_u_Invalid_product_key __pyx_string_tab[21]
-#define __pyx_kp_u_License_has_expired __pyx_string_tab[22]
-#define __pyx_kp_u_License_is_valid __pyx_string_tab[23]
-#define __pyx_kp_u_License_is_valid_offline_mode __pyx_string_tab[24]
-#define __pyx_kp_u_License_requires_online_validati __pyx_string_tab[25]
-#define __pyx_kp_u_Network_error_during_activation __pyx_string_tab[26]
-#define __pyx_kp_u_No_license_found_to_deactivate __pyx_string_tab[27]
-#define __pyx_kp_u_No_license_found_Please_activate __pyx_string_tab[28]
-#define __pyx_kp_u_Note_that_Cython_is_deliberately __pyx_string_tab[29]
-#define __pyx_kp_u_Optional_Dict_str_Any __pyx_string_tab[30]
-#define __pyx_kp_u_System_time_appears_to_be_incorr __pyx_string_tab[31]
-#define __pyx_kp_u_Unknown_error __pyx_string_tab[32]
-#define __pyx_kp_u_User_requested_deactivation __pyx_string_tab[33]
-#define __pyx_kp_u_Validation_error __pyx_string_tab[34]
+#define __pyx_kp_u_License_check_failed_Please_conn __pyx_string_tab[22]
+#define __pyx_kp_u_License_has_expired __pyx_string_tab[23]
+#define __pyx_kp_u_License_is_valid __pyx_string_tab[24]
+#define __pyx_kp_u_License_is_valid_offline_mode __pyx_string_tab[25]
+#define __pyx_kp_u_License_requires_online_validati __pyx_string_tab[26]
+#define __pyx_kp_u_Network_error_during_activation __pyx_string_tab[27]
+#define __pyx_kp_u_No_license_found_to_deactivate __pyx_string_tab[28]
+#define __pyx_kp_u_No_license_found_Please_activate __pyx_string_tab[29]
+#define __pyx_kp_u_Note_that_Cython_is_deliberately __pyx_string_tab[30]
+#define __pyx_kp_u_Optional_Dict_str_Any __pyx_string_tab[31]
+#define __pyx_kp_u_System_time_appears_incorrect_Pl __pyx_string_tab[32]
+#define __pyx_kp_u_Unknown_error __pyx_string_tab[33]
+#define __pyx_kp_u_User_requested_deactivation __pyx_string_tab[34]
 #define __pyx_kp_u_add_note __pyx_string_tab[35]
 #define __pyx_kp_u_app_services_licensing_client_py __pyx_string_tab[36]
 #define __pyx_kp_u_https_lls_cbt_activator_onrender __pyx_string_tab[37]
@@ -2926,7 +2926,7 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_n_u_crypto __pyx_string_tab[86]
 #define __pyx_n_u_datetime __pyx_string_tab[87]
 #define __pyx_n_u_days __pyx_string_tab[88]
-#define __pyx_n_u_days_since_validation __pyx_string_tab[89]
+#define __pyx_n_u_days_offline __pyx_string_tab[89]
 #define __pyx_n_u_deactivate_license __pyx_string_tab[90]
 #define __pyx_n_u_detail __pyx_string_tab[91]
 #define __pyx_n_u_dotenv __pyx_string_tab[92]
@@ -2952,74 +2952,77 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_n_u_json __pyx_string_tab[112]
 #define __pyx_n_u_key_file __pyx_string_tab[113]
 #define __pyx_n_u_last_validated __pyx_string_tab[114]
-#define __pyx_n_u_license_data __pyx_string_tab[115]
-#define __pyx_n_u_license_file_path __pyx_string_tab[116]
-#define __pyx_n_u_license_info __pyx_string_tab[117]
-#define __pyx_n_u_license_server_url __pyx_string_tab[118]
-#define __pyx_n_u_licensing_client __pyx_string_tab[119]
-#define __pyx_n_u_load_dotenv __pyx_string_tab[120]
-#define __pyx_n_u_loads __pyx_string_tab[121]
-#define __pyx_n_u_local_license __pyx_string_tab[122]
-#define __pyx_n_u_machine_fingerprint __pyx_string_tab[123]
-#define __pyx_n_u_machine_info __pyx_string_tab[124]
-#define __pyx_n_u_message __pyx_string_tab[125]
-#define __pyx_n_u_missing_padding __pyx_string_tab[126]
-#define __pyx_n_u_mkdir __pyx_string_tab[127]
-#define __pyx_n_u_name __pyx_string_tab[128]
-#define __pyx_n_u_now __pyx_string_tab[129]
-#define __pyx_n_u_os __pyx_string_tab[130]
-#define __pyx_n_u_parent __pyx_string_tab[131]
-#define __pyx_n_u_parents __pyx_string_tab[132]
-#define __pyx_n_u_pathlib __pyx_string_tab[133]
-#define __pyx_n_u_payload __pyx_string_tab[134]
-#define __pyx_n_u_platform __pyx_string_tab[135]
-#define __pyx_n_u_pop __pyx_string_tab[136]
-#define __pyx_n_u_post __pyx_string_tab[137]
-#define __pyx_n_u_product_key __pyx_string_tab[138]
-#define __pyx_n_u_public_key __pyx_string_tab[139]
-#define __pyx_n_u_public_key_pem __pyx_string_tab[140]
-#define __pyx_n_u_read_text __pyx_string_tab[141]
-#define __pyx_n_u_reason __pyx_string_tab[142]
-#define __pyx_n_u_remaining_credits __pyx_string_tab[143]
-#define __pyx_n_u_requests __pyx_string_tab[144]
-#define __pyx_n_u_resolve __pyx_string_tab[145]
-#define __pyx_n_u_response __pyx_string_tab[146]
-#define __pyx_n_u_result __pyx_string_tab[147]
-#define __pyx_n_u_return __pyx_string_tab[148]
-#define __pyx_n_u_root_key_file __pyx_string_tab[149]
-#define __pyx_n_u_self __pyx_string_tab[150]
-#define __pyx_n_u_setdefault __pyx_string_tab[151]
-#define __pyx_n_u_status_code __pyx_string_tab[152]
-#define __pyx_n_u_str __pyx_string_tab[153]
-#define __pyx_n_u_strip __pyx_string_tab[154]
-#define __pyx_n_u_success __pyx_string_tab[155]
-#define __pyx_n_u_timeout __pyx_string_tab[156]
-#define __pyx_n_u_timestamp __pyx_string_tab[157]
-#define __pyx_n_u_typing __pyx_string_tab[158]
-#define __pyx_n_u_unlink __pyx_string_tab[159]
-#define __pyx_n_u_user_email __pyx_string_tab[160]
-#define __pyx_n_u_user_name __pyx_string_tab[161]
-#define __pyx_n_u_validate_license __pyx_string_tab[162]
-#define __pyx_n_u_validation_result __pyx_string_tab[163]
-#define __pyx_n_u_values __pyx_string_tab[164]
-#define __pyx_n_u_verify_product_key __pyx_string_tab[165]
-#define __pyx_n_u_write_text __pyx_string_tab[166]
-#define __pyx_kp_b_iso88591_A_A_1_1_Q_A_1_4q_hd_Ja_gV1HF_1_k __pyx_string_tab[167]
-#define __pyx_kp_b_iso88591_1_U_Rq_d_31_Jm1O4q_5_A __pyx_string_tab[168]
-#define __pyx_kp_b_iso88591_Q_D_1_A __pyx_string_tab[169]
-#define __pyx_kp_b_iso88591_t_q __pyx_string_tab[170]
-#define __pyx_kp_b_iso88591_D_4A_t1_q_q_t7_Qm1A_q_7s_1_aq_x __pyx_string_tab[171]
-#define __pyx_kp_b_iso88591_Rwaq_1_1_4q_1_87_8_Q_AYhb_wgXRq __pyx_string_tab[172]
-#define __pyx_kp_b_iso88591_A_D_4A_t1_q_q_AQ_aq_xuA_4q_Q_x __pyx_string_tab[173]
-#define __pyx_kp_b_iso88591_Q_4t_WA_1_4vQd_4Ja_1 __pyx_string_tab[174]
-#define __pyx_kp_b_iso88591_E_Z_R___KvRxq_S_c_QRRXX_ccddjjk __pyx_string_tab[175]
-#define __pyx_kp_b_iso88591_MM_a_hnA_1_q_T_BTTU_84s_A_1_1_8 __pyx_string_tab[176]
+#define __pyx_n_u_ld __pyx_string_tab[115]
+#define __pyx_n_u_license_data __pyx_string_tab[116]
+#define __pyx_n_u_license_file_path __pyx_string_tab[117]
+#define __pyx_n_u_license_info __pyx_string_tab[118]
+#define __pyx_n_u_license_server_url __pyx_string_tab[119]
+#define __pyx_n_u_licensing_client __pyx_string_tab[120]
+#define __pyx_n_u_load_dotenv __pyx_string_tab[121]
+#define __pyx_n_u_loads __pyx_string_tab[122]
+#define __pyx_n_u_local_license __pyx_string_tab[123]
+#define __pyx_n_u_local_license2 __pyx_string_tab[124]
+#define __pyx_n_u_machine_fingerprint __pyx_string_tab[125]
+#define __pyx_n_u_machine_info __pyx_string_tab[126]
+#define __pyx_n_u_message __pyx_string_tab[127]
+#define __pyx_n_u_missing_padding __pyx_string_tab[128]
+#define __pyx_n_u_mkdir __pyx_string_tab[129]
+#define __pyx_n_u_name __pyx_string_tab[130]
+#define __pyx_n_u_now __pyx_string_tab[131]
+#define __pyx_n_u_os __pyx_string_tab[132]
+#define __pyx_n_u_parent __pyx_string_tab[133]
+#define __pyx_n_u_parents __pyx_string_tab[134]
+#define __pyx_n_u_pathlib __pyx_string_tab[135]
+#define __pyx_n_u_payload __pyx_string_tab[136]
+#define __pyx_n_u_platform __pyx_string_tab[137]
+#define __pyx_n_u_pop __pyx_string_tab[138]
+#define __pyx_n_u_post __pyx_string_tab[139]
+#define __pyx_n_u_product_key __pyx_string_tab[140]
+#define __pyx_n_u_public_key __pyx_string_tab[141]
+#define __pyx_n_u_public_key_pem __pyx_string_tab[142]
+#define __pyx_n_u_read_text __pyx_string_tab[143]
+#define __pyx_n_u_reason __pyx_string_tab[144]
+#define __pyx_n_u_remaining_credits __pyx_string_tab[145]
+#define __pyx_n_u_requests __pyx_string_tab[146]
+#define __pyx_n_u_resolve __pyx_string_tab[147]
+#define __pyx_n_u_response __pyx_string_tab[148]
+#define __pyx_n_u_result __pyx_string_tab[149]
+#define __pyx_n_u_return __pyx_string_tab[150]
+#define __pyx_n_u_root_key_file __pyx_string_tab[151]
+#define __pyx_n_u_self __pyx_string_tab[152]
+#define __pyx_n_u_setdefault __pyx_string_tab[153]
+#define __pyx_n_u_status_code __pyx_string_tab[154]
+#define __pyx_n_u_str __pyx_string_tab[155]
+#define __pyx_n_u_strip __pyx_string_tab[156]
+#define __pyx_n_u_success __pyx_string_tab[157]
+#define __pyx_n_u_timeout __pyx_string_tab[158]
+#define __pyx_n_u_timestamp __pyx_string_tab[159]
+#define __pyx_n_u_typing __pyx_string_tab[160]
+#define __pyx_n_u_unlink __pyx_string_tab[161]
+#define __pyx_n_u_user_email __pyx_string_tab[162]
+#define __pyx_n_u_user_name __pyx_string_tab[163]
+#define __pyx_n_u_validate_license __pyx_string_tab[164]
+#define __pyx_n_u_validation_result __pyx_string_tab[165]
+#define __pyx_n_u_values __pyx_string_tab[166]
+#define __pyx_n_u_verify_product_key __pyx_string_tab[167]
+#define __pyx_n_u_write_text __pyx_string_tab[168]
+#define __pyx_kp_b_iso88591_A_A_1_1_Q_A_1_4q_hd_Ja_gV1HF_1_k __pyx_string_tab[169]
+#define __pyx_kp_b_iso88591_1_U_Rq_d_31_Jm1O4q_5_A __pyx_string_tab[170]
+#define __pyx_kp_b_iso88591_Q_D_1_A __pyx_string_tab[171]
+#define __pyx_kp_b_iso88591_t_q __pyx_string_tab[172]
+#define __pyx_kp_b_iso88591_D_4A_t1_q_q_t7_Qm1A_q_7s_1_aq_x __pyx_string_tab[173]
+#define __pyx_kp_b_iso88591_Rwaq_1_1_4q_1_87_8_Q_AYhb_wgXRq __pyx_string_tab[174]
+#define __pyx_kp_b_iso88591_A_D_4A_t1_q_q_AQ_aq_xuA_4q_Q_x __pyx_string_tab[175]
+#define __pyx_kp_b_iso88591_Q_4t_WA_1_4vQd_4Ja_1 __pyx_string_tab[176]
+#define __pyx_kp_b_iso88591_E_Z_R___KvRxq_S_c_QRRXX_ccddjjk __pyx_string_tab[177]
+#define __pyx_kp_b_iso88591_MM_a_hnA_1_q_T_BTTU_hd_4r_1_1_4 __pyx_string_tab[178]
 #define __pyx_int_0 __pyx_number_tab[0]
 #define __pyx_int_2 __pyx_number_tab[1]
 #define __pyx_int_4 __pyx_number_tab[2]
-#define __pyx_int_7 __pyx_number_tab[3]
+#define __pyx_int_8 __pyx_number_tab[3]
 #define __pyx_int_30 __pyx_number_tab[4]
-#define __pyx_int_200 __pyx_number_tab[5]
+#define __pyx_int_120 __pyx_number_tab[5]
+#define __pyx_int_200 __pyx_number_tab[6]
 /* #### Code section: module_state_clear ### */
 #if CYTHON_USE_MODULE_STATE
 static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
@@ -3041,8 +3044,8 @@ static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_umethod_PyUnicode_Type__strip.method);
   for (int i=0; i<9; ++i) { Py_CLEAR(clear_module_state->__pyx_tuple[i]); }
   for (int i=0; i<10; ++i) { Py_CLEAR(clear_module_state->__pyx_codeobj_tab[i]); }
-  for (int i=0; i<177; ++i) { Py_CLEAR(clear_module_state->__pyx_string_tab[i]); }
-  for (int i=0; i<6; ++i) { Py_CLEAR(clear_module_state->__pyx_number_tab[i]); }
+  for (int i=0; i<179; ++i) { Py_CLEAR(clear_module_state->__pyx_string_tab[i]); }
+  for (int i=0; i<7; ++i) { Py_CLEAR(clear_module_state->__pyx_number_tab[i]); }
 /* #### Code section: module_state_clear_contents ### */
 /* CommonTypesMetaclass.module_state_clear */
 Py_CLEAR(clear_module_state->__pyx_CommonTypesMetaclassType);
@@ -3072,8 +3075,8 @@ static CYTHON_SMALL_CODE int __pyx_m_traverse(PyObject *m, visitproc visit, void
   Py_VISIT(traverse_module_state->__pyx_umethod_PyUnicode_Type__strip.method);
   for (int i=0; i<9; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_tuple[i]); }
   for (int i=0; i<10; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_codeobj_tab[i]); }
-  for (int i=0; i<177; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_string_tab[i]); }
-  for (int i=0; i<6; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_number_tab[i]); }
+  for (int i=0; i<179; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_string_tab[i]); }
+  for (int i=0; i<7; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_number_tab[i]); }
 /* #### Code section: module_state_traverse_contents ### */
 /* CommonTypesMetaclass.module_state_traverse */
 Py_VISIT(traverse_module_state->__pyx_CommonTypesMetaclassType);
@@ -5008,6 +5011,8 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_6validate_license(C
   PyObject *__pyx_v_payload = NULL;
   PyObject *__pyx_v_response = NULL;
   PyObject *__pyx_v_result = NULL;
+  PyObject *__pyx_v_local_license2 = NULL;
+  PyObject *__pyx_v_ld = NULL;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -5035,6 +5040,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_6validate_license(C
   PyObject *__pyx_t_23 = NULL;
   PyObject *__pyx_t_24 = NULL;
   PyObject *__pyx_t_25 = NULL;
+  PyObject *__pyx_t_26 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -5196,7 +5202,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_6validate_license(C
           __Pyx_XGOTREF(__pyx_t_12);
           __Pyx_XGOTREF(__pyx_t_13);
           __Pyx_INCREF(__pyx_t_12);
-          __pyx_v_e = ((PyObject*)__pyx_t_12);
+          __pyx_v_e = __pyx_t_12;
           /*try:*/ {
 
             /* "licensing/client.py":165
@@ -5480,7 +5486,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_6validate_license(C
  *             response = requests.post(
  *                 f"{self.license_server_url}/api/license/validate",             # <<<<<<<<<<<<<<
  *                 json=payload,
- *                 timeout=30
+ *                 timeout=8
 */
       __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_license_server_url); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 185, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_5);
@@ -5495,7 +5501,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_6validate_license(C
  *             response = requests.post(
  *                 f"{self.license_server_url}/api/license/validate",
  *                 json=payload,             # <<<<<<<<<<<<<<
- *                 timeout=30
+ *                 timeout=8
  *             )
 */
       __pyx_t_6 = 1;
@@ -5511,7 +5517,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_6validate_license(C
       }
       #endif
       {
-        PyObject *__pyx_callargs[4] = {__pyx_t_12, __pyx_t_5, __pyx_v_payload, __pyx_mstate_global->__pyx_int_30};
+        PyObject *__pyx_callargs[4] = {__pyx_t_12, __pyx_t_5, __pyx_v_payload, __pyx_mstate_global->__pyx_int_8};
         #if CYTHON_VECTORCALL
         __pyx_t_16 = __pyx_mstate_global->__pyx_tuple[1];
         if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 184, __pyx_L3_error)
@@ -5695,7 +5701,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_6validate_license(C
  *                 # If server is unreachable, use offline validation
  *                 return self._validate_offline(local_license, license_data)             # <<<<<<<<<<<<<<
  * 
- *         except Exception as e:
+ *         except requests.RequestException:
 */
       /*else*/ {
         __pyx_t_4 = __pyx_v_self;
@@ -5740,110 +5746,219 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_6validate_license(C
     /* "licensing/client.py":208
  *                 return self._validate_offline(local_license, license_data)
  * 
- *         except Exception as e:             # <<<<<<<<<<<<<<
- *             return {
- *                 "success": False,
+ *         except requests.RequestException:             # <<<<<<<<<<<<<<
+ *             # Network unavailable - fall back to offline validation
+ *             local_license2 = self._load_local_license()
 */
-    __pyx_t_17 = __Pyx_PyErr_ExceptionMatches(((PyObject *)(((PyTypeObject*)PyExc_Exception))));
+    __Pyx_ErrFetch(&__pyx_t_13, &__pyx_t_4, &__pyx_t_16);
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_requests); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 208, __pyx_L5_except_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_RequestException); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 208, __pyx_L5_except_error)
+    __Pyx_GOTREF(__pyx_t_12);
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __pyx_t_17 = __Pyx_PyErr_GivenExceptionMatches(__pyx_t_13, __pyx_t_12);
+    __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
+    __Pyx_ErrRestore(__pyx_t_13, __pyx_t_4, __pyx_t_16);
+    __pyx_t_13 = 0; __pyx_t_4 = 0; __pyx_t_16 = 0;
     if (__pyx_t_17) {
       __Pyx_AddTraceback("licensing.client.LicenseClient.validate_license", __pyx_clineno, __pyx_lineno, __pyx_filename);
-      if (__Pyx_GetException(&__pyx_t_13, &__pyx_t_4, &__pyx_t_16) < 0) __PYX_ERR(0, 208, __pyx_L5_except_error)
-      __Pyx_XGOTREF(__pyx_t_13);
-      __Pyx_XGOTREF(__pyx_t_4);
+      if (__Pyx_GetException(&__pyx_t_16, &__pyx_t_4, &__pyx_t_13) < 0) __PYX_ERR(0, 208, __pyx_L5_except_error)
       __Pyx_XGOTREF(__pyx_t_16);
-      __Pyx_INCREF(__pyx_t_4);
-      __Pyx_XDECREF_SET(__pyx_v_e, __pyx_t_4);
-      /*try:*/ {
+      __Pyx_XGOTREF(__pyx_t_4);
+      __Pyx_XGOTREF(__pyx_t_13);
 
-        /* "licensing/client.py":210
- *         except Exception as e:
- *             return {
- *                 "success": False,             # <<<<<<<<<<<<<<
- *                 "message": f"Validation error: {str(e)}"
- *             }
+      /* "licensing/client.py":210
+ *         except requests.RequestException:
+ *             # Network unavailable - fall back to offline validation
+ *             local_license2 = self._load_local_license()             # <<<<<<<<<<<<<<
+ *             if local_license2:
+ *                 try:
 */
-        __pyx_t_5 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 210, __pyx_L35_error)
-        __Pyx_GOTREF(__pyx_t_5);
-        if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_success, Py_False) < (0)) __PYX_ERR(0, 210, __pyx_L35_error)
-
-        /* "licensing/client.py":211
- *             return {
- *                 "success": False,
- *                 "message": f"Validation error: {str(e)}"             # <<<<<<<<<<<<<<
- *             }
- * 
-*/
-        __pyx_t_12 = __Pyx_PyObject_Unicode(__pyx_v_e); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 211, __pyx_L35_error)
+      __pyx_t_5 = __pyx_v_self;
+      __Pyx_INCREF(__pyx_t_5);
+      __pyx_t_6 = 0;
+      {
+        PyObject *__pyx_callargs[2] = {__pyx_t_5, NULL};
+        __pyx_t_12 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_load_local_license, __pyx_callargs+__pyx_t_6, (1-__pyx_t_6) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+        if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 210, __pyx_L5_except_error)
         __Pyx_GOTREF(__pyx_t_12);
-        __pyx_t_15 = __Pyx_PyUnicode_Concat(__pyx_mstate_global->__pyx_kp_u_Validation_error, __pyx_t_12); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 211, __pyx_L35_error)
-        __Pyx_GOTREF(__pyx_t_15);
-        __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-        if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_message, __pyx_t_15) < (0)) __PYX_ERR(0, 210, __pyx_L35_error)
-        __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
-        {
-          PyObject *__pyx_temp;
-          {
-            __pyx_temp = __pyx_r;
-            __pyx_r = ((PyObject*)__pyx_t_5);
-          }
-          __Pyx_XDECREF(__pyx_temp);
-        }
-        __pyx_t_5 = 0;
-        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-        __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
-        goto __pyx_L34_return;
       }
+      __pyx_v_local_license2 = __pyx_t_12;
+      __pyx_t_12 = 0;
 
-      /* "licensing/client.py":208
- *                 return self._validate_offline(local_license, license_data)
- * 
- *         except Exception as e:             # <<<<<<<<<<<<<<
- *             return {
- *                 "success": False,
+      /* "licensing/client.py":211
+ *             # Network unavailable - fall back to offline validation
+ *             local_license2 = self._load_local_license()
+ *             if local_license2:             # <<<<<<<<<<<<<<
+ *                 try:
+ *                     ld = self.crypto.verify_product_key(local_license2["product_key"])
 */
-      /*finally:*/ {
-        __pyx_L35_error:;
-        /*exception exit:*/{
+      __pyx_t_8 = __Pyx_PyObject_IsTrue(__pyx_v_local_license2); if (unlikely((__pyx_t_8 < 0))) __PYX_ERR(0, 211, __pyx_L5_except_error)
+      if (__pyx_t_8) {
+
+
+        /* "licensing/client.py":212
+ *             local_license2 = self._load_local_license()
+ *             if local_license2:
+ *                 try:             # <<<<<<<<<<<<<<
+ *                     ld = self.crypto.verify_product_key(local_license2["product_key"])
+ *                     return self._validate_offline(local_license2, ld)
+*/
+        {
           __Pyx_PyThreadState_declare
           __Pyx_PyThreadState_assign
-          __pyx_t_11 = 0; __pyx_t_10 = 0; __pyx_t_9 = 0; __pyx_t_24 = 0; __pyx_t_23 = 0; __pyx_t_22 = 0;
-          __Pyx_XDECREF(__pyx_t_12); __pyx_t_12 = 0;
-          __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
-          __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-           __Pyx_ExceptionSwap(&__pyx_t_24, &__pyx_t_23, &__pyx_t_22);
-          if ( unlikely(__Pyx_GetException(&__pyx_t_11, &__pyx_t_10, &__pyx_t_9) < 0)) __Pyx_ErrFetch(&__pyx_t_11, &__pyx_t_10, &__pyx_t_9);
+          __Pyx_ExceptionSave(&__pyx_t_11, &__pyx_t_10, &__pyx_t_9);
           __Pyx_XGOTREF(__pyx_t_11);
           __Pyx_XGOTREF(__pyx_t_10);
           __Pyx_XGOTREF(__pyx_t_9);
-          __Pyx_XGOTREF(__pyx_t_24);
-          __Pyx_XGOTREF(__pyx_t_23);
-          __Pyx_XGOTREF(__pyx_t_22);
-          __pyx_t_17 = __pyx_lineno; __pyx_t_14 = __pyx_clineno; __pyx_t_18 = __pyx_filename;
-          {
-            __Pyx_DECREF(__pyx_v_e); __pyx_v_e = 0;
+          /*try:*/ {
+
+            /* "licensing/client.py":213
+ *             if local_license2:
+ *                 try:
+ *                     ld = self.crypto.verify_product_key(local_license2["product_key"])             # <<<<<<<<<<<<<<
+ *                     return self._validate_offline(local_license2, ld)
+ *                 except Exception:
+*/
+            __pyx_t_15 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_crypto); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 213, __pyx_L33_error)
+            __Pyx_GOTREF(__pyx_t_15);
+            __pyx_t_5 = __pyx_t_15;
+            __Pyx_INCREF(__pyx_t_5);
+            __pyx_t_26 = __Pyx_PyObject_Dict_GetItem(__pyx_v_local_license2, __pyx_mstate_global->__pyx_n_u_product_key); if (unlikely(!__pyx_t_26)) __PYX_ERR(0, 213, __pyx_L33_error)
+            __Pyx_GOTREF(__pyx_t_26);
+            __pyx_t_6 = 0;
+            {
+              PyObject *__pyx_callargs[2] = {__pyx_t_5, __pyx_t_26};
+              __pyx_t_12 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_verify_product_key, __pyx_callargs+__pyx_t_6, (2-__pyx_t_6) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+              __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+              __Pyx_DECREF(__pyx_t_26); __pyx_t_26 = 0;
+              __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
+              if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 213, __pyx_L33_error)
+              __Pyx_GOTREF(__pyx_t_12);
+            }
+            __pyx_v_ld = __pyx_t_12;
+            __pyx_t_12 = 0;
+
+            /* "licensing/client.py":214
+ *                 try:
+ *                     ld = self.crypto.verify_product_key(local_license2["product_key"])
+ *                     return self._validate_offline(local_license2, ld)             # <<<<<<<<<<<<<<
+ *                 except Exception:
+ *                     pass
+*/
+            __pyx_t_15 = __pyx_v_self;
+            __Pyx_INCREF(__pyx_t_15);
+            __pyx_t_6 = 0;
+            {
+              PyObject *__pyx_callargs[3] = {__pyx_t_15, __pyx_v_local_license2, __pyx_v_ld};
+              __pyx_t_12 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_validate_offline, __pyx_callargs+__pyx_t_6, (3-__pyx_t_6) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+              __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
+              if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 214, __pyx_L33_error)
+              __Pyx_GOTREF(__pyx_t_12);
+            }
+            if (!(likely(PyDict_CheckExact(__pyx_t_12))||((__pyx_t_12) == Py_None) || __Pyx_RaiseUnexpectedTypeError("dict", __pyx_t_12))) __PYX_ERR(0, 214, __pyx_L33_error)
+            {
+              PyObject *__pyx_temp;
+              {
+                __pyx_temp = __pyx_r;
+                __pyx_r = ((PyObject*)__pyx_t_12);
+              }
+              __Pyx_XDECREF(__pyx_temp);
+            }
+            __pyx_t_12 = 0;
+            __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+            __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+            __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
+            goto __pyx_L37_try_return;
+
+            /* "licensing/client.py":212
+ *             local_license2 = self._load_local_license()
+ *             if local_license2:
+ *                 try:             # <<<<<<<<<<<<<<
+ *                     ld = self.crypto.verify_product_key(local_license2["product_key"])
+ *                     return self._validate_offline(local_license2, ld)
+*/
           }
-          __Pyx_XGIVEREF(__pyx_t_24);
-          __Pyx_XGIVEREF(__pyx_t_23);
-          __Pyx_XGIVEREF(__pyx_t_22);
-          __Pyx_ExceptionReset(__pyx_t_24, __pyx_t_23, __pyx_t_22);
+          __pyx_L33_error:;
+          __Pyx_XDECREF(__pyx_t_12); __pyx_t_12 = 0;
+          __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
+          __Pyx_XDECREF(__pyx_t_26); __pyx_t_26 = 0;
+          __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+
+          /* "licensing/client.py":215
+ *                     ld = self.crypto.verify_product_key(local_license2["product_key"])
+ *                     return self._validate_offline(local_license2, ld)
+ *                 except Exception:             # <<<<<<<<<<<<<<
+ *                     pass
+ *             return {
+*/
+          __pyx_t_17 = __Pyx_PyErr_ExceptionMatches(((PyObject *)(((PyTypeObject*)PyExc_Exception))));
+          if (__pyx_t_17) {
+            __Pyx_ErrRestore(0,0,0);
+            goto __pyx_L34_exception_handled;
+          }
+          goto __pyx_L35_except_error;
+
+          /* "licensing/client.py":212
+ *             local_license2 = self._load_local_license()
+ *             if local_license2:
+ *                 try:             # <<<<<<<<<<<<<<
+ *                     ld = self.crypto.verify_product_key(local_license2["product_key"])
+ *                     return self._validate_offline(local_license2, ld)
+*/
+          __pyx_L35_except_error:;
           __Pyx_XGIVEREF(__pyx_t_11);
           __Pyx_XGIVEREF(__pyx_t_10);
           __Pyx_XGIVEREF(__pyx_t_9);
-          __Pyx_ErrRestore(__pyx_t_11, __pyx_t_10, __pyx_t_9);
-          __pyx_t_11 = 0; __pyx_t_10 = 0; __pyx_t_9 = 0; __pyx_t_24 = 0; __pyx_t_23 = 0; __pyx_t_22 = 0;
-          __pyx_lineno = __pyx_t_17; __pyx_clineno = __pyx_t_14; __pyx_filename = __pyx_t_18;
+          __Pyx_ExceptionReset(__pyx_t_11, __pyx_t_10, __pyx_t_9);
           goto __pyx_L5_except_error;
-        }
-        __pyx_L34_return: {
-          __pyx_t_25 = __pyx_r;
-          __pyx_r = 0;
-          __Pyx_DECREF(__pyx_v_e); __pyx_v_e = 0;
-          __pyx_r = __pyx_t_25;
-          __pyx_t_25 = 0;
+          __pyx_L37_try_return:;
+          __Pyx_XGIVEREF(__pyx_t_11);
+          __Pyx_XGIVEREF(__pyx_t_10);
+          __Pyx_XGIVEREF(__pyx_t_9);
+          __Pyx_ExceptionReset(__pyx_t_11, __pyx_t_10, __pyx_t_9);
           goto __pyx_L6_except_return;
+          __pyx_L34_exception_handled:;
+          __Pyx_XGIVEREF(__pyx_t_11);
+          __Pyx_XGIVEREF(__pyx_t_10);
+          __Pyx_XGIVEREF(__pyx_t_9);
+          __Pyx_ExceptionReset(__pyx_t_11, __pyx_t_10, __pyx_t_9);
         }
+
+        /* "licensing/client.py":211
+ *             # Network unavailable - fall back to offline validation
+ *             local_license2 = self._load_local_license()
+ *             if local_license2:             # <<<<<<<<<<<<<<
+ *                 try:
+ *                     ld = self.crypto.verify_product_key(local_license2["product_key"])
+*/
       }
+
+      /* "licensing/client.py":218
+ *                     pass
+ *             return {
+ *                 "success": False,             # <<<<<<<<<<<<<<
+ *                 "message": "License check failed. Please connect to the internet for first-time validation."
+ *             }
+*/
+      __pyx_t_12 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 218, __pyx_L5_except_error)
+      __Pyx_GOTREF(__pyx_t_12);
+      if (PyDict_SetItem(__pyx_t_12, __pyx_mstate_global->__pyx_n_u_success, Py_False) < (0)) __PYX_ERR(0, 218, __pyx_L5_except_error)
+      if (PyDict_SetItem(__pyx_t_12, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_kp_u_License_check_failed_Please_conn) < (0)) __PYX_ERR(0, 218, __pyx_L5_except_error)
+      {
+        PyObject *__pyx_temp;
+        {
+          __pyx_temp = __pyx_r;
+          __pyx_r = ((PyObject*)__pyx_t_12);
+        }
+        __Pyx_XDECREF(__pyx_temp);
+      }
+      __pyx_t_12 = 0;
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+      __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+      __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
+      goto __pyx_L6_except_return;
     }
     goto __pyx_L5_except_error;
 
@@ -5890,6 +6005,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_6validate_license(C
   __Pyx_XDECREF(__pyx_t_13);
   __Pyx_XDECREF(__pyx_t_15);
   __Pyx_XDECREF(__pyx_t_16);
+  __Pyx_XDECREF(__pyx_t_26);
   __Pyx_AddTraceback("licensing.client.LicenseClient.validate_license", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
@@ -5900,12 +6016,14 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_6validate_license(C
   __Pyx_XDECREF(__pyx_v_payload);
   __Pyx_XDECREF(__pyx_v_response);
   __Pyx_XDECREF(__pyx_v_result);
+  __Pyx_XDECREF(__pyx_v_local_license2);
+  __Pyx_XDECREF(__pyx_v_ld);
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "licensing/client.py":214
+/* "licensing/client.py":222
  *             }
  * 
  *     def _validate_offline(self, local_license: Dict[str, Any], license_data: Dict[str, Any]) -> Dict[str, Any]:             # <<<<<<<<<<<<<<
@@ -5921,7 +6039,7 @@ PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-PyDoc_STRVAR(__pyx_doc_9licensing_6client_13LicenseClient_8_validate_offline, "\n        Perform offline license validation when server is unreachable.\n        \n        Args:\n            local_license: Local license data\n            license_data: Decoded license data from product key\n            \n        Returns:\n            Dictionary with validation result\n        ");
+PyDoc_STRVAR(__pyx_doc_9licensing_6client_13LicenseClient_8_validate_offline, "\n        Perform offline license validation when server is unreachable.\n        The RSA signature was already verified locally before calling this.\n        Allows up to 120 days offline after last successful online validation.\n        ");
 static PyMethodDef __pyx_mdef_9licensing_6client_13LicenseClient_9_validate_offline = {"_validate_offline", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9licensing_6client_13LicenseClient_9_validate_offline, __Pyx_METH_FASTCALL|METH_KEYWORDS, __pyx_doc_9licensing_6client_13LicenseClient_8_validate_offline};
 static PyObject *__pyx_pw_9licensing_6client_13LicenseClient_9_validate_offline(PyObject *__pyx_self, 
 #if CYTHON_VECTORCALL
@@ -5955,38 +6073,38 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_self,&__pyx_mstate_global->__pyx_n_u_local_license,&__pyx_mstate_global->__pyx_n_u_license_data,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 214, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 222, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  3:
         values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 214, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 222, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 214, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 222, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 214, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 222, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "_validate_offline", 0) < (0)) __PYX_ERR(0, 214, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "_validate_offline", 0) < (0)) __PYX_ERR(0, 222, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 3; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("_validate_offline", 1, 3, 3, i); __PYX_ERR(0, 214, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("_validate_offline", 1, 3, 3, i); __PYX_ERR(0, 222, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 3)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 214, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 222, __pyx_L3_error)
       values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 214, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 222, __pyx_L3_error)
       values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 214, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 222, __pyx_L3_error)
     }
     __pyx_v_self = values[0];
     __pyx_v_local_license = ((PyObject*)values[1]);
@@ -5994,7 +6112,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("_validate_offline", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 214, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("_validate_offline", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 222, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -6005,8 +6123,8 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_local_license), (&PyDict_Type), 0, "local_license", 2))) __PYX_ERR(0, 214, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_license_data), (&PyDict_Type), 0, "license_data", 2))) __PYX_ERR(0, 214, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_local_license), (&PyDict_Type), 0, "local_license", 2))) __PYX_ERR(0, 222, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_license_data), (&PyDict_Type), 0, "license_data", 2))) __PYX_ERR(0, 222, __pyx_L1_error)
   __pyx_r = __pyx_pf_9licensing_6client_13LicenseClient_8_validate_offline(__pyx_self, __pyx_v_self, __pyx_v_local_license, __pyx_v_license_data);
 
   /* function exit code */
@@ -6029,7 +6147,8 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_8_validate_offline(CYTHON_UNUSED PyObject *__pyx_self, CYTHON_UNUSED PyObject *__pyx_v_self, PyObject *__pyx_v_local_license, PyObject *__pyx_v_license_data) {
   PyObject *__pyx_v_expiry_date = NULL;
   PyObject *__pyx_v_last_validated = NULL;
-  PyObject *__pyx_v_days_since_validation = NULL;
+  PyObject *__pyx_v_now = NULL;
+  PyObject *__pyx_v_days_offline = NULL;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -6043,20 +6162,20 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_8_validate_offline(
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("_validate_offline", 0);
 
-  /* "licensing/client.py":229
- * 
- *         # Check expiry using embedded expiry date from product key (not local system time)
+  /* "licensing/client.py":228
+ *         Allows up to 120 days offline after last successful online validation.
+ *         """
  *         expiry_date = datetime.fromisoformat(local_license["expiry_date"])             # <<<<<<<<<<<<<<
- * 
- *         # Basic time manipulation check: if current system time is before activation time
+ *         last_validated = datetime.fromisoformat(local_license.get("last_validated", "2026-09-01T00:00:00"))
+ *         now = datetime.now()
 */
   __pyx_t_2 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_datetime); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 229, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_datetime); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 228, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_fromisoformat); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 229, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_fromisoformat); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 228, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyDict_GetItem(__pyx_v_local_license, __pyx_mstate_global->__pyx_n_u_expiry_date); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 229, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyDict_GetItem(__pyx_v_local_license, __pyx_mstate_global->__pyx_n_u_expiry_date); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 228, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_5 = 1;
   #if CYTHON_UNPACK_METHODS
@@ -6076,26 +6195,26 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_8_validate_offline(
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 229, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 228, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_v_expiry_date = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "licensing/client.py":233
- *         # Basic time manipulation check: if current system time is before activation time
- *         # that's suspicious (clock moved backwards)
- *         last_validated = datetime.fromisoformat(local_license.get("last_validated", "2026-09-20"))             # <<<<<<<<<<<<<<
- *         if datetime.now() < last_validated:
- *             return {
+  /* "licensing/client.py":229
+ *         """
+ *         expiry_date = datetime.fromisoformat(local_license["expiry_date"])
+ *         last_validated = datetime.fromisoformat(local_license.get("last_validated", "2026-09-01T00:00:00"))             # <<<<<<<<<<<<<<
+ *         now = datetime.now()
+ * 
 */
   __pyx_t_4 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_datetime); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 233, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_datetime); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 229, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_fromisoformat); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 233, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_fromisoformat); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 229, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyDict_GetItemDefault(__pyx_v_local_license, __pyx_mstate_global->__pyx_n_u_last_validated, __pyx_mstate_global->__pyx_kp_u_2026_09_20); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 233, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyDict_GetItemDefault(__pyx_v_local_license, __pyx_mstate_global->__pyx_n_u_last_validated, __pyx_mstate_global->__pyx_kp_u_2026_09_01T00_00_00); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 229, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_5 = 1;
   #if CYTHON_UNPACK_METHODS
@@ -6115,23 +6234,23 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_8_validate_offline(
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 233, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 229, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_v_last_validated = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "licensing/client.py":234
- *         # that's suspicious (clock moved backwards)
- *         last_validated = datetime.fromisoformat(local_license.get("last_validated", "2026-09-20"))
- *         if datetime.now() < last_validated:             # <<<<<<<<<<<<<<
- *             return {
- *                 "success": False,
+  /* "licensing/client.py":230
+ *         expiry_date = datetime.fromisoformat(local_license["expiry_date"])
+ *         last_validated = datetime.fromisoformat(local_license.get("last_validated", "2026-09-01T00:00:00"))
+ *         now = datetime.now()             # <<<<<<<<<<<<<<
+ * 
+ *         # Basic clock sanity check
 */
   __pyx_t_2 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_datetime); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 234, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_datetime); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 230, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_now); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 234, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_now); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 230, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_5 = 1;
@@ -6151,25 +6270,34 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_8_validate_offline(
     __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 234, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 230, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
-  __pyx_t_6 = __Pyx_PyObject_CompareBoolLt_object_object(__pyx_t_1, __pyx_v_last_validated, Py_LT); if (unlikely((__pyx_t_6 < 0))) __PYX_ERR(0, 234, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_v_now = __pyx_t_1;
+  __pyx_t_1 = 0;
+
+  /* "licensing/client.py":233
+ * 
+ *         # Basic clock sanity check
+ *         if now < last_validated:             # <<<<<<<<<<<<<<
+ *             return {
+ *                 "success": False,
+*/
+  __pyx_t_6 = __Pyx_PyObject_CompareBoolLt_object_object(__pyx_v_now, __pyx_v_last_validated, Py_LT); if (unlikely((__pyx_t_6 < 0))) __PYX_ERR(0, 233, __pyx_L1_error)
   if (__pyx_t_6) {
 
 
-    /* "licensing/client.py":236
- *         if datetime.now() < last_validated:
+    /* "licensing/client.py":235
+ *         if now < last_validated:
  *             return {
  *                 "success": False,             # <<<<<<<<<<<<<<
- *                 "message": "System time appears to be incorrect. Please check your clock."
+ *                 "message": "System time appears incorrect. Please check your clock."
  *             }
 */
-    __pyx_t_1 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 236, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 235, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_success, Py_False) < (0)) __PYX_ERR(0, 236, __pyx_L1_error)
-    if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_kp_u_System_time_appears_to_be_incorr) < (0)) __PYX_ERR(0, 236, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_success, Py_False) < (0)) __PYX_ERR(0, 235, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_kp_u_System_time_appears_incorrect_Pl) < (0)) __PYX_ERR(0, 235, __pyx_L1_error)
     {
       PyObject *__pyx_temp;
       {
@@ -6181,64 +6309,37 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_8_validate_offline(
     __pyx_t_1 = 0;
     goto __pyx_L0;
 
-    /* "licensing/client.py":234
- *         # that's suspicious (clock moved backwards)
- *         last_validated = datetime.fromisoformat(local_license.get("last_validated", "2026-09-20"))
- *         if datetime.now() < last_validated:             # <<<<<<<<<<<<<<
+    /* "licensing/client.py":233
+ * 
+ *         # Basic clock sanity check
+ *         if now < last_validated:             # <<<<<<<<<<<<<<
  *             return {
  *                 "success": False,
 */
   }
 
-  /* "licensing/client.py":241
+  /* "licensing/client.py":240
  * 
- *         # Check if license has expired
- *         if datetime.now() > expiry_date:             # <<<<<<<<<<<<<<
+ *         # Check expiry
+ *         if now > expiry_date:             # <<<<<<<<<<<<<<
  *             return {
  *                 "success": False,
 */
-  __pyx_t_4 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_datetime); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 241, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_now); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 241, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_5 = 1;
-  #if CYTHON_UNPACK_METHODS
-  if (unlikely(PyMethod_Check(__pyx_t_3))) {
-    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
-    assert(__pyx_t_4);
-    PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_3);
-    __Pyx_INCREF(__pyx_t_4);
-    __Pyx_INCREF(__pyx__function);
-    __Pyx_DECREF_SET(__pyx_t_3, __pyx__function);
-    __pyx_t_5 = 0;
-  }
-  #endif
-  {
-    PyObject *__pyx_callargs[2] = {__pyx_t_4, NULL};
-    __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_3, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 241, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
-  }
-  __pyx_t_6 = __Pyx_PyObject_CompareBoolGt_object_object(__pyx_t_1, __pyx_v_expiry_date, Py_GT); if (unlikely((__pyx_t_6 < 0))) __PYX_ERR(0, 241, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_6 = __Pyx_PyObject_CompareBoolGt_object_object(__pyx_v_now, __pyx_v_expiry_date, Py_GT); if (unlikely((__pyx_t_6 < 0))) __PYX_ERR(0, 240, __pyx_L1_error)
   if (__pyx_t_6) {
 
 
-    /* "licensing/client.py":243
- *         if datetime.now() > expiry_date:
+    /* "licensing/client.py":242
+ *         if now > expiry_date:
  *             return {
  *                 "success": False,             # <<<<<<<<<<<<<<
  *                 "message": "License has expired"
  *             }
 */
-    __pyx_t_1 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 243, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 242, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_success, Py_False) < (0)) __PYX_ERR(0, 243, __pyx_L1_error)
-    if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_kp_u_License_has_expired) < (0)) __PYX_ERR(0, 243, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_success, Py_False) < (0)) __PYX_ERR(0, 242, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_kp_u_License_has_expired) < (0)) __PYX_ERR(0, 242, __pyx_L1_error)
     {
       PyObject *__pyx_temp;
       {
@@ -6250,143 +6351,116 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_8_validate_offline(
     __pyx_t_1 = 0;
     goto __pyx_L0;
 
-    /* "licensing/client.py":241
+    /* "licensing/client.py":240
  * 
- *         # Check if license has expired
- *         if datetime.now() > expiry_date:             # <<<<<<<<<<<<<<
+ *         # Check expiry
+ *         if now > expiry_date:             # <<<<<<<<<<<<<<
  *             return {
  *                 "success": False,
 */
   }
+
+  /* "licensing/client.py":247
+ * 
+ *         # Allow up to 90 days offline
+ *         days_offline = (now - last_validated).days             # <<<<<<<<<<<<<<
+ *         if days_offline > 120:
+ *             return {
+*/
+  __pyx_t_1 = __Pyx_PyNumber_Subtract_object_object(__pyx_v_now, __pyx_v_last_validated); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 247, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_days); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 247, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_v_days_offline = __pyx_t_4;
+  __pyx_t_4 = 0;
 
   /* "licensing/client.py":248
- * 
- *         # Check if last validation was recent (within 7 days)
- *         days_since_validation = (datetime.now() - last_validated).days             # <<<<<<<<<<<<<<
- * 
- *         if days_since_validation > 7:
-*/
-  __pyx_t_3 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_datetime); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 248, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_now); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 248, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_5 = 1;
-  #if CYTHON_UNPACK_METHODS
-  if (unlikely(PyMethod_Check(__pyx_t_2))) {
-    __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_2);
-    assert(__pyx_t_3);
-    PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_2);
-    __Pyx_INCREF(__pyx_t_3);
-    __Pyx_INCREF(__pyx__function);
-    __Pyx_DECREF_SET(__pyx_t_2, __pyx__function);
-    __pyx_t_5 = 0;
-  }
-  #endif
-  {
-    PyObject *__pyx_callargs[2] = {__pyx_t_3, NULL};
-    __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_2, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 248, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
-  }
-  __pyx_t_2 = __Pyx_PyNumber_Subtract_object_object(__pyx_t_1, __pyx_v_last_validated); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 248, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_days); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 248, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_v_days_since_validation = __pyx_t_1;
-  __pyx_t_1 = 0;
-
-  /* "licensing/client.py":250
- *         days_since_validation = (datetime.now() - last_validated).days
- * 
- *         if days_since_validation > 7:             # <<<<<<<<<<<<<<
+ *         # Allow up to 90 days offline
+ *         days_offline = (now - last_validated).days
+ *         if days_offline > 120:             # <<<<<<<<<<<<<<
  *             return {
  *                 "success": False,
 */
-  __pyx_t_6 = __Pyx_PyObject_CompareBoolGt_object_int(__pyx_v_days_since_validation, __pyx_mstate_global->__pyx_int_7, Py_GT); if (unlikely((__pyx_t_6 < 0))) __PYX_ERR(0, 250, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_CompareBoolGt_object_int(__pyx_v_days_offline, __pyx_mstate_global->__pyx_int_120, Py_GT); if (unlikely((__pyx_t_6 < 0))) __PYX_ERR(0, 248, __pyx_L1_error)
   if (__pyx_t_6) {
 
 
-    /* "licensing/client.py":252
- *         if days_since_validation > 7:
+    /* "licensing/client.py":250
+ *         if days_offline > 120:
  *             return {
  *                 "success": False,             # <<<<<<<<<<<<<<
- *                 "message": "License requires online validation. Please connect to internet."
+ *                 "message": "License requires online validation (120-day offline limit reached). Please connect to the internet."
  *             }
 */
-    __pyx_t_1 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 252, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
-    if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_success, Py_False) < (0)) __PYX_ERR(0, 252, __pyx_L1_error)
-    if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_kp_u_License_requires_online_validati) < (0)) __PYX_ERR(0, 252, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 250, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_success, Py_False) < (0)) __PYX_ERR(0, 250, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_kp_u_License_requires_online_validati) < (0)) __PYX_ERR(0, 250, __pyx_L1_error)
     {
       PyObject *__pyx_temp;
       {
         __pyx_temp = __pyx_r;
-        __pyx_r = ((PyObject*)__pyx_t_1);
+        __pyx_r = ((PyObject*)__pyx_t_4);
       }
       __Pyx_XDECREF(__pyx_temp);
     }
-    __pyx_t_1 = 0;
+    __pyx_t_4 = 0;
     goto __pyx_L0;
 
-    /* "licensing/client.py":250
- *         days_since_validation = (datetime.now() - last_validated).days
- * 
- *         if days_since_validation > 7:             # <<<<<<<<<<<<<<
+    /* "licensing/client.py":248
+ *         # Allow up to 90 days offline
+ *         days_offline = (now - last_validated).days
+ *         if days_offline > 120:             # <<<<<<<<<<<<<<
  *             return {
  *                 "success": False,
 */
   }
 
-  /* "licensing/client.py":258
- *         # Offline validation passed
+  /* "licensing/client.py":255
+ * 
  *         return {
  *             "success": True,             # <<<<<<<<<<<<<<
  *             "message": "License is valid (offline mode)",
  *             "license_data": license_data,
 */
-  __pyx_t_1 = __Pyx_PyDict_NewPresized(4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 258, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_success, Py_True) < (0)) __PYX_ERR(0, 258, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_kp_u_License_is_valid_offline_mode) < (0)) __PYX_ERR(0, 258, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 255, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_success, Py_True) < (0)) __PYX_ERR(0, 255, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_kp_u_License_is_valid_offline_mode) < (0)) __PYX_ERR(0, 255, __pyx_L1_error)
 
-  /* "licensing/client.py":260
+  /* "licensing/client.py":257
  *             "success": True,
  *             "message": "License is valid (offline mode)",
  *             "license_data": license_data,             # <<<<<<<<<<<<<<
  *             "remaining_credits": local_license.get("remaining_credits", 0)
  *         }
 */
-  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_license_data, __pyx_v_license_data) < (0)) __PYX_ERR(0, 258, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_license_data, __pyx_v_license_data) < (0)) __PYX_ERR(0, 255, __pyx_L1_error)
 
-  /* "licensing/client.py":261
+  /* "licensing/client.py":258
  *             "message": "License is valid (offline mode)",
  *             "license_data": license_data,
  *             "remaining_credits": local_license.get("remaining_credits", 0)             # <<<<<<<<<<<<<<
  *         }
  * 
 */
-  __pyx_t_2 = __Pyx_PyDict_GetItemDefault(__pyx_v_local_license, __pyx_mstate_global->__pyx_n_u_remaining_credits, __pyx_mstate_global->__pyx_int_0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 261, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_remaining_credits, __pyx_t_2) < (0)) __PYX_ERR(0, 258, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_1 = __Pyx_PyDict_GetItemDefault(__pyx_v_local_license, __pyx_mstate_global->__pyx_n_u_remaining_credits, __pyx_mstate_global->__pyx_int_0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 258, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_remaining_credits, __pyx_t_1) < (0)) __PYX_ERR(0, 255, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   {
     PyObject *__pyx_temp;
     {
       __pyx_temp = __pyx_r;
-      __pyx_r = ((PyObject*)__pyx_t_1);
+      __pyx_r = ((PyObject*)__pyx_t_4);
     }
     __Pyx_XDECREF(__pyx_temp);
   }
-  __pyx_t_1 = 0;
+  __pyx_t_4 = 0;
   goto __pyx_L0;
 
-  /* "licensing/client.py":214
+  /* "licensing/client.py":222
  *             }
  * 
  *     def _validate_offline(self, local_license: Dict[str, Any], license_data: Dict[str, Any]) -> Dict[str, Any]:             # <<<<<<<<<<<<<<
@@ -6405,14 +6479,15 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_8_validate_offline(
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_expiry_date);
   __Pyx_XDECREF(__pyx_v_last_validated);
-  __Pyx_XDECREF(__pyx_v_days_since_validation);
+  __Pyx_XDECREF(__pyx_v_now);
+  __Pyx_XDECREF(__pyx_v_days_offline);
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "licensing/client.py":264
- *         }
+/* "licensing/client.py":262
+ * 
  * 
  *     def deactivate_license(self) -> Dict[str, Any]:             # <<<<<<<<<<<<<<
  *         """
@@ -6459,32 +6534,32 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_self,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 264, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 262, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 264, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 262, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "deactivate_license", 0) < (0)) __PYX_ERR(0, 264, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "deactivate_license", 0) < (0)) __PYX_ERR(0, 262, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("deactivate_license", 1, 1, 1, i); __PYX_ERR(0, 264, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("deactivate_license", 1, 1, 1, i); __PYX_ERR(0, 262, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 264, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 262, __pyx_L3_error)
     }
     __pyx_v_self = values[0];
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("deactivate_license", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 264, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("deactivate_license", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 262, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -6541,7 +6616,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_10deactivate_licens
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("deactivate_license", 0);
 
-  /* "licensing/client.py":271
+  /* "licensing/client.py":269
  *             Dictionary with deactivation result
  *         """
  *         try:             # <<<<<<<<<<<<<<
@@ -6557,7 +6632,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_10deactivate_licens
     __Pyx_XGOTREF(__pyx_t_3);
     /*try:*/ {
 
-      /* "licensing/client.py":272
+      /* "licensing/client.py":270
  *         """
  *         try:
  *             local_license = self._load_local_license()             # <<<<<<<<<<<<<<
@@ -6571,37 +6646,37 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_10deactivate_licens
         PyObject *__pyx_callargs[2] = {__pyx_t_5, NULL};
         __pyx_t_4 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_load_local_license, __pyx_callargs+__pyx_t_6, (1-__pyx_t_6) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
         __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 272, __pyx_L3_error)
+        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 270, __pyx_L3_error)
         __Pyx_GOTREF(__pyx_t_4);
       }
       __pyx_v_local_license = __pyx_t_4;
       __pyx_t_4 = 0;
 
-      /* "licensing/client.py":273
+      /* "licensing/client.py":271
  *         try:
  *             local_license = self._load_local_license()
  *             if not local_license:             # <<<<<<<<<<<<<<
  *                 return {
  *                     "success": False,
 */
-      __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_v_local_license); if (unlikely((__pyx_t_7 < 0))) __PYX_ERR(0, 273, __pyx_L3_error)
+      __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_v_local_license); if (unlikely((__pyx_t_7 < 0))) __PYX_ERR(0, 271, __pyx_L3_error)
       __pyx_t_8 = (!__pyx_t_7);
 
 
       if (__pyx_t_8) {
 
 
-        /* "licensing/client.py":275
+        /* "licensing/client.py":273
  *             if not local_license:
  *                 return {
  *                     "success": False,             # <<<<<<<<<<<<<<
  *                     "message": "No license found to deactivate"
  *                 }
 */
-        __pyx_t_4 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 275, __pyx_L3_error)
+        __pyx_t_4 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 273, __pyx_L3_error)
         __Pyx_GOTREF(__pyx_t_4);
-        if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_success, Py_False) < (0)) __PYX_ERR(0, 275, __pyx_L3_error)
-        if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_kp_u_No_license_found_to_deactivate) < (0)) __PYX_ERR(0, 275, __pyx_L3_error)
+        if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_success, Py_False) < (0)) __PYX_ERR(0, 273, __pyx_L3_error)
+        if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_message, __pyx_mstate_global->__pyx_kp_u_No_license_found_to_deactivate) < (0)) __PYX_ERR(0, 273, __pyx_L3_error)
         {
           PyObject *__pyx_temp;
           {
@@ -6613,7 +6688,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_10deactivate_licens
         __pyx_t_4 = 0;
         goto __pyx_L7_try_return;
 
-        /* "licensing/client.py":273
+        /* "licensing/client.py":271
  *         try:
  *             local_license = self._load_local_license()
  *             if not local_license:             # <<<<<<<<<<<<<<
@@ -6622,36 +6697,36 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_10deactivate_licens
 */
       }
 
-      /* "licensing/client.py":280
+      /* "licensing/client.py":278
  * 
  *             payload = {
  *                 "product_key": local_license["product_key"],             # <<<<<<<<<<<<<<
  *                 "activation_id": local_license["activation_id"],
  *                 "reason": "User requested deactivation"
 */
-      __pyx_t_4 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 280, __pyx_L3_error)
+      __pyx_t_4 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 278, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_5 = __Pyx_PyObject_Dict_GetItem(__pyx_v_local_license, __pyx_mstate_global->__pyx_n_u_product_key); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 280, __pyx_L3_error)
+      __pyx_t_5 = __Pyx_PyObject_Dict_GetItem(__pyx_v_local_license, __pyx_mstate_global->__pyx_n_u_product_key); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 278, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_5);
-      if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_product_key, __pyx_t_5) < (0)) __PYX_ERR(0, 280, __pyx_L3_error)
+      if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_product_key, __pyx_t_5) < (0)) __PYX_ERR(0, 278, __pyx_L3_error)
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-      /* "licensing/client.py":281
+      /* "licensing/client.py":279
  *             payload = {
  *                 "product_key": local_license["product_key"],
  *                 "activation_id": local_license["activation_id"],             # <<<<<<<<<<<<<<
  *                 "reason": "User requested deactivation"
  *             }
 */
-      __pyx_t_5 = __Pyx_PyObject_Dict_GetItem(__pyx_v_local_license, __pyx_mstate_global->__pyx_n_u_activation_id); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 281, __pyx_L3_error)
+      __pyx_t_5 = __Pyx_PyObject_Dict_GetItem(__pyx_v_local_license, __pyx_mstate_global->__pyx_n_u_activation_id); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 279, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_5);
-      if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_activation_id, __pyx_t_5) < (0)) __PYX_ERR(0, 280, __pyx_L3_error)
+      if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_activation_id, __pyx_t_5) < (0)) __PYX_ERR(0, 278, __pyx_L3_error)
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_reason, __pyx_mstate_global->__pyx_kp_u_User_requested_deactivation) < (0)) __PYX_ERR(0, 280, __pyx_L3_error)
+      if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_reason, __pyx_mstate_global->__pyx_kp_u_User_requested_deactivation) < (0)) __PYX_ERR(0, 278, __pyx_L3_error)
       __pyx_v_payload = ((PyObject*)__pyx_t_4);
       __pyx_t_4 = 0;
 
-      /* "licensing/client.py":285
+      /* "licensing/client.py":283
  *             }
  * 
  *             response = requests.post(             # <<<<<<<<<<<<<<
@@ -6659,29 +6734,29 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_10deactivate_licens
  *                 json=payload,
 */
       __pyx_t_5 = NULL;
-      __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_requests); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 285, __pyx_L3_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_requests); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 283, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_9);
-      __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_post); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 285, __pyx_L3_error)
+      __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_post); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 283, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_10);
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-      /* "licensing/client.py":286
+      /* "licensing/client.py":284
  * 
  *             response = requests.post(
  *                 f"{self.license_server_url}/api/license/deactivate",             # <<<<<<<<<<<<<<
  *                 json=payload,
  *                 timeout=30
 */
-      __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_license_server_url); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 286, __pyx_L3_error)
+      __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_license_server_url); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 284, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_9);
-      __pyx_t_11 = __Pyx_PyObject_FormatSimple(__pyx_t_9, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 286, __pyx_L3_error)
+      __pyx_t_11 = __Pyx_PyObject_FormatSimple(__pyx_t_9, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 284, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_11);
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-      __pyx_t_9 = __Pyx_PyUnicode_Concat__Pyx_ReferenceSharing_OwnStrongReferenceInPlace(__pyx_t_11, __pyx_mstate_global->__pyx_kp_u_api_license_deactivate); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 286, __pyx_L3_error)
+      __pyx_t_9 = __Pyx_PyUnicode_Concat__Pyx_ReferenceSharing_OwnStrongReferenceInPlace(__pyx_t_11, __pyx_mstate_global->__pyx_kp_u_api_license_deactivate); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 284, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_9);
       __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
 
-      /* "licensing/client.py":287
+      /* "licensing/client.py":285
  *             response = requests.post(
  *                 f"{self.license_server_url}/api/license/deactivate",
  *                 json=payload,             # <<<<<<<<<<<<<<
@@ -6704,13 +6779,13 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_10deactivate_licens
         PyObject *__pyx_callargs[4] = {__pyx_t_5, __pyx_t_9, __pyx_v_payload, __pyx_mstate_global->__pyx_int_30};
         #if CYTHON_VECTORCALL
         __pyx_t_11 = __pyx_mstate_global->__pyx_tuple[1];
-        if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 285, __pyx_L3_error)
+        if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 283, __pyx_L3_error)
         __Pyx_INCREF(__pyx_t_11);
         #else
         {
           PyObject *__pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_json, __pyx_mstate_global->__pyx_n_u_timeout};
           __pyx_t_11 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+2, 2);
-          if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 285, __pyx_L3_error)
+          if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 283, __pyx_L3_error)
           __Pyx_GOTREF(__pyx_t_11);
         }
         #endif
@@ -6719,27 +6794,27 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_10deactivate_licens
         __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
         __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
         __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 285, __pyx_L3_error)
+        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 283, __pyx_L3_error)
         __Pyx_GOTREF(__pyx_t_4);
       }
       __pyx_v_response = __pyx_t_4;
       __pyx_t_4 = 0;
 
-      /* "licensing/client.py":291
+      /* "licensing/client.py":289
  *             )
  * 
  *             if response.status_code == 200:             # <<<<<<<<<<<<<<
  *                 result = response.json()
  * 
 */
-      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_response, __pyx_mstate_global->__pyx_n_u_status_code); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 291, __pyx_L3_error)
+      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_response, __pyx_mstate_global->__pyx_n_u_status_code); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 289, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_8 = (__Pyx_PyLong_BoolEqObjC(__pyx_t_4, __pyx_mstate_global->__pyx_int_200, 0xC8, 0)); if (unlikely((__pyx_t_8 < 0))) __PYX_ERR(0, 291, __pyx_L3_error)
+      __pyx_t_8 = (__Pyx_PyLong_BoolEqObjC(__pyx_t_4, __pyx_mstate_global->__pyx_int_200, 0xC8, 0)); if (unlikely((__pyx_t_8 < 0))) __PYX_ERR(0, 289, __pyx_L3_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       if (__pyx_t_8) {
 
 
-        /* "licensing/client.py":292
+        /* "licensing/client.py":290
  * 
  *             if response.status_code == 200:
  *                 result = response.json()             # <<<<<<<<<<<<<<
@@ -6753,20 +6828,20 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_10deactivate_licens
           PyObject *__pyx_callargs[2] = {__pyx_t_10, NULL};
           __pyx_t_4 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_json, __pyx_callargs+__pyx_t_6, (1-__pyx_t_6) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
-          if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 292, __pyx_L3_error)
+          if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 290, __pyx_L3_error)
           __Pyx_GOTREF(__pyx_t_4);
         }
         __pyx_v_result = __pyx_t_4;
         __pyx_t_4 = 0;
 
-        /* "licensing/client.py":295
+        /* "licensing/client.py":293
  * 
  *                 # Remove local license file
  *                 if self.license_file_path.exists():             # <<<<<<<<<<<<<<
  *                     self.license_file_path.unlink()
  * 
 */
-        __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_license_file_path); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 295, __pyx_L3_error)
+        __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_license_file_path); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 293, __pyx_L3_error)
         __Pyx_GOTREF(__pyx_t_11);
         __pyx_t_10 = __pyx_t_11;
         __Pyx_INCREF(__pyx_t_10);
@@ -6776,22 +6851,22 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_10deactivate_licens
           __pyx_t_4 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_exists, __pyx_callargs+__pyx_t_6, (1-__pyx_t_6) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
           __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-          if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 295, __pyx_L3_error)
+          if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 293, __pyx_L3_error)
           __Pyx_GOTREF(__pyx_t_4);
         }
-        __pyx_t_8 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely((__pyx_t_8 < 0))) __PYX_ERR(0, 295, __pyx_L3_error)
+        __pyx_t_8 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely((__pyx_t_8 < 0))) __PYX_ERR(0, 293, __pyx_L3_error)
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
         if (__pyx_t_8) {
 
 
-          /* "licensing/client.py":296
+          /* "licensing/client.py":294
  *                 # Remove local license file
  *                 if self.license_file_path.exists():
  *                     self.license_file_path.unlink()             # <<<<<<<<<<<<<<
  * 
  *                 return {
 */
-          __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_license_file_path); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 296, __pyx_L3_error)
+          __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_license_file_path); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 294, __pyx_L3_error)
           __Pyx_GOTREF(__pyx_t_10);
           __pyx_t_11 = __pyx_t_10;
           __Pyx_INCREF(__pyx_t_11);
@@ -6801,12 +6876,12 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_10deactivate_licens
             __pyx_t_4 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_unlink, __pyx_callargs+__pyx_t_6, (1-__pyx_t_6) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
             __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
             __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-            if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 296, __pyx_L3_error)
+            if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 294, __pyx_L3_error)
             __Pyx_GOTREF(__pyx_t_4);
           }
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-          /* "licensing/client.py":295
+          /* "licensing/client.py":293
  * 
  *                 # Remove local license file
  *                 if self.license_file_path.exists():             # <<<<<<<<<<<<<<
@@ -6815,39 +6890,39 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_10deactivate_licens
 */
         }
 
-        /* "licensing/client.py":299
+        /* "licensing/client.py":297
  * 
  *                 return {
  *                     "success": True,             # <<<<<<<<<<<<<<
  *                     "message": result["message"],
  *                     "credits_restored": result["credits_restored"]
 */
-        __pyx_t_4 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 299, __pyx_L3_error)
+        __pyx_t_4 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 297, __pyx_L3_error)
         __Pyx_GOTREF(__pyx_t_4);
-        if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_success, Py_True) < (0)) __PYX_ERR(0, 299, __pyx_L3_error)
+        if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_success, Py_True) < (0)) __PYX_ERR(0, 297, __pyx_L3_error)
 
-        /* "licensing/client.py":300
+        /* "licensing/client.py":298
  *                 return {
  *                     "success": True,
  *                     "message": result["message"],             # <<<<<<<<<<<<<<
  *                     "credits_restored": result["credits_restored"]
  *                 }
 */
-        __pyx_t_10 = __Pyx_PyObject_Dict_GetItem(__pyx_v_result, __pyx_mstate_global->__pyx_n_u_message); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 300, __pyx_L3_error)
+        __pyx_t_10 = __Pyx_PyObject_Dict_GetItem(__pyx_v_result, __pyx_mstate_global->__pyx_n_u_message); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 298, __pyx_L3_error)
         __Pyx_GOTREF(__pyx_t_10);
-        if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_message, __pyx_t_10) < (0)) __PYX_ERR(0, 299, __pyx_L3_error)
+        if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_message, __pyx_t_10) < (0)) __PYX_ERR(0, 297, __pyx_L3_error)
         __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
 
-        /* "licensing/client.py":301
+        /* "licensing/client.py":299
  *                     "success": True,
  *                     "message": result["message"],
  *                     "credits_restored": result["credits_restored"]             # <<<<<<<<<<<<<<
  *                 }
  *             else:
 */
-        __pyx_t_10 = __Pyx_PyObject_Dict_GetItem(__pyx_v_result, __pyx_mstate_global->__pyx_n_u_credits_restored); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 301, __pyx_L3_error)
+        __pyx_t_10 = __Pyx_PyObject_Dict_GetItem(__pyx_v_result, __pyx_mstate_global->__pyx_n_u_credits_restored); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 299, __pyx_L3_error)
         __Pyx_GOTREF(__pyx_t_10);
-        if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_credits_restored, __pyx_t_10) < (0)) __PYX_ERR(0, 299, __pyx_L3_error)
+        if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_credits_restored, __pyx_t_10) < (0)) __PYX_ERR(0, 297, __pyx_L3_error)
         __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
         {
           PyObject *__pyx_temp;
@@ -6860,7 +6935,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_10deactivate_licens
         __pyx_t_4 = 0;
         goto __pyx_L7_try_return;
 
-        /* "licensing/client.py":291
+        /* "licensing/client.py":289
  *             )
  * 
  *             if response.status_code == 200:             # <<<<<<<<<<<<<<
@@ -6869,7 +6944,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_10deactivate_licens
 */
       }
 
-      /* "licensing/client.py":304
+      /* "licensing/client.py":302
  *                 }
  *             else:
  *                 error_detail = response.json().get("detail", "Unknown error")             # <<<<<<<<<<<<<<
@@ -6884,42 +6959,42 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_10deactivate_licens
           PyObject *__pyx_callargs[2] = {__pyx_t_10, NULL};
           __pyx_t_4 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_json, __pyx_callargs+__pyx_t_6, (1-__pyx_t_6) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
-          if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 304, __pyx_L3_error)
+          if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 302, __pyx_L3_error)
           __Pyx_GOTREF(__pyx_t_4);
         }
-        __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_get); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 304, __pyx_L3_error)
+        __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_get); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 302, __pyx_L3_error)
         __Pyx_GOTREF(__pyx_t_10);
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_10, __pyx_mstate_global->__pyx_tuple[3], NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 304, __pyx_L3_error)
+        __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_10, __pyx_mstate_global->__pyx_tuple[3], NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 302, __pyx_L3_error)
         __Pyx_GOTREF(__pyx_t_4);
         __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
         __pyx_v_error_detail = __pyx_t_4;
         __pyx_t_4 = 0;
 
-        /* "licensing/client.py":306
+        /* "licensing/client.py":304
  *                 error_detail = response.json().get("detail", "Unknown error")
  *                 return {
  *                     "success": False,             # <<<<<<<<<<<<<<
  *                     "message": f"Deactivation failed: {error_detail}"
  *                 }
 */
-        __pyx_t_4 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 306, __pyx_L3_error)
+        __pyx_t_4 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 304, __pyx_L3_error)
         __Pyx_GOTREF(__pyx_t_4);
-        if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_success, Py_False) < (0)) __PYX_ERR(0, 306, __pyx_L3_error)
+        if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_success, Py_False) < (0)) __PYX_ERR(0, 304, __pyx_L3_error)
 
-        /* "licensing/client.py":307
+        /* "licensing/client.py":305
  *                 return {
  *                     "success": False,
  *                     "message": f"Deactivation failed: {error_detail}"             # <<<<<<<<<<<<<<
  *                 }
  * 
 */
-        __pyx_t_10 = __Pyx_PyObject_FormatSimple(__pyx_v_error_detail, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 307, __pyx_L3_error)
+        __pyx_t_10 = __Pyx_PyObject_FormatSimple(__pyx_v_error_detail, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 305, __pyx_L3_error)
         __Pyx_GOTREF(__pyx_t_10);
-        __pyx_t_11 = __Pyx_PyUnicode_Concat(__pyx_mstate_global->__pyx_kp_u_Deactivation_failed, __pyx_t_10); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 307, __pyx_L3_error)
+        __pyx_t_11 = __Pyx_PyUnicode_Concat(__pyx_mstate_global->__pyx_kp_u_Deactivation_failed, __pyx_t_10); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 305, __pyx_L3_error)
         __Pyx_GOTREF(__pyx_t_11);
         __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-        if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_message, __pyx_t_11) < (0)) __PYX_ERR(0, 306, __pyx_L3_error)
+        if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_message, __pyx_t_11) < (0)) __PYX_ERR(0, 304, __pyx_L3_error)
         __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
         {
           PyObject *__pyx_temp;
@@ -6933,7 +7008,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_10deactivate_licens
         goto __pyx_L7_try_return;
       }
 
-      /* "licensing/client.py":271
+      /* "licensing/client.py":269
  *             Dictionary with deactivation result
  *         """
  *         try:             # <<<<<<<<<<<<<<
@@ -6948,7 +7023,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_10deactivate_licens
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-    /* "licensing/client.py":310
+    /* "licensing/client.py":308
  *                 }
  * 
  *         except Exception as e:             # <<<<<<<<<<<<<<
@@ -6958,7 +7033,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_10deactivate_licens
     __pyx_t_12 = __Pyx_PyErr_ExceptionMatches(((PyObject *)(((PyTypeObject*)PyExc_Exception))));
     if (__pyx_t_12) {
       __Pyx_AddTraceback("licensing.client.LicenseClient.deactivate_license", __pyx_clineno, __pyx_lineno, __pyx_filename);
-      if (__Pyx_GetException(&__pyx_t_4, &__pyx_t_11, &__pyx_t_10) < 0) __PYX_ERR(0, 310, __pyx_L5_except_error)
+      if (__Pyx_GetException(&__pyx_t_4, &__pyx_t_11, &__pyx_t_10) < 0) __PYX_ERR(0, 308, __pyx_L5_except_error)
       __Pyx_XGOTREF(__pyx_t_4);
       __Pyx_XGOTREF(__pyx_t_11);
       __Pyx_XGOTREF(__pyx_t_10);
@@ -6966,30 +7041,30 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_10deactivate_licens
       __pyx_v_e = __pyx_t_11;
       /*try:*/ {
 
-        /* "licensing/client.py":312
+        /* "licensing/client.py":310
  *         except Exception as e:
  *             return {
  *                 "success": False,             # <<<<<<<<<<<<<<
  *                 "message": f"Deactivation error: {str(e)}"
  *             }
 */
-        __pyx_t_9 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 312, __pyx_L17_error)
+        __pyx_t_9 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 310, __pyx_L17_error)
         __Pyx_GOTREF(__pyx_t_9);
-        if (PyDict_SetItem(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_success, Py_False) < (0)) __PYX_ERR(0, 312, __pyx_L17_error)
+        if (PyDict_SetItem(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_success, Py_False) < (0)) __PYX_ERR(0, 310, __pyx_L17_error)
 
-        /* "licensing/client.py":313
+        /* "licensing/client.py":311
  *             return {
  *                 "success": False,
  *                 "message": f"Deactivation error: {str(e)}"             # <<<<<<<<<<<<<<
  *             }
  * 
 */
-        __pyx_t_5 = __Pyx_PyObject_Unicode(__pyx_v_e); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 313, __pyx_L17_error)
+        __pyx_t_5 = __Pyx_PyObject_Unicode(__pyx_v_e); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 311, __pyx_L17_error)
         __Pyx_GOTREF(__pyx_t_5);
-        __pyx_t_13 = __Pyx_PyUnicode_Concat(__pyx_mstate_global->__pyx_kp_u_Deactivation_error, __pyx_t_5); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 313, __pyx_L17_error)
+        __pyx_t_13 = __Pyx_PyUnicode_Concat(__pyx_mstate_global->__pyx_kp_u_Deactivation_error, __pyx_t_5); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 311, __pyx_L17_error)
         __Pyx_GOTREF(__pyx_t_13);
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        if (PyDict_SetItem(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_message, __pyx_t_13) < (0)) __PYX_ERR(0, 312, __pyx_L17_error)
+        if (PyDict_SetItem(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_message, __pyx_t_13) < (0)) __PYX_ERR(0, 310, __pyx_L17_error)
         __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
         {
           PyObject *__pyx_temp;
@@ -7006,7 +7081,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_10deactivate_licens
         goto __pyx_L16_return;
       }
 
-      /* "licensing/client.py":310
+      /* "licensing/client.py":308
  *                 }
  * 
  *         except Exception as e:             # <<<<<<<<<<<<<<
@@ -7058,7 +7133,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_10deactivate_licens
     }
     goto __pyx_L5_except_error;
 
-    /* "licensing/client.py":271
+    /* "licensing/client.py":269
  *             Dictionary with deactivation result
  *         """
  *         try:             # <<<<<<<<<<<<<<
@@ -7085,8 +7160,8 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_10deactivate_licens
     goto __pyx_L0;
   }
 
-  /* "licensing/client.py":264
- *         }
+  /* "licensing/client.py":262
+ * 
  * 
  *     def deactivate_license(self) -> Dict[str, Any]:             # <<<<<<<<<<<<<<
  *         """
@@ -7115,7 +7190,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_10deactivate_licens
   return __pyx_r;
 }
 
-/* "licensing/client.py":316
+/* "licensing/client.py":314
  *             }
  * 
  *     def _save_license_locally(             # <<<<<<<<<<<<<<
@@ -7169,68 +7244,68 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_self,&__pyx_mstate_global->__pyx_n_u_product_key,&__pyx_mstate_global->__pyx_n_u_activation_id,&__pyx_mstate_global->__pyx_n_u_license_data,&__pyx_mstate_global->__pyx_n_u_expiry_date,&__pyx_mstate_global->__pyx_n_u_user_email,&__pyx_mstate_global->__pyx_n_u_user_name,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 316, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 314, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  7:
         values[6] = __Pyx_ArgRef_FASTCALL(__pyx_args, 6);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[6])) __PYX_ERR(0, 316, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[6])) __PYX_ERR(0, 314, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  6:
         values[5] = __Pyx_ArgRef_FASTCALL(__pyx_args, 5);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[5])) __PYX_ERR(0, 316, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[5])) __PYX_ERR(0, 314, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  5:
         values[4] = __Pyx_ArgRef_FASTCALL(__pyx_args, 4);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[4])) __PYX_ERR(0, 316, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[4])) __PYX_ERR(0, 314, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  4:
         values[3] = __Pyx_ArgRef_FASTCALL(__pyx_args, 3);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[3])) __PYX_ERR(0, 316, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[3])) __PYX_ERR(0, 314, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  3:
         values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 316, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 314, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 316, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 314, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 316, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 314, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "_save_license_locally", 0) < (0)) __PYX_ERR(0, 316, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "_save_license_locally", 0) < (0)) __PYX_ERR(0, 314, __pyx_L3_error)
       if (!values[5]) values[5] = __Pyx_NewRef(((PyObject*)((PyObject*)__pyx_mstate_global->__pyx_kp_u__2)));
       if (!values[6]) values[6] = __Pyx_NewRef(((PyObject*)((PyObject*)__pyx_mstate_global->__pyx_kp_u__2)));
       for (Py_ssize_t i = __pyx_nargs; i < 5; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("_save_license_locally", 0, 5, 7, i); __PYX_ERR(0, 316, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("_save_license_locally", 0, 5, 7, i); __PYX_ERR(0, 314, __pyx_L3_error) }
       }
     } else {
       switch (__pyx_nargs) {
         case  7:
         values[6] = __Pyx_ArgRef_FASTCALL(__pyx_args, 6);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[6])) __PYX_ERR(0, 316, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[6])) __PYX_ERR(0, 314, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  6:
         values[5] = __Pyx_ArgRef_FASTCALL(__pyx_args, 5);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[5])) __PYX_ERR(0, 316, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[5])) __PYX_ERR(0, 314, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  5:
         values[4] = __Pyx_ArgRef_FASTCALL(__pyx_args, 4);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[4])) __PYX_ERR(0, 316, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[4])) __PYX_ERR(0, 314, __pyx_L3_error)
         values[3] = __Pyx_ArgRef_FASTCALL(__pyx_args, 3);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[3])) __PYX_ERR(0, 316, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[3])) __PYX_ERR(0, 314, __pyx_L3_error)
         values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 316, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 314, __pyx_L3_error)
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 316, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 314, __pyx_L3_error)
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 316, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 314, __pyx_L3_error)
         break;
         default: goto __pyx_L5_argtuple_error;
       }
@@ -7239,7 +7314,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
     }
     __pyx_v_self = values[0];
     __pyx_v_product_key = ((PyObject*)values[1]);
-    if (__Pyx_PyInt_FromNumber(&values[2], "activation_id", 0) < (0)) __PYX_ERR(0, 319, __pyx_L3_error)
+    if (__Pyx_PyInt_FromNumber(&values[2], "activation_id", 0) < (0)) __PYX_ERR(0, 317, __pyx_L3_error)
     __pyx_v_activation_id = ((PyObject*)values[2]);
     __pyx_v_license_data = ((PyObject*)values[3]);
     __pyx_v_expiry_date = ((PyObject*)values[4]);
@@ -7248,7 +7323,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("_save_license_locally", 0, 5, 7, __pyx_nargs); __PYX_ERR(0, 316, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("_save_license_locally", 0, 5, 7, __pyx_nargs); __PYX_ERR(0, 314, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -7259,12 +7334,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_product_key), (&PyUnicode_Type), 0, "product_key", 2))) __PYX_ERR(0, 318, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_activation_id), (&PyLong_Type), 0, "activation_id", 2))) __PYX_ERR(0, 319, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_license_data), (&PyDict_Type), 0, "license_data", 2))) __PYX_ERR(0, 320, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_expiry_date), (&PyUnicode_Type), 0, "expiry_date", 2))) __PYX_ERR(0, 321, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_user_email), (&PyUnicode_Type), 0, "user_email", 2))) __PYX_ERR(0, 322, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_user_name), (&PyUnicode_Type), 0, "user_name", 2))) __PYX_ERR(0, 323, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_product_key), (&PyUnicode_Type), 0, "product_key", 2))) __PYX_ERR(0, 316, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_activation_id), (&PyLong_Type), 0, "activation_id", 2))) __PYX_ERR(0, 317, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_license_data), (&PyDict_Type), 0, "license_data", 2))) __PYX_ERR(0, 318, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_expiry_date), (&PyUnicode_Type), 0, "expiry_date", 2))) __PYX_ERR(0, 319, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_user_email), (&PyUnicode_Type), 0, "user_email", 2))) __PYX_ERR(0, 320, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_user_name), (&PyUnicode_Type), 0, "user_name", 2))) __PYX_ERR(0, 321, __pyx_L1_error)
   __pyx_r = __pyx_pf_9licensing_6client_13LicenseClient_12_save_license_locally(__pyx_self, __pyx_v_self, __pyx_v_product_key, __pyx_v_activation_id, __pyx_v_license_data, __pyx_v_expiry_date, __pyx_v_user_email, __pyx_v_user_name);
 
   /* function exit code */
@@ -7301,75 +7376,75 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_12_save_license_loc
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("_save_license_locally", 0);
 
-  /* "licensing/client.py":327
+  /* "licensing/client.py":325
  *         """Save license information locally."""
  *         license_info = {
  *             "product_key": product_key,             # <<<<<<<<<<<<<<
  *             "activation_id": activation_id,
  *             "license_data": license_data,
 */
-  __pyx_t_1 = __Pyx_PyDict_NewPresized(8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 327, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_NewPresized(8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 325, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_product_key, __pyx_v_product_key) < (0)) __PYX_ERR(0, 327, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_product_key, __pyx_v_product_key) < (0)) __PYX_ERR(0, 325, __pyx_L1_error)
 
-  /* "licensing/client.py":328
+  /* "licensing/client.py":326
  *         license_info = {
  *             "product_key": product_key,
  *             "activation_id": activation_id,             # <<<<<<<<<<<<<<
  *             "license_data": license_data,
  *             "expiry_date": expiry_date,
 */
-  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_activation_id, __pyx_v_activation_id) < (0)) __PYX_ERR(0, 327, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_activation_id, __pyx_v_activation_id) < (0)) __PYX_ERR(0, 325, __pyx_L1_error)
 
-  /* "licensing/client.py":329
+  /* "licensing/client.py":327
  *             "product_key": product_key,
  *             "activation_id": activation_id,
  *             "license_data": license_data,             # <<<<<<<<<<<<<<
  *             "expiry_date": expiry_date,
  *             "machine_fingerprint": self.machine_fingerprint,
 */
-  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_license_data, __pyx_v_license_data) < (0)) __PYX_ERR(0, 327, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_license_data, __pyx_v_license_data) < (0)) __PYX_ERR(0, 325, __pyx_L1_error)
 
-  /* "licensing/client.py":330
+  /* "licensing/client.py":328
  *             "activation_id": activation_id,
  *             "license_data": license_data,
  *             "expiry_date": expiry_date,             # <<<<<<<<<<<<<<
  *             "machine_fingerprint": self.machine_fingerprint,
  *             "user_email": user_email,
 */
-  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_expiry_date, __pyx_v_expiry_date) < (0)) __PYX_ERR(0, 327, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_expiry_date, __pyx_v_expiry_date) < (0)) __PYX_ERR(0, 325, __pyx_L1_error)
 
-  /* "licensing/client.py":331
+  /* "licensing/client.py":329
  *             "license_data": license_data,
  *             "expiry_date": expiry_date,
  *             "machine_fingerprint": self.machine_fingerprint,             # <<<<<<<<<<<<<<
  *             "user_email": user_email,
  *             "user_name": user_name,
 */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_machine_fingerprint); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 331, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_machine_fingerprint); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 329, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_machine_fingerprint, __pyx_t_2) < (0)) __PYX_ERR(0, 327, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_machine_fingerprint, __pyx_t_2) < (0)) __PYX_ERR(0, 325, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "licensing/client.py":332
+  /* "licensing/client.py":330
  *             "expiry_date": expiry_date,
  *             "machine_fingerprint": self.machine_fingerprint,
  *             "user_email": user_email,             # <<<<<<<<<<<<<<
  *             "user_name": user_name,
  *             "last_validated": datetime.now().isoformat()
 */
-  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_user_email, __pyx_v_user_email) < (0)) __PYX_ERR(0, 327, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_user_email, __pyx_v_user_email) < (0)) __PYX_ERR(0, 325, __pyx_L1_error)
 
-  /* "licensing/client.py":333
+  /* "licensing/client.py":331
  *             "machine_fingerprint": self.machine_fingerprint,
  *             "user_email": user_email,
  *             "user_name": user_name,             # <<<<<<<<<<<<<<
  *             "last_validated": datetime.now().isoformat()
  *         }
 */
-  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_user_name, __pyx_v_user_name) < (0)) __PYX_ERR(0, 327, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_user_name, __pyx_v_user_name) < (0)) __PYX_ERR(0, 325, __pyx_L1_error)
 
-  /* "licensing/client.py":334
+  /* "licensing/client.py":332
  *             "user_email": user_email,
  *             "user_name": user_name,
  *             "last_validated": datetime.now().isoformat()             # <<<<<<<<<<<<<<
@@ -7377,9 +7452,9 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_12_save_license_loc
  * 
 */
   __pyx_t_5 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_datetime); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 334, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_datetime); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 332, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_now); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 334, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_now); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 332, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __pyx_t_8 = 1;
@@ -7399,7 +7474,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_12_save_license_loc
     __pyx_t_4 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_7, __pyx_callargs+__pyx_t_8, (1-__pyx_t_8) | (__pyx_t_8*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 334, __pyx_L1_error)
+    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 332, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
   }
   __pyx_t_3 = __pyx_t_4;
@@ -7410,24 +7485,24 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_12_save_license_loc
     __pyx_t_2 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_isoformat, __pyx_callargs+__pyx_t_8, (1-__pyx_t_8) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 334, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 332, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
   }
-  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_last_validated, __pyx_t_2) < (0)) __PYX_ERR(0, 327, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_last_validated, __pyx_t_2) < (0)) __PYX_ERR(0, 325, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_license_info = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "licensing/client.py":337
+  /* "licensing/client.py":335
  *         }
  * 
  *         self.license_file_path.parent.mkdir(parents=True, exist_ok=True)             # <<<<<<<<<<<<<<
  *         self.license_file_path.write_text(json.dumps(license_info, indent=2))
  * 
 */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_license_file_path); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 337, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_license_file_path); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 335, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_parent); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 337, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_parent); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 335, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_t_2 = __pyx_t_3;
@@ -7437,13 +7512,13 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_12_save_license_loc
     PyObject *__pyx_callargs[3] = {__pyx_t_2, Py_True, Py_True};
     #if CYTHON_VECTORCALL
     __pyx_t_4 = __pyx_mstate_global->__pyx_tuple[4];
-    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 337, __pyx_L1_error)
+    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 335, __pyx_L1_error)
     __Pyx_INCREF(__pyx_t_4);
     #else
     {
       PyObject *__pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_parents, __pyx_mstate_global->__pyx_n_u_exist_ok};
       __pyx_t_4 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
-      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 337, __pyx_L1_error)
+      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 335, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
     }
     #endif
@@ -7451,26 +7526,26 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_12_save_license_loc
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 337, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 335, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "licensing/client.py":338
+  /* "licensing/client.py":336
  * 
  *         self.license_file_path.parent.mkdir(parents=True, exist_ok=True)
  *         self.license_file_path.write_text(json.dumps(license_info, indent=2))             # <<<<<<<<<<<<<<
  * 
  *     def _load_local_license(self) -> Optional[Dict[str, Any]]:
 */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_license_file_path); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 338, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_license_file_path); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 336, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_3 = __pyx_t_4;
   __Pyx_INCREF(__pyx_t_3);
   __pyx_t_7 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_json); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 338, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_json); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 336, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_dumps); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 338, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_dumps); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 336, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __pyx_t_8 = 1;
@@ -7489,13 +7564,13 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_12_save_license_loc
     PyObject *__pyx_callargs[3] = {__pyx_t_7, __pyx_v_license_info, __pyx_mstate_global->__pyx_int_2};
     #if CYTHON_VECTORCALL
     __pyx_t_5 = __pyx_mstate_global->__pyx_tuple[5];
-    if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 338, __pyx_L1_error)
+    if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 336, __pyx_L1_error)
     __Pyx_INCREF(__pyx_t_5);
     #else
     {
       PyObject *__pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_indent};
       __pyx_t_5 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+2, 1);
-      if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 338, __pyx_L1_error)
+      if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 336, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
     }
     #endif
@@ -7503,7 +7578,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_12_save_license_loc
     __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 338, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 336, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
   }
   __pyx_t_8 = 0;
@@ -7513,12 +7588,12 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_12_save_license_loc
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 338, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 336, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "licensing/client.py":316
+  /* "licensing/client.py":314
  *             }
  * 
  *     def _save_license_locally(             # <<<<<<<<<<<<<<
@@ -7546,7 +7621,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_12_save_license_loc
   return __pyx_r;
 }
 
-/* "licensing/client.py":340
+/* "licensing/client.py":338
  *         self.license_file_path.write_text(json.dumps(license_info, indent=2))
  * 
  *     def _load_local_license(self) -> Optional[Dict[str, Any]]:             # <<<<<<<<<<<<<<
@@ -7594,32 +7669,32 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_self,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 340, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 338, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 340, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 338, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "_load_local_license", 0) < (0)) __PYX_ERR(0, 340, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "_load_local_license", 0) < (0)) __PYX_ERR(0, 338, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("_load_local_license", 1, 1, 1, i); __PYX_ERR(0, 340, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("_load_local_license", 1, 1, 1, i); __PYX_ERR(0, 338, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 340, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 338, __pyx_L3_error)
     }
     __pyx_v_self = values[0];
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("_load_local_license", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 340, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("_load_local_license", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 338, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -7661,14 +7736,14 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_14_load_local_licen
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("_load_local_license", 0);
 
-  /* "licensing/client.py":342
+  /* "licensing/client.py":340
  *     def _load_local_license(self) -> Optional[Dict[str, Any]]:
  *         """Load license information from local storage."""
  *         if not self.license_file_path.exists():             # <<<<<<<<<<<<<<
  *             return None
  * 
 */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_license_file_path); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 342, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_license_file_path); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 340, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_2 = __pyx_t_3;
   __Pyx_INCREF(__pyx_t_2);
@@ -7678,10 +7753,10 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_14_load_local_licen
     __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_exists, __pyx_callargs+__pyx_t_4, (1-__pyx_t_4) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 342, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 340, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
-  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_5 < 0))) __PYX_ERR(0, 342, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_5 < 0))) __PYX_ERR(0, 340, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_6 = (!__pyx_t_5);
 
@@ -7689,7 +7764,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_14_load_local_licen
   if (__pyx_t_6) {
 
 
-    /* "licensing/client.py":343
+    /* "licensing/client.py":341
  *         """Load license information from local storage."""
  *         if not self.license_file_path.exists():
  *             return None             # <<<<<<<<<<<<<<
@@ -7706,7 +7781,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_14_load_local_licen
     }
     goto __pyx_L0;
 
-    /* "licensing/client.py":342
+    /* "licensing/client.py":340
  *     def _load_local_license(self) -> Optional[Dict[str, Any]]:
  *         """Load license information from local storage."""
  *         if not self.license_file_path.exists():             # <<<<<<<<<<<<<<
@@ -7715,7 +7790,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_14_load_local_licen
 */
   }
 
-  /* "licensing/client.py":345
+  /* "licensing/client.py":343
  *             return None
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -7731,7 +7806,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_14_load_local_licen
     __Pyx_XGOTREF(__pyx_t_9);
     /*try:*/ {
 
-      /* "licensing/client.py":346
+      /* "licensing/client.py":344
  * 
  *         try:
  *             return json.loads(self.license_file_path.read_text())             # <<<<<<<<<<<<<<
@@ -7739,12 +7814,12 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_14_load_local_licen
  *             return None
 */
       __pyx_t_3 = NULL;
-      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_json); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 346, __pyx_L4_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_json); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 344, __pyx_L4_error)
       __Pyx_GOTREF(__pyx_t_2);
-      __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_loads); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 346, __pyx_L4_error)
+      __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_loads); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 344, __pyx_L4_error)
       __Pyx_GOTREF(__pyx_t_10);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-      __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_license_file_path); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 346, __pyx_L4_error)
+      __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_license_file_path); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 344, __pyx_L4_error)
       __Pyx_GOTREF(__pyx_t_12);
       __pyx_t_11 = __pyx_t_12;
       __Pyx_INCREF(__pyx_t_11);
@@ -7754,7 +7829,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_14_load_local_licen
         __pyx_t_2 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_read_text, __pyx_callargs+__pyx_t_4, (1-__pyx_t_4) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
         __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
         __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 346, __pyx_L4_error)
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 344, __pyx_L4_error)
         __Pyx_GOTREF(__pyx_t_2);
       }
       __pyx_t_4 = 1;
@@ -7775,10 +7850,10 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_14_load_local_licen
         __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 346, __pyx_L4_error)
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 344, __pyx_L4_error)
         __Pyx_GOTREF(__pyx_t_1);
       }
-      if (!(likely(PyDict_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("dict", __pyx_t_1))) __PYX_ERR(0, 346, __pyx_L4_error)
+      if (!(likely(PyDict_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("dict", __pyx_t_1))) __PYX_ERR(0, 344, __pyx_L4_error)
       {
         PyObject *__pyx_temp;
         {
@@ -7790,7 +7865,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_14_load_local_licen
       __pyx_t_1 = 0;
       goto __pyx_L8_try_return;
 
-      /* "licensing/client.py":345
+      /* "licensing/client.py":343
  *             return None
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -7806,7 +7881,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_14_load_local_licen
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-    /* "licensing/client.py":347
+    /* "licensing/client.py":345
  *         try:
  *             return json.loads(self.license_file_path.read_text())
  *         except Exception:             # <<<<<<<<<<<<<<
@@ -7817,7 +7892,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_14_load_local_licen
     if (__pyx_t_13) {
       __Pyx_ErrRestore(0,0,0);
 
-      /* "licensing/client.py":348
+      /* "licensing/client.py":346
  *             return json.loads(self.license_file_path.read_text())
  *         except Exception:
  *             return None             # <<<<<<<<<<<<<<
@@ -7836,7 +7911,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_14_load_local_licen
     }
     goto __pyx_L6_except_error;
 
-    /* "licensing/client.py":345
+    /* "licensing/client.py":343
  *             return None
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -7863,7 +7938,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_14_load_local_licen
     goto __pyx_L0;
   }
 
-  /* "licensing/client.py":340
+  /* "licensing/client.py":338
  *         self.license_file_path.write_text(json.dumps(license_info, indent=2))
  * 
  *     def _load_local_license(self) -> Optional[Dict[str, Any]]:             # <<<<<<<<<<<<<<
@@ -7887,7 +7962,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_14_load_local_licen
   return __pyx_r;
 }
 
-/* "licensing/client.py":350
+/* "licensing/client.py":348
  *             return None
  * 
  *     def get_license_info(self) -> Optional[Dict[str, Any]]:             # <<<<<<<<<<<<<<
@@ -7935,32 +8010,32 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_self,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 350, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 348, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 350, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 348, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "get_license_info", 0) < (0)) __PYX_ERR(0, 350, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "get_license_info", 0) < (0)) __PYX_ERR(0, 348, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("get_license_info", 1, 1, 1, i); __PYX_ERR(0, 350, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("get_license_info", 1, 1, 1, i); __PYX_ERR(0, 348, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 350, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 348, __pyx_L3_error)
     }
     __pyx_v_self = values[0];
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("get_license_info", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 350, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("get_license_info", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 348, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -7992,7 +8067,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_16get_license_info(
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("get_license_info", 0);
 
-  /* "licensing/client.py":352
+  /* "licensing/client.py":350
  *     def get_license_info(self) -> Optional[Dict[str, Any]]:
  *         """Get current license information without validation."""
  *         return self._load_local_license()             # <<<<<<<<<<<<<<
@@ -8006,10 +8081,10 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_16get_license_info(
     PyObject *__pyx_callargs[2] = {__pyx_t_2, NULL};
     __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_load_local_license, __pyx_callargs+__pyx_t_3, (1-__pyx_t_3) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 352, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 350, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
-  if (!(likely(PyDict_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("dict", __pyx_t_1))) __PYX_ERR(0, 352, __pyx_L1_error)
+  if (!(likely(PyDict_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("dict", __pyx_t_1))) __PYX_ERR(0, 350, __pyx_L1_error)
   {
     PyObject *__pyx_temp;
     {
@@ -8021,7 +8096,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_16get_license_info(
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "licensing/client.py":350
+  /* "licensing/client.py":348
  *             return None
  * 
  *     def get_license_info(self) -> Optional[Dict[str, Any]]:             # <<<<<<<<<<<<<<
@@ -8041,7 +8116,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_16get_license_info(
   return __pyx_r;
 }
 
-/* "licensing/client.py":354
+/* "licensing/client.py":352
  *         return self._load_local_license()
  * 
  *     def is_licensed(self) -> bool:             # <<<<<<<<<<<<<<
@@ -8089,32 +8164,32 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_self,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 354, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 352, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 354, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 352, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "is_licensed", 0) < (0)) __PYX_ERR(0, 354, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "is_licensed", 0) < (0)) __PYX_ERR(0, 352, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("is_licensed", 1, 1, 1, i); __PYX_ERR(0, 354, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("is_licensed", 1, 1, 1, i); __PYX_ERR(0, 352, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 354, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 352, __pyx_L3_error)
     }
     __pyx_v_self = values[0];
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("is_licensed", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 354, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("is_licensed", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 352, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -8147,7 +8222,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_18is_licensed(CYTHO
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("is_licensed", 0);
 
-  /* "licensing/client.py":361
+  /* "licensing/client.py":359
  *             True if licensed, False otherwise
  *         """
  *         validation_result = self.validate_license()             # <<<<<<<<<<<<<<
@@ -8160,20 +8235,20 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_18is_licensed(CYTHO
     PyObject *__pyx_callargs[2] = {__pyx_t_2, NULL};
     __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_validate_license, __pyx_callargs+__pyx_t_3, (1-__pyx_t_3) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 361, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 359, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_v_validation_result = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "licensing/client.py":362
+  /* "licensing/client.py":360
  *         """
  *         validation_result = self.validate_license()
  *         return validation_result.get("success", False)             # <<<<<<<<<<<<<<
 */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_validation_result, __pyx_mstate_global->__pyx_n_u_get); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 362, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_validation_result, __pyx_mstate_global->__pyx_n_u_get); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 360, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_mstate_global->__pyx_tuple[6], NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 362, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_mstate_global->__pyx_tuple[6], NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 360, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   {
@@ -8187,7 +8262,7 @@ static PyObject *__pyx_pf_9licensing_6client_13LicenseClient_18is_licensed(CYTHO
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "licensing/client.py":354
+  /* "licensing/client.py":352
  *         return self._load_local_license()
  * 
  *     def is_licensed(self) -> bool:             # <<<<<<<<<<<<<<
@@ -8922,64 +8997,64 @@ __Pyx_RefNannySetupContext("PyInit_client", 0);
   if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_validate_license, __pyx_t_4) < (0)) __PYX_ERR(0, 144, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "licensing/client.py":214
+  /* "licensing/client.py":222
  *             }
  * 
  *     def _validate_offline(self, local_license: Dict[str, Any], license_data: Dict[str, Any]) -> Dict[str, Any]:             # <<<<<<<<<<<<<<
  *         """
  *         Perform offline license validation when server is unreachable.
 */
-  __pyx_t_4 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 214, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 222, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_local_license, __pyx_mstate_global->__pyx_kp_u_Dict_str_Any) < (0)) __PYX_ERR(0, 214, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_license_data, __pyx_mstate_global->__pyx_kp_u_Dict_str_Any) < (0)) __PYX_ERR(0, 214, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_return, __pyx_mstate_global->__pyx_kp_u_Dict_str_Any) < (0)) __PYX_ERR(0, 214, __pyx_L1_error)
-  __pyx_t_9 = __Pyx_CyFunction_New(&__pyx_mdef_9licensing_6client_13LicenseClient_9_validate_offline, 0, __pyx_mstate_global->__pyx_n_u_LicenseClient__validate_offline, NULL, __pyx_mstate_global->__pyx_n_u_licensing_client, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[4])); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 214, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_local_license, __pyx_mstate_global->__pyx_kp_u_Dict_str_Any) < (0)) __PYX_ERR(0, 222, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_license_data, __pyx_mstate_global->__pyx_kp_u_Dict_str_Any) < (0)) __PYX_ERR(0, 222, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_return, __pyx_mstate_global->__pyx_kp_u_Dict_str_Any) < (0)) __PYX_ERR(0, 222, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_CyFunction_New(&__pyx_mdef_9licensing_6client_13LicenseClient_9_validate_offline, 0, __pyx_mstate_global->__pyx_n_u_LicenseClient__validate_offline, NULL, __pyx_mstate_global->__pyx_n_u_licensing_client, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[4])); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 222, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_9);
   #endif
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_9, __pyx_t_4);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_validate_offline, __pyx_t_9) < (0)) __PYX_ERR(0, 214, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_validate_offline, __pyx_t_9) < (0)) __PYX_ERR(0, 222, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-  /* "licensing/client.py":264
- *         }
+  /* "licensing/client.py":262
+ * 
  * 
  *     def deactivate_license(self) -> Dict[str, Any]:             # <<<<<<<<<<<<<<
  *         """
  *         Deactivate the current license.
 */
-  __pyx_t_9 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 264, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 262, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
-  if (PyDict_SetItem(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_return, __pyx_mstate_global->__pyx_kp_u_Dict_str_Any) < (0)) __PYX_ERR(0, 264, __pyx_L1_error)
-  __pyx_t_4 = __Pyx_CyFunction_New(&__pyx_mdef_9licensing_6client_13LicenseClient_11deactivate_license, 0, __pyx_mstate_global->__pyx_n_u_LicenseClient_deactivate_license, NULL, __pyx_mstate_global->__pyx_n_u_licensing_client, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[5])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 264, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_return, __pyx_mstate_global->__pyx_kp_u_Dict_str_Any) < (0)) __PYX_ERR(0, 262, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_CyFunction_New(&__pyx_mdef_9licensing_6client_13LicenseClient_11deactivate_license, 0, __pyx_mstate_global->__pyx_n_u_LicenseClient_deactivate_license, NULL, __pyx_mstate_global->__pyx_n_u_licensing_client, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[5])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 262, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_4);
   #endif
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_4, __pyx_t_9);
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_deactivate_license, __pyx_t_4) < (0)) __PYX_ERR(0, 264, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_deactivate_license, __pyx_t_4) < (0)) __PYX_ERR(0, 262, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "licensing/client.py":316
+  /* "licensing/client.py":314
  *             }
  * 
  *     def _save_license_locally(             # <<<<<<<<<<<<<<
  *         self,
  *         product_key: str,
 */
-  __pyx_t_4 = __Pyx_PyDict_NewPresized(6); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 316, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(6); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 314, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_product_key, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 316, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_activation_id, __pyx_mstate_global->__pyx_n_u_int) < (0)) __PYX_ERR(0, 316, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_license_data, __pyx_mstate_global->__pyx_kp_u_Dict_str_Any) < (0)) __PYX_ERR(0, 316, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_expiry_date, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 316, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_user_email, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 316, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_user_name, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 316, __pyx_L1_error)
-  __pyx_t_9 = __Pyx_CyFunction_New(&__pyx_mdef_9licensing_6client_13LicenseClient_13_save_license_locally, 0, __pyx_mstate_global->__pyx_n_u_LicenseClient__save_license_loca, NULL, __pyx_mstate_global->__pyx_n_u_licensing_client, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[6])); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 316, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_product_key, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 314, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_activation_id, __pyx_mstate_global->__pyx_n_u_int) < (0)) __PYX_ERR(0, 314, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_license_data, __pyx_mstate_global->__pyx_kp_u_Dict_str_Any) < (0)) __PYX_ERR(0, 314, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_expiry_date, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 314, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_user_email, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 314, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_user_name, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 314, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_CyFunction_New(&__pyx_mdef_9licensing_6client_13LicenseClient_13_save_license_locally, 0, __pyx_mstate_global->__pyx_n_u_LicenseClient__save_license_loca, NULL, __pyx_mstate_global->__pyx_n_u_licensing_client, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[6])); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 314, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_9);
@@ -8987,67 +9062,67 @@ __Pyx_RefNannySetupContext("PyInit_client", 0);
   __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_9, __pyx_mstate_global->__pyx_tuple[8]);
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_9, __pyx_t_4);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_save_license_locally, __pyx_t_9) < (0)) __PYX_ERR(0, 316, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_save_license_locally, __pyx_t_9) < (0)) __PYX_ERR(0, 314, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-  /* "licensing/client.py":340
+  /* "licensing/client.py":338
  *         self.license_file_path.write_text(json.dumps(license_info, indent=2))
  * 
  *     def _load_local_license(self) -> Optional[Dict[str, Any]]:             # <<<<<<<<<<<<<<
  *         """Load license information from local storage."""
  *         if not self.license_file_path.exists():
 */
-  __pyx_t_9 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 340, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 338, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
-  if (PyDict_SetItem(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_return, __pyx_mstate_global->__pyx_kp_u_Optional_Dict_str_Any) < (0)) __PYX_ERR(0, 340, __pyx_L1_error)
-  __pyx_t_4 = __Pyx_CyFunction_New(&__pyx_mdef_9licensing_6client_13LicenseClient_15_load_local_license, 0, __pyx_mstate_global->__pyx_n_u_LicenseClient__load_local_licens, NULL, __pyx_mstate_global->__pyx_n_u_licensing_client, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[7])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 340, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_return, __pyx_mstate_global->__pyx_kp_u_Optional_Dict_str_Any) < (0)) __PYX_ERR(0, 338, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_CyFunction_New(&__pyx_mdef_9licensing_6client_13LicenseClient_15_load_local_license, 0, __pyx_mstate_global->__pyx_n_u_LicenseClient__load_local_licens, NULL, __pyx_mstate_global->__pyx_n_u_licensing_client, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[7])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 338, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_4);
   #endif
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_4, __pyx_t_9);
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_load_local_license, __pyx_t_4) < (0)) __PYX_ERR(0, 340, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_load_local_license, __pyx_t_4) < (0)) __PYX_ERR(0, 338, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "licensing/client.py":350
+  /* "licensing/client.py":348
  *             return None
  * 
  *     def get_license_info(self) -> Optional[Dict[str, Any]]:             # <<<<<<<<<<<<<<
  *         """Get current license information without validation."""
  *         return self._load_local_license()
 */
-  __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 350, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 348, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_return, __pyx_mstate_global->__pyx_kp_u_Optional_Dict_str_Any) < (0)) __PYX_ERR(0, 350, __pyx_L1_error)
-  __pyx_t_9 = __Pyx_CyFunction_New(&__pyx_mdef_9licensing_6client_13LicenseClient_17get_license_info, 0, __pyx_mstate_global->__pyx_n_u_LicenseClient_get_license_info, NULL, __pyx_mstate_global->__pyx_n_u_licensing_client, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[8])); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 350, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_return, __pyx_mstate_global->__pyx_kp_u_Optional_Dict_str_Any) < (0)) __PYX_ERR(0, 348, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_CyFunction_New(&__pyx_mdef_9licensing_6client_13LicenseClient_17get_license_info, 0, __pyx_mstate_global->__pyx_n_u_LicenseClient_get_license_info, NULL, __pyx_mstate_global->__pyx_n_u_licensing_client, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[8])); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 348, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_9);
   #endif
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_9, __pyx_t_4);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_get_license_info, __pyx_t_9) < (0)) __PYX_ERR(0, 350, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_get_license_info, __pyx_t_9) < (0)) __PYX_ERR(0, 348, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-  /* "licensing/client.py":354
+  /* "licensing/client.py":352
  *         return self._load_local_license()
  * 
  *     def is_licensed(self) -> bool:             # <<<<<<<<<<<<<<
  *         """
  *         Quick check if application is licensed.
 */
-  __pyx_t_9 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 354, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 352, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
-  if (PyDict_SetItem(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_return, __pyx_mstate_global->__pyx_n_u_bool) < (0)) __PYX_ERR(0, 354, __pyx_L1_error)
-  __pyx_t_4 = __Pyx_CyFunction_New(&__pyx_mdef_9licensing_6client_13LicenseClient_19is_licensed, 0, __pyx_mstate_global->__pyx_n_u_LicenseClient_is_licensed, NULL, __pyx_mstate_global->__pyx_n_u_licensing_client, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[9])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 354, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_return, __pyx_mstate_global->__pyx_n_u_bool) < (0)) __PYX_ERR(0, 352, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_CyFunction_New(&__pyx_mdef_9licensing_6client_13LicenseClient_19is_licensed, 0, __pyx_mstate_global->__pyx_n_u_LicenseClient_is_licensed, NULL, __pyx_mstate_global->__pyx_n_u_licensing_client, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[9])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 352, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_4);
   #endif
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_4, __pyx_t_9);
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_is_licensed, __pyx_t_4) < (0)) __PYX_ERR(0, 354, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_is_licensed, __pyx_t_4) < (0)) __PYX_ERR(0, 352, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
   /* "licensing/client.py":17
@@ -9200,7 +9275,7 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
   }
   __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[3]);
 
-  /* "licensing/client.py":337
+  /* "licensing/client.py":335
  *         }
  * 
  *         self.license_file_path.parent.mkdir(parents=True, exist_ok=True)             # <<<<<<<<<<<<<<
@@ -9209,12 +9284,12 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
 */
   {
     PyObject* __pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_parents, __pyx_mstate_global->__pyx_n_u_exist_ok};
-    __pyx_mstate_global->__pyx_tuple[4] = __Pyx_PyTuple_FromArray(__pyx_temp, 2); if (unlikely(!__pyx_mstate_global->__pyx_tuple[4])) __PYX_ERR(0, 337, __pyx_L1_error)
+    __pyx_mstate_global->__pyx_tuple[4] = __Pyx_PyTuple_FromArray(__pyx_temp, 2); if (unlikely(!__pyx_mstate_global->__pyx_tuple[4])) __PYX_ERR(0, 335, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[4]);
   }
   __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[4]);
 
-  /* "licensing/client.py":338
+  /* "licensing/client.py":336
  * 
  *         self.license_file_path.parent.mkdir(parents=True, exist_ok=True)
  *         self.license_file_path.write_text(json.dumps(license_info, indent=2))             # <<<<<<<<<<<<<<
@@ -9223,19 +9298,19 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
 */
   {
     PyObject* __pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_indent};
-    __pyx_mstate_global->__pyx_tuple[5] = __Pyx_PyTuple_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_mstate_global->__pyx_tuple[5])) __PYX_ERR(0, 338, __pyx_L1_error)
+    __pyx_mstate_global->__pyx_tuple[5] = __Pyx_PyTuple_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_mstate_global->__pyx_tuple[5])) __PYX_ERR(0, 336, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[5]);
   }
   __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[5]);
 
-  /* "licensing/client.py":362
+  /* "licensing/client.py":360
  *         """
  *         validation_result = self.validate_license()
  *         return validation_result.get("success", False)             # <<<<<<<<<<<<<<
 */
   {
     PyObject* __pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_success, Py_False};
-    __pyx_mstate_global->__pyx_tuple[6] = __Pyx_PyTuple_FromArray(__pyx_temp, 2); if (unlikely(!__pyx_mstate_global->__pyx_tuple[6])) __PYX_ERR(0, 362, __pyx_L1_error)
+    __pyx_mstate_global->__pyx_tuple[6] = __Pyx_PyTuple_FromArray(__pyx_temp, 2); if (unlikely(!__pyx_mstate_global->__pyx_tuple[6])) __PYX_ERR(0, 360, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[6]);
   }
   __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[6]);
@@ -9304,38 +9379,38 @@ static int __Pyx_InitConstants(__pyx_mstatetype *__pyx_mstate) {
   int __pyx_clineno = 0;
   CYTHON_UNUSED_VAR(__pyx_mstate);
   {
-    const struct { const unsigned int length: 9; } str_length_index[] = {{0},{1},{1},{1},{1},{450},{1},{4},{21},{21},{23},{21},{10},{1},{1},{18},{19},{46},{20},{21},{14},{21},{19},{16},{31},{63},{33},{30},{47},{179},{24},{61},{13},{27},{18},{8},{32},{38},{22},{14},{3},{4},{18},{13},{22},{33},{30},{35},{31},{30},{32},{30},{25},{30},{13},{18},{8},{4},{16},{20},{12},{7},{8},{8},{8},{8},{13},{10},{8},{11},{12},{8},{13},{19},{16},{21},{17},{16},{13},{29},{42},{18},{4},{9},{18},{16},{6},{8},{4},{21},{18},{6},{6},{5},{1},{12},{12},{8},{6},{11},{13},{3},{16},{14},{6},{4},{6},{3},{11},{8},{9},{5},{4},{8},{14},{12},{17},{12},{18},{16},{11},{5},{13},{19},{12},{7},{15},{5},{4},{3},{2},{6},{7},{7},{7},{8},{3},{4},{11},{10},{14},{9},{6},{17},{8},{7},{8},{6},{6},{13},{4},{10},{11},{3},{5},{7},{7},{9},{6},{6},{10},{9},{16},{17},{6},{18},{10}};
-    const struct { const unsigned int length: 9; } bytes_length_index[] = {{123},{75},{31},{15},{317},{122},{236},{53},{407},{180}};
+    const struct { const unsigned int length: 9; } str_length_index[] = {{0},{1},{1},{1},{1},{450},{1},{4},{21},{21},{23},{21},{19},{1},{1},{18},{19},{46},{20},{21},{14},{21},{79},{19},{16},{31},{99},{33},{30},{47},{179},{24},{55},{13},{27},{8},{32},{38},{22},{14},{3},{4},{18},{13},{22},{33},{30},{35},{31},{30},{32},{30},{25},{30},{13},{18},{8},{4},{16},{20},{12},{7},{8},{8},{8},{8},{13},{10},{8},{11},{12},{8},{13},{19},{16},{21},{17},{16},{13},{29},{42},{18},{4},{9},{18},{16},{6},{8},{4},{12},{18},{6},{6},{5},{1},{12},{12},{8},{6},{11},{13},{3},{16},{14},{6},{4},{6},{3},{11},{8},{9},{5},{4},{8},{14},{2},{12},{17},{12},{18},{16},{11},{5},{13},{14},{19},{12},{7},{15},{5},{4},{3},{2},{6},{7},{7},{7},{8},{3},{4},{11},{10},{14},{9},{6},{17},{8},{7},{8},{6},{6},{13},{4},{10},{11},{3},{5},{7},{7},{9},{6},{6},{10},{9},{16},{17},{6},{18},{10}};
+    const struct { const unsigned int length: 9; } bytes_length_index[] = {{123},{75},{31},{15},{362},{122},{236},{53},{407},{176}};
     #ifndef CYTHON_COMPRESS_STRINGS
       #define CYTHON_COMPRESS_STRINGS 90
     #endif
-    #if (CYTHON_COMPRESS_STRINGS) == 1 /* compression: zlib (2478 bytes) */
-static const char cstring[] = "x\332\235VMS\333\326\032\016\275\334\024\\\322\330\t\004\2324\251\014\355\315G\213m\021c\034f\322\216\014&1\004\203\371\312\327\364\252\307\322\261-,K\262t\204m\356t\346.\263\364RK-\265\324\322K\226,\265\3242?\201\237\320\367\3106\306.\267w\246\314\240st\316\373\375<\357+\207n1\213\301_&\373*\227gv\0173ork\314V\366}p\030\332\316\3452\271c.\237)W\353\225\252\364\352E#\221\341\n\331\r\216\333Y\343\ni\216\336\257\225\267`\237\345\032\365\370\273\355\334\321\306\213\374\363\365Ta\253\244 !\036J$\252\346\262&\211\255\2458b\223\357\367\367\244Mv\237d\263\246\241\311G\334\361QySe\327\322\313f\241\266\2142\0079\262\256\357\232\251fbm\345E\346\364\303\306\213F(\367v%\277\317n\0347keu\203E\371\303\\\"\223x\273\273\264w\250\346\227\327^\253\244\2218~\236\372\221=\335M$W\270\255\203T\271\302\235n\326\227\337$\226\032+\005\356Mhk+~\220ll\236\326\025a\217K\t\247\225Se\253\"\274M\034e$#gj2z\047\2374\366\343\325\324\253f\274\370a7]\303\306{\324\330\330NW\217?\254\035\340\235\320\306\246y(\277\027\024\371Uy\253\360\\\225pMXZ\336\331O\233\233;\313\354!Y\027\214rYf\323\313\007\0056\233km7\022+fs\207M\222\224\246\225\253\325\214\030jl$\226\323\357R\361\326\362[\256\374A\210g\267\304\244(\027\323\357KoZ\351\375\315\334\253\235\267YS\334H\345\216\223\265t|\353\350\204k\274\316W\271\0377\225\372\376\372\332\321I(\333\310\255s\005.\023\n@\311\346\327Gq\212\305\260r\022\223e\203\027\212\204\227%\001+\006\216\035\033\252\022G\232\024\357\035\304\221@\244\023D\360\320\241\210\257=>A\262$\302\341Rb)\265\230x\261\270\224x\371\013\327\025\224T\205\301\272\256\352\253\314\225\223\022\222d,\2562k\262\204\025\262hH\"fz\306\230\2361*\206\024\221\251!\005\225q\r\304b\353}\357W\214\016\235\365\315\256K\002\371h\020\375\047\206SZ\277\346\224\300$\243\351\252h\n\204\251\342\326*\363\246\347\255\202\014\00675I\307b\377H2\2721\214\2763O\324RI\226\024\314\324T\021?\355_\353\270n\202\272\301\250Jp9\210?\306\354\312\030\201\210\240*\n\006\317De$\205`]\301$\226\307\244\241\352\325n\036\214h\352\222Rf\006\271""\2542y\365\262$%\325\204J\200\366\240\376\243\267\227\276\372\002LK5\365~\316\261\274\n\047\244\202\010\263\326\"\025(\025$%bY*b\035d\345\026\003\325\202\242a\235\n)\314nvw1\231N\006\000\350\370\030b7\030\303,\n22\014\232i\211)\232\222L$\205!-\r\0331&W\242\376\030\005\343 N\r\344\256*\220\nV\030\003\023\272a\036#EQI\220%\017\352\220\367cF\204\n\322\3001\325\336@20rG\243\022H\3768\214\346\257\373-\203\340\032C\244\032$\253i\030\351\006U*\002P\212\240\352\324\316\240\360\025,T\273\225\020dU\250\306\016\225\252\2426z\35494 _\n\037\006\213\342\240\270\340\366h@\302\036\321\220(\362\0206\006\227q\320;\201\342\033\275\006\200\014\342B\300\344\230\326\252\020\242\031\253\36184\330\"4\330b\317\246\252\307TE\307\212\210\365\230\240\326z\330\361\232Y\204-\017\224\214i\2706\374\006\331\322\324\241w\263\371\375,\337mc\036\332\270\307\274n\363\014\275\304x^R$\302\363#\247\262\212Dx\010H\3567\374u\002\003\367#\267\006:\301}\305\256\031yT\244?\002\370^\217\014_\367Iy\275\367\001\253\257\277/\343\3139\005\351\225\324\341[\311\350_\212\303\027\227!\215\030\325[\032Q\267\221P\20107\000;\254k\320|\244\317\267]D*{]Rd\233\002\016Ny~\267\325\204\177\212\007\237\307M\262\207K<\337\3431\346\341OT\005\272\224`\000\005\253\251\004\357]4x\276\206$%X1AAS\004/\320\233]q\005\325\202U\323\261\206\364`[7\221\334?&\020\0135\006#[\325U\023\372\016_\003\351(\210\327\302\366\047\240FK?\350\001\036\3444-\326\047{\354\222\3541!(\341\377\270\254u+\013\245\270,-2Z\212 \251\261\313\350\215\242\252\312\002\364\250B\003\025h\034P*\236\350H\300E$T\005\030\307\0221x\030\253\3209X\354:\244a\323\266\027Q\313\240\377<\370\0230?\030\270\177&\222\010\365\226d\021\372V9\021\315\232f`\\+bQ\304\"u\034\2646\337\225\301M\t\212\254V\203\325\010>\t-\236z,\351jM2\324\222\252\327\020\001*\216\262\221\276\367s\226Dx\003W\025\265\206%\010G\201d\311\025\202\3026\210\366\322\236\004\243\314\240\337^\212\027%\017p\203\\b$\366\375\300\013\352\357\003\212i@\322\253A\364\367\024\017\254\363\246._A+h\207\200\034\335B\320\2551D\235k0""\273L\t\254\303\317\034\203~\204%\203\032\004\347\242\010k\255\nS\233R\024&\252jP\336*\244\3734\272\341\0255\324\242\276\340w\023\241\351j\252\246\251\006\351}\223(\000\003\262^\241-\214>\035C\260\004\372\0146\006\235\233\264\177\250\353\0361zC\033VC\225!alh*\244\001\253)\203\0161uEW\325\300EP/\003\313%\370\374\210\270\204@\300\200\2465i/\211`C\247_>\3150\005`\261A\331\005\014\245\013\010\325\264\356\347\311\244\037\366\252\t\366y\032\210\034\354h\342\243\023f\300D\276\033\n\034@\234\020\240T\202\274\006y7t\000>H\360\277\334\347\231{\376\354\234\177o\326\207\315\304t\233\363\047\356\266\331\213\2337&C\376\324\003\213\365\247\036Z\005\177\352[\213\353\275.\330I\273\356O\335\267\242\376\3247V\304\237zdUl\321\231w6]D\325nypR\266\217\034\326y\355nt\236\236\261\376\304\024=\253:\021\347{\247\344r\356\277\317V\316\243\336\370\2547\373\243\303^|\035\350\314\333\321@.jO\333\207\316\202\263\347\324{z\2427\377\334\245F>m\266k6k\357\270I\267{\267\340-,\273\374\031\347\215C\214\324\316Ck\335cX7\342O\334\366n3\366\270\315\331\037\3351o\034\214\177\236\270\375\211xw\037\333\365\340\225J\207>CZ\240\220t!7\270m\263~8\342O\177g\325\203\307\305\304\215[_\373\341\357,b\257x\317^v\n\235\3329{\016\242w\333?\333\221+\242\336w+\256\321\211vX\252\361\300zb\307\3341\367a\007u\352\324l\263M\254\347V\321\036\273\336\370\357\016\347\024\374\360c\2338\340>j?t\220S\207:\336\232k7-\323\346\374\360\235v\264\235l\327\375\360L\033\004\347\2541z\033\006\273\277\333k\200D\370\033k\316\236\261\221\037\276\333NY\021\200ez\306\237[\260\331\336\343\211s\223\232\364\347\026\235#\227u9\320\006\244\373\002)\000%\n\301D\346\332\304{\260\350\024\034\265S\240\265\372\235\002~\313\017S\314\303\017\274\007\t\367\037T\373\262x\367\332{\355\206\205 \235\211\257>\261\264(\001i\246i\250\326\244=\347\334\201|\340*\335^\241L\271\333N[\253v\201\212|c\215[\234\365\336\2568E\367K\267\321)\237\275;\337;\017\354\274\264\276\004\203 \374\322\016\005aM\316\265\353\027\3237&\303\237\000\266\357m.\200\315\377k\330n\016W\266WR?""\014\214\375;u\205\323\010d\345\315>uf\3351\177z\316\233{\346<v#\237\2578=\261\013\000\300t\257\324T\203\261\232\266\351d\034\321\215\272\253\235\302\020[R.r\251\020d5Z\345%w\301-\270\310\033\377\301\006\024\276\372\224\244\234\375\301~\353\004\264c?OL\3225\331>\261\n\264/\222\356f\007\371\267\303\301\2457\376\223\223u\277\355|8\373\217\267\307{\374o\027\367oL\316\264\267 \272=\273\351\324\335\177\272\373\235\211\263\261\263\2313\341|\316+\354y{\357\274w\037\275\217\202\047\210\236x\354\035W\375\211\373\326\002\230\256\366\321ci\217O[\373\366\027\366<\324l\342^\033A\014\237i\3104\233>m\037Y@?:\047h\232\014\010\003\t\243\300\201ih\343\323N\344\"\364\367\312>\343M?s\242\324\"\324}\336\376\2273\346D\250\341{v\335\031\243\3077md\007\0004`\002E\235\237;pM\207\317\001\260z1\250q\344\316(HO\235{P\013P\357\223\377\377\240\0054s\013]\264\232\336\354O\3160`\277t\214\263\350\031\373\227\035\023\367\342\333\336\366o\336o\350\342\321\215\311\331v\305R\200\232\277\366&\306\344}H\370\021\204t\253sp\026\3612\007\336\301a\267q\222m\303\232\0372j\005\nS\177q7\037T}\337\375\302\215\237E\200A\336WQ\373\016\264\372\250\0344\321,\200\320}\004\303\235\366\t\344\357=\177}>\366\007\315\335\244\022";
-    PyObject *data = __Pyx_DecompressString(cstring, 2478, 1);
+    #if (CYTHON_COMPRESS_STRINGS) == 1 /* compression: zlib (2572 bytes) */
+static const char cstring[] = "x\332\235V\315S\333H\026\017\273l\006\274$\301\023\010d2\231\310af\223\314\014\266E\214q\250\312L\311`\022C0\230\317|\324\254\246-\265maY\222\245\026\266\331\232\252=\346\350\243\216:\352\250\243\217>r\324QG\376\004\376\204}-\333`{\230\235\252\241@\335\375\372\365\353\367\336\357\367^\023\272\303,\006?\351\314\233l\216\331=L\277\313\2561[\231\017\2010\264\235\315\246\263\047\\.]\252\324\312\025\351\315\253z<\315\3453\033\034\267\263\306\345S\034\335_+m\301<\303\325k\261\367\333\331\243\215W\271\227\353\311\374VQAB,\024\217W\314eM\022\233K1\304&>\354\357I\233\354>\311dLC\223\217\270\223\243\322\246\312\256\245\226\315|u\031\245\017\262d]\3375\223\215\370\332\312\253\364\331\307\215W\365P\366x%\267\317n\2344\252%u\203E\271\303l<\035?\336]\332;Ts\313koUR\217\237\274L\376\300\236\355\306\023+\334\326A\262T\346\3166k\313\357\342K\365\225<\367.\264\265\025;H\3247\317j\212\260\307%\205\263\362\231\262U\026\216\343Gi\311\310\232\232\214\336\313\247\365\375X%\371\246\021+|\334MU\261\361\001\3257\266S\225\223\217k\007x\047\264\261i\036\312\037\004E~S\332\312\277T%\\\025\226\226w\366S\346\346\3162{H\326\005\243T\222\331\324\362A\236\315d\233\333\365\370\212\331\330a\023$\251i\245J%-\206\352\033\361\345\324\373d\254\271|\314\225>\n\261\314\226\230\020\345B\352C\361]3\265\277\231}\263s\2341\305\215d\366$QM\305\266\216N\271\372\333\\\205\373aS\251\355\257\257\035\235\2062\365\354:\227\347\322\241\000\224Ln}\024\247h\024+\247QY6x\241@xY\022\260b\340\350\211\241*1\244I\261\236 \206\004\"\235\"\202\207\204\"\276Q|\212dI\004\341R|)\271\030\177\265\030g\017\342\361\325\340\367\365\317\\\367\204\244*\014\326uU_e\006$E$\311X\\e\326d\t+d\321\220D\314\364\2542=\253T\r)\"SE\n*\341*\250E\327\373n\014\030\035\222\365\315\256K\002\371d\020\375G\206S\232\277d\225\300$\243\351\252h\n\204\251\340\346*\363\256w\233P\306B\245w0\312\354\312\030Q\241\252(\0304\211\312\2202f$\205`]\301\204)\252:S\224t\203,\022\251:\350i\264o\256\214\014\00674I\307b_$\031]\305\3215\363\\-\026eI\301LU\025\361\213\376""\266\216k&\0347\030U\t6\007\322\361\234]\212/\212\250\311\364\017\312RU\"p\002A\024\342\213?s?\232\303\244\256\352\225n\352\030\321\324%\245\304\\\247o\225\311\251W(\024U\023\222\017\026\256\261\037\335\275\272\257\257\3004US\357\2479\232SAB\312\2100kMR\006\367!p\021\313R\001\353\240+7\031\000\010p\302:UR\230\335\314\356b\"\225\0100\327\361\t\370o0\206Y\020dd\0304\033E\246`J2\221\024\20645lD\231l\221\336\307(\030\007~j\2407x\000\"W\030\003@\243)x\206\024E%A\224<\034\207\270\2371\"d\231:\216\351\351\r$C5\354hT\003\311\237\206\t\364\313~\323 \270\312\004\240#M\303H7 \253\202\252S\013\327i\017\250\024\344@\220U\241\022=T*\212Z\357Q\365\320\200H)\270\030l\211\327i\245\027\212\"\017\356a0\035\003\255SH\262\321+2\3604&\004E\022\325\232eB4c5\026\203\"^\204\"^\354YP\365\250\252\350X\021\261\036\025\324j\017#^3\0130\345\201\355Q\rW\207W\020\025\r\021\372C&\267\237\341\273\255\202\207V\321ca\267.\207\026Q\236\227\024\211\360\374\210TV\221\010\037\001\311\375\246r\223\302\365\365#\273\006:\305\375\203]3\362\250J\277\315\360=\332\017o\367\311w\363\355\327\354\275y\277\204\257z!\204WT\207w%\243\277)\016o\\\2714bTojD\335\206r\00477\000;\254kPd\244\317\253]D\312{]\nd\032\002\016\244<\277\333l\300\037\305\203\317\341\006\331\303E\236\357\361\025\363\360#\252\002\035\212\320\242\202\321T\202u\027\r\236\257\"I\tFLP@\376`\0015\330UWP5\0305\035kH\017\2465\023\311}1\001_\2501x\026T]5\241\276\360\r\220\216\202x#l\277\003j4\365\327\214\347AO\323\242}\262G\257\310\036\025\202\024\376\301f\265\233YH\305Uj\221\321T\004I\215^yo\024TU\026\240\"\025\352\250@\375\200T\361DG\002. \241\"@k\226\210\301C\213\205\312\301b\367B\3526-o\350\256\006\375\353\207\360{\376\210\220fI\026\241\\\225S\321\254j\006\306\325\002\026E,\322\373\202R\347\273:\270!An\325J0\032\301\253\320\344\351EE]\255J\206\n\257I\025\021`\340(\t\351\272\037\252$\302\n\256*\253U,A\211+\020#\031\340%L\203\264_\331\223\240S\031\364Y\2470Q\316\000%\310\0254\242,\366o\202%\352\317\003ni\300\316A7\372s\n\004\326yS\227\007`\n\352 `E7\025tj""\014qfh\261t\003tW!\302]\360\037\225A\237y\311\240\346\301\025Q\204\261Z\201&M\231\nmT5(}\025\322\375\032]g\013\032j\322\233\341_4B\303\327TMS\r\322{\202( \327\234\035`/t@x4E \177\203\300\304\240\355\223\226\021\275\272\307\217^\247\206\321Pe\010\037\033\232\nq\300h\312p\206\230\272\242\253jpE\220=\210\267\010\257\215\210\213\010\024\014\250]\223\226\224\0106t\372\320i\206)\000\231\rJ2 *\035@\251\252u_#\223\276\365\025\023\354\363\324\0219\230\321\300G\033\315\365\177\003|\327\025\020\200\237\340\240T\204\270\256\343\256\353@\204 \300\377r\027\263\017\374\271y\377\301\234\017\223\211\231\026\347O\334o\261\227\267oM\206\374\251G\026\353O=\266\362\376\324\327\026\327[.\330\t\273\346O}eE\374\251\207V\330\237\372\306*\333\242\363\324\331t\021=v\307\003I\311>rX\347\255\273\321~\321a\375\211)*\2538a\347[\247\350r\356\277;+\347\021o|\316\233\373\301a/\357\006g\236\332\221@/b\317\330\207\316\202\263\347\324z\347D\357\351K\227\032\371\274\331\252\332\254\275\343&\334\356\336\202\267\260\354\362\035\316\033\007\037\251\235\307\326\272\307\260n\330\237\270\347\335c\354q\233\263?\271c\3368\030\277\230\270\367\231x\367\237\331\265`I\265C\027\020\026\034H\270\020\033\354\266X\177:\354\317<\261j\301\347r\342\326\235\273\376\364\023\213\330+\336\367\257\333\371v\365\234=\007\325\373\255\237\354\360\200\252\367d\3055\332\2216KO<\262\236\333Qw\314}\334F\355\0325\333h\021\353\245U\260\307n6\376\233\3039y\177\372\231M\034\270>b?v\220S\203<\336\231o5,\323\346\374\351/[\221V\242U\363\247g[\2408o\215\321\335i\260\373\233\275\006HL?\264\346\355Y\033\371\323\367[I+\014\260\314\314\372\363\0136\333\373<wnS\223\376\374\242s\344\262.\007\247\001\351\276B\022@\211\2003\341\371\026\361\036-:yGm\347/\356\315\265j\027\000\374\201\027Yv\3634\212Z\340\375Ck\306:\366\276]qk\355\273\035\324\201P\036Y\t\357\td\334[Jw\"@\244\213\251;\3764\345\t\375\\e\372Ak\257U\267\020\304>\361\317\317,\315`\300\260\031\032\2275i\317;_B\360\260\225j\255PZ\335o\245\254U;OU\036Z\343\026g}\260\313N\301\375\302\255\267K""\235\367\347{\347\201\235\327\326\027`\020\224_\333\241 \206\311\371V\355r\346\326\344\364g\300\370[\233\0130\366\377?\306\267\207a\350\345\337\237\006z\377\025\020@\032\206\250\274\271\027\316\234;\346\317\314{\363\337;\317\334\360\305\300\245\247v\036\320\232\351\341BO0V\3036\235\264#\272\021w\265\235\037\242V\322E.U\202\250~\2435x\225^\357\321\222\273\340\346]\344\215\177g\347/ !\tJ\360\357\354c\047\340({11I\307D\353\324\312\323\"J\270\233m\344\337\233\0166\275\361\037\235\214\373u\373c\347?\336\036\357\361\277^~ukr\266\265\005\336\355\331\r\247\346\376\303\335oOt\306:\263\035\341|\336\313\357y{\357\275\367\237\274O\202\047\210\236x\342\235T\374\211\257\254\0050]\351\243\307\322\2060c\355\333\177\263\237B\316&\036\264\020\370\0200\202F\323\347\3707\026p\2256\025\032&\003\312\300\330\010p`\006j\376\254\035\276\014\375\265\264\317z3\337;\021j\021\362\376\324\376\2273\346\204\251\341\007v\315\031\243\342\3336\262\003\000\352\320\256\"\316Om\330\246\235\352\000J`1\310q\370\313Q\220^8\017 \027p\274_)\177\202\026\320\314\315w\321jxs?:\303\200\375\3346:\221\016K[\321(\226q\367\357\2648\275\361\230\027\333\366\266\177\365~E\227S\267&\347ZeK\001j\376B\333\213?A\303\375\006\034\272\323>\350\204\275\364\201wp\350O\334\375\\n\211\001]\047\247\200\003z+\354\017\026!-\214?\222\323\352J[*0?\250\247\277\321\342\033T\351\276\002\320\014z\237\340\025\2405\002\261{/\337\236\217\375\017\310\357\331a";
+    PyObject *data = __Pyx_DecompressString(cstring, 2572, 1);
     #define __Pyx_DecompressString_LZSS_UNUSED
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #elif (CYTHON_COMPRESS_STRINGS) > 0 && (CYTHON_COMPRESS_STRINGS) <= 90 /* compression: lzss (3219 bytes) */
-static const char cstring[] = "\277\n\r ---\000\000B\377EGIN PUB\177LIC KEY\021\002\377\nMIIBIjA\377NBgkqhki\377G9w0BAQE\377FAAOCAQ8\335A\034\001CgK\t\000EA\377wq/XMIVF\3779N3D6QKf\377nac/\n00k\377u5pidy2/\377a14YSRiJ\3771StEEusp\377lVAjVgJo\3771C85uQm5\377aBTItDrP\377u6x0C79B\377zZF9w\nIW\3777NS1Fjxm\377goF1aNUI\3770B0WP2RU\377oN5CHotw\3770j36+1zP\377047AKT6g\377hAzJq5L0\3772w7QAL\nK\377K/T4wJzq\377ncRA6czh\377znKhcW0V\377BisIupla\377XlvwS/k6\377Gx/bZP8m\377esYawFM8\377kjZCTeO\n\377FJuUlYcn\377lGgKQ3oi\377emc25OS8\377uJO51UtD\377csggl185\377TQ1EIyMw\37707uxO14t\3776ppgkkBd\377\nwF058X6\377/y5WAgZc\377/EKd4dlb\3778YfLy8SJ\377IGOWEudF\3776Ij4m8/K\377VvAwHNkA\377+JnqSDCV\377v\nEwIDAQwAB\n\246BEND\230M\377..env.ll\377s_cbt_li\377cense.js\177on/api/\n\004\377/activat\355e\010\nde\002\022val\373id)\0002026-\37709-20=?A\376:\003ion err\357or: \007\010fai\377led: Cli\377ent-side\345 \203\004 F\0045\001and\377 managem\206$\000.Dv\005J\010\007\nO\005D\377ict[str,\177 Any]In\233\002\377 product\177 key: L\362\003\377 has expoired\013\005is~\003\376\000\r (offli\377ne mode)\336:\005requ<\000s \363on\030\002\266\007. Pl\377ease con\373new\000to in\377ternet.N\277etwork\227# \377during a\336\254&: No\212&fo\201u\207 ;\000\366\047\016\rc\006\260E \357your\354\005.No\377te that \317Cyth\221@\342\000de\337liber\341@ly\331 \253 \262 er!\001n \377PEP-484 \356\375!rej\271\000s s\377ubclasse\376\347\000f built\377in types\357. Ifl\001 ne\227ed \343\000p%\000%\tt\177hen set\200\000\377e \047annot\313at\230`_<\000\365\000\047 \361d\376 \355a\242\000o Fa\277lse.Op\036\001a\373l[\300K]Syst\377em time \177appearso\001{be\331 corr\346 \336\357\047heck\204#cl\377ock.Unkn\233ow\214\204\004Us\355\000\273Ae.O\000d d\324hV\314\204\003\263\204\010\257add_\264\000ep\000/>5\000vices\246\205\004\267@\373/c\305\204\002.pyht\377tps://ll\277s-cbt-\301\205\004o\377r.onrend\277er.com\360\205\004_\377public_k\277ey.pem\000\013A\373ny\305\204\001LICEN\367SE_\351\211\003_KEY\370\265\204\004\267\205\003\000\n.__in\357it__\007\014loa\033d_""\376\000al\351\206\005\r\021\203\007\236F\014save\242\207\005A\003l\tyi\014\373\206\005_\235\205\004\211\013\305\207\005h\023\314\314\207\007\210\023ge\237\210\006\334\000fo\026\345\013is\275\210\005d\376\013\212\006\335\210\004\376\257%ryptoMa\377chineFin\377gerprint\376\350ePathReq\275u\222`Exce\201\204\002_\317_Pyx\001\000\325\207\001_N\377extRef__\376\301\204\004e____do\335c\003\001fil\n\002fu\371n\013\002\210C__mai=n#\001meta\301\205\002\010\002wodu)\003namA\002\277preparL\002qwual\017\005tes\321@\375_\347\000corout\223in\214@\302N_\341B\310g_\342\243Q_\231M\213M\371\207\007_id\257app.\345\204\005.\245\213\003iOng.c\276\"\006\024m\324#\373_f\321\047async\367io.\265\006sboo\277lclean\367\204\001c\372\321\211\001_\236 trace\377backcred\377its_rest\217oredk\003\337\213\001\363\206\001d\367ays\000\001_sin\247ce_\247\213\007\267od\355 i\377ldotenvd\377umpseemb\237edded\360\205\001\224\214\002_n\036\003exi\342 ok\003\002\355s\216\213\002y_\321\214\001fro\377misoform\037atget\376m\232\204\001\354\005\357idgeg\001hom\377eindenti\314\000\000\227\204\007is\372#G\006itwems\370\215\001key\257 Olela\350@\310\215\005d\237\207\005\317data\253\207\005\336bpa{th\274\207\005info\310\207\005~\226\210\001er_url\243H\020\340\215\002\376\206\002\203#\212\207\001s\201\207\n\241P\312\006\336[\000mess\201\216\001is\376\357 g_paddi\177ngmkdir\266\204\001\337nowos\264\204\001ntz\000\003s\231\003bpay\366\207\001\357plat\273!pop\017post\201\216\004\361\210\001\365\210\007\254\204\010\377pemread_/text\006\000s\264\211\001\274\205\001Oing_\222d\256\212\004s\235`\357olve\244`pon\355s\004\001ul1\000tur\277nroot_\316%s\377elfsetde\373fa\036\000statu\377s_codest}r\366\214\001psucc\342\000\316\321\213\001out\330\213\001\"\000mp\272\231\214\003u\325\216\001kus\326 e\017mail\005\002\257\206\001\322\207\r\261\220\007\374\266\204\001\210\000values\336\236\000ify_\355\010wr\374\366@\334\002\200A\340\025\026\330\277\027\030\330\026\027\330\006\000\010\377\024\220A\330\010\023\2201\377\360\006\000\t""\n\330\014\033\377\2301\330\014\035\230Q\330\357\014\034\230A\010\004#\2404\377\240q\330\014\032\230!\330\377\014\031\230\021\330\014\036\230\377h\240d\250\"\250J\260\355a3\001\r\320\017\000g\240V\377\2501\250H\260F\270)\337\3001\330\010\014\020\001k\250\377\021\250$\250f\260A\260\377^\3007\310!\320\004\027\377\320\027+\2501\360\016\000\335\t1\000\"\240!#\002!\240\377\024\240U\250#\250R\250}q1\004d\320\"3\260A\001\377\210J\220m\2401\240O\367\2604\260\026\003#\320#5?\260_\300A\320\004\241\000D\001\377\035\230D\320 1\260\021\377\330\010\017\320\017 \240\004\377\240A\240[\260\001\320\004\376Z\000\340\010\017\210t\320\023g\047\240q\n\002r\001\n\340\324\000\346.\0004\260\331\000\033\000\2201\330\177\020\021\330\024\037\230q\000\002\377\360\010\000\r\016\330\020\037\377\230t\2407\320*=\270\277Q\270m\3101\310\204 \023\357\220>\240\021 \010\320\0377\277\260s\270!\2701.\001\033\377\230(\240.\260\001\260\035\367\270a\270\244 \017\210x\220\177t\2303\230b\240\001G\023\377}\250A\250Q\330\020\047\367\240t\250|\000!\240\035\250\367a\250q\374 \r\030\220x\377\230u\240A\330\020\022\220\377!\2204\220q\330\020\025]\220&\000\030\230\001\032\001\020U\000\367}\240C\207@\020\031\230\030\377\240\025\240a\330\020\023\220\3676\230\021\224@\024\025\330\030\367#\2401\000\002\330\030(\250\375\006O\001\330\030-\250V\260G1\260A\330@\360@\031\0056\222@\375!\347\000\021\030\220t\320\033\177-\250Q\250o\270Q\250!\335}\355A\r\330\020\377A\020\033\237\320\0330\260\003:\001\264&\026\277\220R\220w\230a\251 \010\323\013\210\243`\256d\024\247\001\230\t\317\240\030\250\022\315\000\030\0008\220\3757\246a\023\2208\230:\240\375Q\324a\031\230\004\230A\230\377Y\240h\250b\260\007\260\377w\270g\300X\310R\310\276\353@\013\210=\230\007\372 \014\277\023\220=\240\n\250\223\001\t\377\030\220q\360\024\000\t\020]\210\264@$\240A\262B\330\231[\361\006\260D\323$\314$\330\020\032\230\275!\244\2011\360\006\000\021\323\000\320\377\027)\250\027\260\001\330\024\377\030\320\030*\250\047\260\021]\340\241hv\240Q\376 \024\344$\376.""\001 \230x\240u\250B\377\250d\260!\260:\270Q\036\241j6\260a\260\337A\323\000\326-\3772\260#\260Q\260a\320w\004%\240\203@\013\2104\260\204\001\357%\240W\250\362b1\340\010\373\t\330\233 4\220v\230Q\377\230d\320\"4\260J\270\357a\330\017\020\021\0011\320\004\377,\250E\260\034\270Z\300\377{\320R_\320_`\360\377\032\000\t\025\220K\230v\377\240R\240x\250q\260\005\377\260S\270\010\300\001\300\025\377\300c\310\030\320QR\320\377RX\320X[\320[c\377\320cd\320dj\320j\277k\330\010\032\230#X\000k\372\266E1\340\206\001\024\230S\240\002\377\240\"\240A\330\010\026\220\215a\201\000\340\014\226`\243\205\001\257\204\005\036\321\230\374`\244\207\001\274\205\001 *\000!\330\373\024!\201`\024\250R\250z\237\270\021\360\n\000\236\204.\363!\025o\320\024*\250H\000 \240\365 \177\"\240&\250\001\250\021U\001\357\026\240q\250\207@ \240\006\367\240a\240\250\206\002w\240d\250\377!\250>\270\021\330\024\036\377\230g\240T\250\021\250-\346\337\"\021\022\310\206\006\236D)\250\026\214\211 \306@#\240\367\204\003\335@\222Y4\367\260A\260\263\204\002\020\210x\320\363\027,\206A\214\205\010?\270s\300\367!\3001\225\205\032/\320/M\377\320M`\320`a\360\036\377\000\t\027\220h\230n\250\367A\250]\253\207\004\t\032\230\030\373\240\036\234@\r\270T\300\021\177\320BT\320TU\330\264\205\002_4\220s\230\"\372\205\n\230\337\207\001_\t\014\2108\220\004\025\"\361\"\377S\260\002\260/\300\021\340\377\010\013\320\013!\240\022\240\3471\330\014\302\206\006>\003\n\330\014\307\027\220q\000\002\326\212\004\367\207\001d\260?!\3203H\310\001";
-    PyObject *data = __Pyx_DecompressString_LZSS(cstring, 3219, 4459);
+    #elif (CYTHON_COMPRESS_STRINGS) > 0 && (CYTHON_COMPRESS_STRINGS) <= 90 /* compression: lzss (3331 bytes) */
+static const char cstring[] = "\277\n\r ---\000\000B\377EGIN PUB\177LIC KEY\021\002\377\nMIIBIjA\377NBgkqhki\377G9w0BAQE\377FAAOCAQ8\335A\034\001CgK\t\000EA\377wq/XMIVF\3779N3D6QKf\377nac/\n00k\377u5pidy2/\377a14YSRiJ\3771StEEusp\377lVAjVgJo\3771C85uQm5\377aBTItDrP\377u6x0C79B\377zZF9w\nIW\3777NS1Fjxm\377goF1aNUI\3770B0WP2RU\377oN5CHotw\3770j36+1zP\377047AKT6g\377hAzJq5L0\3772w7QAL\nK\377K/T4wJzq\377ncRA6czh\377znKhcW0V\377BisIupla\377XlvwS/k6\377Gx/bZP8m\377esYawFM8\377kjZCTeO\n\377FJuUlYcn\377lGgKQ3oi\377emc25OS8\377uJO51UtD\377csggl185\377TQ1EIyMw\37707uxO14t\3776ppgkkBd\377\nwF058X6\377/y5WAgZc\377/EKd4dlb\3778YfLy8SJ\377IGOWEudF\3776Ij4m8/K\377VvAwHNkA\377+JnqSDCV\377v\nEwIDAQwAB\n\246BEND\230M\377..env.ll\377s_cbt_li\377cense.js\177on/api/\n\004\377/activat\355e\010\nde\002\022val\373id)\0002026-\37709-01T00}:\000\00000=?AC\003\377ion erro\367r: \007\010fail\377ed: Clie\377nt-side \362\214\004 O\0045\001and \177managem$\000\303.D\177\005J\010\007\nO\005Di\377ct[str, \277Any]In\244\002 \377product \277key: L\373\003 \277check \212\003.\377 Please \337conne\047\000to\377 the int\377ernet fo\377r first-\257time\237\010.G\005h\377as expir\233edZ\005is\315\003\000\r \377(offline\277 mode)\211\005r\367equ<\000s on\374\030\002\204((120-d\367ay 1\005limi\367t r\233@hed)\376\237\035.Networ\375k\212C durin\367g a\237F: No\016\375&fou\372 \376\000\362G\016\r|\246&\254e your\337%\337.Note\274 at\237 Cyth\204`\206 d\277eliber\335`l\263y \236@\245@er!\001n\377 PEP-484\335 \360Arej\374 s \377subclass\375e\213 f buil\377tin type\337s. Ifl\001 n/eed \246@p%\000%\t\316\266@n s\262@\276A\047a\377nnotatiosn_<\000\365\000\047 d\242@\374\351\204\001\242\000o Fals\357e.Op\036\001al[\376\263k]System\375 \360Bappear=s\222`corr\243`\254g\374\306b\377\002clock.\277Unknow\371\204\004U\351s\347\000\331AeI\000d d^\301\204\010add_\234\000eX\000}/#\000vices\212\206\004\366\237@/c\240\205\002.pyh\377ttps://l\177ls-cbt-\245\206\004\377or.onren\177der.com\324\206\004\377_public_\177key.pem\000\013\367Any\240\205\001LICE\357N""SE_\315\212\003_KE\361Y\220\205\004\222\206\003\000\n.__i\337nit__\007\014lo7ad_\354\000al\315\207\005\r\021<\203\007F\014save\206\210\005A\003\023lyi\014\337\207\005_\251\205\004\211\013\251\210\005\230h\023\260\210\007\210\023ge\203\211\006\334\000f-o\345\013is\241\211\005d\376\013\212\006\374\301\211\004\257%ryptoM\377achineFi\377ngerprin\375t\320ePathRe{qu\200`Exce\351b\237__Pyx\001\000\260\210\001_\377NextRef_\375_\251\204\004e____d\273oc\003\001fil\n\002f\363un\013\002\210C__ma{in#\001meta\251\205\002\356\010\002odu)\003nam~A\002preparL\002\357qual\017\005tes\372\321@_\347\000corou\047tin\214@\302N_\341B\310g\305_\243Q_\231M\213M\341\207\007_i_dapp.\345\204\005.\211\214\003\237ing.c\276\"\006\024m\366\324#_f\321\047asyn\357cio.\265\006sbo\177olclean\367\204\001\365c\335\211\001_\236 trac\377ebackcre\377dits_res\037toredk\003\303\214\001\320\212\001\217days\000\001\344e\256od\376\344 ildoten\377vdumpsee\177mbedded\347\205\001\272\346\214\002_\036\003exi\331 o\265k\003\002s\221\213\002y_\254\215\001f\377romisofo\017rmat\377`\365m\221\204\001\343\005\357idgeg\001hom\377eindenti\314\000\000\216\204\007is\361#G\006itwems\323\216\001key\246 \317lela\337@\243\216\005dl=d\230\207\005data\244\207\005\327b\357path\265\207\005inf\371o\301\207\005\217\210\001er_urAl\234H\264\216\002\367\206\002\205#\203\207\001s\372\206\n\342\207\207\n2\250P\332\006i\000mes\375s\343\216\001issing\377_padding\337mkdir\275\204\001no\267wos\273\204\001nt\000\003s\336\247\003bpay\375\207\001pl\373at\313!poppo\303st\343\216\004\370\210\001\374\210\007\263\204\010pe\377mread_te?xtreas\273\211\001\303\205\001\350w\001\231d\243\212\004s\244`olv\275e\253`pons\004\001u\375l1\000turnro\367ot_\336%self\177setdefa\036\000\377status_c\277odestr\345\214\001p\317succ\342\000\265\217\001ouYt\274\217\001\"\000mp\210\214\003u\350\216\001\367kus\344 emai\201l\005\002\266\206\001\331\207\r\223\221\007\275\204\001\210\000v\337alues\236\000if\233y_\355\010wr\206`\334\002\200\377A\340\025\026\330\027\030\330""\367\026\027\330\006\000\010\024\220A\377\330\010\023\2201\360\006\000\377\t\n\330\014\033\2301\330\377\014\035\230Q\330\014\034\230\375A\010\004#\2404\240q\330\377\014\032\230!\330\014\031\230\377\021\330\014\036\230h\240d\277\250\"\250J\260a3\001\r\375\320\017\000g\240V\2501\250\377H\260F\270)\3001\330\373\010\014\020\001k\250\021\250$\377\250f\260A\260^\3007\377\310!\320\004\027\320\027+\277\2501\360\016\000\t1\000\"\373\240!#\002!\240\024\240U\277\250#\250R\250q1\004d\357\320\"3\260A\001\210J\220\377m\2401\240O\2604\260\376\026\003#\320#5\260_\300\347A\320\004\241\000D\001\035\230D\377\320 1\260\021\330\010\017\377\320\017 \240\004\240A\240\337[\260\001\320\004Z\000\340\010\377\017\210t\320\023\047\240q\314\n\002r\001\n\340\324\000.\0004\260\374\331\000\033\000\2201\330\020\021\330\357\024\037\230q\000\002\360\010\000\377\r\016\330\020\037\230t\240\3777\320*=\270Q\270m\367\3101\310\204 \023\220>\240\375\021 \010\320\0377\260s\270\367!\2701.\001\033\230(\240\377.\260\001\260\035\270a\270\376\244 \017\210x\220t\2303\357\230b\240\001G\023}\250A\377\250Q\330\020\047\240t\250\376|\000!\240\035\250a\250q\376\374 \r\030\220x\230u\240\377A\330\020\022\220!\2204\277\220q\330\020\025\220&\000\030\353\230\001\032\001\020U\000}\240C\376\207@\020\031\230\030\240\025\240\377a\330\020\023\2206\230\021\376\224@\024\025\330\030#\2401\276\000\002\330\030(\250\006O\001\330\377\030-\250V\2601\260A\250\330@\360@\031\0056\222@!\347\000\021\377\030\220t\320\033-\250Q\377\250o\270Q\340\017\027\220\373q\340\366@T\320!5\260\356\373@\017\210q\226\"\031\230\024\377\230W\320$7\260q\270\357\016\300a\300\245 \033\2304\373\320\037\357 \3202B\300!>\306`\340\014\r\330\020\263a\001\001\376\341&\026\220R\220w\230aN\326 \010\013\210\320`\333d\024\324\001?\230\t\240\030\250\022\372\000\030\000\3678\2207\323a\023\2208\230\367:\240Q\201\204\001\031\230\004\230\377A\230Y\240h\250b\260\377\007\260w\270g\300X\310\373R\310\230`\013\210=\230\007\376\247@\014\023\220=\240\n\250\376\300\001\t\030\220q\360""\024\000w\t\020\210\341@$\240A\337B\305\330\306[\006\335D\200D\371$\330\020\367\032\230!\321\2011\360\006\000\021\376\323\000\320\027)\250\027\260\001\377\330\024\030\320\030*\250\047w\260\021\340\316hv\240Q\253@\371\024\221D.\001 \230x\240u\377\250B\250d\260!\260:{\270Q\316j6\260a\260\214a\362\323\000}\200\206\001\326&\320\0332\260\377#\260Q\260a\320\004%\327\240Q\340\326 4\335\204\001%\240\373W\250\237\204\0021\340\010\t\330\376\233 4\220v\230Q\230d\377\320\"4\260J\270a\330\373\017\020\021\0011\320\004,\250\377E\260\034\270Z\300{\320\377R_\320_`\360\032\000\377\t\025\220K\230v\240R\377\240x\250q\260\005\260S\377\270\010\300\001\300\025\300c\377\310\030\320QR\320RX\377\320X[\320[c\320c\377d\320dj\320jk\330\257\010\032\230#X\000k\266E1\376\215\207\001\024\230S\240\002\240\"\177\240A\330\010\026\220a\201\000\370\215b\320\205\001\334\204\005\036\230a\330\020\364\321\207\001\351\205\001 *\000!\330\024!\376\201`\024\250R\250z\270\021\347\360\n\000\313\204.\363!\025\320\024\333*\250H\000 \240\365 \"\240\337&\250\001\250\021U\001\026\240\373q\250\207@ \240\006\240a\375\240\325\206\002w\240d\250!\250\377>\270\021\330\024\036\230g\277\240T\250\021\250-\337\"\0219\022\365\206\006\236D)\250\026\211 \306@\343#\240\244\205\003\335@\222Y4\260A\375\260\263\204\002\020\210x\320\027,\374\206A\246H?\270s\300!\300v\226@\017\210\274M0\260\003\231\206\001\377\320\004/\320/M\320M\377`\320`a\360\014\000\t\377\027\220h\230n\250A\250\255]\333\207\001\330\010\347\206\001\036\232@\r\377\270T\300\021\320BT\320\377TU\330\010\016\210h\220\375d\252\204\002\t\014\2104\210rw\220\021\330\371\205\t\360\010\000\000\025\375\t\332\205\001B\230o\250Q\330\305\010\314\205\001\002\320\212\001\265\206\010\377\212\004\027\220\307q\330\014\000\002\201\213\002\240\210\001d\260?!\3203H\310\001";
+    PyObject *data = __Pyx_DecompressString_LZSS(cstring, 3331, 4607);
     #define __Pyx_DecompressString_UNUSED
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #else /* compression: none (4459 bytes) */
-static const char bytes[] = "\n\r ------BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwq/XMIVF9N3D6QKfnac/\n00ku5pidy2/a14YSRiJ1StEEusplVAjVgJo1C85uQm5aBTItDrPu6x0C79BzZF9w\nIW7NS1FjxmgoF1aNUI0B0WP2RUoN5CHotw0j36+1zP047AKT6ghAzJq5L02w7QAL\nKK/T4wJzqncRA6czhznKhcW0VBisIuplaXlvwS/k6Gx/bZP8mesYawFM8kjZCTeO\nFJuUlYcnlGgKQ3oiemc25OS8uJO51UtDcsggl185TQ1EIyMw07uxO14t6ppgkkBd\nwF058X6/y5WAgZc/EKd4dlb8YfLy8SJIGOWEudF6Ij4m8/KVvAwHNkA+JnqSDCVv\nEwIDAQAB\n-----END PUBLIC KEY-----..env.lls_cbt_license.json/api/license/activate/api/license/deactivate/api/license/validate2026-09-20=?Activation error: Activation failed: Client-side license validation and management.Deactivation error: Deactivation failed: Dict[str, Any]Invalid product key: License has expiredLicense is validLicense is valid (offline mode)License requires online validation. Please connect to internet.Network error during activation: No license found to deactivateNo license found. Please activate your product.Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the \047annotation_typing\047 directive to False.Optional[Dict[str, Any]]System time appears to be incorrect. Please check your clock.Unknown errorUser requested deactivationValidation error: add_noteapp/services/licensing/client.pyhttps://lls-cbt-activator.onrender.comlicense_public_key.pempublic_key.pemAnyDictLICENSE_PUBLIC_KEYLicenseClientLicenseClient.__init__LicenseClient._load_local_licenseLicenseClient._load_public_keyLicenseClient._save_license_locallyLicenseClient._validate_offlineLicenseClient.activate_licenseLicenseClient.deactivate_licenseLicenseClient.get_license_infoLicenseClient.is_licensedLicenseClient.validate_licenseLicenseCryptoMachineFingerprintOptionalPathRequestException__Pyx_PyDict_NextRef__annotate____doc____file____func____init____main____metaclass____module____name____prepare____qualname____test___is_coroutine_load_local_license_load_public_key_save_license_loc""ally_validate_offlineactivate_licenseactivation_idapp.services.licensing.cryptoapp.services.licensing.machine_fingerprintasyncio.coroutinesboolclean_keycline_in_tracebackcredits_restoredcryptodatetimedaysdays_since_validationdeactivate_licensedetaildotenvdumpseembedded_keyerror_detailexist_okexistsexpiry_datefromisoformatgetget_license_infoget_machine_idgetenvhomeindentintis_licensedis_validisoformatitemsjsonkey_filelast_validatedlicense_datalicense_file_pathlicense_infolicense_server_urllicensing.clientload_dotenvloadslocal_licensemachine_fingerprintmachine_infomessagemissing_paddingmkdirnamenowosparentparentspathlibpayloadplatformpoppostproduct_keypublic_keypublic_key_pemread_textreasonremaining_creditsrequestsresolveresponseresultreturnroot_key_fileselfsetdefaultstatus_codestrstripsuccesstimeouttimestamptypingunlinkuser_emailuser_namevalidate_licensevalidation_resultvaluesverify_product_keywrite_text\200A\340\025\026\330\027\030\330\026\027\330\025\026\330\010\024\220A\330\010\023\2201\360\006\000\t\n\330\014\033\2301\330\014\035\230Q\330\014\034\230A\330\014\033\2301\330\014#\2404\240q\330\014\032\230!\330\014\031\230\021\330\014\036\230h\240d\250\"\250J\260a\360\006\000\t\r\320\014\036\230g\240V\2501\250H\260F\270)\3001\330\010\014\320\014\036\230k\250\021\250$\250f\260A\260^\3007\310!\320\004\027\320\027+\2501\360\016\000\t\r\320\014\"\240!\330\010\014\320\014!\240\024\240U\250#\250R\250q\330\010\014\320\014\036\230d\320\"3\2601\330\010\014\210J\220m\2401\240O\2604\260q\330\010\014\320\014#\320#5\260_\300A\320\004\035\230Q\360\016\000\t\035\230D\320 1\260\021\330\010\017\320\017 \240\004\240A\240[\260\001\320\004\"\240!\340\010\017\210t\320\023\047\240q\320\004\"\240!\360\016\000\t\n\340\014\034\230D\320 4\260A\330\014\017\210t\2201\330\020\021\330\024\037\230q\330\024\037\230q\360\010\000\r\016\330\020\037\230t\2407\320*=\270Q\270m\3101\310A\330\014\023\220>\240\021\330\020\021\330\024\037\230q\330\024\037\320\0377\260s\270!\2701\360\010\000\r\033\230(\240.""\260\001\260\035\270a\270q\330\014\017\210x\220t\2303\230b\240\001\330\020\021\330\024\037\230q\330\024\037\230q\360\010\000\r\016\330\020\037\230}\250A\250Q\330\020\047\240t\2501\330\020!\240\035\250a\250q\360\006\000\r\030\220x\230u\240A\330\020\022\220!\2204\220q\330\020\025\220Q\330\020\030\230\001\360\006\000\r\020\210x\220}\240C\240q\330\020\031\230\030\240\025\240a\330\020\023\2206\230\021\230!\330\024\025\330\030#\2401\330\030#\2401\330\030(\250\006\250a\250q\330\030-\250V\2601\260A\360\006\000\025\026\330\030#\2401\330\030#\2406\250\021\250!\360\010\000\021\030\220t\320\033-\250Q\250o\270Q\340\010\017\210}\230A\330\014\r\330\020\033\2301\330\020\033\320\0330\260\003\2601\260A\320\004\"\240!\360\016\000\t\026\220R\220w\230a\230q\330\010\013\2101\330\014\023\2201\360\006\000\t\024\2204\220q\230\t\240\030\250\022\2501\330\010\013\2108\2207\230!\330\014\023\2208\230:\240Q\360\006\000\t\031\230\004\230A\230Y\240h\250b\260\007\260w\270g\300X\310R\310q\330\010\013\210=\230\007\230q\330\014\023\220=\240\n\250!\360\010\000\t\030\220q\360\024\000\t\020\210q\320\004$\240A\360\016\000\t\n\330\014\034\230D\320 4\260A\330\014\017\210t\2201\330\020\021\330\024\037\230q\330\024\037\230q\360\006\000\r\016\330\020\037\230}\250A\250Q\330\020!\240\035\250a\250q\330\020\032\230!\360\006\000\r\030\220x\230u\240A\330\020\022\220!\2204\220q\330\020\025\220Q\330\020\030\230\001\360\006\000\r\020\210x\220}\240C\240q\330\020\031\230\030\240\025\240a\360\006\000\021\024\2204\320\027)\250\027\260\001\330\024\030\320\030*\250\047\260\021\340\020\021\330\024\037\230q\330\024\037\230v\240Q\240a\330\024(\250\006\250a\250q\360\006\000\021 \230x\240u\250B\250d\260!\260:\270Q\330\020\021\330\024\037\230q\330\024\037\320\0376\260a\260q\360\006\000\t\020\210}\230A\330\014\r\330\020\033\2301\330\020\033\320\0332\260#\260Q\260a\320\004%\240Q\340\010\013\2104\210t\320\023%\240W\250A\330\014\023\2201\340\010\t\330\014\023\2204\220v\230Q\230d\320\"4\260J\270a\330\017\020\330\014\023\2201\320\004,""\250E\260\034\270Z\300{\320R_\320_`\360\032\000\t\025\220K\230v\240R\240x\250q\260\005\260S\270\010\300\001\300\025\300c\310\030\320QR\320RX\320X[\320[c\320cd\320dj\320jk\330\010\032\230#\230Q\230k\250\022\2501\330\010\013\2101\330\014\031\230\024\230S\240\002\240\"\240A\330\010\026\220a\340\010\t\340\014\r\330\020\037\230q\330\020\047\240t\2501\330\020\036\230a\330\020\035\230Q\330\020\021\330\024 \240\002\240!\330\024!\240\030\250\024\250R\250z\270\021\360\n\000\r\030\220x\230u\240A\330\020\022\220!\2204\220q\330\020\025\220Q\330\020\030\230\001\360\006\000\r\020\210x\220}\240C\240q\330\020\031\230\030\240\025\240a\360\006\000\021\025\320\024*\250!\330\024 \240\001\330\024\"\240&\250\001\250\021\330\024!\240\026\240q\250\001\330\024 \240\006\240a\240q\330\024\037\230w\240d\250!\250>\270\021\330\024\036\230g\240T\250\021\250-\260q\360\006\000\021\022\330\024\037\230q\330\024\037\230v\240Q\240a\330\024)\250\026\250q\260\001\330\024#\2406\250\021\250!\360\006\000\021 \230x\240u\250B\250d\260!\260:\270Q\330\020\021\330\024\037\230q\330\024\037\320\0374\260A\260Q\360\006\000\t\020\210x\320\027,\250A\330\014\r\330\020\033\2301\330\020\033\320\033?\270s\300!\3001\340\010\017\210}\230A\330\014\r\330\020\033\2301\330\020\033\320\0330\260\003\2601\260A\320\004/\320/M\320M`\320`a\360\036\000\t\027\220h\230n\250A\250]\270!\2701\360\010\000\t\032\230\030\240\036\250q\260\r\270T\300\021\320BT\320TU\330\010\013\2108\2204\220s\230\"\230A\330\014\r\330\020\033\2301\330\020\033\2301\360\010\000\t\014\2108\2204\220s\230\"\230A\330\014\r\330\020\033\2301\330\020\033\2301\360\010\000\t\"\240\030\250\024\250S\260\002\260/\300\021\340\010\013\320\013!\240\022\2401\330\014\r\330\020\033\2301\330\020\033\2301\360\010\000\t\n\330\014\027\220q\330\014\027\220q\330\014\034\230A\330\014!\240\035\250d\260!\3203H\310\001";
+    #else /* compression: none (4607 bytes) */
+static const char bytes[] = "\n\r ------BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwq/XMIVF9N3D6QKfnac/\n00ku5pidy2/a14YSRiJ1StEEusplVAjVgJo1C85uQm5aBTItDrPu6x0C79BzZF9w\nIW7NS1FjxmgoF1aNUI0B0WP2RUoN5CHotw0j36+1zP047AKT6ghAzJq5L02w7QAL\nKK/T4wJzqncRA6czhznKhcW0VBisIuplaXlvwS/k6Gx/bZP8mesYawFM8kjZCTeO\nFJuUlYcnlGgKQ3oiemc25OS8uJO51UtDcsggl185TQ1EIyMw07uxO14t6ppgkkBd\nwF058X6/y5WAgZc/EKd4dlb8YfLy8SJIGOWEudF6Ij4m8/KVvAwHNkA+JnqSDCVv\nEwIDAQAB\n-----END PUBLIC KEY-----..env.lls_cbt_license.json/api/license/activate/api/license/deactivate/api/license/validate2026-09-01T00:00:00=?Activation error: Activation failed: Client-side license validation and management.Deactivation error: Deactivation failed: Dict[str, Any]Invalid product key: License check failed. Please connect to the internet for first-time validation.License has expiredLicense is validLicense is valid (offline mode)License requires online validation (120-day offline limit reached). Please connect to the internet.Network error during activation: No license found to deactivateNo license found. Please activate your product.Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the \047annotation_typing\047 directive to False.Optional[Dict[str, Any]]System time appears incorrect. Please check your clock.Unknown errorUser requested deactivationadd_noteapp/services/licensing/client.pyhttps://lls-cbt-activator.onrender.comlicense_public_key.pempublic_key.pemAnyDictLICENSE_PUBLIC_KEYLicenseClientLicenseClient.__init__LicenseClient._load_local_licenseLicenseClient._load_public_keyLicenseClient._save_license_locallyLicenseClient._validate_offlineLicenseClient.activate_licenseLicenseClient.deactivate_licenseLicenseClient.get_license_infoLicenseClient.is_licensedLicenseClient.validate_licenseLicenseCryptoMachineFingerprintOptionalPathRequestException__Pyx_PyDict_NextRef__annotate____doc____file____func____init____main____metaclass____module____na""me____prepare____qualname____test___is_coroutine_load_local_license_load_public_key_save_license_locally_validate_offlineactivate_licenseactivation_idapp.services.licensing.cryptoapp.services.licensing.machine_fingerprintasyncio.coroutinesboolclean_keycline_in_tracebackcredits_restoredcryptodatetimedaysdays_offlinedeactivate_licensedetaildotenvdumpseembedded_keyerror_detailexist_okexistsexpiry_datefromisoformatgetget_license_infoget_machine_idgetenvhomeindentintis_licensedis_validisoformatitemsjsonkey_filelast_validatedldlicense_datalicense_file_pathlicense_infolicense_server_urllicensing.clientload_dotenvloadslocal_licenselocal_license2machine_fingerprintmachine_infomessagemissing_paddingmkdirnamenowosparentparentspathlibpayloadplatformpoppostproduct_keypublic_keypublic_key_pemread_textreasonremaining_creditsrequestsresolveresponseresultreturnroot_key_fileselfsetdefaultstatus_codestrstripsuccesstimeouttimestamptypingunlinkuser_emailuser_namevalidate_licensevalidation_resultvaluesverify_product_keywrite_text\200A\340\025\026\330\027\030\330\026\027\330\025\026\330\010\024\220A\330\010\023\2201\360\006\000\t\n\330\014\033\2301\330\014\035\230Q\330\014\034\230A\330\014\033\2301\330\014#\2404\240q\330\014\032\230!\330\014\031\230\021\330\014\036\230h\240d\250\"\250J\260a\360\006\000\t\r\320\014\036\230g\240V\2501\250H\260F\270)\3001\330\010\014\320\014\036\230k\250\021\250$\250f\260A\260^\3007\310!\320\004\027\320\027+\2501\360\016\000\t\r\320\014\"\240!\330\010\014\320\014!\240\024\240U\250#\250R\250q\330\010\014\320\014\036\230d\320\"3\2601\330\010\014\210J\220m\2401\240O\2604\260q\330\010\014\320\014#\320#5\260_\300A\320\004\035\230Q\360\016\000\t\035\230D\320 1\260\021\330\010\017\320\017 \240\004\240A\240[\260\001\320\004\"\240!\340\010\017\210t\320\023\047\240q\320\004\"\240!\360\016\000\t\n\340\014\034\230D\320 4\260A\330\014\017\210t\2201\330\020\021\330\024\037\230q\330\024\037\230q\360\010\000\r\016\330\020\037\230t\2407\320*=\270Q\270m\3101\310A\330\014\023""\220>\240\021\330\020\021\330\024\037\230q\330\024\037\320\0377\260s\270!\2701\360\010\000\r\033\230(\240.\260\001\260\035\270a\270q\330\014\017\210x\220t\2303\230b\240\001\330\020\021\330\024\037\230q\330\024\037\230q\360\010\000\r\016\330\020\037\230}\250A\250Q\330\020\047\240t\2501\330\020!\240\035\250a\250q\360\006\000\r\030\220x\230u\240A\330\020\022\220!\2204\220q\330\020\025\220Q\330\020\030\230\001\360\006\000\r\020\210x\220}\240C\240q\330\020\031\230\030\240\025\240a\330\020\023\2206\230\021\230!\330\024\025\330\030#\2401\330\030#\2401\330\030(\250\006\250a\250q\330\030-\250V\2601\260A\360\006\000\025\026\330\030#\2401\330\030#\2406\250\021\250!\360\010\000\021\030\220t\320\033-\250Q\250o\270Q\340\017\027\220q\340\014\035\230T\320!5\260Q\330\014\017\210q\330\020\021\330\024\031\230\024\230W\320$7\260q\270\016\300a\300q\330\024\033\2304\320\0371\260\021\3202B\300!\330\027\030\340\014\r\330\020\033\2301\330\020\033\2301\320\004\"\240!\360\016\000\t\026\220R\220w\230a\230q\330\010\013\2101\330\014\023\2201\360\006\000\t\024\2204\220q\230\t\240\030\250\022\2501\330\010\013\2108\2207\230!\330\014\023\2208\230:\240Q\360\006\000\t\031\230\004\230A\230Y\240h\250b\260\007\260w\270g\300X\310R\310q\330\010\013\210=\230\007\230q\330\014\023\220=\240\n\250!\360\010\000\t\030\220q\360\024\000\t\020\210q\320\004$\240A\360\016\000\t\n\330\014\034\230D\320 4\260A\330\014\017\210t\2201\330\020\021\330\024\037\230q\330\024\037\230q\360\006\000\r\016\330\020\037\230}\250A\250Q\330\020!\240\035\250a\250q\330\020\032\230!\360\006\000\r\030\220x\230u\240A\330\020\022\220!\2204\220q\330\020\025\220Q\330\020\030\230\001\360\006\000\r\020\210x\220}\240C\240q\330\020\031\230\030\240\025\240a\360\006\000\021\024\2204\320\027)\250\027\260\001\330\024\030\320\030*\250\047\260\021\340\020\021\330\024\037\230q\330\024\037\230v\240Q\240a\330\024(\250\006\250a\250q\360\006\000\021 \230x\240u\250B\250d\260!\260:\270Q\330\020\021\330\024\037\230q\330\024\037\320\0376\260a\260q\360\006\000""\t\020\210}\230A\330\014\r\330\020\033\2301\330\020\033\320\0332\260#\260Q\260a\320\004%\240Q\340\010\013\2104\210t\320\023%\240W\250A\330\014\023\2201\340\010\t\330\014\023\2204\220v\230Q\230d\320\"4\260J\270a\330\017\020\330\014\023\2201\320\004,\250E\260\034\270Z\300{\320R_\320_`\360\032\000\t\025\220K\230v\240R\240x\250q\260\005\260S\270\010\300\001\300\025\300c\310\030\320QR\320RX\320X[\320[c\320cd\320dj\320jk\330\010\032\230#\230Q\230k\250\022\2501\330\010\013\2101\330\014\031\230\024\230S\240\002\240\"\240A\330\010\026\220a\340\010\t\340\014\r\330\020\037\230q\330\020\047\240t\2501\330\020\036\230a\330\020\035\230Q\330\020\021\330\024 \240\002\240!\330\024!\240\030\250\024\250R\250z\270\021\360\n\000\r\030\220x\230u\240A\330\020\022\220!\2204\220q\330\020\025\220Q\330\020\030\230\001\360\006\000\r\020\210x\220}\240C\240q\330\020\031\230\030\240\025\240a\360\006\000\021\025\320\024*\250!\330\024 \240\001\330\024\"\240&\250\001\250\021\330\024!\240\026\240q\250\001\330\024 \240\006\240a\240q\330\024\037\230w\240d\250!\250>\270\021\330\024\036\230g\240T\250\021\250-\260q\360\006\000\021\022\330\024\037\230q\330\024\037\230v\240Q\240a\330\024)\250\026\250q\260\001\330\024#\2406\250\021\250!\360\006\000\021 \230x\240u\250B\250d\260!\260:\270Q\330\020\021\330\024\037\230q\330\024\037\320\0374\260A\260Q\360\006\000\t\020\210x\320\027,\250A\330\014\r\330\020\033\2301\330\020\033\320\033?\270s\300!\3001\340\010\017\210}\230A\330\014\r\330\020\033\2301\330\020\033\320\0330\260\003\2601\260A\320\004/\320/M\320M`\320`a\360\014\000\t\027\220h\230n\250A\250]\270!\2701\330\010\031\230\030\240\036\250q\260\r\270T\300\021\320BT\320TU\330\010\016\210h\220d\230!\360\006\000\t\014\2104\210r\220\021\330\014\r\330\020\033\2301\330\020\033\2301\360\010\000\t\014\2104\210r\220\021\330\014\r\330\020\033\2301\330\020\033\2301\360\010\000\t\031\230\004\230B\230o\250Q\330\010\013\210=\230\002\230!\330\014\r\330\020\033\2301\330\020\033\2301\360\006\000\t\n\330\014\027\220q\330\014\027""\220q\330\014\034\230A\330\014!\240\035\250d\260!\3203H\310\001";
     PyObject *data = NULL;
     #define __Pyx_DecompressString_UNUSED
     #define __Pyx_DecompressString_LZSS_UNUSED
     #endif
     PyObject **stringtab = __pyx_mstate->__pyx_string_tab;
     Py_ssize_t pos = 0;
-    for (int i = 0; i < 167; i++) {
+    for (int i = 0; i < 169; i++) {
       Py_ssize_t bytes_length = str_length_index[i].length;
       PyObject *string = PyUnicode_DecodeUTF8(bytes + pos, bytes_length, NULL);
       if (likely(string) && i >= 40) PyUnicode_InternInPlace(&string);
@@ -9346,8 +9421,8 @@ static const char bytes[] = "\n\r ------BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9
       stringtab[i] = string;
       pos += bytes_length;
     }
-    for (int i = 167; i < 177; i++) {
-      Py_ssize_t bytes_length = bytes_length_index[i-167].length;
+    for (int i = 169; i < 179; i++) {
+      Py_ssize_t bytes_length = bytes_length_index[i-169].length;
       PyObject *string = PyBytes_FromStringAndSize(bytes + pos, bytes_length);
       stringtab[i] = string;
       pos += bytes_length;
@@ -9357,14 +9432,14 @@ static const char bytes[] = "\n\r ------BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9
       }
     }
     Py_XDECREF(data);
-    for (Py_ssize_t i = 0; i < 177; i++) {
+    for (Py_ssize_t i = 0; i < 179; i++) {
       if (unlikely(PyObject_Hash(stringtab[i]) == -1)) {
         __PYX_ERR(0, 1, __pyx_L1_error)
       }
     }
     #if CYTHON_IMMORTAL_CONSTANTS
     {
-      PyObject **table = stringtab + 167;
+      PyObject **table = stringtab + 169;
       for (Py_ssize_t i=0; i<10; ++i) {
         #if PY_VERSION_HEX >= 0x030F0000
         PyUnstable_SetImmortal(table[i]);
@@ -9388,17 +9463,17 @@ static const char bytes[] = "\n\r ------BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9
   }
   {
     PyObject **numbertab = __pyx_mstate->__pyx_number_tab + 0;
-    int8_t const cint_constants_1[] = {0,2,4,7,30};
+    int8_t const cint_constants_1[] = {0,2,4,8,30,120};
     int16_t const cint_constants_2[] = {200};
-    for (int i = 0; i < 6; i++) {
-      numbertab[i] = PyLong_FromLong((i < 5 ? cint_constants_1[i - 0] : cint_constants_2[i - 5]));
+    for (int i = 0; i < 7; i++) {
+      numbertab[i] = PyLong_FromLong((i < 6 ? cint_constants_1[i - 0] : cint_constants_2[i - 6]));
       if (unlikely(!numbertab[i])) __PYX_ERR(0, 1, __pyx_L1_error)
     }
   }
   #if CYTHON_IMMORTAL_CONSTANTS
   {
     PyObject **table = __pyx_mstate->__pyx_number_tab;
-    for (Py_ssize_t i=0; i<6; ++i) {
+    for (Py_ssize_t i=0; i<7; ++i) {
       #if PY_VERSION_HEX >= 0x030F0000
       PyUnstable_SetImmortal(table[i]);
       #elif CYTHON_COMPILING_IN_CPYTHON_FREETHREADING
@@ -9467,37 +9542,37 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
     __pyx_mstate_global->__pyx_codeobj_tab[2] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_services_licensing_client_py, __pyx_mstate->__pyx_n_u_activate_license, __pyx_mstate->__pyx_kp_b_iso88591_E_Z_R___KvRxq_S_c_QRRXX_ccddjjk, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[2])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 8, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 144};
-    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_local_license, __pyx_mstate->__pyx_n_u_license_data, __pyx_mstate->__pyx_n_u_e, __pyx_mstate->__pyx_n_u_expiry_date, __pyx_mstate->__pyx_n_u_payload, __pyx_mstate->__pyx_n_u_response, __pyx_mstate->__pyx_n_u_result};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 10, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 144};
+    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_local_license, __pyx_mstate->__pyx_n_u_license_data, __pyx_mstate->__pyx_n_u_e, __pyx_mstate->__pyx_n_u_expiry_date, __pyx_mstate->__pyx_n_u_payload, __pyx_mstate->__pyx_n_u_response, __pyx_mstate->__pyx_n_u_result, __pyx_mstate->__pyx_n_u_local_license2, __pyx_mstate->__pyx_n_u_ld};
     __pyx_mstate_global->__pyx_codeobj_tab[3] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_services_licensing_client_py, __pyx_mstate->__pyx_n_u_validate_license, __pyx_mstate->__pyx_kp_b_iso88591_D_4A_t1_q_q_t7_Qm1A_q_7s_1_aq_x, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[3])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {3, 0, 0, 6, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 214};
-    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_local_license, __pyx_mstate->__pyx_n_u_license_data, __pyx_mstate->__pyx_n_u_expiry_date, __pyx_mstate->__pyx_n_u_last_validated, __pyx_mstate->__pyx_n_u_days_since_validation};
-    __pyx_mstate_global->__pyx_codeobj_tab[4] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_services_licensing_client_py, __pyx_mstate->__pyx_n_u_validate_offline, __pyx_mstate->__pyx_kp_b_iso88591_MM_a_hnA_1_q_T_BTTU_84s_A_1_1_8, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[4])) goto bad;
+    const __Pyx_PyCode_New_function_description descr = {3, 0, 0, 7, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 222};
+    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_local_license, __pyx_mstate->__pyx_n_u_license_data, __pyx_mstate->__pyx_n_u_expiry_date, __pyx_mstate->__pyx_n_u_last_validated, __pyx_mstate->__pyx_n_u_now, __pyx_mstate->__pyx_n_u_days_offline};
+    __pyx_mstate_global->__pyx_codeobj_tab[4] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_services_licensing_client_py, __pyx_mstate->__pyx_n_u_validate_offline, __pyx_mstate->__pyx_kp_b_iso88591_MM_a_hnA_1_q_T_BTTU_hd_4r_1_1_4, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[4])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 7, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 264};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 7, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 262};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_local_license, __pyx_mstate->__pyx_n_u_payload, __pyx_mstate->__pyx_n_u_response, __pyx_mstate->__pyx_n_u_result, __pyx_mstate->__pyx_n_u_error_detail, __pyx_mstate->__pyx_n_u_e};
     __pyx_mstate_global->__pyx_codeobj_tab[5] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_services_licensing_client_py, __pyx_mstate->__pyx_n_u_deactivate_license, __pyx_mstate->__pyx_kp_b_iso88591_A_D_4A_t1_q_q_AQ_aq_xuA_4q_Q_x, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[5])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {7, 0, 0, 8, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 316};
+    const __Pyx_PyCode_New_function_description descr = {7, 0, 0, 8, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 314};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_product_key, __pyx_mstate->__pyx_n_u_activation_id, __pyx_mstate->__pyx_n_u_license_data, __pyx_mstate->__pyx_n_u_expiry_date, __pyx_mstate->__pyx_n_u_user_email, __pyx_mstate->__pyx_n_u_user_name, __pyx_mstate->__pyx_n_u_license_info};
     __pyx_mstate_global->__pyx_codeobj_tab[6] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_services_licensing_client_py, __pyx_mstate->__pyx_n_u_save_license_locally, __pyx_mstate->__pyx_kp_b_iso88591_A_A_1_1_Q_A_1_4q_hd_Ja_gV1HF_1_k, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[6])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 340};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 338};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
     __pyx_mstate_global->__pyx_codeobj_tab[7] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_services_licensing_client_py, __pyx_mstate->__pyx_n_u_load_local_license, __pyx_mstate->__pyx_kp_b_iso88591_Q_4t_WA_1_4vQd_4Ja_1, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[7])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 350};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 348};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
     __pyx_mstate_global->__pyx_codeobj_tab[8] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_services_licensing_client_py, __pyx_mstate->__pyx_n_u_get_license_info, __pyx_mstate->__pyx_kp_b_iso88591_t_q, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[8])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 354};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 352};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_validation_result};
     __pyx_mstate_global->__pyx_codeobj_tab[9] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_services_licensing_client_py, __pyx_mstate->__pyx_n_u_is_licensed, __pyx_mstate->__pyx_kp_b_iso88591_Q_D_1_A, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[9])) goto bad;
   }

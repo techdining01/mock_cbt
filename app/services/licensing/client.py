@@ -184,7 +184,7 @@ EwIDAQAB
             response = requests.post(
                 f"{self.license_server_url}/api/license/validate",
                 json=payload,
-                timeout=30
+                timeout=8
             )
             
             if response.status_code == 200:
@@ -205,61 +205,59 @@ EwIDAQAB
                 # If server is unreachable, use offline validation
                 return self._validate_offline(local_license, license_data)
                 
-        except Exception as e:
+        except requests.RequestException:
+            # Network unavailable - fall back to offline validation
+            local_license2 = self._load_local_license()
+            if local_license2:
+                try:
+                    ld = self.crypto.verify_product_key(local_license2["product_key"])
+                    return self._validate_offline(local_license2, ld)
+                except Exception:
+                    pass
             return {
                 "success": False,
-                "message": f"Validation error: {str(e)}"
+                "message": "License check failed. Please connect to the internet for first-time validation."
             }
-    
+            
     def _validate_offline(self, local_license: Dict[str, Any], license_data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Perform offline license validation when server is unreachable.
-        
-        Args:
-            local_license: Local license data
-            license_data: Decoded license data from product key
-            
-        Returns:
-            Dictionary with validation result
+        The RSA signature was already verified locally before calling this.
+        Allows up to 120 days offline after last successful online validation.
         """
-        # Note: Offline validation has limitations for time manipulation protection
-        # The server-side validation is the authoritative source
-        
-        # Check expiry using embedded expiry date from product key (not local system time)
         expiry_date = datetime.fromisoformat(local_license["expiry_date"])
-        
-        # Basic time manipulation check: if current system time is before activation time
-        # that's suspicious (clock moved backwards)
-        last_validated = datetime.fromisoformat(local_license.get("last_validated", "2026-09-20"))
-        if datetime.now() < last_validated:
+        last_validated = datetime.fromisoformat(local_license.get("last_validated", "2026-09-01T00:00:00"))
+        now = datetime.now()
+
+        # Basic clock sanity check
+        if now < last_validated:
             return {
                 "success": False,
-                "message": "System time appears to be incorrect. Please check your clock."
+                "message": "System time appears incorrect. Please check your clock."
             }
-        
-        # Check if license has expired
-        if datetime.now() > expiry_date:
+
+        # Check expiry
+        if now > expiry_date:
             return {
                 "success": False,
                 "message": "License has expired"
             }
-        
-        # Check if last validation was recent (within 7 days)
-        days_since_validation = (datetime.now() - last_validated).days
-        
-        if days_since_validation > 7:
+
+        # Allow up to 90 days offline
+        days_offline = (now - last_validated).days
+        if days_offline > 120:
             return {
                 "success": False,
-                "message": "License requires online validation. Please connect to internet."
+                "message": "License requires online validation (120-day offline limit reached). Please connect to the internet."
             }
-        
-        # Offline validation passed
+
         return {
             "success": True,
             "message": "License is valid (offline mode)",
             "license_data": license_data,
             "remaining_credits": local_license.get("remaining_credits", 0)
         }
+    
     
     def deactivate_license(self) -> Dict[str, Any]:
         """

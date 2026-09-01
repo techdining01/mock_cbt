@@ -3641,27 +3641,37 @@
 <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
 
 <script>
-    new QWebChannel(
-        qt.webChannelTransport,
-        function (channel) {
-            console.log("QWebChannel connected.");
-
-            window.examBridge =
-                channel.objects.examBridge;
-
-            window.questionImportBridge =
-                channel.objects.questionImportBridge;
-
-            console.log(
-                "examBridge:",
-                window.examBridge
-            );
-            console.log(
-                "questionImportBridge:",
-                window.questionImportBridge
-            );
+    (function initQWebChannel() {
+        function connect() {
+            if (typeof QWebChannel !== "undefined" && typeof qt !== "undefined" && qt.webChannelTransport) {
+                try {
+                    new QWebChannel(qt.webChannelTransport, function (channel) {
+                        console.log("QWebChannel connected.");
+                        window.examBridge = channel.objects.examBridge;
+                        window.questionImportBridge = channel.objects.questionImportBridge;
+                        console.log("examBridge:", window.examBridge);
+                        console.log("questionImportBridge:", window.questionImportBridge);
+                        window.dispatchEvent(new CustomEvent("qwebchannel-ready", { detail: channel }));
+                    });
+                    return true;
+                } catch (e) {
+                    console.warn("QWebChannel initialization attempt failed:", e);
+                    return false;
+                }
+            }
+            return false;
         }
-    );
+
+        if (!connect()) {
+            var attempts = 0;
+            var pollTimer = setInterval(function () {
+                attempts++;
+                if (connect() || attempts > 60) {
+                    clearInterval(pollTimer);
+                }
+            }, 50);
+        }
+    })();
 </script>
 
 

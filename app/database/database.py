@@ -1,3 +1,5 @@
+﻿import shutil
+import sys
 from pathlib import Path
 from typing import Generator
 
@@ -7,28 +9,33 @@ from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 # ============================================================
 # DATABASE LOCATION
-import sys
+# ============================================================
 
-# Project root:
-# Supports both standard python execution and frozen standalone executables (Nuitka / PyInstaller)
 if getattr(sys, "frozen", False) or hasattr(sys, "_MEIPASS"):
     PROJECT_ROOT = Path(sys.executable).resolve().parent
+    _internal_data = PROJECT_ROOT / "_internal" / "data"
+    _meipass_data = Path(sys._MEIPASS) / "data" if hasattr(sys, "_MEIPASS") else None
 else:
     PROJECT_ROOT = Path(__file__).resolve().parents[2]
+    _internal_data = None
+    _meipass_data = None
 
 DATA_DIR = PROJECT_ROOT / "data"
-
-DATA_DIR.mkdir(
-    parents=True,
-    exist_ok=True,
-)
+DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 DATABASE_PATH = DATA_DIR / "cbt.sqlite3"
 
-
-# ============================================================
-# DATABASE URL
-# ============================================================
+# If the active database in DATA_DIR is missing or empty, copy the bundled seed database
+if not DATABASE_PATH.exists() or DATABASE_PATH.stat().st_size == 0:
+    for candidate in [_internal_data / "cbt.sqlite3" if _internal_data else None,
+                      _meipass_data / "cbt.sqlite3" if _meipass_data else None]:
+        if candidate and candidate.exists() and candidate.stat().st_size > 0:
+            try:
+                shutil.copy2(candidate, DATABASE_PATH)
+                print(f"[Database] Copied pre-populated seed database from {candidate} to {DATABASE_PATH}")
+                break
+            except Exception as copy_err:
+                print(f"[Database] Notice: failed to copy seed database: {copy_err}")
 
 DATABASE_URL = f"sqlite:///{DATABASE_PATH}"
 

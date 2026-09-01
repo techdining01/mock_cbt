@@ -21,22 +21,25 @@ base_dir = Path(__file__).parent
 
 
 def start_ai_tutor_server():
-    import asyncio
-    import uvicorn
-    from app.ai_tutor.main import app as tutor_app
+    try:
+        import asyncio
+        import uvicorn
+        from app.ai_tutor.main import app as tutor_app
 
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
 
-    config = uvicorn.Config(
-        tutor_app,
-        host="127.0.0.1",
-        port=8000,
-        log_level="warning",
-        loop="asyncio",
-    )
-    server = uvicorn.Server(config)
-    loop.run_until_complete(server.serve())
+        config = uvicorn.Config(
+            tutor_app,
+            host="127.0.0.1",
+            port=8000,
+            log_level="warning",
+            loop="asyncio",
+        )
+        server = uvicorn.Server(config)
+        loop.run_until_complete(server.serve())
+    except Exception as exc:
+        print(f"[AI Tutor Server Error]: {exc}", flush=True)
 
 
 # Tells Windows to use the script's distinct AppUserModelID for taskbar grouping
@@ -115,6 +118,14 @@ def main():
     from dotenv import load_dotenv
 
     load_dotenv(".env")
+    if getattr(sys, "frozen", False) or hasattr(sys, "_MEIPASS"):
+        exe_env = Path(sys.executable).resolve().parent / ".env"
+        if exe_env.exists():
+            load_dotenv(exe_env)
+        if hasattr(sys, "_MEIPASS"):
+            bundled_env = Path(sys._MEIPASS) / ".env"
+            if bundled_env.exists():
+                load_dotenv(bundled_env)
 
     from app.database.database import init_database
 
@@ -129,6 +140,17 @@ def main():
     # Wait until FastAPI has finished binding to port 8000
     print("Starting background API service...")
     wait_for_server("http://127.0.0.1:8000", max_retries=10, delay=0.5)
+
+    # Pass Chromium flags before QApplication initializes so file:// can fetch http://127.0.0.1:8000
+    chromium_flags = [
+        "--disable-web-security",
+        "--allow-file-access-from-files",
+        "--allow-running-insecure-content",
+        "--disable-features=BlockInsecurePrivateNetworkRequests",
+    ]
+    for flag in chromium_flags:
+        if flag not in sys.argv:
+            sys.argv.append(flag)
 
     # Create the Qt application first (needed for activation dialog)
     app = QApplication(sys.argv)
@@ -211,6 +233,9 @@ def main():
             print("Native print handler error:", err)
 
     window.page().printRequested.connect(handle_print_requested)
+    # Attach channel to the page BEFORE setUrl() so that qt.webChannelTransport is injected
+    window.page().setWebChannel(channel)
+
     def reattach():
         try:
             window.page().setWebChannel(channel)

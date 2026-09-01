@@ -26,8 +26,17 @@ if %ERRORLEVEL% NEQ 0 (
     exit /b %ERRORLEVEL%
 )
 
+echo [4/4] Syncing seeded database to distribution bundle...
+if not exist "dist\LLS-CBT\data" mkdir "dist\LLS-CBT\data"
+if exist "data\cbt.sqlite3" (
+    copy /y "data\cbt.sqlite3" "dist\LLS-CBT\data\cbt.sqlite3" >nul
+    echo   - Synced database: dist\LLS-CBT\data\cbt.sqlite3
+)
+
 echo.
-echo [4/4] Build finished successfully!
+echo ==============================================================================
+echo Build finished successfully!
 echo Distribution bundle created at: dist\LLS-CBT\
+echo ==============================================================================
 echo.
 pause

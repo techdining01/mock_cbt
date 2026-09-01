@@ -1673,8 +1673,8 @@ struct __pyx_obj_9providers_6gemini___pyx_scope_struct__ask_tutor;
 struct __pyx_obj_9providers_6gemini___pyx_scope_struct_1_genexpr;
 struct __pyx_obj_9providers_6gemini___pyx_scope_struct_2_chat;
 
-/* "providers/gemini.py":45
- *         return self.client is not None and self.api_key is not None
+/* "providers/gemini.py":58
+ *         return self.client is not None and bool(self.api_key)
  * 
  *     async def ask_tutor(             # <<<<<<<<<<<<<<
  *         self,
@@ -1692,7 +1692,7 @@ struct __pyx_obj_9providers_6gemini___pyx_scope_struct__ask_tutor {
 };
 
 
-/* "providers/gemini.py":54
+/* "providers/gemini.py":67
  * 
  *         options_text = "\n".join(
  *             f"{option.label}. {option.text}" for option in request.options             # <<<<<<<<<<<<<<
@@ -1706,12 +1706,12 @@ struct __pyx_obj_9providers_6gemini___pyx_scope_struct_1_genexpr {
 };
 
 
-/* "providers/gemini.py":74
+/* "providers/gemini.py":86
  *         return self._parse_response(raw)
  * 
  *     async def chat(self, prompt: str) -> str:             # <<<<<<<<<<<<<<
+ *         self._ensure_client()
  *         if not self.available:
- *             raise RuntimeError("Gemini provider is not configured.")
 */
 struct __pyx_obj_9providers_6gemini___pyx_scope_struct_2_chat {
   PyObject_HEAD
@@ -2117,6 +2117,22 @@ static CYTHON_INLINE int __Pyx_ParseKeywords(
 static void __Pyx_RaiseArgtupleInvalid(const char* func_name, int exact,
     Py_ssize_t num_min, Py_ssize_t num_max, Py_ssize_t num_found);
 
+/* PyObjectDelAttr.proto (used by PyObjectSetAttrStr) */
+#if CYTHON_COMPILING_IN_LIMITED_API && __PYX_LIMITED_VERSION_HEX < 0x030d0000
+#define __Pyx_PyObject_DelAttr(o, n) PyObject_SetAttr(o, n, NULL)
+#else
+#define __Pyx_PyObject_DelAttr(o, n) PyObject_DelAttr(o, n)
+#endif
+
+/* PyObjectSetAttrStr.proto */
+#if CYTHON_USE_TYPE_SLOTS
+#define __Pyx_PyObject_DelAttrStr(o,n) __Pyx_PyObject_SetAttrStr(o, n, NULL)
+static CYTHON_INLINE int __Pyx_PyObject_SetAttrStr(PyObject* obj, PyObject* attr_name, PyObject* value);
+#else
+#define __Pyx_PyObject_DelAttrStr(o,n)   __Pyx_PyObject_DelAttr(o,n)
+#define __Pyx_PyObject_SetAttrStr(o,n,v) PyObject_SetAttr(o,n,v)
+#endif
+
 /* PyDictVersioning.proto (used by GetModuleGlobalName) */
 #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_TYPE_SLOTS
 #define __PYX_DICT_VERSION_INIT  ((PY_UINT64_T) -1)
@@ -2162,22 +2178,6 @@ static PyObject *__Pyx__GetModuleGlobalName(PyObject *name, PY_UINT64_T *dict_ve
 #define __Pyx_GetModuleGlobalName(var, name)  (var) = __Pyx__GetModuleGlobalName(name)
 #define __Pyx_GetModuleGlobalNameUncached(var, name)  (var) = __Pyx__GetModuleGlobalName(name)
 static CYTHON_INLINE PyObject *__Pyx__GetModuleGlobalName(PyObject *name);
-#endif
-
-/* PyObjectDelAttr.proto (used by PyObjectSetAttrStr) */
-#if CYTHON_COMPILING_IN_LIMITED_API && __PYX_LIMITED_VERSION_HEX < 0x030d0000
-#define __Pyx_PyObject_DelAttr(o, n) PyObject_SetAttr(o, n, NULL)
-#else
-#define __Pyx_PyObject_DelAttr(o, n) PyObject_DelAttr(o, n)
-#endif
-
-/* PyObjectSetAttrStr.proto */
-#if CYTHON_USE_TYPE_SLOTS
-#define __Pyx_PyObject_DelAttrStr(o,n) __Pyx_PyObject_SetAttrStr(o, n, NULL)
-static CYTHON_INLINE int __Pyx_PyObject_SetAttrStr(PyObject* obj, PyObject* attr_name, PyObject* value);
-#else
-#define __Pyx_PyObject_DelAttrStr(o,n)   __Pyx_PyObject_DelAttr(o,n)
-#define __Pyx_PyObject_SetAttrStr(o,n,v) PyObject_SetAttr(o,n,v)
 #endif
 
 /* pybytes_as_double.proto (used by pynumber_float) */
@@ -2372,6 +2372,19 @@ static void __Pyx_PyBuiltin_Invalid(PyObject *obj, const char *builtin_type_name
 /* pyfloat_simplify.proto */
 static CYTHON_INLINE int __Pyx_PyFloat_FromNumber(PyObject **number_var, const char *argname, int accept_none);
 
+/* PyObjectFastCallMethod.proto */
+#if CYTHON_VECTORCALL
+#define __Pyx_PyObject_FastCallMethod(name, args, nargsf) PyObject_VectorcallMethod(name, args, nargsf, NULL)
+#else
+static PyObject *__Pyx_PyObject_FastCallMethod(PyObject *name, PyObject *const *args, size_t nargsf);
+#endif
+
+/* PyException_Check.proto */
+#define __Pyx_PyExc_Exception_Check(obj)  __Pyx_TypeCheck(obj, PyExc_Exception)
+
+/* PyObjectCompare.proto */
+static CYTHON_INLINE int __Pyx_PyObject_CompareBoolNe_object_object(PyObject *op1, PyObject *op2, int pyop);
+
 /* PyObjectVectorcallKwds.proto */
 #if CYTHON_VECTORCALL
 #define __Pyx_Object_VectorcallKwds PyObject_Vectorcall
@@ -2382,11 +2395,29 @@ CYTHON_UNUSED static PyObject *__Pyx_MakeKwargDict(PyObject **keys, PyObject **v
 CYTHON_UNUSED static int __Pyx_CheckVectorcallKwarg(PyObject **kwnames, Py_ssize_t i);
 #endif
 
-/* RaiseUnboundLocalError.proto */
-static void __Pyx_RaiseUnboundLocalError(const char *varname);
+/* GetTopmostException.proto (used by SaveResetException) */
+#if CYTHON_USE_EXC_INFO_STACK && CYTHON_FAST_THREAD_STATE
+static _PyErr_StackItem * __Pyx_PyErr_GetTopmostException(PyThreadState *tstate);
+#endif
 
-/* ListCompAppendAndDecref.proto */
-static CYTHON_INLINE int __Pyx_ListComp_AppendAndDecref(PyObject* list, PyObject* x);
+/* SaveResetException.proto */
+#if CYTHON_FAST_THREAD_STATE
+#define __Pyx_ExceptionSave(type, value, tb)  __Pyx__ExceptionSave(__pyx_tstate, type, value, tb)
+static CYTHON_INLINE void __Pyx__ExceptionSave(PyThreadState *tstate, PyObject **type, PyObject **value, PyObject **tb);
+#define __Pyx_ExceptionReset(type, value, tb)  __Pyx__ExceptionReset(__pyx_tstate, type, value, tb)
+static CYTHON_INLINE void __Pyx__ExceptionReset(PyThreadState *tstate, PyObject *type, PyObject *value, PyObject *tb);
+#else
+#define __Pyx_ExceptionSave(type, value, tb)   PyErr_GetExcInfo(type, value, tb)
+#define __Pyx_ExceptionReset(type, value, tb)  PyErr_SetExcInfo(type, value, tb)
+#endif
+
+/* GetException.proto */
+#if CYTHON_FAST_THREAD_STATE
+#define __Pyx_GetException(type, value, tb)  __Pyx__GetException(__pyx_tstate, type, value, tb)
+static int __Pyx__GetException(PyThreadState *tstate, PyObject **type, PyObject **value, PyObject **tb);
+#else
+static int __Pyx_GetException(PyObject **type, PyObject **value, PyObject **tb);
+#endif
 
 /* PyObjectFormatSimple.proto */
 #if CYTHON_COMPILING_IN_PYPY
@@ -2405,20 +2436,26 @@ static CYTHON_INLINE int __Pyx_ListComp_AppendAndDecref(PyObject* list, PyObject
         PyObject_Format(s, f))
 #endif
 
+/* SwapException.proto */
+#if CYTHON_FAST_THREAD_STATE
+#define __Pyx_ExceptionSwap(type, value, tb)  __Pyx__ExceptionSwap(__pyx_tstate, type, value, tb)
+static CYTHON_INLINE void __Pyx__ExceptionSwap(PyThreadState *tstate, PyObject **type, PyObject **value, PyObject **tb);
+#else
+static CYTHON_INLINE void __Pyx_ExceptionSwap(PyObject **type, PyObject **value, PyObject **tb);
+#endif
+
+/* RaiseUnboundLocalError.proto */
+static void __Pyx_RaiseUnboundLocalError(const char *varname);
+
+/* ListCompAppendAndDecref.proto */
+static CYTHON_INLINE int __Pyx_ListComp_AppendAndDecref(PyObject* list, PyObject* x);
+
 /* JoinPyUnicode.proto */
 #define __Pyx_PyUnicode_Join_CAN_USE_KIND_AND_LENGTH\
     (!CYTHON_COMPILING_IN_GRAAL && !CYTHON_COMPILING_IN_PYPY && !CYTHON_COMPILING_IN_LIMITED_API)
 
 /* JoinPyUnicode.export */
 static PyObject* __Pyx_PyUnicode_Join(PyObject** values, Py_ssize_t value_count, Py_ssize_t result_ulength, int kind);
-
-/* GetException.proto (used by pep479) */
-#if CYTHON_FAST_THREAD_STATE
-#define __Pyx_GetException(type, value, tb)  __Pyx__GetException(__pyx_tstate, type, value, tb)
-static int __Pyx__GetException(PyThreadState *tstate, PyObject **type, PyObject **value, PyObject **tb);
-#else
-static int __Pyx_GetException(PyObject **type, PyObject **value, PyObject **tb);
-#endif
 
 /* pep479.proto */
 static void __Pyx_Generator_Replace_StopIteration(int in_async_gen);
@@ -2461,30 +2498,6 @@ static PyTypeObject* __Pyx_FetchCommonTypeFromSpec(PyTypeObject *metaclass, PyOb
 /* CommonTypesMetaclass.proto (used by CoroutineBase) */
 static int __pyx_CommonTypesMetaclass_init(PyObject *module);
 #define __Pyx_CommonTypesMetaclass_USED
-
-/* GetTopmostException.proto (used by SaveResetException) */
-#if CYTHON_USE_EXC_INFO_STACK && CYTHON_FAST_THREAD_STATE
-static _PyErr_StackItem * __Pyx_PyErr_GetTopmostException(PyThreadState *tstate);
-#endif
-
-/* SaveResetException.proto (used by CoroutineBase) */
-#if CYTHON_FAST_THREAD_STATE
-#define __Pyx_ExceptionSave(type, value, tb)  __Pyx__ExceptionSave(__pyx_tstate, type, value, tb)
-static CYTHON_INLINE void __Pyx__ExceptionSave(PyThreadState *tstate, PyObject **type, PyObject **value, PyObject **tb);
-#define __Pyx_ExceptionReset(type, value, tb)  __Pyx__ExceptionReset(__pyx_tstate, type, value, tb)
-static CYTHON_INLINE void __Pyx__ExceptionReset(PyThreadState *tstate, PyObject *type, PyObject *value, PyObject *tb);
-#else
-#define __Pyx_ExceptionSave(type, value, tb)   PyErr_GetExcInfo(type, value, tb)
-#define __Pyx_ExceptionReset(type, value, tb)  PyErr_SetExcInfo(type, value, tb)
-#endif
-
-/* SwapException.proto (used by CoroutineBase) */
-#if CYTHON_FAST_THREAD_STATE
-#define __Pyx_ExceptionSwap(type, value, tb)  __Pyx__ExceptionSwap(__pyx_tstate, type, value, tb)
-static CYTHON_INLINE void __Pyx__ExceptionSwap(PyThreadState *tstate, PyObject **type, PyObject **value, PyObject **tb);
-#else
-static CYTHON_INLINE void __Pyx_ExceptionSwap(PyObject **type, PyObject **value, PyObject **tb);
-#endif
 
 /* CallTypeTraverse.proto (used by CoroutineBase) */
 #if !CYTHON_USE_TYPE_SPECS
@@ -2632,13 +2645,6 @@ static PyObject *__Pyx__Coroutine_GetAwaitableIter(PyObject *o);
 /* CoroutineYieldFrom.proto */
 static CYTHON_INLINE __Pyx_PySendResult __Pyx_Coroutine_Yield_From(__pyx_CoroutineObject *gen, PyObject *source, PyObject **retval);
 
-/* PyObjectFastCallMethod.proto */
-#if CYTHON_VECTORCALL
-#define __Pyx_PyObject_FastCallMethod(name, args, nargsf) PyObject_VectorcallMethod(name, args, nargsf, NULL)
-#else
-static PyObject *__Pyx_PyObject_FastCallMethod(PyObject *name, PyObject *const *args, size_t nargsf);
-#endif
-
 /* RaiseErrorWithObjectType1.proto (used by RaiseUnexpectedTypeError) */
 #define __Pyx_RaiseTypeErrorWithObjectType1(message, arg, obj) __Pyx_RaiseErrorWithObjectType1(PyExc_TypeError, message, arg, obj)
 #define __Pyx_RaiseErrorWithObjectType1(exc_type, message, arg, obj) __Pyx_RaiseErrorWithType1(exc_type, message, arg, Py_TYPE(obj))
@@ -2732,6 +2738,9 @@ static CYTHON_INLINE PyObject *__Pyx_Import(PyObject *name, PyObject *const *imp
 
 /* ImportFrom.export */
 static PyObject* __Pyx_ImportFrom(PyObject* module, PyObject* name);
+
+/* GetAttr3.proto */
+static CYTHON_INLINE PyObject *__Pyx_GetAttr3(PyObject *, PyObject *, PyObject *);
 
 /* Py3UpdateBases.export */
 static PyObject* __Pyx_PEP560_update_bases(PyObject *bases);
@@ -3028,16 +3037,18 @@ int __pyx_module_is_main_providers__gemini = 0;
 /* #### Code section: global_var ### */
 static PyObject *__pyx_builtin_property;
 static PyObject *__pyx_builtin_staticmethod;
+static PyObject *__pyx_builtin_print;
 /* #### Code section: string_decls ### */
 /* #### Code section: decls ### */
 static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider___init__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_2name(CYTHON_UNUSED PyObject *__pyx_self, CYTHON_UNUSED PyObject *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_4available(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_2_ensure_client(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_4name(CYTHON_UNUSED PyObject *__pyx_self, CYTHON_UNUSED PyObject *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_6available(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_9ask_tutor_genexpr(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_genexpr_arg_0); /* proto */
-static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_6ask_tutor(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_request); /* proto */
-static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_9chat(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_prompt); /* proto */
-static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_12_build_prompt(CYTHON_UNUSED PyObject *__pyx_self, CYTHON_UNUSED PyObject *__pyx_v_self, PyObject *__pyx_v_request, PyObject *__pyx_v_options_text); /* proto */
-static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_14_parse_response(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_raw); /* proto */
+static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_8ask_tutor(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_request); /* proto */
+static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_11chat(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_prompt); /* proto */
+static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_14_build_prompt(CYTHON_UNUSED PyObject *__pyx_self, CYTHON_UNUSED PyObject *__pyx_v_self, PyObject *__pyx_v_request, PyObject *__pyx_v_options_text); /* proto */
+static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_16_parse_response(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_raw); /* proto */
 static PyObject *__pyx_tp_new__initialisation_9providers_6gemini___pyx_scope_struct__ask_tutor(PyObject *o, 
 #if CYTHON_VECTORCALL_TPNEW
     PyObject *const *args, Py_ssize_t nargs, PyObject *kwnames
@@ -3141,8 +3152,8 @@ namespace {
     __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_values;
     __Pyx_CachedCFunction __pyx_umethod_PyUnicode_Type__strip;
     PyObject *__pyx_tuple[6];
-    PyObject *__pyx_codeobj_tab[8];
-    PyObject *__pyx_string_tab[130];
+    PyObject *__pyx_codeobj_tab[9];
+    PyObject *__pyx_string_tab[151];
 /* #### Code section: module_state_contents ### */
 /* CommonTypesMetaclass.module_state_decls */
 PyTypeObject *__pyx_CommonTypesMetaclassType;
@@ -3229,7 +3240,7 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_kp_u__5 __pyx_string_tab[8]
 #define __pyx_kp_u__2 __pyx_string_tab[9]
 #define __pyx_kp_u_env __pyx_string_tab[10]
-#define __pyx_kp_u_8 __pyx_string_tab[11]
+#define __pyx_kp_u_15 __pyx_string_tab[11]
 #define __pyx_kp_u_ __pyx_string_tab[12]
 #define __pyx_kp_u_Gemini_provider_is_not_configure __pyx_string_tab[13]
 #define __pyx_kp_u_Gemini_returned_an_invalid_respo __pyx_string_tab[14]
@@ -3238,116 +3249,137 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_kp_u_No_stored_explanation_available __pyx_string_tab[17]
 #define __pyx_kp_u_Not_supplied __pyx_string_tab[18]
 #define __pyx_kp_u_Note_that_Cython_is_deliberately __pyx_string_tab[19]
-#define __pyx_kp_u__4 __pyx_string_tab[20]
-#define __pyx_kp_u_json __pyx_string_tab[21]
-#define __pyx_kp_u_add_note __pyx_string_tab[22]
-#define __pyx_kp_u_app_ai_tutor_services_providers_2 __pyx_string_tab[23]
-#define __pyx_kp_u_disable __pyx_string_tab[24]
-#define __pyx_kp_u_enable __pyx_string_tab[25]
-#define __pyx_kp_u_gc __pyx_string_tab[26]
-#define __pyx_kp_u_gemini_3_6_flash __pyx_string_tab[27]
-#define __pyx_kp_u_isenabled __pyx_string_tab[28]
-#define __pyx_n_u_AIProvider __pyx_string_tab[29]
-#define __pyx_n_u_Client __pyx_string_tab[30]
-#define __pyx_n_u_GEMINI_API_KEY __pyx_string_tab[31]
-#define __pyx_n_u_GEMINI_MODEL __pyx_string_tab[32]
-#define __pyx_n_u_GEMINI_TIMEOUT __pyx_string_tab[33]
-#define __pyx_n_u_GeminiProvider __pyx_string_tab[34]
-#define __pyx_n_u_GeminiProvider___init __pyx_string_tab[35]
-#define __pyx_n_u_GeminiProvider__build_prompt __pyx_string_tab[36]
-#define __pyx_n_u_GeminiProvider__parse_response __pyx_string_tab[37]
-#define __pyx_n_u_GeminiProvider_ask_tutor __pyx_string_tab[38]
-#define __pyx_n_u_GeminiProvider_ask_tutor_locals __pyx_string_tab[39]
-#define __pyx_n_u_GeminiProvider_available __pyx_string_tab[40]
-#define __pyx_n_u_GeminiProvider_chat __pyx_string_tab[41]
-#define __pyx_n_u_GeminiProvider_name __pyx_string_tab[42]
-#define __pyx_n_u_TutorRequest __pyx_string_tab[43]
-#define __pyx_n_u_Pyx_PyDict_NextRef __pyx_string_tab[44]
-#define __pyx_n_u_annotate __pyx_string_tab[45]
-#define __pyx_n_u_await __pyx_string_tab[46]
-#define __pyx_n_u_doc __pyx_string_tab[47]
-#define __pyx_n_u_func __pyx_string_tab[48]
-#define __pyx_n_u_init __pyx_string_tab[49]
-#define __pyx_n_u_main __pyx_string_tab[50]
-#define __pyx_n_u_metaclass __pyx_string_tab[51]
-#define __pyx_n_u_module __pyx_string_tab[52]
-#define __pyx_n_u_mro_entries __pyx_string_tab[53]
-#define __pyx_n_u_name __pyx_string_tab[54]
-#define __pyx_n_u_prepare __pyx_string_tab[55]
-#define __pyx_n_u_qualname __pyx_string_tab[56]
-#define __pyx_n_u_test __pyx_string_tab[57]
-#define __pyx_n_u_build_prompt __pyx_string_tab[58]
-#define __pyx_n_u_is_coroutine __pyx_string_tab[59]
-#define __pyx_n_u_parse_response __pyx_string_tab[60]
-#define __pyx_n_u_aio __pyx_string_tab[61]
-#define __pyx_n_u_api_key __pyx_string_tab[62]
-#define __pyx_n_u_app_ai_tutor_schemas __pyx_string_tab[63]
-#define __pyx_n_u_app_ai_tutor_services_providers __pyx_string_tab[64]
-#define __pyx_n_u_ask_tutor __pyx_string_tab[65]
-#define __pyx_n_u_asyncio __pyx_string_tab[66]
-#define __pyx_n_u_asyncio_coroutines __pyx_string_tab[67]
-#define __pyx_n_u_available __pyx_string_tab[68]
-#define __pyx_n_u_bool __pyx_string_tab[69]
-#define __pyx_n_u_chat __pyx_string_tab[70]
-#define __pyx_n_u_client __pyx_string_tab[71]
-#define __pyx_n_u_cline_in_traceback __pyx_string_tab[72]
-#define __pyx_n_u_close __pyx_string_tab[73]
-#define __pyx_n_u_contents __pyx_string_tab[74]
-#define __pyx_n_u_correct_answer __pyx_string_tab[75]
-#define __pyx_n_u_dict __pyx_string_tab[76]
-#define __pyx_n_u_dotenv __pyx_string_tab[77]
-#define __pyx_n_u_explanation __pyx_string_tab[78]
-#define __pyx_n_u_gemini __pyx_string_tab[79]
-#define __pyx_n_u_genai __pyx_string_tab[80]
-#define __pyx_n_u_generate_content __pyx_string_tab[81]
-#define __pyx_n_u_genexpr __pyx_string_tab[82]
-#define __pyx_n_u_getenv __pyx_string_tab[83]
-#define __pyx_n_u_google __pyx_string_tab[84]
-#define __pyx_n_u_items __pyx_string_tab[85]
-#define __pyx_n_u_json_2 __pyx_string_tab[86]
-#define __pyx_n_u_label __pyx_string_tab[87]
-#define __pyx_n_u_load_dotenv __pyx_string_tab[88]
-#define __pyx_n_u_loads __pyx_string_tab[89]
-#define __pyx_n_u_model __pyx_string_tab[90]
-#define __pyx_n_u_models __pyx_string_tab[91]
-#define __pyx_n_u_name_2 __pyx_string_tab[92]
-#define __pyx_n_u_next __pyx_string_tab[93]
-#define __pyx_n_u_option __pyx_string_tab[94]
-#define __pyx_n_u_options __pyx_string_tab[95]
-#define __pyx_n_u_options_text __pyx_string_tab[96]
-#define __pyx_n_u_os __pyx_string_tab[97]
-#define __pyx_n_u_pop __pyx_string_tab[98]
-#define __pyx_n_u_prompt __pyx_string_tab[99]
-#define __pyx_n_u_property __pyx_string_tab[100]
-#define __pyx_n_u_providers_gemini __pyx_string_tab[101]
-#define __pyx_n_u_question __pyx_string_tab[102]
-#define __pyx_n_u_raw __pyx_string_tab[103]
-#define __pyx_n_u_request __pyx_string_tab[104]
-#define __pyx_n_u_response __pyx_string_tab[105]
-#define __pyx_n_u_result __pyx_string_tab[106]
-#define __pyx_n_u_return __pyx_string_tab[107]
-#define __pyx_n_u_self __pyx_string_tab[108]
-#define __pyx_n_u_send __pyx_string_tab[109]
-#define __pyx_n_u_setdefault __pyx_string_tab[110]
-#define __pyx_n_u_staticmethod __pyx_string_tab[111]
-#define __pyx_n_u_str __pyx_string_tab[112]
-#define __pyx_n_u_strip __pyx_string_tab[113]
-#define __pyx_n_u_student_answer __pyx_string_tab[114]
-#define __pyx_n_u_subject __pyx_string_tab[115]
-#define __pyx_n_u_text __pyx_string_tab[116]
-#define __pyx_n_u_throw __pyx_string_tab[117]
-#define __pyx_n_u_timeout __pyx_string_tab[118]
-#define __pyx_n_u_value __pyx_string_tab[119]
-#define __pyx_n_u_values __pyx_string_tab[120]
-#define __pyx_n_u_wait_for __pyx_string_tab[121]
-#define __pyx_kp_b_iso88591_A_q __pyx_string_tab[122]
-#define __pyx_kp_b_iso88591_A_t87_t4y_q __pyx_string_tab[123]
-#define __pyx_kp_b_iso88591_A_Kr_IRwa_KuARwa_9_Ja_4q_waxt1 __pyx_string_tab[124]
-#define __pyx_kp_b_iso88591_A_3k_Qa_1A_Qa_3iq_S_c_q_V1A_4z_A __pyx_string_tab[125]
-#define __pyx_kp_b_iso88591_A_q_c_1_1_S __pyx_string_tab[126]
-#define __pyx_kp_b_iso88591__6 __pyx_string_tab[127]
-#define __pyx_kp_b_iso88591_A __pyx_string_tab[128]
-#define __pyx_kp_b_iso88591__7 __pyx_string_tab[129]
+#define __pyx_kp_u_GeminiProvider_Client_initializ __pyx_string_tab[20]
+#define __pyx_kp_u__4 __pyx_string_tab[21]
+#define __pyx_kp_u_json __pyx_string_tab[22]
+#define __pyx_kp_u_add_note __pyx_string_tab[23]
+#define __pyx_kp_u_app_ai_tutor_services_providers_2 __pyx_string_tab[24]
+#define __pyx_kp_u_disable __pyx_string_tab[25]
+#define __pyx_kp_u_enable __pyx_string_tab[26]
+#define __pyx_kp_u_gc __pyx_string_tab[27]
+#define __pyx_kp_u_gemini_2_5_flash __pyx_string_tab[28]
+#define __pyx_kp_u_isenabled __pyx_string_tab[29]
+#define __pyx_n_u_AIProvider __pyx_string_tab[30]
+#define __pyx_n_u_Client __pyx_string_tab[31]
+#define __pyx_n_u_GEMINI_API_KEY __pyx_string_tab[32]
+#define __pyx_n_u_GEMINI_MODEL __pyx_string_tab[33]
+#define __pyx_n_u_GEMINI_TIMEOUT __pyx_string_tab[34]
+#define __pyx_n_u_GeminiProvider __pyx_string_tab[35]
+#define __pyx_n_u_GeminiProvider___init __pyx_string_tab[36]
+#define __pyx_n_u_GeminiProvider__build_prompt __pyx_string_tab[37]
+#define __pyx_n_u_GeminiProvider__ensure_client __pyx_string_tab[38]
+#define __pyx_n_u_GeminiProvider__parse_response __pyx_string_tab[39]
+#define __pyx_n_u_GeminiProvider_ask_tutor __pyx_string_tab[40]
+#define __pyx_n_u_GeminiProvider_ask_tutor_locals __pyx_string_tab[41]
+#define __pyx_n_u_GeminiProvider_available __pyx_string_tab[42]
+#define __pyx_n_u_GeminiProvider_chat __pyx_string_tab[43]
+#define __pyx_n_u_GeminiProvider_name __pyx_string_tab[44]
+#define __pyx_n_u_Path __pyx_string_tab[45]
+#define __pyx_n_u_TutorRequest __pyx_string_tab[46]
+#define __pyx_n_u_MEIPASS __pyx_string_tab[47]
+#define __pyx_n_u_Pyx_PyDict_NextRef __pyx_string_tab[48]
+#define __pyx_n_u_annotate __pyx_string_tab[49]
+#define __pyx_n_u_await __pyx_string_tab[50]
+#define __pyx_n_u_doc __pyx_string_tab[51]
+#define __pyx_n_u_file __pyx_string_tab[52]
+#define __pyx_n_u_func __pyx_string_tab[53]
+#define __pyx_n_u_init __pyx_string_tab[54]
+#define __pyx_n_u_main __pyx_string_tab[55]
+#define __pyx_n_u_metaclass __pyx_string_tab[56]
+#define __pyx_n_u_module __pyx_string_tab[57]
+#define __pyx_n_u_mro_entries __pyx_string_tab[58]
+#define __pyx_n_u_name __pyx_string_tab[59]
+#define __pyx_n_u_prepare __pyx_string_tab[60]
+#define __pyx_n_u_qualname __pyx_string_tab[61]
+#define __pyx_n_u_test __pyx_string_tab[62]
+#define __pyx_n_u_build_prompt __pyx_string_tab[63]
+#define __pyx_n_u_ensure_client __pyx_string_tab[64]
+#define __pyx_n_u_is_coroutine __pyx_string_tab[65]
+#define __pyx_n_u_parse_response __pyx_string_tab[66]
+#define __pyx_n_u_aio __pyx_string_tab[67]
+#define __pyx_n_u_api_key __pyx_string_tab[68]
+#define __pyx_n_u_app_ai_tutor_schemas __pyx_string_tab[69]
+#define __pyx_n_u_app_ai_tutor_services_providers __pyx_string_tab[70]
+#define __pyx_n_u_ask_tutor __pyx_string_tab[71]
+#define __pyx_n_u_asyncio __pyx_string_tab[72]
+#define __pyx_n_u_asyncio_coroutines __pyx_string_tab[73]
+#define __pyx_n_u_available __pyx_string_tab[74]
+#define __pyx_n_u_bool __pyx_string_tab[75]
+#define __pyx_n_u_chat __pyx_string_tab[76]
+#define __pyx_n_u_client __pyx_string_tab[77]
+#define __pyx_n_u_cline_in_traceback __pyx_string_tab[78]
+#define __pyx_n_u_close __pyx_string_tab[79]
+#define __pyx_n_u_contents __pyx_string_tab[80]
+#define __pyx_n_u_correct_answer __pyx_string_tab[81]
+#define __pyx_n_u_dict __pyx_string_tab[82]
+#define __pyx_n_u_dotenv __pyx_string_tab[83]
+#define __pyx_n_u_env_file __pyx_string_tab[84]
+#define __pyx_n_u_err __pyx_string_tab[85]
+#define __pyx_n_u_exe_dir __pyx_string_tab[86]
+#define __pyx_n_u_executable __pyx_string_tab[87]
+#define __pyx_n_u_exists __pyx_string_tab[88]
+#define __pyx_n_u_explanation __pyx_string_tab[89]
+#define __pyx_n_u_frozen __pyx_string_tab[90]
+#define __pyx_n_u_gemini __pyx_string_tab[91]
+#define __pyx_n_u_genai __pyx_string_tab[92]
+#define __pyx_n_u_generate_content __pyx_string_tab[93]
+#define __pyx_n_u_genexpr __pyx_string_tab[94]
+#define __pyx_n_u_getenv __pyx_string_tab[95]
+#define __pyx_n_u_google __pyx_string_tab[96]
+#define __pyx_n_u_items __pyx_string_tab[97]
+#define __pyx_n_u_json_2 __pyx_string_tab[98]
+#define __pyx_n_u_key __pyx_string_tab[99]
+#define __pyx_n_u_label __pyx_string_tab[100]
+#define __pyx_n_u_load_dotenv __pyx_string_tab[101]
+#define __pyx_n_u_loads __pyx_string_tab[102]
+#define __pyx_n_u_model __pyx_string_tab[103]
+#define __pyx_n_u_models __pyx_string_tab[104]
+#define __pyx_n_u_name_2 __pyx_string_tab[105]
+#define __pyx_n_u_next __pyx_string_tab[106]
+#define __pyx_n_u_option __pyx_string_tab[107]
+#define __pyx_n_u_options __pyx_string_tab[108]
+#define __pyx_n_u_options_text __pyx_string_tab[109]
+#define __pyx_n_u_os __pyx_string_tab[110]
+#define __pyx_n_u_p __pyx_string_tab[111]
+#define __pyx_n_u_parent __pyx_string_tab[112]
+#define __pyx_n_u_parents __pyx_string_tab[113]
+#define __pyx_n_u_pathlib __pyx_string_tab[114]
+#define __pyx_n_u_pop __pyx_string_tab[115]
+#define __pyx_n_u_print __pyx_string_tab[116]
+#define __pyx_n_u_prompt __pyx_string_tab[117]
+#define __pyx_n_u_property __pyx_string_tab[118]
+#define __pyx_n_u_providers_gemini __pyx_string_tab[119]
+#define __pyx_n_u_question __pyx_string_tab[120]
+#define __pyx_n_u_raw __pyx_string_tab[121]
+#define __pyx_n_u_request __pyx_string_tab[122]
+#define __pyx_n_u_resolve __pyx_string_tab[123]
+#define __pyx_n_u_response __pyx_string_tab[124]
+#define __pyx_n_u_result __pyx_string_tab[125]
+#define __pyx_n_u_return __pyx_string_tab[126]
+#define __pyx_n_u_self __pyx_string_tab[127]
+#define __pyx_n_u_send __pyx_string_tab[128]
+#define __pyx_n_u_setdefault __pyx_string_tab[129]
+#define __pyx_n_u_staticmethod __pyx_string_tab[130]
+#define __pyx_n_u_str __pyx_string_tab[131]
+#define __pyx_n_u_strip __pyx_string_tab[132]
+#define __pyx_n_u_student_answer __pyx_string_tab[133]
+#define __pyx_n_u_subject __pyx_string_tab[134]
+#define __pyx_n_u_sys __pyx_string_tab[135]
+#define __pyx_n_u_text __pyx_string_tab[136]
+#define __pyx_n_u_throw __pyx_string_tab[137]
+#define __pyx_n_u_timeout __pyx_string_tab[138]
+#define __pyx_n_u_value __pyx_string_tab[139]
+#define __pyx_n_u_values __pyx_string_tab[140]
+#define __pyx_n_u_wait_for __pyx_string_tab[141]
+#define __pyx_kp_b_iso88591_A_Kq_Ja_IRwa_q_KuARwa_9_O1 __pyx_string_tab[142]
+#define __pyx_kp_b_iso88591_A_q __pyx_string_tab[143]
+#define __pyx_kp_b_iso88591_A_O1_t87_t4q_A __pyx_string_tab[144]
+#define __pyx_kp_b_iso88591_A_Q_3k_Qa_1A_Qa_3iq_S_c_q_V1A_4z __pyx_string_tab[145]
+#define __pyx_kp_b_iso88591_A_b_q_4uD_5_4s_a_1_Je7_84q_Q_Faq __pyx_string_tab[146]
+#define __pyx_kp_b_iso88591_A_q_c_1_1_S __pyx_string_tab[147]
+#define __pyx_kp_b_iso88591__6 __pyx_string_tab[148]
+#define __pyx_kp_b_iso88591_A __pyx_string_tab[149]
+#define __pyx_kp_b_iso88591__7 __pyx_string_tab[150]
 /* #### Code section: module_state_clear ### */
 #if CYTHON_USE_MODULE_STATE
 static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
@@ -3373,8 +3405,8 @@ static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_umethod_PyDict_Type_values.method);
   Py_CLEAR(clear_module_state->__pyx_umethod_PyUnicode_Type__strip.method);
   for (int i=0; i<6; ++i) { Py_CLEAR(clear_module_state->__pyx_tuple[i]); }
-  for (int i=0; i<8; ++i) { Py_CLEAR(clear_module_state->__pyx_codeobj_tab[i]); }
-  for (int i=0; i<130; ++i) { Py_CLEAR(clear_module_state->__pyx_string_tab[i]); }
+  for (int i=0; i<9; ++i) { Py_CLEAR(clear_module_state->__pyx_codeobj_tab[i]); }
+  for (int i=0; i<151; ++i) { Py_CLEAR(clear_module_state->__pyx_string_tab[i]); }
 /* #### Code section: module_state_clear_contents ### */
 /* CommonTypesMetaclass.module_state_clear */
 Py_CLEAR(clear_module_state->__pyx_CommonTypesMetaclassType);
@@ -3415,8 +3447,8 @@ static CYTHON_SMALL_CODE int __pyx_m_traverse(PyObject *m, visitproc visit, void
   Py_VISIT(traverse_module_state->__pyx_umethod_PyDict_Type_values.method);
   Py_VISIT(traverse_module_state->__pyx_umethod_PyUnicode_Type__strip.method);
   for (int i=0; i<6; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_tuple[i]); }
-  for (int i=0; i<8; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_codeobj_tab[i]); }
-  for (int i=0; i<130; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_string_tab[i]); }
+  for (int i=0; i<9; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_codeobj_tab[i]); }
+  for (int i=0; i<151; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_string_tab[i]); }
 /* #### Code section: module_state_traverse_contents ### */
 /* CommonTypesMetaclass.module_state_traverse */
 Py_VISIT(traverse_module_state->__pyx_CommonTypesMetaclassType);
@@ -3437,12 +3469,12 @@ return 0;
 #endif
 /* #### Code section: module_code ### */
 
-/* "providers/gemini.py":18
+/* "providers/gemini.py":31
  * 
  * class GeminiProvider(AIProvider):
  *     def __init__(self):             # <<<<<<<<<<<<<<
- * 
- *         self.api_key = os.getenv("GEMINI_API_KEY")
+ *         self.api_key = None
+ *         self.client = None
 */
 
 /* Python wrapper */
@@ -3484,32 +3516,32 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_self,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 18, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 31, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 18, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 31, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "__init__", 0) < (0)) __PYX_ERR(0, 18, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "__init__", 0) < (0)) __PYX_ERR(0, 31, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("__init__", 1, 1, 1, i); __PYX_ERR(0, 18, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("__init__", 1, 1, 1, i); __PYX_ERR(0, 31, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 18, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 31, __pyx_L3_error)
     }
     __pyx_v_self = values[0];
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 18, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 31, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -3535,27 +3567,248 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider___init__(CYTHON_UN
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
-  PyObject *__pyx_t_3 = NULL;
-  PyObject *__pyx_t_4 = NULL;
-  size_t __pyx_t_5;
-  int __pyx_t_6;
-  PyObject *__pyx_t_7 = NULL;
+  size_t __pyx_t_3;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "providers/gemini.py":20
+  /* "providers/gemini.py":32
+ * class GeminiProvider(AIProvider):
  *     def __init__(self):
+ *         self.api_key = None             # <<<<<<<<<<<<<<
+ *         self.client = None
+ *         self.model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+*/
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_api_key, Py_None) < (0)) __PYX_ERR(0, 32, __pyx_L1_error)
+
+  /* "providers/gemini.py":33
+ *     def __init__(self):
+ *         self.api_key = None
+ *         self.client = None             # <<<<<<<<<<<<<<
+ *         self.model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+ *         self.timeout = float(os.getenv("GEMINI_TIMEOUT", "15"))
+*/
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_client, Py_None) < (0)) __PYX_ERR(0, 33, __pyx_L1_error)
+
+  /* "providers/gemini.py":34
+ *         self.api_key = None
+ *         self.client = None
+ *         self.model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")             # <<<<<<<<<<<<<<
+ *         self.timeout = float(os.getenv("GEMINI_TIMEOUT", "15"))
+ *         self._ensure_client()
+*/
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_os); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 34, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_getenv); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 34, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_mstate_global->__pyx_tuple[0], NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 34, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_model, __pyx_t_1) < (0)) __PYX_ERR(0, 34, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "providers/gemini.py":35
+ *         self.client = None
+ *         self.model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+ *         self.timeout = float(os.getenv("GEMINI_TIMEOUT", "15"))             # <<<<<<<<<<<<<<
+ *         self._ensure_client()
  * 
- *         self.api_key = os.getenv("GEMINI_API_KEY")             # <<<<<<<<<<<<<<
+*/
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_os); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 35, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_getenv); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 35, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_mstate_global->__pyx_tuple[1], NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 35, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_2 = __Pyx_PyNumber_Float(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 35, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  if (__Pyx_PyFloat_FromNumber(&__pyx_t_2, NULL, 0) < (0)) __PYX_ERR(0, 35, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_timeout, __pyx_t_2) < (0)) __PYX_ERR(0, 35, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "providers/gemini.py":36
+ *         self.model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+ *         self.timeout = float(os.getenv("GEMINI_TIMEOUT", "15"))
+ *         self._ensure_client()             # <<<<<<<<<<<<<<
  * 
- *         self.model = os.getenv(
+ *     def _ensure_client(self):
+*/
+  __pyx_t_1 = __pyx_v_self;
+  __Pyx_INCREF(__pyx_t_1);
+  __pyx_t_3 = 0;
+  {
+    PyObject *__pyx_callargs[2] = {__pyx_t_1, NULL};
+    __pyx_t_2 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_ensure_client, __pyx_callargs+__pyx_t_3, (1-__pyx_t_3) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 36, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+  }
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "providers/gemini.py":31
+ * 
+ * class GeminiProvider(AIProvider):
+ *     def __init__(self):             # <<<<<<<<<<<<<<
+ *         self.api_key = None
+ *         self.client = None
+*/
+
+  /* function exit code */
+  __pyx_r = Py_None; __Pyx_INCREF(Py_None);
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_AddTraceback("providers.gemini.GeminiProvider.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "providers/gemini.py":38
+ *         self._ensure_client()
+ * 
+ *     def _ensure_client(self):             # <<<<<<<<<<<<<<
+ *         """Dynamically initialize or refresh Gemini client if API key is present."""
+ *         key = os.getenv("GEMINI_API_KEY")
+*/
+
+/* Python wrapper */
+static PyObject *__pyx_pw_9providers_6gemini_14GeminiProvider_3_ensure_client(PyObject *__pyx_self, 
+#if CYTHON_VECTORCALL
+PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
+#else
+PyObject *__pyx_args, PyObject *__pyx_kwds
+#endif
+); /*proto*/
+PyDoc_STRVAR(__pyx_doc_9providers_6gemini_14GeminiProvider_2_ensure_client, "Dynamically initialize or refresh Gemini client if API key is present.");
+static PyMethodDef __pyx_mdef_9providers_6gemini_14GeminiProvider_3_ensure_client = {"_ensure_client", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9providers_6gemini_14GeminiProvider_3_ensure_client, __Pyx_METH_FASTCALL|METH_KEYWORDS, __pyx_doc_9providers_6gemini_14GeminiProvider_2_ensure_client};
+static PyObject *__pyx_pw_9providers_6gemini_14GeminiProvider_3_ensure_client(PyObject *__pyx_self, 
+#if CYTHON_VECTORCALL
+PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
+#else
+PyObject *__pyx_args, PyObject *__pyx_kwds
+#endif
+) {
+  PyObject *__pyx_v_self = 0;
+  #if !CYTHON_VECTORCALL
+  CYTHON_UNUSED Py_ssize_t __pyx_nargs;
+  #endif
+  CYTHON_UNUSED PyObject *const *__pyx_kwvalues;
+  PyObject* values[1] = {0};
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("_ensure_client (wrapper)", 0);
+  #if !CYTHON_VECTORCALL
+  #if CYTHON_ASSUME_SAFE_SIZE
+  __pyx_nargs = PyTuple_GET_SIZE(__pyx_args);
+  #else
+  __pyx_nargs = PyTuple_Size(__pyx_args); if (unlikely(__pyx_nargs < 0)) return NULL;
+  #endif
+  #endif
+  __pyx_kwvalues = __Pyx_KwValues_FASTCALL(__pyx_args, __pyx_nargs);
+  {
+    PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_self,0};
+    const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
+    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 38, __pyx_L3_error)
+    if (__pyx_kwds_len > 0) {
+      switch (__pyx_nargs) {
+        case  1:
+        values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 38, __pyx_L3_error)
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      const Py_ssize_t kwd_pos_args = __pyx_nargs;
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "_ensure_client", 0) < (0)) __PYX_ERR(0, 38, __pyx_L3_error)
+      for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("_ensure_client", 1, 1, 1, i); __PYX_ERR(0, 38, __pyx_L3_error) }
+      }
+    } else if (unlikely(__pyx_nargs != 1)) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 38, __pyx_L3_error)
+    }
+    __pyx_v_self = values[0];
+  }
+  goto __pyx_L6_skip;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("_ensure_client", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 38, __pyx_L3_error)
+  __pyx_L6_skip:;
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L3_error:;
+  for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
+    Py_XDECREF(values[__pyx_temp]);
+  }
+  __Pyx_AddTraceback("providers.gemini.GeminiProvider._ensure_client", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_9providers_6gemini_14GeminiProvider_2_ensure_client(__pyx_self, __pyx_v_self);
+
+  /* function exit code */
+  for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
+    Py_XDECREF(values[__pyx_temp]);
+  }
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_2_ensure_client(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self) {
+  PyObject *__pyx_v_key = NULL;
+  PyObject *__pyx_v_err = NULL;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  size_t __pyx_t_5;
+  int __pyx_t_6;
+  int __pyx_t_7;
+  PyObject *__pyx_t_8 = NULL;
+  PyObject *__pyx_t_9 = NULL;
+  PyObject *__pyx_t_10 = NULL;
+  PyObject *__pyx_t_11 = NULL;
+  int __pyx_t_12;
+  PyObject *__pyx_t_13 = NULL;
+  PyObject *__pyx_t_14 = NULL;
+  int __pyx_t_15;
+  char const *__pyx_t_16;
+  PyObject *__pyx_t_17 = NULL;
+  PyObject *__pyx_t_18 = NULL;
+  PyObject *__pyx_t_19 = NULL;
+  PyObject *__pyx_t_20 = NULL;
+  PyObject *__pyx_t_21 = NULL;
+  PyObject *__pyx_t_22 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("_ensure_client", 0);
+
+  /* "providers/gemini.py":40
+ *     def _ensure_client(self):
+ *         """Dynamically initialize or refresh Gemini client if API key is present."""
+ *         key = os.getenv("GEMINI_API_KEY")             # <<<<<<<<<<<<<<
+ *         if key and (self.client is None or key != self.api_key):
+ *             self.api_key = key
 */
   __pyx_t_2 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_os); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 20, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_os); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 40, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_getenv); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 20, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_getenv); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 40, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_5 = 1;
@@ -3575,142 +3828,289 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider___init__(CYTHON_UN
     __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 20, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 40, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_api_key, __pyx_t_1) < (0)) __PYX_ERR(0, 20, __pyx_L1_error)
+  __pyx_v_key = __pyx_t_1;
+  __pyx_t_1 = 0;
+
+  /* "providers/gemini.py":41
+ *         """Dynamically initialize or refresh Gemini client if API key is present."""
+ *         key = os.getenv("GEMINI_API_KEY")
+ *         if key and (self.client is None or key != self.api_key):             # <<<<<<<<<<<<<<
+ *             self.api_key = key
+ *             try:
+*/
+  __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_v_key); if (unlikely((__pyx_t_7 < 0))) __PYX_ERR(0, 41, __pyx_L1_error)
+  if (__pyx_t_7) {
+
+  } else {
+
+    __pyx_t_6 = __pyx_t_7;
+
+    goto __pyx_L4_bool_binop_done;
+  }
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_client); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 41, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_7 = (__pyx_t_1 == Py_None);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  if (!__pyx_t_7) {
+
+  } else {
+
+    __pyx_t_6 = __pyx_t_7;
+
+    goto __pyx_L4_bool_binop_done;
+  }
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_api_key); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 41, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_7 = __Pyx_PyObject_CompareBoolNe_object_object(__pyx_v_key, __pyx_t_1, Py_NE); if (unlikely((__pyx_t_7 < 0))) __PYX_ERR(0, 41, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "providers/gemini.py":22
- *         self.api_key = os.getenv("GEMINI_API_KEY")
- * 
- *         self.model = os.getenv(             # <<<<<<<<<<<<<<
- *             "GEMINI_MODEL",
- *             "gemini-3.6-flash",
-*/
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_os); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 22, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_getenv); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 22, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_mstate_global->__pyx_tuple[0], NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 22, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_model, __pyx_t_1) < (0)) __PYX_ERR(0, 22, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_6 = __pyx_t_7;
 
-  /* "providers/gemini.py":27
- *         )
- * 
- *         self.timeout = float(os.getenv("GEMINI_TIMEOUT", "8"))             # <<<<<<<<<<<<<<
- * 
- *         self.client = None
-*/
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_os); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 27, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_getenv); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 27, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_mstate_global->__pyx_tuple[1], NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 27, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyNumber_Float(__pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 27, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (__Pyx_PyFloat_FromNumber(&__pyx_t_4, NULL, 0) < (0)) __PYX_ERR(0, 27, __pyx_L1_error)
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_timeout, __pyx_t_4) < (0)) __PYX_ERR(0, 27, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-
-  /* "providers/gemini.py":29
- *         self.timeout = float(os.getenv("GEMINI_TIMEOUT", "8"))
- * 
- *         self.client = None             # <<<<<<<<<<<<<<
- * 
- *         if self.api_key:
-*/
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_client, Py_None) < (0)) __PYX_ERR(0, 29, __pyx_L1_error)
-
-  /* "providers/gemini.py":31
- *         self.client = None
- * 
- *         if self.api_key:             # <<<<<<<<<<<<<<
- *             self.client = genai.Client(api_key=self.api_key)
- * 
-*/
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_api_key); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 31, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely((__pyx_t_6 < 0))) __PYX_ERR(0, 31, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_L4_bool_binop_done:;
   if (__pyx_t_6) {
 
 
-    /* "providers/gemini.py":32
+    /* "providers/gemini.py":42
+ *         key = os.getenv("GEMINI_API_KEY")
+ *         if key and (self.client is None or key != self.api_key):
+ *             self.api_key = key             # <<<<<<<<<<<<<<
+ *             try:
+ *                 self.client = genai.Client(api_key=self.api_key)
+*/
+    if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_api_key, __pyx_v_key) < (0)) __PYX_ERR(0, 42, __pyx_L1_error)
+
+    /* "providers/gemini.py":43
+ *         if key and (self.client is None or key != self.api_key):
+ *             self.api_key = key
+ *             try:             # <<<<<<<<<<<<<<
+ *                 self.client = genai.Client(api_key=self.api_key)
+ *             except Exception as err:
+*/
+    {
+      __Pyx_PyThreadState_declare
+      __Pyx_PyThreadState_assign
+      __Pyx_ExceptionSave(&__pyx_t_8, &__pyx_t_9, &__pyx_t_10);
+      __Pyx_XGOTREF(__pyx_t_8);
+      __Pyx_XGOTREF(__pyx_t_9);
+      __Pyx_XGOTREF(__pyx_t_10);
+      /*try:*/ {
+
+        /* "providers/gemini.py":44
+ *             self.api_key = key
+ *             try:
+ *                 self.client = genai.Client(api_key=self.api_key)             # <<<<<<<<<<<<<<
+ *             except Exception as err:
+ *                 print(f"[GeminiProvider] Client initialization error: {err}")
+*/
+        __pyx_t_4 = NULL;
+        __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_genai); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 44, __pyx_L7_error)
+        __Pyx_GOTREF(__pyx_t_2);
+        __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_Client); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 44, __pyx_L7_error)
+        __Pyx_GOTREF(__pyx_t_3);
+        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_api_key); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 44, __pyx_L7_error)
+        __Pyx_GOTREF(__pyx_t_2);
+        __pyx_t_5 = 1;
+        #if CYTHON_UNPACK_METHODS
+        if (unlikely(PyMethod_Check(__pyx_t_3))) {
+          __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
+          assert(__pyx_t_4);
+          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_3);
+          __Pyx_INCREF(__pyx_t_4);
+          __Pyx_INCREF(__pyx__function);
+          __Pyx_DECREF_SET(__pyx_t_3, __pyx__function);
+          __pyx_t_5 = 0;
+        }
+        #endif
+        {
+          PyObject *__pyx_callargs[2] = {__pyx_t_4, __pyx_t_2};
+          #if CYTHON_VECTORCALL
+          __pyx_t_11 = __pyx_mstate_global->__pyx_tuple[2];
+          if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 44, __pyx_L7_error)
+          __Pyx_INCREF(__pyx_t_11);
+          #else
+          {
+            PyObject *__pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_api_key};
+            __pyx_t_11 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 1);
+            if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 44, __pyx_L7_error)
+            __Pyx_GOTREF(__pyx_t_11);
+          }
+          #endif
+          __pyx_t_1 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_3, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_11);
+          __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+          __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+          __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
+          __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+          if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 44, __pyx_L7_error)
+          __Pyx_GOTREF(__pyx_t_1);
+        }
+        if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_client, __pyx_t_1) < (0)) __PYX_ERR(0, 44, __pyx_L7_error)
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+        /* "providers/gemini.py":43
+ *         if key and (self.client is None or key != self.api_key):
+ *             self.api_key = key
+ *             try:             # <<<<<<<<<<<<<<
+ *                 self.client = genai.Client(api_key=self.api_key)
+ *             except Exception as err:
+*/
+      }
+      __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
+      __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
+      __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
+      goto __pyx_L12_try_end;
+      __pyx_L7_error:;
+      __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+      __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
+      __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+      __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+      __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+
+      /* "providers/gemini.py":45
+ *             try:
+ *                 self.client = genai.Client(api_key=self.api_key)
+ *             except Exception as err:             # <<<<<<<<<<<<<<
+ *                 print(f"[GeminiProvider] Client initialization error: {err}")
+ *                 self.client = None
+*/
+      __pyx_t_12 = __Pyx_PyErr_ExceptionMatches(((PyObject *)(((PyTypeObject*)PyExc_Exception))));
+      if (__pyx_t_12) {
+        __Pyx_AddTraceback("providers.gemini.GeminiProvider._ensure_client", __pyx_clineno, __pyx_lineno, __pyx_filename);
+        if (__Pyx_GetException(&__pyx_t_1, &__pyx_t_3, &__pyx_t_11) < 0) __PYX_ERR(0, 45, __pyx_L9_except_error)
+        __Pyx_XGOTREF(__pyx_t_1);
+        __Pyx_XGOTREF(__pyx_t_3);
+        __Pyx_XGOTREF(__pyx_t_11);
+        __Pyx_INCREF(__pyx_t_3);
+        __pyx_v_err = __pyx_t_3;
+        /*try:*/ {
+
+          /* "providers/gemini.py":46
+ *                 self.client = genai.Client(api_key=self.api_key)
+ *             except Exception as err:
+ *                 print(f"[GeminiProvider] Client initialization error: {err}")             # <<<<<<<<<<<<<<
+ *                 self.client = None
  * 
- *         if self.api_key:
- *             self.client = genai.Client(api_key=self.api_key)             # <<<<<<<<<<<<<<
+*/
+          __pyx_t_4 = NULL;
+          __pyx_t_13 = __Pyx_PyObject_FormatSimple(__pyx_v_err, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 46, __pyx_L18_error)
+          __Pyx_GOTREF(__pyx_t_13);
+          __pyx_t_14 = __Pyx_PyUnicode_Concat(__pyx_mstate_global->__pyx_kp_u_GeminiProvider_Client_initializ, __pyx_t_13); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 46, __pyx_L18_error)
+          __Pyx_GOTREF(__pyx_t_14);
+          __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+          __pyx_t_5 = 1;
+          {
+            PyObject *__pyx_callargs[2] = {__pyx_t_4, __pyx_t_14};
+            __pyx_t_2 = __Pyx_PyObject_FastCall((PyObject*)__pyx_builtin_print, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+            __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+            __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+            if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 46, __pyx_L18_error)
+            __Pyx_GOTREF(__pyx_t_2);
+          }
+          __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+          /* "providers/gemini.py":47
+ *             except Exception as err:
+ *                 print(f"[GeminiProvider] Client initialization error: {err}")
+ *                 self.client = None             # <<<<<<<<<<<<<<
  * 
  *     @property
 */
-    __pyx_t_1 = NULL;
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_genai); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 32, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_Client); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 32, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_api_key); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 32, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_5 = 1;
-    #if CYTHON_UNPACK_METHODS
-    if (unlikely(PyMethod_Check(__pyx_t_3))) {
-      __pyx_t_1 = PyMethod_GET_SELF(__pyx_t_3);
-      assert(__pyx_t_1);
-      PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_3);
-      __Pyx_INCREF(__pyx_t_1);
-      __Pyx_INCREF(__pyx__function);
-      __Pyx_DECREF_SET(__pyx_t_3, __pyx__function);
-      __pyx_t_5 = 0;
-    }
-    #endif
-    {
-      PyObject *__pyx_callargs[2] = {__pyx_t_1, __pyx_t_2};
-      #if CYTHON_VECTORCALL
-      __pyx_t_7 = __pyx_mstate_global->__pyx_tuple[2];
-      if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 32, __pyx_L1_error)
-      __Pyx_INCREF(__pyx_t_7);
-      #else
-      {
-        PyObject *__pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_api_key};
-        __pyx_t_7 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 1);
-        if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 32, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_7);
-      }
-      #endif
-      __pyx_t_4 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_3, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_7);
-      __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-      __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 32, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_4);
-    }
-    if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_client, __pyx_t_4) < (0)) __PYX_ERR(0, 32, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+          if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_client, Py_None) < (0)) __PYX_ERR(0, 47, __pyx_L18_error)
+        }
 
-    /* "providers/gemini.py":31
- *         self.client = None
- * 
- *         if self.api_key:             # <<<<<<<<<<<<<<
- *             self.client = genai.Client(api_key=self.api_key)
- * 
+        /* "providers/gemini.py":45
+ *             try:
+ *                 self.client = genai.Client(api_key=self.api_key)
+ *             except Exception as err:             # <<<<<<<<<<<<<<
+ *                 print(f"[GeminiProvider] Client initialization error: {err}")
+ *                 self.client = None
+*/
+        /*finally:*/ {
+          /*normal exit:*/{
+            __Pyx_DECREF(__pyx_v_err); __pyx_v_err = 0;
+            goto __pyx_L19;
+          }
+          __pyx_L18_error:;
+          /*exception exit:*/{
+            __Pyx_PyThreadState_declare
+            __Pyx_PyThreadState_assign
+            __pyx_t_17 = 0; __pyx_t_18 = 0; __pyx_t_19 = 0; __pyx_t_20 = 0; __pyx_t_21 = 0; __pyx_t_22 = 0;
+            __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
+            __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
+            __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+            __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+             __Pyx_ExceptionSwap(&__pyx_t_20, &__pyx_t_21, &__pyx_t_22);
+            if ( unlikely(__Pyx_GetException(&__pyx_t_17, &__pyx_t_18, &__pyx_t_19) < 0)) __Pyx_ErrFetch(&__pyx_t_17, &__pyx_t_18, &__pyx_t_19);
+            __Pyx_XGOTREF(__pyx_t_17);
+            __Pyx_XGOTREF(__pyx_t_18);
+            __Pyx_XGOTREF(__pyx_t_19);
+            __Pyx_XGOTREF(__pyx_t_20);
+            __Pyx_XGOTREF(__pyx_t_21);
+            __Pyx_XGOTREF(__pyx_t_22);
+            __pyx_t_12 = __pyx_lineno; __pyx_t_15 = __pyx_clineno; __pyx_t_16 = __pyx_filename;
+            {
+              __Pyx_DECREF(__pyx_v_err); __pyx_v_err = 0;
+            }
+            __Pyx_XGIVEREF(__pyx_t_20);
+            __Pyx_XGIVEREF(__pyx_t_21);
+            __Pyx_XGIVEREF(__pyx_t_22);
+            __Pyx_ExceptionReset(__pyx_t_20, __pyx_t_21, __pyx_t_22);
+            __Pyx_XGIVEREF(__pyx_t_17);
+            __Pyx_XGIVEREF(__pyx_t_18);
+            __Pyx_XGIVEREF(__pyx_t_19);
+            __Pyx_ErrRestore(__pyx_t_17, __pyx_t_18, __pyx_t_19);
+            __pyx_t_17 = 0; __pyx_t_18 = 0; __pyx_t_19 = 0; __pyx_t_20 = 0; __pyx_t_21 = 0; __pyx_t_22 = 0;
+            __pyx_lineno = __pyx_t_12; __pyx_clineno = __pyx_t_15; __pyx_filename = __pyx_t_16;
+            goto __pyx_L9_except_error;
+          }
+          __pyx_L19:;
+        }
+        __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+        __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
+        goto __pyx_L8_exception_handled;
+      }
+      goto __pyx_L9_except_error;
+
+      /* "providers/gemini.py":43
+ *         if key and (self.client is None or key != self.api_key):
+ *             self.api_key = key
+ *             try:             # <<<<<<<<<<<<<<
+ *                 self.client = genai.Client(api_key=self.api_key)
+ *             except Exception as err:
+*/
+      __pyx_L9_except_error:;
+      __Pyx_XGIVEREF(__pyx_t_8);
+      __Pyx_XGIVEREF(__pyx_t_9);
+      __Pyx_XGIVEREF(__pyx_t_10);
+      __Pyx_ExceptionReset(__pyx_t_8, __pyx_t_9, __pyx_t_10);
+      goto __pyx_L1_error;
+      __pyx_L8_exception_handled:;
+      __Pyx_XGIVEREF(__pyx_t_8);
+      __Pyx_XGIVEREF(__pyx_t_9);
+      __Pyx_XGIVEREF(__pyx_t_10);
+      __Pyx_ExceptionReset(__pyx_t_8, __pyx_t_9, __pyx_t_10);
+      __pyx_L12_try_end:;
+    }
+
+    /* "providers/gemini.py":41
+ *         """Dynamically initialize or refresh Gemini client if API key is present."""
+ *         key = os.getenv("GEMINI_API_KEY")
+ *         if key and (self.client is None or key != self.api_key):             # <<<<<<<<<<<<<<
+ *             self.api_key = key
+ *             try:
 */
   }
 
-  /* "providers/gemini.py":18
+  /* "providers/gemini.py":38
+ *         self._ensure_client()
  * 
- * class GeminiProvider(AIProvider):
- *     def __init__(self):             # <<<<<<<<<<<<<<
- * 
- *         self.api_key = os.getenv("GEMINI_API_KEY")
+ *     def _ensure_client(self):             # <<<<<<<<<<<<<<
+ *         """Dynamically initialize or refresh Gemini client if API key is present."""
+ *         key = os.getenv("GEMINI_API_KEY")
 */
 
   /* function exit code */
@@ -3721,17 +4121,21 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider___init__(CYTHON_UN
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_XDECREF(__pyx_t_7);
-  __Pyx_AddTraceback("providers.gemini.GeminiProvider.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_XDECREF(__pyx_t_11);
+  __Pyx_XDECREF(__pyx_t_13);
+  __Pyx_XDECREF(__pyx_t_14);
+  __Pyx_AddTraceback("providers.gemini.GeminiProvider._ensure_client", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
+  __Pyx_XDECREF(__pyx_v_key);
+  __Pyx_XDECREF(__pyx_v_err);
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "providers/gemini.py":34
- *             self.client = genai.Client(api_key=self.api_key)
+/* "providers/gemini.py":49
+ *                 self.client = None
  * 
  *     @property             # <<<<<<<<<<<<<<
  *     def name(self) -> str:
@@ -3739,15 +4143,15 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider___init__(CYTHON_UN
 */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_9providers_6gemini_14GeminiProvider_3name(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_9providers_6gemini_14GeminiProvider_5name(PyObject *__pyx_self, 
 #if CYTHON_VECTORCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_9providers_6gemini_14GeminiProvider_3name = {"name", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9providers_6gemini_14GeminiProvider_3name, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_9providers_6gemini_14GeminiProvider_3name(PyObject *__pyx_self, 
+static PyMethodDef __pyx_mdef_9providers_6gemini_14GeminiProvider_5name = {"name", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9providers_6gemini_14GeminiProvider_5name, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_9providers_6gemini_14GeminiProvider_5name(PyObject *__pyx_self, 
 #if CYTHON_VECTORCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -3777,32 +4181,32 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_self,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 34, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 49, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 34, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 49, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "name", 0) < (0)) __PYX_ERR(0, 34, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "name", 0) < (0)) __PYX_ERR(0, 49, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("name", 1, 1, 1, i); __PYX_ERR(0, 34, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("name", 1, 1, 1, i); __PYX_ERR(0, 49, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 34, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 49, __pyx_L3_error)
     }
     __pyx_v_self = values[0];
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("name", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 34, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("name", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 49, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -3813,7 +4217,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_9providers_6gemini_14GeminiProvider_2name(__pyx_self, __pyx_v_self);
+  __pyx_r = __pyx_pf_9providers_6gemini_14GeminiProvider_4name(__pyx_self, __pyx_v_self);
 
   /* function exit code */
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
@@ -3823,12 +4227,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_2name(CYTHON_UNUSED PyObject *__pyx_self, CYTHON_UNUSED PyObject *__pyx_v_self) {
+static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_4name(CYTHON_UNUSED PyObject *__pyx_self, CYTHON_UNUSED PyObject *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("name", 0);
 
-  /* "providers/gemini.py":36
+  /* "providers/gemini.py":51
  *     @property
  *     def name(self) -> str:
  *         return "gemini"             # <<<<<<<<<<<<<<
@@ -3846,8 +4250,8 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_2name(CYTHON_UNUSE
   }
   goto __pyx_L0;
 
-  /* "providers/gemini.py":34
- *             self.client = genai.Client(api_key=self.api_key)
+  /* "providers/gemini.py":49
+ *                 self.client = None
  * 
  *     @property             # <<<<<<<<<<<<<<
  *     def name(self) -> str:
@@ -3861,24 +4265,24 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_2name(CYTHON_UNUSE
   return __pyx_r;
 }
 
-/* "providers/gemini.py":38
+/* "providers/gemini.py":53
  *         return "gemini"
  * 
  *     @property             # <<<<<<<<<<<<<<
  *     def available(self) -> bool:
- *         # Check if client is initialized and API key exists
+ *         self._ensure_client()
 */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_9providers_6gemini_14GeminiProvider_5available(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_9providers_6gemini_14GeminiProvider_7available(PyObject *__pyx_self, 
 #if CYTHON_VECTORCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_9providers_6gemini_14GeminiProvider_5available = {"available", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9providers_6gemini_14GeminiProvider_5available, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_9providers_6gemini_14GeminiProvider_5available(PyObject *__pyx_self, 
+static PyMethodDef __pyx_mdef_9providers_6gemini_14GeminiProvider_7available = {"available", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9providers_6gemini_14GeminiProvider_7available, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_9providers_6gemini_14GeminiProvider_7available(PyObject *__pyx_self, 
 #if CYTHON_VECTORCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -3908,32 +4312,32 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_self,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 38, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 53, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 38, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 53, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "available", 0) < (0)) __PYX_ERR(0, 38, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "available", 0) < (0)) __PYX_ERR(0, 53, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("available", 1, 1, 1, i); __PYX_ERR(0, 38, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("available", 1, 1, 1, i); __PYX_ERR(0, 53, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 38, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 53, __pyx_L3_error)
     }
     __pyx_v_self = values[0];
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("available", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 38, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("available", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 53, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -3944,7 +4348,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_9providers_6gemini_14GeminiProvider_4available(__pyx_self, __pyx_v_self);
+  __pyx_r = __pyx_pf_9providers_6gemini_14GeminiProvider_6available(__pyx_self, __pyx_v_self);
 
   /* function exit code */
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
@@ -3954,47 +4358,68 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_4available(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self) {
+static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_6available(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
-  int __pyx_t_3;
+  size_t __pyx_t_3;
+  int __pyx_t_4;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("available", 0);
 
-  /* "providers/gemini.py":43
- *         # We don't check connectivity here to avoid blocking initialization
- *         # Connectivity will be tested during actual usage with proper timeout
- *         return self.client is not None and self.api_key is not None             # <<<<<<<<<<<<<<
+  /* "providers/gemini.py":55
+ *     @property
+ *     def available(self) -> bool:
+ *         self._ensure_client()             # <<<<<<<<<<<<<<
+ *         return self.client is not None and bool(self.api_key)
+ * 
+*/
+  __pyx_t_2 = __pyx_v_self;
+  __Pyx_INCREF(__pyx_t_2);
+  __pyx_t_3 = 0;
+  {
+    PyObject *__pyx_callargs[2] = {__pyx_t_2, NULL};
+    __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_ensure_client, __pyx_callargs+__pyx_t_3, (1-__pyx_t_3) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 55, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+  }
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "providers/gemini.py":56
+ *     def available(self) -> bool:
+ *         self._ensure_client()
+ *         return self.client is not None and bool(self.api_key)             # <<<<<<<<<<<<<<
  * 
  *     async def ask_tutor(
 */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_client); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 43, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_client); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 56, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = (__pyx_t_2 != Py_None);
+  __pyx_t_4 = (__pyx_t_2 != Py_None);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (__pyx_t_3) {
+  if (__pyx_t_4) {
 
   } else {
-    __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 43, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 56, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __pyx_t_1 = __pyx_t_2;
     __pyx_t_2 = 0;
 
     goto __pyx_L3_bool_binop_done;
   }
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_api_key); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 43, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_mstate_global->__pyx_n_u_api_key); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 56, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = (__pyx_t_2 != Py_None);
+  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely((__pyx_t_4 < 0))) __PYX_ERR(0, 56, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 43, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyBool_FromLong((!(!__pyx_t_4))); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 56, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = __pyx_t_2;
-  __pyx_t_2 = 0;
 
+  __Pyx_INCREF(__pyx_t_2);
+  __pyx_t_1 = __pyx_t_2;
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_L3_bool_binop_done:;
   {
     PyObject *__pyx_temp;
@@ -4007,12 +4432,12 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_4available(CYTHON_
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "providers/gemini.py":38
+  /* "providers/gemini.py":53
  *         return "gemini"
  * 
  *     @property             # <<<<<<<<<<<<<<
  *     def available(self) -> bool:
- *         # Check if client is initialized and API key exists
+ *         self._ensure_client()
 */
 
   /* function exit code */
@@ -4026,10 +4451,10 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_4available(CYTHON_
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
-static PyObject *__pyx_gb_9providers_6gemini_14GeminiProvider_8generator(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
+static PyObject *__pyx_gb_9providers_6gemini_14GeminiProvider_10generator(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
-/* "providers/gemini.py":45
- *         return self.client is not None and self.api_key is not None
+/* "providers/gemini.py":58
+ *         return self.client is not None and bool(self.api_key)
  * 
  *     async def ask_tutor(             # <<<<<<<<<<<<<<
  *         self,
@@ -4037,15 +4462,15 @@ static PyObject *__pyx_gb_9providers_6gemini_14GeminiProvider_8generator(__pyx_C
 */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_9providers_6gemini_14GeminiProvider_7ask_tutor(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_9providers_6gemini_14GeminiProvider_9ask_tutor(PyObject *__pyx_self, 
 #if CYTHON_VECTORCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_9providers_6gemini_14GeminiProvider_7ask_tutor = {"ask_tutor", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9providers_6gemini_14GeminiProvider_7ask_tutor, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_9providers_6gemini_14GeminiProvider_7ask_tutor(PyObject *__pyx_self, 
+static PyMethodDef __pyx_mdef_9providers_6gemini_14GeminiProvider_9ask_tutor = {"ask_tutor", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9providers_6gemini_14GeminiProvider_9ask_tutor, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_9providers_6gemini_14GeminiProvider_9ask_tutor(PyObject *__pyx_self, 
 #if CYTHON_VECTORCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -4076,39 +4501,39 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_self,&__pyx_mstate_global->__pyx_n_u_request,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 45, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 58, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 45, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 58, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 45, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 58, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "ask_tutor", 0) < (0)) __PYX_ERR(0, 45, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "ask_tutor", 0) < (0)) __PYX_ERR(0, 58, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 2; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("ask_tutor", 1, 2, 2, i); __PYX_ERR(0, 45, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("ask_tutor", 1, 2, 2, i); __PYX_ERR(0, 58, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 45, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 58, __pyx_L3_error)
       values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 45, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 58, __pyx_L3_error)
     }
     __pyx_v_self = values[0];
     __pyx_v_request = values[1];
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("ask_tutor", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 45, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("ask_tutor", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 58, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -4119,7 +4544,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_9providers_6gemini_14GeminiProvider_6ask_tutor(__pyx_self, __pyx_v_self, __pyx_v_request);
+  __pyx_r = __pyx_pf_9providers_6gemini_14GeminiProvider_8ask_tutor(__pyx_self, __pyx_v_self, __pyx_v_request);
 
   /* function exit code */
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
@@ -4130,7 +4555,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 }
 static PyObject *__pyx_gb_9providers_6gemini_14GeminiProvider_9ask_tutor_2generator2(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
-/* "providers/gemini.py":54
+/* "providers/gemini.py":67
  * 
  *         options_text = "\n".join(
  *             f"{option.label}. {option.text}" for option in request.options             # <<<<<<<<<<<<<<
@@ -4150,7 +4575,7 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_9ask_tutor_genexpr
   if (unlikely(!__pyx_cur_scope)) {
     __pyx_cur_scope = ((struct __pyx_obj_9providers_6gemini___pyx_scope_struct_1_genexpr *)Py_None);
     __Pyx_INCREF(Py_None);
-    __PYX_ERR(0, 54, __pyx_L1_error)
+    __PYX_ERR(0, 67, __pyx_L1_error)
   } else {
     __Pyx_GOTREF((PyObject *)__pyx_cur_scope);
   }
@@ -4158,7 +4583,7 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_9ask_tutor_genexpr
   __Pyx_INCREF(__pyx_cur_scope->__pyx_genexpr_arg_0);
   __Pyx_GIVEREF(__pyx_cur_scope->__pyx_genexpr_arg_0);
   {
-    __pyx_CoroutineObject *gen = __Pyx_Generator_New((__pyx_coroutine_body_t) __pyx_gb_9providers_6gemini_14GeminiProvider_9ask_tutor_2generator2, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[0]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_genexpr, __pyx_mstate_global->__pyx_n_u_GeminiProvider_ask_tutor_locals, __pyx_mstate_global->__pyx_n_u_providers_gemini); if (unlikely(!gen)) __PYX_ERR(0, 54, __pyx_L1_error)
+    __pyx_CoroutineObject *gen = __Pyx_Generator_New((__pyx_coroutine_body_t) __pyx_gb_9providers_6gemini_14GeminiProvider_9ask_tutor_2generator2, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[0]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_genexpr, __pyx_mstate_global->__pyx_n_u_GeminiProvider_ask_tutor_locals, __pyx_mstate_global->__pyx_n_u_providers_gemini); if (unlikely(!gen)) __PYX_ERR(0, 67, __pyx_L1_error)
     __Pyx_DECREF(__pyx_cur_scope);
     __Pyx_RefNannyFinishContext();
     return (PyObject *) gen;
@@ -4199,18 +4624,18 @@ static PyObject *__pyx_gb_9providers_6gemini_14GeminiProvider_9ask_tutor_2genera
     return NULL;
   }
   __pyx_L3_first_run:;
-  if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 54, __pyx_L1_error)
-  __pyx_r = PyList_New(0); if (unlikely(!__pyx_r)) __PYX_ERR(0, 54, __pyx_L1_error)
+  if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 67, __pyx_L1_error)
+  __pyx_r = PyList_New(0); if (unlikely(!__pyx_r)) __PYX_ERR(0, 67, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_r);
-  if (unlikely(!__pyx_cur_scope->__pyx_genexpr_arg_0)) { __Pyx_RaiseUnboundLocalError(".0"); __PYX_ERR(0, 54, __pyx_L1_error) }
+  if (unlikely(!__pyx_cur_scope->__pyx_genexpr_arg_0)) { __Pyx_RaiseUnboundLocalError(".0"); __PYX_ERR(0, 67, __pyx_L1_error) }
   if (likely(PyList_CheckExact(__pyx_cur_scope->__pyx_genexpr_arg_0)) || PyTuple_CheckExact(__pyx_cur_scope->__pyx_genexpr_arg_0)) {
     __pyx_t_1 = __pyx_cur_scope->__pyx_genexpr_arg_0; __Pyx_INCREF(__pyx_t_1);
     __pyx_t_2 = 0;
     __pyx_t_3 = NULL;
   } else {
-    __pyx_t_2 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_cur_scope->__pyx_genexpr_arg_0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 54, __pyx_L1_error)
+    __pyx_t_2 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_cur_scope->__pyx_genexpr_arg_0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 67, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_3 = (CYTHON_COMPILING_IN_LIMITED_API) ? PyIter_Next : __Pyx_PyObject_GetIterNextFunc(__pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 54, __pyx_L1_error)
+    __pyx_t_3 = (CYTHON_COMPILING_IN_LIMITED_API) ? PyIter_Next : __Pyx_PyObject_GetIterNextFunc(__pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 67, __pyx_L1_error)
   }
   for (;;) {
     if (likely(!__pyx_t_3)) {
@@ -4218,7 +4643,7 @@ static PyObject *__pyx_gb_9providers_6gemini_14GeminiProvider_9ask_tutor_2genera
         {
           Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_1);
           #if !CYTHON_ASSUME_SAFE_SIZE
-          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 54, __pyx_L1_error)
+          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 67, __pyx_L1_error)
           #endif
           if (__pyx_t_2 >= __pyx_temp) break;
         }
@@ -4228,7 +4653,7 @@ static PyObject *__pyx_gb_9providers_6gemini_14GeminiProvider_9ask_tutor_2genera
         {
           Py_ssize_t __pyx_temp = __Pyx_PyTuple_GET_SIZE(__pyx_t_1);
           #if !CYTHON_ASSUME_SAFE_SIZE
-          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 54, __pyx_L1_error)
+          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 67, __pyx_L1_error)
           #endif
           if (__pyx_t_2 >= __pyx_temp) break;
         }
@@ -4239,13 +4664,13 @@ static PyObject *__pyx_gb_9providers_6gemini_14GeminiProvider_9ask_tutor_2genera
         #endif
         ++__pyx_t_2;
       }
-      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 54, __pyx_L1_error)
+      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 67, __pyx_L1_error)
     } else {
       __pyx_t_4 = __pyx_t_3(__pyx_t_1);
       if (unlikely(!__pyx_t_4)) {
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
-          if (unlikely(!__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) __PYX_ERR(0, 54, __pyx_L1_error)
+          if (unlikely(!__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) __PYX_ERR(0, 67, __pyx_L1_error)
           PyErr_Clear();
         }
         break;
@@ -4256,14 +4681,14 @@ static PyObject *__pyx_gb_9providers_6gemini_14GeminiProvider_9ask_tutor_2genera
     __Pyx_XDECREF_SET(__pyx_cur_scope->__pyx_v_option, __pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_4);
     __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_option, __pyx_mstate_global->__pyx_n_u_label); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 54, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_option, __pyx_mstate_global->__pyx_n_u_label); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 67, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_5 = __Pyx_PyObject_FormatSimple(__pyx_t_4, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 54, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_FormatSimple(__pyx_t_4, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 67, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_option, __pyx_mstate_global->__pyx_n_u_text); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 54, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_option, __pyx_mstate_global->__pyx_n_u_text); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 67, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_6 = __Pyx_PyObject_FormatSimple(__pyx_t_4, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 54, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_FormatSimple(__pyx_t_4, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 67, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __pyx_t_7[0] = __pyx_t_5;
@@ -4278,12 +4703,12 @@ static PyObject *__pyx_gb_9providers_6gemini_14GeminiProvider_9ask_tutor_2genera
     __pyx_t_9 |= __Pyx_PyUnicode_KIND_04(__pyx_t_7[0]) | __Pyx_PyUnicode_KIND_04(__pyx_t_7[2]);
     #endif
     __pyx_t_4 = __Pyx_PyUnicode_Join(__pyx_t_7, 3, __pyx_t_8, __pyx_t_9);
-    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 54, __pyx_L1_error)
+    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 67, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_GIVEREF(__pyx_t_4);
-    if (unlikely(__Pyx_ListComp_AppendAndDecref(__pyx_r, __pyx_t_4))) __PYX_ERR(0, 54, __pyx_L1_error)
+    if (unlikely(__Pyx_ListComp_AppendAndDecref(__pyx_r, __pyx_t_4))) __PYX_ERR(0, 67, __pyx_L1_error)
     __pyx_t_4 = 0;
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -4312,15 +4737,15 @@ static PyObject *__pyx_gb_9providers_6gemini_14GeminiProvider_9ask_tutor_2genera
   return __pyx_r;
 }
 
-/* "providers/gemini.py":45
- *         return self.client is not None and self.api_key is not None
+/* "providers/gemini.py":58
+ *         return self.client is not None and bool(self.api_key)
  * 
  *     async def ask_tutor(             # <<<<<<<<<<<<<<
  *         self,
  *         request: TutorRequest,
 */
 
-static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_6ask_tutor(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_request) {
+static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_8ask_tutor(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_request) {
   struct __pyx_obj_9providers_6gemini___pyx_scope_struct__ask_tutor *__pyx_cur_scope;
   PyObject *__pyx_gb_9providers_6gemini_14GeminiProvider_9ask_tutor_2generator2 = 0;
   PyObject *__pyx_r = NULL;
@@ -4333,7 +4758,7 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_6ask_tutor(CYTHON_
   if (unlikely(!__pyx_cur_scope)) {
     __pyx_cur_scope = ((struct __pyx_obj_9providers_6gemini___pyx_scope_struct__ask_tutor *)Py_None);
     __Pyx_INCREF(Py_None);
-    __PYX_ERR(0, 45, __pyx_L1_error)
+    __PYX_ERR(0, 58, __pyx_L1_error)
   } else {
     __Pyx_GOTREF((PyObject *)__pyx_cur_scope);
   }
@@ -4344,7 +4769,7 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_6ask_tutor(CYTHON_
   __Pyx_INCREF(__pyx_cur_scope->__pyx_v_request);
   __Pyx_GIVEREF(__pyx_cur_scope->__pyx_v_request);
   {
-    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_9providers_6gemini_14GeminiProvider_8generator, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[1]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_ask_tutor, __pyx_mstate_global->__pyx_n_u_GeminiProvider_ask_tutor, __pyx_mstate_global->__pyx_n_u_providers_gemini); if (unlikely(!gen)) __PYX_ERR(0, 45, __pyx_L1_error)
+    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_9providers_6gemini_14GeminiProvider_10generator, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[1]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_ask_tutor, __pyx_mstate_global->__pyx_n_u_GeminiProvider_ask_tutor, __pyx_mstate_global->__pyx_n_u_providers_gemini); if (unlikely(!gen)) __PYX_ERR(0, 58, __pyx_L1_error)
     __Pyx_DECREF(__pyx_cur_scope);
     __Pyx_RefNannyFinishContext();
     return (PyObject *) gen;
@@ -4361,15 +4786,15 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_6ask_tutor(CYTHON_
   return __pyx_r;
 }
 
-static PyObject *__pyx_gb_9providers_6gemini_14GeminiProvider_8generator(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
+static PyObject *__pyx_gb_9providers_6gemini_14GeminiProvider_10generator(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
 {
   struct __pyx_obj_9providers_6gemini___pyx_scope_struct__ask_tutor *__pyx_cur_scope = ((struct __pyx_obj_9providers_6gemini___pyx_scope_struct__ask_tutor *)__pyx_generator->closure);
   PyObject *__pyx_r = NULL;
   PyObject *__pyx_t_1 = NULL;
-  int __pyx_t_2;
-  int __pyx_t_3;
-  PyObject *__pyx_t_4 = NULL;
-  size_t __pyx_t_5;
+  PyObject *__pyx_t_2 = NULL;
+  size_t __pyx_t_3;
+  int __pyx_t_4;
+  int __pyx_t_5;
   PyObject *__pyx_t_6 = NULL;
   PyObject *__pyx_t_7 = NULL;
   PyObject *__pyx_t_8 = NULL;
@@ -4392,86 +4817,105 @@ static PyObject *__pyx_gb_9providers_6gemini_14GeminiProvider_8generator(__pyx_C
   __pyx_L3_first_run:;
   if (unlikely(__pyx_sent_value != Py_None)) {
     if (unlikely(__pyx_sent_value)) PyErr_SetString(PyExc_TypeError, "can't send non-None value to a just-started coroutine");
-    __PYX_ERR(0, 45, __pyx_L1_error)
+    __PYX_ERR(0, 58, __pyx_L1_error)
   }
 
-  /* "providers/gemini.py":50
+  /* "providers/gemini.py":62
+ *         request: TutorRequest,
  *     ) -> dict:
- * 
+ *         self._ensure_client()             # <<<<<<<<<<<<<<
+ *         if not self.available:
+ *             raise RuntimeError("Gemini provider is not configured. Missing GEMINI_API_KEY.")
+*/
+  __pyx_t_2 = __pyx_cur_scope->__pyx_v_self;
+  __Pyx_INCREF(__pyx_t_2);
+  __pyx_t_3 = 0;
+  {
+    PyObject *__pyx_callargs[2] = {__pyx_t_2, NULL};
+    __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_ensure_client, __pyx_callargs+__pyx_t_3, (1-__pyx_t_3) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 62, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+  }
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "providers/gemini.py":63
+ *     ) -> dict:
+ *         self._ensure_client()
  *         if not self.available:             # <<<<<<<<<<<<<<
- *             raise RuntimeError("Gemini provider is not configured.")
+ *             raise RuntimeError("Gemini provider is not configured. Missing GEMINI_API_KEY.")
  * 
 */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_self, __pyx_mstate_global->__pyx_n_u_available); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 50, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_self, __pyx_mstate_global->__pyx_n_u_available); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 63, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_2 < 0))) __PYX_ERR(0, 50, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_4 < 0))) __PYX_ERR(0, 63, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_3 = (!__pyx_t_2);
+  __pyx_t_5 = (!__pyx_t_4);
 
 
-  if (unlikely(__pyx_t_3)) {
+  if (unlikely(__pyx_t_5)) {
 
 
-    /* "providers/gemini.py":51
- * 
+    /* "providers/gemini.py":64
+ *         self._ensure_client()
  *         if not self.available:
- *             raise RuntimeError("Gemini provider is not configured.")             # <<<<<<<<<<<<<<
+ *             raise RuntimeError("Gemini provider is not configured. Missing GEMINI_API_KEY.")             # <<<<<<<<<<<<<<
  * 
  *         options_text = "\n".join(
 */
-    __pyx_t_4 = NULL;
-    __pyx_t_5 = 1;
+    __pyx_t_2 = NULL;
+    __pyx_t_3 = 1;
     {
-      PyObject *__pyx_callargs[2] = {__pyx_t_4, __pyx_mstate_global->__pyx_kp_u_Gemini_provider_is_not_configure};
-      __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)(((PyTypeObject*)PyExc_RuntimeError)), __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-      __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 51, __pyx_L1_error)
+      PyObject *__pyx_callargs[2] = {__pyx_t_2, __pyx_mstate_global->__pyx_kp_u_Gemini_provider_is_not_configure};
+      __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)(((PyTypeObject*)PyExc_RuntimeError)), __pyx_callargs+__pyx_t_3, (2-__pyx_t_3) | (__pyx_t_3*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+      __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 64, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
     }
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 51, __pyx_L1_error)
+    __PYX_ERR(0, 64, __pyx_L1_error)
 
-    /* "providers/gemini.py":50
+    /* "providers/gemini.py":63
  *     ) -> dict:
- * 
+ *         self._ensure_client()
  *         if not self.available:             # <<<<<<<<<<<<<<
- *             raise RuntimeError("Gemini provider is not configured.")
+ *             raise RuntimeError("Gemini provider is not configured. Missing GEMINI_API_KEY.")
  * 
 */
   }
 
-  /* "providers/gemini.py":54
+  /* "providers/gemini.py":67
  * 
  *         options_text = "\n".join(
  *             f"{option.label}. {option.text}" for option in request.options             # <<<<<<<<<<<<<<
  *         )
  * 
 */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_options); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 54, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_request, __pyx_mstate_global->__pyx_n_u_options); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 67, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __pyx_pf_9providers_6gemini_14GeminiProvider_9ask_tutor_genexpr(NULL, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 54, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_2 = __pyx_pf_9providers_6gemini_14GeminiProvider_9ask_tutor_genexpr(NULL, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 67, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "providers/gemini.py":53
- *             raise RuntimeError("Gemini provider is not configured.")
+  /* "providers/gemini.py":66
+ *             raise RuntimeError("Gemini provider is not configured. Missing GEMINI_API_KEY.")
  * 
  *         options_text = "\n".join(             # <<<<<<<<<<<<<<
  *             f"{option.label}. {option.text}" for option in request.options
  *         )
 */
-  __pyx_t_1 = __Pyx_Generator_GetInlinedResult(__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 53, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_Generator_GetInlinedResult(__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = PyUnicode_Join(__pyx_mstate_global->__pyx_kp_u__3, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 53, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_2 = PyUnicode_Join(__pyx_mstate_global->__pyx_kp_u__3, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 66, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __Pyx_GIVEREF(__pyx_t_4);
-  __pyx_cur_scope->__pyx_v_options_text = ((PyObject*)__pyx_t_4);
-  __pyx_t_4 = 0;
+  __Pyx_GIVEREF(__pyx_t_2);
+  __pyx_cur_scope->__pyx_v_options_text = ((PyObject*)__pyx_t_2);
+  __pyx_t_2 = 0;
 
-  /* "providers/gemini.py":57
+  /* "providers/gemini.py":70
  *         )
  * 
  *         prompt = self._build_prompt(             # <<<<<<<<<<<<<<
@@ -4481,39 +4925,39 @@ static PyObject *__pyx_gb_9providers_6gemini_14GeminiProvider_8generator(__pyx_C
   __pyx_t_1 = __pyx_cur_scope->__pyx_v_self;
   __Pyx_INCREF(__pyx_t_1);
 
-  /* "providers/gemini.py":59
+  /* "providers/gemini.py":72
  *         prompt = self._build_prompt(
  *             request=request,
  *             options_text=options_text,             # <<<<<<<<<<<<<<
  *         )
  * 
 */
-  __pyx_t_5 = 0;
+  __pyx_t_3 = 0;
   {
     PyObject *__pyx_callargs[3] = {__pyx_t_1, __pyx_cur_scope->__pyx_v_request, __pyx_cur_scope->__pyx_v_options_text};
     #if CYTHON_VECTORCALL
     __pyx_t_6 = __pyx_mstate_global->__pyx_tuple[3];
-    if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 57, __pyx_L1_error)
+    if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 70, __pyx_L1_error)
     __Pyx_INCREF(__pyx_t_6);
     #else
     {
       PyObject *__pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_request, __pyx_mstate_global->__pyx_n_u_options_text};
       __pyx_t_6 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
-      if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 57, __pyx_L1_error)
+      if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 70, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
     }
     #endif
-    __pyx_t_4 = __Pyx_Object_VectorcallMethodKwds((PyObject*)__pyx_mstate_global->__pyx_n_u_build_prompt, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_6);
+    __pyx_t_2 = __Pyx_Object_VectorcallMethodKwds((PyObject*)__pyx_mstate_global->__pyx_n_u_build_prompt, __pyx_callargs+__pyx_t_3, (1-__pyx_t_3) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_6);
     __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 57, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 70, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
   }
-  __Pyx_GIVEREF(__pyx_t_4);
-  __pyx_cur_scope->__pyx_v_prompt = __pyx_t_4;
-  __pyx_t_4 = 0;
+  __Pyx_GIVEREF(__pyx_t_2);
+  __pyx_cur_scope->__pyx_v_prompt = __pyx_t_2;
+  __pyx_t_2 = 0;
 
-  /* "providers/gemini.py":62
+  /* "providers/gemini.py":75
  *         )
  * 
  *         response = await asyncio.wait_for(             # <<<<<<<<<<<<<<
@@ -4521,81 +4965,81 @@ static PyObject *__pyx_gb_9providers_6gemini_14GeminiProvider_8generator(__pyx_C
  *                 model=self.model,
 */
   __pyx_t_6 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_asyncio); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_asyncio); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 75, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_wait_for); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_wait_for); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 75, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "providers/gemini.py":63
+  /* "providers/gemini.py":76
  * 
  *         response = await asyncio.wait_for(
  *             self.client.aio.models.generate_content(             # <<<<<<<<<<<<<<
  *                 model=self.model,
  *                 contents=prompt,
 */
-  __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_self, __pyx_mstate_global->__pyx_n_u_client); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 63, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_self, __pyx_mstate_global->__pyx_n_u_client); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 76, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
-  __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_aio); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 63, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_aio); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 76, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-  __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_models); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 63, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_models); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 76, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
   __pyx_t_8 = __pyx_t_9;
   __Pyx_INCREF(__pyx_t_8);
 
-  /* "providers/gemini.py":64
+  /* "providers/gemini.py":77
  *         response = await asyncio.wait_for(
  *             self.client.aio.models.generate_content(
  *                 model=self.model,             # <<<<<<<<<<<<<<
  *                 contents=prompt,
  *             ),
 */
-  __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_self, __pyx_mstate_global->__pyx_n_u_model); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 64, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_self, __pyx_mstate_global->__pyx_n_u_model); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
 
-  /* "providers/gemini.py":65
+  /* "providers/gemini.py":78
  *             self.client.aio.models.generate_content(
  *                 model=self.model,
  *                 contents=prompt,             # <<<<<<<<<<<<<<
  *             ),
  *             timeout=self.timeout,
 */
-  __pyx_t_5 = 0;
+  __pyx_t_3 = 0;
   {
     PyObject *__pyx_callargs[3] = {__pyx_t_8, __pyx_t_10, __pyx_cur_scope->__pyx_v_prompt};
     #if CYTHON_VECTORCALL
     __pyx_t_11 = __pyx_mstate_global->__pyx_tuple[4];
-    if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 63, __pyx_L1_error)
+    if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 76, __pyx_L1_error)
     __Pyx_INCREF(__pyx_t_11);
     #else
     {
       PyObject *__pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_model, __pyx_mstate_global->__pyx_n_u_contents};
       __pyx_t_11 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
-      if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 63, __pyx_L1_error)
+      if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 76, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_11);
     }
     #endif
-    __pyx_t_1 = __Pyx_Object_VectorcallMethodKwds((PyObject*)__pyx_mstate_global->__pyx_n_u_generate_content, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_11);
+    __pyx_t_1 = __Pyx_Object_VectorcallMethodKwds((PyObject*)__pyx_mstate_global->__pyx_n_u_generate_content, __pyx_callargs+__pyx_t_3, (1-__pyx_t_3) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_11);
     __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
     __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 63, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 76, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
 
-  /* "providers/gemini.py":67
+  /* "providers/gemini.py":80
  *                 contents=prompt,
  *             ),
  *             timeout=self.timeout,             # <<<<<<<<<<<<<<
  *         )
  * 
 */
-  __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_self, __pyx_mstate_global->__pyx_n_u_timeout); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 67, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_self, __pyx_mstate_global->__pyx_n_u_timeout); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 80, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
-  __pyx_t_5 = 1;
+  __pyx_t_3 = 1;
   #if CYTHON_UNPACK_METHODS
   if (unlikely(PyMethod_Check(__pyx_t_7))) {
     __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_7);
@@ -4604,34 +5048,34 @@ static PyObject *__pyx_gb_9providers_6gemini_14GeminiProvider_8generator(__pyx_C
     __Pyx_INCREF(__pyx_t_6);
     __Pyx_INCREF(__pyx__function);
     __Pyx_DECREF_SET(__pyx_t_7, __pyx__function);
-    __pyx_t_5 = 0;
+    __pyx_t_3 = 0;
   }
   #endif
   {
     PyObject *__pyx_callargs[3] = {__pyx_t_6, __pyx_t_1, __pyx_t_9};
     #if CYTHON_VECTORCALL
     __pyx_t_11 = __pyx_mstate_global->__pyx_tuple[5];
-    if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 62, __pyx_L1_error)
+    if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 75, __pyx_L1_error)
     __Pyx_INCREF(__pyx_t_11);
     #else
     {
       PyObject *__pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_timeout};
       __pyx_t_11 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+2, 1);
-      if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 62, __pyx_L1_error)
+      if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 75, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_11);
     }
     #endif
-    __pyx_t_4 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_7, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_11);
+    __pyx_t_2 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_7, __pyx_callargs+__pyx_t_3, (2-__pyx_t_3) | (__pyx_t_3*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_11);
     __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 62, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 75, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
   }
-  __pyx_t_12 = __Pyx_Coroutine_Yield_From(__pyx_generator, __pyx_t_4, &__pyx_r);
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_t_12 = __Pyx_Coroutine_Yield_From(__pyx_generator, __pyx_t_2, &__pyx_r);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   if (likely(__pyx_t_12 == PYGEN_NEXT)) {
     __Pyx_GOTREF(__pyx_r);
     __Pyx_XGIVEREF(__pyx_r);
@@ -4641,75 +5085,75 @@ static PyObject *__pyx_gb_9providers_6gemini_14GeminiProvider_8generator(__pyx_C
     __pyx_generator->resume_label = 1;
     return __pyx_r;
     __pyx_L5_resume_from_await:;
-    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 62, __pyx_L1_error)
-    __pyx_t_4 = __pyx_sent_value; __Pyx_INCREF(__pyx_t_4);
+    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 75, __pyx_L1_error)
+    __pyx_t_2 = __pyx_sent_value; __Pyx_INCREF(__pyx_t_2);
   } else if (likely(__pyx_t_12 == PYGEN_RETURN)) {
     __Pyx_GOTREF(__pyx_r);
-    __pyx_t_4 = __pyx_r; __pyx_r = NULL;
+    __pyx_t_2 = __pyx_r; __pyx_r = NULL;
   } else {
     __Pyx_XGOTREF(__pyx_r);
-    __PYX_ERR(0, 62, __pyx_L1_error)
+    __PYX_ERR(0, 75, __pyx_L1_error)
   }
-  __Pyx_GIVEREF(__pyx_t_4);
-  __pyx_cur_scope->__pyx_v_response = __pyx_t_4;
-  __pyx_t_4 = 0;
+  __Pyx_GIVEREF(__pyx_t_2);
+  __pyx_cur_scope->__pyx_v_response = __pyx_t_2;
+  __pyx_t_2 = 0;
 
-  /* "providers/gemini.py":70
+  /* "providers/gemini.py":83
  *         )
  * 
  *         raw = response.text.strip()             # <<<<<<<<<<<<<<
- * 
  *         return self._parse_response(raw)
+ * 
 */
-  __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_response, __pyx_mstate_global->__pyx_n_u_text); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 70, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_response, __pyx_mstate_global->__pyx_n_u_text); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 83, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
   __pyx_t_7 = __pyx_t_11;
   __Pyx_INCREF(__pyx_t_7);
-  __pyx_t_5 = 0;
+  __pyx_t_3 = 0;
   {
     PyObject *__pyx_callargs[2] = {__pyx_t_7, NULL};
-    __pyx_t_4 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_strip, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __pyx_t_2 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_strip, __pyx_callargs+__pyx_t_3, (1-__pyx_t_3) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 70, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 83, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
   }
-  __Pyx_GIVEREF(__pyx_t_4);
-  __pyx_cur_scope->__pyx_v_raw = __pyx_t_4;
-  __pyx_t_4 = 0;
+  __Pyx_GIVEREF(__pyx_t_2);
+  __pyx_cur_scope->__pyx_v_raw = __pyx_t_2;
+  __pyx_t_2 = 0;
 
-  /* "providers/gemini.py":72
- *         raw = response.text.strip()
+  /* "providers/gemini.py":84
  * 
+ *         raw = response.text.strip()
  *         return self._parse_response(raw)             # <<<<<<<<<<<<<<
  * 
  *     async def chat(self, prompt: str) -> str:
 */
   __pyx_t_11 = __pyx_cur_scope->__pyx_v_self;
   __Pyx_INCREF(__pyx_t_11);
-  __pyx_t_5 = 0;
+  __pyx_t_3 = 0;
   {
     PyObject *__pyx_callargs[2] = {__pyx_t_11, __pyx_cur_scope->__pyx_v_raw};
-    __pyx_t_4 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_parse_response, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __pyx_t_2 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_parse_response, __pyx_callargs+__pyx_t_3, (2-__pyx_t_3) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
-    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 72, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 84, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
   }
-  if (!(likely(PyDict_CheckExact(__pyx_t_4))||((__pyx_t_4) == Py_None) || __Pyx_RaiseUnexpectedTypeError("dict", __pyx_t_4))) __PYX_ERR(0, 72, __pyx_L1_error)
+  if (!(likely(PyDict_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None) || __Pyx_RaiseUnexpectedTypeError("dict", __pyx_t_2))) __PYX_ERR(0, 84, __pyx_L1_error)
   {
     PyObject *__pyx_temp;
     {
       __pyx_temp = __pyx_r;
-      __pyx_r = ((PyObject*)__pyx_t_4);
+      __pyx_r = ((PyObject*)__pyx_t_2);
     }
     __Pyx_XDECREF(__pyx_temp);
   }
-  __pyx_t_4 = 0;
+  __pyx_t_2 = 0;
   goto __pyx_L0;
   CYTHON_MAYBE_UNUSED_VAR(__pyx_cur_scope);
 
-  /* "providers/gemini.py":45
- *         return self.client is not None and self.api_key is not None
+  /* "providers/gemini.py":58
+ *         return self.client is not None and bool(self.api_key)
  * 
  *     async def ask_tutor(             # <<<<<<<<<<<<<<
  *         self,
@@ -4719,7 +5163,7 @@ static PyObject *__pyx_gb_9providers_6gemini_14GeminiProvider_8generator(__pyx_C
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_7);
   __Pyx_XDECREF(__pyx_t_8);
@@ -4740,26 +5184,26 @@ static PyObject *__pyx_gb_9providers_6gemini_14GeminiProvider_8generator(__pyx_C
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
-static PyObject *__pyx_gb_9providers_6gemini_14GeminiProvider_11generator1(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
+static PyObject *__pyx_gb_9providers_6gemini_14GeminiProvider_13generator1(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
-/* "providers/gemini.py":74
+/* "providers/gemini.py":86
  *         return self._parse_response(raw)
  * 
  *     async def chat(self, prompt: str) -> str:             # <<<<<<<<<<<<<<
+ *         self._ensure_client()
  *         if not self.available:
- *             raise RuntimeError("Gemini provider is not configured.")
 */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_9providers_6gemini_14GeminiProvider_10chat(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_9providers_6gemini_14GeminiProvider_12chat(PyObject *__pyx_self, 
 #if CYTHON_VECTORCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_9providers_6gemini_14GeminiProvider_10chat = {"chat", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9providers_6gemini_14GeminiProvider_10chat, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_9providers_6gemini_14GeminiProvider_10chat(PyObject *__pyx_self, 
+static PyMethodDef __pyx_mdef_9providers_6gemini_14GeminiProvider_12chat = {"chat", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9providers_6gemini_14GeminiProvider_12chat, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_9providers_6gemini_14GeminiProvider_12chat(PyObject *__pyx_self, 
 #if CYTHON_VECTORCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -4790,39 +5234,39 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_self,&__pyx_mstate_global->__pyx_n_u_prompt,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 74, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 86, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 74, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 86, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 74, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 86, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "chat", 0) < (0)) __PYX_ERR(0, 74, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "chat", 0) < (0)) __PYX_ERR(0, 86, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 2; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("chat", 1, 2, 2, i); __PYX_ERR(0, 74, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("chat", 1, 2, 2, i); __PYX_ERR(0, 86, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 74, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 86, __pyx_L3_error)
       values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 74, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 86, __pyx_L3_error)
     }
     __pyx_v_self = values[0];
     __pyx_v_prompt = ((PyObject*)values[1]);
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("chat", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 74, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("chat", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 86, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -4833,8 +5277,8 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_prompt), (&PyUnicode_Type), 0, "prompt", 2))) __PYX_ERR(0, 74, __pyx_L1_error)
-  __pyx_r = __pyx_pf_9providers_6gemini_14GeminiProvider_9chat(__pyx_self, __pyx_v_self, __pyx_v_prompt);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_prompt), (&PyUnicode_Type), 0, "prompt", 2))) __PYX_ERR(0, 86, __pyx_L1_error)
+  __pyx_r = __pyx_pf_9providers_6gemini_14GeminiProvider_11chat(__pyx_self, __pyx_v_self, __pyx_v_prompt);
 
   /* function exit code */
   goto __pyx_L0;
@@ -4853,7 +5297,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_9chat(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_prompt) {
+static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_11chat(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_prompt) {
   struct __pyx_obj_9providers_6gemini___pyx_scope_struct_2_chat *__pyx_cur_scope;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -4865,7 +5309,7 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_9chat(CYTHON_UNUSE
   if (unlikely(!__pyx_cur_scope)) {
     __pyx_cur_scope = ((struct __pyx_obj_9providers_6gemini___pyx_scope_struct_2_chat *)Py_None);
     __Pyx_INCREF(Py_None);
-    __PYX_ERR(0, 74, __pyx_L1_error)
+    __PYX_ERR(0, 86, __pyx_L1_error)
   } else {
     __Pyx_GOTREF((PyObject *)__pyx_cur_scope);
   }
@@ -4876,7 +5320,7 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_9chat(CYTHON_UNUSE
   __Pyx_INCREF(__pyx_cur_scope->__pyx_v_prompt);
   __Pyx_GIVEREF(__pyx_cur_scope->__pyx_v_prompt);
   {
-    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_9providers_6gemini_14GeminiProvider_11generator1, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[2]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_chat, __pyx_mstate_global->__pyx_n_u_GeminiProvider_chat, __pyx_mstate_global->__pyx_n_u_providers_gemini); if (unlikely(!gen)) __PYX_ERR(0, 74, __pyx_L1_error)
+    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_9providers_6gemini_14GeminiProvider_13generator1, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[2]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_chat, __pyx_mstate_global->__pyx_n_u_GeminiProvider_chat, __pyx_mstate_global->__pyx_n_u_providers_gemini); if (unlikely(!gen)) __PYX_ERR(0, 86, __pyx_L1_error)
     __Pyx_DECREF(__pyx_cur_scope);
     __Pyx_RefNannyFinishContext();
     return (PyObject *) gen;
@@ -4892,15 +5336,15 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_9chat(CYTHON_UNUSE
   return __pyx_r;
 }
 
-static PyObject *__pyx_gb_9providers_6gemini_14GeminiProvider_11generator1(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
+static PyObject *__pyx_gb_9providers_6gemini_14GeminiProvider_13generator1(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
 {
   struct __pyx_obj_9providers_6gemini___pyx_scope_struct_2_chat *__pyx_cur_scope = ((struct __pyx_obj_9providers_6gemini___pyx_scope_struct_2_chat *)__pyx_generator->closure);
   PyObject *__pyx_r = NULL;
   PyObject *__pyx_t_1 = NULL;
-  int __pyx_t_2;
-  int __pyx_t_3;
-  PyObject *__pyx_t_4 = NULL;
-  size_t __pyx_t_5;
+  PyObject *__pyx_t_2 = NULL;
+  size_t __pyx_t_3;
+  int __pyx_t_4;
+  int __pyx_t_5;
   PyObject *__pyx_t_6 = NULL;
   PyObject *__pyx_t_7 = NULL;
   PyObject *__pyx_t_8 = NULL;
@@ -4923,170 +5367,189 @@ static PyObject *__pyx_gb_9providers_6gemini_14GeminiProvider_11generator1(__pyx
   __pyx_L3_first_run:;
   if (unlikely(__pyx_sent_value != Py_None)) {
     if (unlikely(__pyx_sent_value)) PyErr_SetString(PyExc_TypeError, "can't send non-None value to a just-started coroutine");
-    __PYX_ERR(0, 74, __pyx_L1_error)
+    __PYX_ERR(0, 86, __pyx_L1_error)
   }
 
-  /* "providers/gemini.py":75
+  /* "providers/gemini.py":87
  * 
  *     async def chat(self, prompt: str) -> str:
- *         if not self.available:             # <<<<<<<<<<<<<<
- *             raise RuntimeError("Gemini provider is not configured.")
- *         response = await asyncio.wait_for(
-*/
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_self, __pyx_mstate_global->__pyx_n_u_available); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 75, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_2 < 0))) __PYX_ERR(0, 75, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_3 = (!__pyx_t_2);
-
-
-  if (unlikely(__pyx_t_3)) {
-
-
-    /* "providers/gemini.py":76
- *     async def chat(self, prompt: str) -> str:
+ *         self._ensure_client()             # <<<<<<<<<<<<<<
  *         if not self.available:
- *             raise RuntimeError("Gemini provider is not configured.")             # <<<<<<<<<<<<<<
- *         response = await asyncio.wait_for(
- *             self.client.aio.models.generate_content(
+ *             raise RuntimeError("Gemini provider is not configured. Missing GEMINI_API_KEY.")
 */
-    __pyx_t_4 = NULL;
-    __pyx_t_5 = 1;
+  __pyx_t_2 = __pyx_cur_scope->__pyx_v_self;
+  __Pyx_INCREF(__pyx_t_2);
+  __pyx_t_3 = 0;
+  {
+    PyObject *__pyx_callargs[2] = {__pyx_t_2, NULL};
+    __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_ensure_client, __pyx_callargs+__pyx_t_3, (1-__pyx_t_3) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 87, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+  }
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "providers/gemini.py":88
+ *     async def chat(self, prompt: str) -> str:
+ *         self._ensure_client()
+ *         if not self.available:             # <<<<<<<<<<<<<<
+ *             raise RuntimeError("Gemini provider is not configured. Missing GEMINI_API_KEY.")
+ * 
+*/
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_self, __pyx_mstate_global->__pyx_n_u_available); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 88, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_4 < 0))) __PYX_ERR(0, 88, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_5 = (!__pyx_t_4);
+
+
+  if (unlikely(__pyx_t_5)) {
+
+
+    /* "providers/gemini.py":89
+ *         self._ensure_client()
+ *         if not self.available:
+ *             raise RuntimeError("Gemini provider is not configured. Missing GEMINI_API_KEY.")             # <<<<<<<<<<<<<<
+ * 
+ *         response = await asyncio.wait_for(
+*/
+    __pyx_t_2 = NULL;
+    __pyx_t_3 = 1;
     {
-      PyObject *__pyx_callargs[2] = {__pyx_t_4, __pyx_mstate_global->__pyx_kp_u_Gemini_provider_is_not_configure};
-      __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)(((PyTypeObject*)PyExc_RuntimeError)), __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-      __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 76, __pyx_L1_error)
+      PyObject *__pyx_callargs[2] = {__pyx_t_2, __pyx_mstate_global->__pyx_kp_u_Gemini_provider_is_not_configure};
+      __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)(((PyTypeObject*)PyExc_RuntimeError)), __pyx_callargs+__pyx_t_3, (2-__pyx_t_3) | (__pyx_t_3*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+      __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 89, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
     }
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 76, __pyx_L1_error)
+    __PYX_ERR(0, 89, __pyx_L1_error)
 
-    /* "providers/gemini.py":75
- * 
+    /* "providers/gemini.py":88
  *     async def chat(self, prompt: str) -> str:
+ *         self._ensure_client()
  *         if not self.available:             # <<<<<<<<<<<<<<
- *             raise RuntimeError("Gemini provider is not configured.")
- *         response = await asyncio.wait_for(
+ *             raise RuntimeError("Gemini provider is not configured. Missing GEMINI_API_KEY.")
+ * 
 */
   }
 
-  /* "providers/gemini.py":77
- *         if not self.available:
- *             raise RuntimeError("Gemini provider is not configured.")
+  /* "providers/gemini.py":91
+ *             raise RuntimeError("Gemini provider is not configured. Missing GEMINI_API_KEY.")
+ * 
  *         response = await asyncio.wait_for(             # <<<<<<<<<<<<<<
  *             self.client.aio.models.generate_content(
  *                 model=self.model,
 */
-  __pyx_t_4 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_asyncio); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 77, __pyx_L1_error)
+  __pyx_t_2 = NULL;
+  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_asyncio); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 91, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_wait_for); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 77, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_mstate_global->__pyx_n_u_wait_for); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 91, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-  /* "providers/gemini.py":78
- *             raise RuntimeError("Gemini provider is not configured.")
+  /* "providers/gemini.py":92
+ * 
  *         response = await asyncio.wait_for(
  *             self.client.aio.models.generate_content(             # <<<<<<<<<<<<<<
  *                 model=self.model,
  *                 contents=prompt,
 */
-  __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_self, __pyx_mstate_global->__pyx_n_u_client); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 78, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_self, __pyx_mstate_global->__pyx_n_u_client); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 92, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
-  __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_aio); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 78, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_aio); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 92, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-  __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_models); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 78, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_models); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 92, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
   __pyx_t_8 = __pyx_t_9;
   __Pyx_INCREF(__pyx_t_8);
 
-  /* "providers/gemini.py":79
+  /* "providers/gemini.py":93
  *         response = await asyncio.wait_for(
  *             self.client.aio.models.generate_content(
  *                 model=self.model,             # <<<<<<<<<<<<<<
  *                 contents=prompt,
  *             ),
 */
-  __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_self, __pyx_mstate_global->__pyx_n_u_model); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 79, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_self, __pyx_mstate_global->__pyx_n_u_model); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 93, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
 
-  /* "providers/gemini.py":80
+  /* "providers/gemini.py":94
  *             self.client.aio.models.generate_content(
  *                 model=self.model,
  *                 contents=prompt,             # <<<<<<<<<<<<<<
  *             ),
  *             timeout=self.timeout,
 */
-  __pyx_t_5 = 0;
+  __pyx_t_3 = 0;
   {
     PyObject *__pyx_callargs[3] = {__pyx_t_8, __pyx_t_10, __pyx_cur_scope->__pyx_v_prompt};
     #if CYTHON_VECTORCALL
     __pyx_t_11 = __pyx_mstate_global->__pyx_tuple[4];
-    if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 78, __pyx_L1_error)
+    if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 92, __pyx_L1_error)
     __Pyx_INCREF(__pyx_t_11);
     #else
     {
       PyObject *__pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_model, __pyx_mstate_global->__pyx_n_u_contents};
       __pyx_t_11 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+1, 2);
-      if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 78, __pyx_L1_error)
+      if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 92, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_11);
     }
     #endif
-    __pyx_t_6 = __Pyx_Object_VectorcallMethodKwds((PyObject*)__pyx_mstate_global->__pyx_n_u_generate_content, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_11);
+    __pyx_t_6 = __Pyx_Object_VectorcallMethodKwds((PyObject*)__pyx_mstate_global->__pyx_n_u_generate_content, __pyx_callargs+__pyx_t_3, (1-__pyx_t_3) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_11);
     __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
     __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-    if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 78, __pyx_L1_error)
+    if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 92, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
   }
 
-  /* "providers/gemini.py":82
+  /* "providers/gemini.py":96
  *                 contents=prompt,
  *             ),
  *             timeout=self.timeout,             # <<<<<<<<<<<<<<
  *         )
  *         return response.text.strip()
 */
-  __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_self, __pyx_mstate_global->__pyx_n_u_timeout); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 82, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_self, __pyx_mstate_global->__pyx_n_u_timeout); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 96, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
-  __pyx_t_5 = 1;
+  __pyx_t_3 = 1;
   #if CYTHON_UNPACK_METHODS
   if (unlikely(PyMethod_Check(__pyx_t_7))) {
-    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_7);
-    assert(__pyx_t_4);
+    __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_7);
+    assert(__pyx_t_2);
     PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_7);
-    __Pyx_INCREF(__pyx_t_4);
+    __Pyx_INCREF(__pyx_t_2);
     __Pyx_INCREF(__pyx__function);
     __Pyx_DECREF_SET(__pyx_t_7, __pyx__function);
-    __pyx_t_5 = 0;
+    __pyx_t_3 = 0;
   }
   #endif
   {
-    PyObject *__pyx_callargs[3] = {__pyx_t_4, __pyx_t_6, __pyx_t_9};
+    PyObject *__pyx_callargs[3] = {__pyx_t_2, __pyx_t_6, __pyx_t_9};
     #if CYTHON_VECTORCALL
     __pyx_t_11 = __pyx_mstate_global->__pyx_tuple[5];
-    if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 77, __pyx_L1_error)
+    if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 91, __pyx_L1_error)
     __Pyx_INCREF(__pyx_t_11);
     #else
     {
       PyObject *__pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_timeout};
       __pyx_t_11 = __Pyx_MakeKwargDict(__pyx_temp, __pyx_callargs+2, 1);
-      if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 77, __pyx_L1_error)
+      if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 91, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_11);
     }
     #endif
-    __pyx_t_1 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_7, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_11);
-    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __pyx_t_1 = __Pyx_Object_VectorcallKwds((PyObject*)__pyx_t_7, __pyx_callargs+__pyx_t_3, (2-__pyx_t_3) | (__pyx_t_3*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_11);
+    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 77, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 91, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_t_12 = __Pyx_Coroutine_Yield_From(__pyx_generator, __pyx_t_1, &__pyx_r);
@@ -5100,40 +5563,40 @@ static PyObject *__pyx_gb_9providers_6gemini_14GeminiProvider_11generator1(__pyx
     __pyx_generator->resume_label = 1;
     return __pyx_r;
     __pyx_L5_resume_from_await:;
-    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 77, __pyx_L1_error)
+    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 91, __pyx_L1_error)
     __pyx_t_1 = __pyx_sent_value; __Pyx_INCREF(__pyx_t_1);
   } else if (likely(__pyx_t_12 == PYGEN_RETURN)) {
     __Pyx_GOTREF(__pyx_r);
     __pyx_t_1 = __pyx_r; __pyx_r = NULL;
   } else {
     __Pyx_XGOTREF(__pyx_r);
-    __PYX_ERR(0, 77, __pyx_L1_error)
+    __PYX_ERR(0, 91, __pyx_L1_error)
   }
   __Pyx_GIVEREF(__pyx_t_1);
   __pyx_cur_scope->__pyx_v_response = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "providers/gemini.py":84
+  /* "providers/gemini.py":98
  *             timeout=self.timeout,
  *         )
  *         return response.text.strip()             # <<<<<<<<<<<<<<
  * 
  *     def _build_prompt(
 */
-  __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_response, __pyx_mstate_global->__pyx_n_u_text); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 84, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_response, __pyx_mstate_global->__pyx_n_u_text); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 98, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
   __pyx_t_7 = __pyx_t_11;
   __Pyx_INCREF(__pyx_t_7);
-  __pyx_t_5 = 0;
+  __pyx_t_3 = 0;
   {
     PyObject *__pyx_callargs[2] = {__pyx_t_7, NULL};
-    __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_strip, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_strip, __pyx_callargs+__pyx_t_3, (1-__pyx_t_3) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 84, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 98, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
-  if (!(likely(PyUnicode_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("str", __pyx_t_1))) __PYX_ERR(0, 84, __pyx_L1_error)
+  if (!(likely(PyUnicode_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("str", __pyx_t_1))) __PYX_ERR(0, 98, __pyx_L1_error)
   {
     PyObject *__pyx_temp;
     {
@@ -5146,18 +5609,18 @@ static PyObject *__pyx_gb_9providers_6gemini_14GeminiProvider_11generator1(__pyx
   goto __pyx_L0;
   CYTHON_MAYBE_UNUSED_VAR(__pyx_cur_scope);
 
-  /* "providers/gemini.py":74
+  /* "providers/gemini.py":86
  *         return self._parse_response(raw)
  * 
  *     async def chat(self, prompt: str) -> str:             # <<<<<<<<<<<<<<
+ *         self._ensure_client()
  *         if not self.available:
- *             raise RuntimeError("Gemini provider is not configured.")
 */
 
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_7);
   __Pyx_XDECREF(__pyx_t_8);
@@ -5179,7 +5642,7 @@ static PyObject *__pyx_gb_9providers_6gemini_14GeminiProvider_11generator1(__pyx
   return __pyx_r;
 }
 
-/* "providers/gemini.py":86
+/* "providers/gemini.py":100
  *         return response.text.strip()
  * 
  *     def _build_prompt(             # <<<<<<<<<<<<<<
@@ -5188,15 +5651,15 @@ static PyObject *__pyx_gb_9providers_6gemini_14GeminiProvider_11generator1(__pyx
 */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_9providers_6gemini_14GeminiProvider_13_build_prompt(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_9providers_6gemini_14GeminiProvider_15_build_prompt(PyObject *__pyx_self, 
 #if CYTHON_VECTORCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_9providers_6gemini_14GeminiProvider_13_build_prompt = {"_build_prompt", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9providers_6gemini_14GeminiProvider_13_build_prompt, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_9providers_6gemini_14GeminiProvider_13_build_prompt(PyObject *__pyx_self, 
+static PyMethodDef __pyx_mdef_9providers_6gemini_14GeminiProvider_15_build_prompt = {"_build_prompt", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9providers_6gemini_14GeminiProvider_15_build_prompt, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_9providers_6gemini_14GeminiProvider_15_build_prompt(PyObject *__pyx_self, 
 #if CYTHON_VECTORCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -5228,38 +5691,38 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_self,&__pyx_mstate_global->__pyx_n_u_request,&__pyx_mstate_global->__pyx_n_u_options_text,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 86, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 100, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  3:
         values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 86, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 100, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 86, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 100, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 86, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 100, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "_build_prompt", 0) < (0)) __PYX_ERR(0, 86, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "_build_prompt", 0) < (0)) __PYX_ERR(0, 100, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 3; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("_build_prompt", 1, 3, 3, i); __PYX_ERR(0, 86, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("_build_prompt", 1, 3, 3, i); __PYX_ERR(0, 100, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 3)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 86, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 100, __pyx_L3_error)
       values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 86, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 100, __pyx_L3_error)
       values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 86, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 100, __pyx_L3_error)
     }
     __pyx_v_self = values[0];
     __pyx_v_request = values[1];
@@ -5267,7 +5730,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("_build_prompt", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 86, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("_build_prompt", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 100, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -5278,8 +5741,8 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_options_text), (&PyUnicode_Type), 0, "options_text", 2))) __PYX_ERR(0, 89, __pyx_L1_error)
-  __pyx_r = __pyx_pf_9providers_6gemini_14GeminiProvider_12_build_prompt(__pyx_self, __pyx_v_self, __pyx_v_request, __pyx_v_options_text);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_options_text), (&PyUnicode_Type), 0, "options_text", 2))) __PYX_ERR(0, 103, __pyx_L1_error)
+  __pyx_r = __pyx_pf_9providers_6gemini_14GeminiProvider_14_build_prompt(__pyx_self, __pyx_v_self, __pyx_v_request, __pyx_v_options_text);
 
   /* function exit code */
   goto __pyx_L0;
@@ -5298,7 +5761,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_12_build_prompt(CYTHON_UNUSED PyObject *__pyx_self, CYTHON_UNUSED PyObject *__pyx_v_self, PyObject *__pyx_v_request, PyObject *__pyx_v_options_text) {
+static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_14_build_prompt(CYTHON_UNUSED PyObject *__pyx_self, CYTHON_UNUSED PyObject *__pyx_v_self, PyObject *__pyx_v_request, PyObject *__pyx_v_options_text) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -5317,40 +5780,40 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_12_build_prompt(CY
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("_build_prompt", 0);
 
-  /* "providers/gemini.py":112
+  /* "providers/gemini.py":122
  * 
  * SUBJECT:
  * {request.subject}             # <<<<<<<<<<<<<<
  * 
  * QUESTION:
 */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_request, __pyx_mstate_global->__pyx_n_u_subject); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 112, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_request, __pyx_mstate_global->__pyx_n_u_subject); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 122, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_FormatSimple(__pyx_t_1, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 112, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_FormatSimple(__pyx_t_1, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 122, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "providers/gemini.py":115
+  /* "providers/gemini.py":125
  * 
  * QUESTION:
  * {request.question}             # <<<<<<<<<<<<<<
  * 
  * OPTIONS:
 */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_request, __pyx_mstate_global->__pyx_n_u_question); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 115, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_request, __pyx_mstate_global->__pyx_n_u_question); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 125, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_FormatSimple(__pyx_t_1, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 115, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_FormatSimple(__pyx_t_1, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 125, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "providers/gemini.py":118
+  /* "providers/gemini.py":128
  * 
  * OPTIONS:
  * {options_text or "No options supplied"}             # <<<<<<<<<<<<<<
  * 
  * STUDENT'S ANSWER:
 */
-  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_v_options_text); if (unlikely((__pyx_t_4 < 0))) __PYX_ERR(0, 118, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_v_options_text); if (unlikely((__pyx_t_4 < 0))) __PYX_ERR(0, 128, __pyx_L1_error)
   if (!__pyx_t_4) {
   } else {
     __Pyx_INCREF(__pyx_v_options_text);
@@ -5360,20 +5823,20 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_12_build_prompt(CY
   __Pyx_INCREF(__pyx_mstate_global->__pyx_kp_u_No_options_supplied);
   __pyx_t_1 = __pyx_mstate_global->__pyx_kp_u_No_options_supplied;
   __pyx_L3_bool_binop_done:;
-  __pyx_t_5 = __Pyx_PyObject_FormatSimple(__pyx_t_1, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 118, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_FormatSimple(__pyx_t_1, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 128, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "providers/gemini.py":121
+  /* "providers/gemini.py":131
  * 
  * STUDENT'S ANSWER:
  * {request.student_answer or "No answer selected"}             # <<<<<<<<<<<<<<
  * 
  * CORRECT ANSWER:
 */
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_request, __pyx_mstate_global->__pyx_n_u_student_answer); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 121, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_request, __pyx_mstate_global->__pyx_n_u_student_answer); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_6); if (unlikely((__pyx_t_4 < 0))) __PYX_ERR(0, 121, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_6); if (unlikely((__pyx_t_4 < 0))) __PYX_ERR(0, 131, __pyx_L1_error)
   if (!__pyx_t_4) {
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   } else {
@@ -5385,20 +5848,20 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_12_build_prompt(CY
   __Pyx_INCREF(__pyx_mstate_global->__pyx_kp_u_No_answer_selected);
   __pyx_t_1 = __pyx_mstate_global->__pyx_kp_u_No_answer_selected;
   __pyx_L5_bool_binop_done:;
-  __pyx_t_6 = __Pyx_PyObject_FormatSimple(__pyx_t_1, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 121, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_FormatSimple(__pyx_t_1, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "providers/gemini.py":124
+  /* "providers/gemini.py":134
  * 
  * CORRECT ANSWER:
  * {request.correct_answer or "Not supplied"}             # <<<<<<<<<<<<<<
  * 
  * STORED EXPLANATION:
 */
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_request, __pyx_mstate_global->__pyx_n_u_correct_answer); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 124, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_request, __pyx_mstate_global->__pyx_n_u_correct_answer); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 134, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_7); if (unlikely((__pyx_t_4 < 0))) __PYX_ERR(0, 124, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_7); if (unlikely((__pyx_t_4 < 0))) __PYX_ERR(0, 134, __pyx_L1_error)
   if (!__pyx_t_4) {
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   } else {
@@ -5410,20 +5873,20 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_12_build_prompt(CY
   __Pyx_INCREF(__pyx_mstate_global->__pyx_kp_u_Not_supplied);
   __pyx_t_1 = __pyx_mstate_global->__pyx_kp_u_Not_supplied;
   __pyx_L7_bool_binop_done:;
-  __pyx_t_7 = __Pyx_PyObject_FormatSimple(__pyx_t_1, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 124, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_FormatSimple(__pyx_t_1, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 134, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "providers/gemini.py":127
+  /* "providers/gemini.py":137
  * 
  * STORED EXPLANATION:
  * {request.explanation or "No stored explanation available"}             # <<<<<<<<<<<<<<
  * 
  * Give a clear, friendly teaching explanation.
 */
-  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_v_request, __pyx_mstate_global->__pyx_n_u_explanation); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 127, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_v_request, __pyx_mstate_global->__pyx_n_u_explanation); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 137, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_8); if (unlikely((__pyx_t_4 < 0))) __PYX_ERR(0, 127, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_8); if (unlikely((__pyx_t_4 < 0))) __PYX_ERR(0, 137, __pyx_L1_error)
   if (!__pyx_t_4) {
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   } else {
@@ -5435,7 +5898,7 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_12_build_prompt(CY
   __Pyx_INCREF(__pyx_mstate_global->__pyx_kp_u_No_stored_explanation_available);
   __pyx_t_1 = __pyx_mstate_global->__pyx_kp_u_No_stored_explanation_available;
   __pyx_L9_bool_binop_done:;
-  __pyx_t_8 = __Pyx_PyObject_FormatSimple(__pyx_t_1, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 127, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_FormatSimple(__pyx_t_1, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 137, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_9[0] = __pyx_mstate_global->__pyx_kp_u_You_are_an_excellent_secondary;
@@ -5452,14 +5915,14 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_12_build_prompt(CY
   __pyx_t_9[11] = __pyx_t_8;
   __pyx_t_9[12] = __pyx_mstate_global->__pyx_kp_u_Give_a_clear_friendly_teaching;
 
-  /* "providers/gemini.py":92
+  /* "providers/gemini.py":105
+ *         options_text: str,
  *     ) -> str:
- * 
  *         return f"""             # <<<<<<<<<<<<<<
  * You are an excellent secondary-school teacher
  * helping a student understand a CBT examination question.
 */
-  __pyx_t_10 = 2409;
+  __pyx_t_10 = 2126;
   #if __Pyx_PyUnicode_Join_CAN_USE_KIND_AND_LENGTH
   for (Py_ssize_t i=1; i <= 11; i += 2) {
     Py_ssize_t l = __Pyx_PyUnicode_GET_LENGTH(__pyx_t_9[i]);
@@ -5474,7 +5937,7 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_12_build_prompt(CY
   }
   #endif
   __pyx_t_1 = __Pyx_PyUnicode_Join(__pyx_t_9, 13, __pyx_t_10, __pyx_t_11);
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 92, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 105, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -5493,7 +5956,7 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_12_build_prompt(CY
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "providers/gemini.py":86
+  /* "providers/gemini.py":100
  *         return response.text.strip()
  * 
  *     def _build_prompt(             # <<<<<<<<<<<<<<
@@ -5518,24 +5981,24 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_12_build_prompt(CY
   return __pyx_r;
 }
 
-/* "providers/gemini.py":169
+/* "providers/gemini.py":173
  * """
  * 
  *     @staticmethod             # <<<<<<<<<<<<<<
- *     def _parse_response(
- *         raw: str,
+ *     def _parse_response(raw: str) -> dict:
+ *         if raw.startswith("```json"):
 */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_9providers_6gemini_14GeminiProvider_15_parse_response(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_9providers_6gemini_14GeminiProvider_17_parse_response(PyObject *__pyx_self, 
 #if CYTHON_VECTORCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_9providers_6gemini_14GeminiProvider_15_parse_response = {"_parse_response", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9providers_6gemini_14GeminiProvider_15_parse_response, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_9providers_6gemini_14GeminiProvider_15_parse_response(PyObject *__pyx_self, 
+static PyMethodDef __pyx_mdef_9providers_6gemini_14GeminiProvider_17_parse_response = {"_parse_response", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_9providers_6gemini_14GeminiProvider_17_parse_response, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_9providers_6gemini_14GeminiProvider_17_parse_response(PyObject *__pyx_self, 
 #if CYTHON_VECTORCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -5565,32 +6028,32 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_raw,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 169, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len < 0)) __PYX_ERR(0, 173, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 169, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 173, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "_parse_response", 0) < (0)) __PYX_ERR(0, 169, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "_parse_response", 0) < (0)) __PYX_ERR(0, 173, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("_parse_response", 1, 1, 1, i); __PYX_ERR(0, 169, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("_parse_response", 1, 1, 1, i); __PYX_ERR(0, 173, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 169, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 173, __pyx_L3_error)
     }
     __pyx_v_raw = ((PyObject*)values[0]);
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("_parse_response", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 169, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("_parse_response", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 173, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -5601,8 +6064,8 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_raw), (&PyUnicode_Type), 0, "raw", 2))) __PYX_ERR(0, 171, __pyx_L1_error)
-  __pyx_r = __pyx_pf_9providers_6gemini_14GeminiProvider_14_parse_response(__pyx_self, __pyx_v_raw);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_raw), (&PyUnicode_Type), 0, "raw", 2))) __PYX_ERR(0, 174, __pyx_L1_error)
+  __pyx_r = __pyx_pf_9providers_6gemini_14GeminiProvider_16_parse_response(__pyx_self, __pyx_v_raw);
 
   /* function exit code */
   goto __pyx_L0;
@@ -5621,7 +6084,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_14_parse_response(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_raw) {
+static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_16_parse_response(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_raw) {
   PyObject *__pyx_v_result = NULL;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -5638,56 +6101,56 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_14_parse_response(
   __Pyx_RefNannySetupContext("_parse_response", 0);
   __Pyx_INCREF(__pyx_v_raw);
 
-  /* "providers/gemini.py":174
- *     ) -> dict:
- * 
+  /* "providers/gemini.py":175
+ *     @staticmethod
+ *     def _parse_response(raw: str) -> dict:
  *         if raw.startswith("```json"):             # <<<<<<<<<<<<<<
  *             raw = raw[7:]
- * 
+ *         elif raw.startswith("```"):
 */
-  __pyx_t_1 = __Pyx_PyUnicode_Tailmatch(__pyx_v_raw, __pyx_mstate_global->__pyx_kp_u_json, 0, PY_SSIZE_T_MAX, -1); if (unlikely(__pyx_t_1 == ((int)-1))) __PYX_ERR(0, 174, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyUnicode_Tailmatch(__pyx_v_raw, __pyx_mstate_global->__pyx_kp_u_json, 0, PY_SSIZE_T_MAX, -1); if (unlikely(__pyx_t_1 == ((int)-1))) __PYX_ERR(0, 175, __pyx_L1_error)
   if (__pyx_t_1) {
 
 
-    /* "providers/gemini.py":175
- * 
+    /* "providers/gemini.py":176
+ *     def _parse_response(raw: str) -> dict:
  *         if raw.startswith("```json"):
  *             raw = raw[7:]             # <<<<<<<<<<<<<<
- * 
  *         elif raw.startswith("```"):
+ *             raw = raw[3:]
 */
-    __pyx_t_2 = __Pyx_PyUnicode_Substring(__pyx_v_raw, 7, PY_SSIZE_T_MAX); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 175, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyUnicode_Substring(__pyx_v_raw, 7, PY_SSIZE_T_MAX); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 176, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF_SET(__pyx_v_raw, ((PyObject*)__pyx_t_2));
     __pyx_t_2 = 0;
 
-    /* "providers/gemini.py":174
- *     ) -> dict:
- * 
+    /* "providers/gemini.py":175
+ *     @staticmethod
+ *     def _parse_response(raw: str) -> dict:
  *         if raw.startswith("```json"):             # <<<<<<<<<<<<<<
  *             raw = raw[7:]
- * 
+ *         elif raw.startswith("```"):
 */
     goto __pyx_L3;
   }
 
   /* "providers/gemini.py":177
+ *         if raw.startswith("```json"):
  *             raw = raw[7:]
- * 
  *         elif raw.startswith("```"):             # <<<<<<<<<<<<<<
  *             raw = raw[3:]
- * 
+ *         if raw.endswith("```"):
 */
   __pyx_t_1 = __Pyx_PyUnicode_Tailmatch(__pyx_v_raw, __pyx_mstate_global->__pyx_kp_u__4, 0, PY_SSIZE_T_MAX, -1); if (unlikely(__pyx_t_1 == ((int)-1))) __PYX_ERR(0, 177, __pyx_L1_error)
   if (__pyx_t_1) {
 
 
     /* "providers/gemini.py":178
- * 
+ *             raw = raw[7:]
  *         elif raw.startswith("```"):
  *             raw = raw[3:]             # <<<<<<<<<<<<<<
- * 
  *         if raw.endswith("```"):
+ *             raw = raw[:-3]
 */
     __pyx_t_2 = __Pyx_PyUnicode_Substring(__pyx_v_raw, 3, PY_SSIZE_T_MAX); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 178, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
@@ -5695,71 +6158,71 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_14_parse_response(
     __pyx_t_2 = 0;
 
     /* "providers/gemini.py":177
+ *         if raw.startswith("```json"):
  *             raw = raw[7:]
- * 
  *         elif raw.startswith("```"):             # <<<<<<<<<<<<<<
  *             raw = raw[3:]
- * 
+ *         if raw.endswith("```"):
 */
   }
   __pyx_L3:;
 
-  /* "providers/gemini.py":180
+  /* "providers/gemini.py":179
+ *         elif raw.startswith("```"):
  *             raw = raw[3:]
- * 
  *         if raw.endswith("```"):             # <<<<<<<<<<<<<<
  *             raw = raw[:-3]
- * 
+ *         raw = raw.strip()
 */
-  __pyx_t_1 = __Pyx_PyUnicode_Tailmatch(__pyx_v_raw, __pyx_mstate_global->__pyx_kp_u__4, 0, PY_SSIZE_T_MAX, 1); if (unlikely(__pyx_t_1 == ((int)-1))) __PYX_ERR(0, 180, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyUnicode_Tailmatch(__pyx_v_raw, __pyx_mstate_global->__pyx_kp_u__4, 0, PY_SSIZE_T_MAX, 1); if (unlikely(__pyx_t_1 == ((int)-1))) __PYX_ERR(0, 179, __pyx_L1_error)
   if (__pyx_t_1) {
 
 
-    /* "providers/gemini.py":181
- * 
+    /* "providers/gemini.py":180
+ *             raw = raw[3:]
  *         if raw.endswith("```"):
  *             raw = raw[:-3]             # <<<<<<<<<<<<<<
- * 
  *         raw = raw.strip()
+ * 
 */
-    __pyx_t_2 = __Pyx_PyUnicode_Substring(__pyx_v_raw, 0, -3L); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 181, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyUnicode_Substring(__pyx_v_raw, 0, -3L); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 180, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF_SET(__pyx_v_raw, ((PyObject*)__pyx_t_2));
     __pyx_t_2 = 0;
 
-    /* "providers/gemini.py":180
+    /* "providers/gemini.py":179
+ *         elif raw.startswith("```"):
  *             raw = raw[3:]
- * 
  *         if raw.endswith("```"):             # <<<<<<<<<<<<<<
  *             raw = raw[:-3]
- * 
+ *         raw = raw.strip()
 */
   }
 
-  /* "providers/gemini.py":183
+  /* "providers/gemini.py":181
+ *         if raw.endswith("```"):
  *             raw = raw[:-3]
- * 
  *         raw = raw.strip()             # <<<<<<<<<<<<<<
  * 
  *         result = json.loads(raw)
 */
-  __pyx_t_2 = __Pyx_CallUnboundCMethod0(&__pyx_mstate_global->__pyx_umethod_PyUnicode_Type__strip, __pyx_v_raw); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 183, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CallUnboundCMethod0(&__pyx_mstate_global->__pyx_umethod_PyUnicode_Type__strip, __pyx_v_raw); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 181, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (!(likely(PyUnicode_CheckExact(__pyx_t_2)) || __Pyx_RaiseUnexpectedTypeError("str", __pyx_t_2))) __PYX_ERR(0, 183, __pyx_L1_error)
+  if (!(likely(PyUnicode_CheckExact(__pyx_t_2)) || __Pyx_RaiseUnexpectedTypeError("str", __pyx_t_2))) __PYX_ERR(0, 181, __pyx_L1_error)
   __Pyx_DECREF_SET(__pyx_v_raw, ((PyObject*)__pyx_t_2));
   __pyx_t_2 = 0;
 
-  /* "providers/gemini.py":185
+  /* "providers/gemini.py":183
  *         raw = raw.strip()
  * 
  *         result = json.loads(raw)             # <<<<<<<<<<<<<<
- * 
  *         if not isinstance(result, dict):
+ *             raise ValueError("Gemini returned an invalid response.")
 */
   __pyx_t_3 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_json_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 185, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_json_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 183, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_loads); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 185, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_loads); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 183, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_t_6 = 1;
@@ -5779,18 +6242,18 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_14_parse_response(
     __pyx_t_2 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_5, __pyx_callargs+__pyx_t_6, (2-__pyx_t_6) | (__pyx_t_6*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 185, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 183, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
   }
   __pyx_v_result = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "providers/gemini.py":187
- *         result = json.loads(raw)
+  /* "providers/gemini.py":184
  * 
+ *         result = json.loads(raw)
  *         if not isinstance(result, dict):             # <<<<<<<<<<<<<<
  *             raise ValueError("Gemini returned an invalid response.")
- * 
+ *         return result
 */
   __pyx_t_1 = PyDict_Check(__pyx_v_result); 
   __pyx_t_7 = (!__pyx_t_1);
@@ -5799,11 +6262,10 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_14_parse_response(
   if (unlikely(__pyx_t_7)) {
 
 
-    /* "providers/gemini.py":188
- * 
+    /* "providers/gemini.py":185
+ *         result = json.loads(raw)
  *         if not isinstance(result, dict):
  *             raise ValueError("Gemini returned an invalid response.")             # <<<<<<<<<<<<<<
- * 
  *         return result
 */
     __pyx_t_5 = NULL;
@@ -5812,30 +6274,30 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_14_parse_response(
       PyObject *__pyx_callargs[2] = {__pyx_t_5, __pyx_mstate_global->__pyx_kp_u_Gemini_returned_an_invalid_respo};
       __pyx_t_2 = __Pyx_PyObject_FastCall((PyObject*)(((PyTypeObject*)PyExc_ValueError)), __pyx_callargs+__pyx_t_6, (2-__pyx_t_6) | (__pyx_t_6*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
       __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-      if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 188, __pyx_L1_error)
+      if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 185, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
     }
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 188, __pyx_L1_error)
+    __PYX_ERR(0, 185, __pyx_L1_error)
 
-    /* "providers/gemini.py":187
- *         result = json.loads(raw)
+    /* "providers/gemini.py":184
  * 
+ *         result = json.loads(raw)
  *         if not isinstance(result, dict):             # <<<<<<<<<<<<<<
  *             raise ValueError("Gemini returned an invalid response.")
- * 
+ *         return result
 */
   }
 
-  /* "providers/gemini.py":190
+  /* "providers/gemini.py":186
+ *         if not isinstance(result, dict):
  *             raise ValueError("Gemini returned an invalid response.")
- * 
  *         return result             # <<<<<<<<<<<<<<
 */
   __pyx_t_2 = __pyx_v_result;
   __Pyx_INCREF(__pyx_t_2);
-  if (!(likely(PyDict_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None) || __Pyx_RaiseUnexpectedTypeError("dict", __pyx_t_2))) __PYX_ERR(0, 190, __pyx_L1_error)
+  if (!(likely(PyDict_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None) || __Pyx_RaiseUnexpectedTypeError("dict", __pyx_t_2))) __PYX_ERR(0, 186, __pyx_L1_error)
   {
     PyObject *__pyx_temp;
     {
@@ -5847,12 +6309,12 @@ static PyObject *__pyx_pf_9providers_6gemini_14GeminiProvider_14_parse_response(
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "providers/gemini.py":169
+  /* "providers/gemini.py":173
  * """
  * 
  *     @staticmethod             # <<<<<<<<<<<<<<
- *     def _parse_response(
- *         raw: str,
+ *     def _parse_response(raw: str) -> dict:
+ *         if raw.startswith("```json"):
 */
 
   /* function exit code */
@@ -6580,14 +7042,14 @@ static int __Pyx_modinit_Exttype___pyx_obj_9providers_6gemini___pyx_scope_struct
   __Pyx_RefNannySetupContext("__Pyx_modinit_Exttype___pyx_obj_9providers_6gemini___pyx_scope_struct__ask_tutor", 0);
   /*--- Exttype __pyx_obj_9providers_6gemini___pyx_scope_struct__ask_tutor ---*/
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_9providers_6gemini___pyx_scope_struct__ask_tutor = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9providers_6gemini___pyx_scope_struct__ask_tutor_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9providers_6gemini___pyx_scope_struct__ask_tutor)) __PYX_ERR(0, 45, __pyx_L1_error)
+  __pyx_mstate->__pyx_ptype_9providers_6gemini___pyx_scope_struct__ask_tutor = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9providers_6gemini___pyx_scope_struct__ask_tutor_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9providers_6gemini___pyx_scope_struct__ask_tutor)) __PYX_ERR(0, 58, __pyx_L1_error)
   #else
   __pyx_mstate->__pyx_ptype_9providers_6gemini___pyx_scope_struct__ask_tutor = &__pyx_type_9providers_6gemini___pyx_scope_struct__ask_tutor;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9providers_6gemini___pyx_scope_struct__ask_tutor) < (0)) __PYX_ERR(0, 45, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9providers_6gemini___pyx_scope_struct__ask_tutor) < (0)) __PYX_ERR(0, 58, __pyx_L1_error)
   #endif
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_9providers_6gemini___pyx_scope_struct__ask_tutor);
@@ -6613,14 +7075,14 @@ static int __Pyx_modinit_Exttype___pyx_obj_9providers_6gemini___pyx_scope_struct
   __Pyx_RefNannySetupContext("__Pyx_modinit_Exttype___pyx_obj_9providers_6gemini___pyx_scope_struct_1_genexpr", 0);
   /*--- Exttype __pyx_obj_9providers_6gemini___pyx_scope_struct_1_genexpr ---*/
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_9providers_6gemini___pyx_scope_struct_1_genexpr = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9providers_6gemini___pyx_scope_struct_1_genexpr_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9providers_6gemini___pyx_scope_struct_1_genexpr)) __PYX_ERR(0, 54, __pyx_L1_error)
+  __pyx_mstate->__pyx_ptype_9providers_6gemini___pyx_scope_struct_1_genexpr = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9providers_6gemini___pyx_scope_struct_1_genexpr_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9providers_6gemini___pyx_scope_struct_1_genexpr)) __PYX_ERR(0, 67, __pyx_L1_error)
   #else
   __pyx_mstate->__pyx_ptype_9providers_6gemini___pyx_scope_struct_1_genexpr = &__pyx_type_9providers_6gemini___pyx_scope_struct_1_genexpr;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9providers_6gemini___pyx_scope_struct_1_genexpr) < (0)) __PYX_ERR(0, 54, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9providers_6gemini___pyx_scope_struct_1_genexpr) < (0)) __PYX_ERR(0, 67, __pyx_L1_error)
   #endif
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_9providers_6gemini___pyx_scope_struct_1_genexpr);
@@ -6646,14 +7108,14 @@ static int __Pyx_modinit_Exttype___pyx_obj_9providers_6gemini___pyx_scope_struct
   __Pyx_RefNannySetupContext("__Pyx_modinit_Exttype___pyx_obj_9providers_6gemini___pyx_scope_struct_2_chat", 0);
   /*--- Exttype __pyx_obj_9providers_6gemini___pyx_scope_struct_2_chat ---*/
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_9providers_6gemini___pyx_scope_struct_2_chat = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9providers_6gemini___pyx_scope_struct_2_chat_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9providers_6gemini___pyx_scope_struct_2_chat)) __PYX_ERR(0, 74, __pyx_L1_error)
+  __pyx_mstate->__pyx_ptype_9providers_6gemini___pyx_scope_struct_2_chat = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9providers_6gemini___pyx_scope_struct_2_chat_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_9providers_6gemini___pyx_scope_struct_2_chat)) __PYX_ERR(0, 86, __pyx_L1_error)
   #else
   __pyx_mstate->__pyx_ptype_9providers_6gemini___pyx_scope_struct_2_chat = &__pyx_type_9providers_6gemini___pyx_scope_struct_2_chat;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9providers_6gemini___pyx_scope_struct_2_chat) < (0)) __PYX_ERR(0, 74, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_9providers_6gemini___pyx_scope_struct_2_chat) < (0)) __PYX_ERR(0, 86, __pyx_L1_error)
   #endif
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_9providers_6gemini___pyx_scope_struct_2_chat);
@@ -6884,10 +7346,14 @@ static CYTHON_SMALL_CODE int __pyx_pymod_exec_gemini(PyObject *__pyx_pyinit_modu
   PyObject *__pyx_t_4 = NULL;
   PyObject *__pyx_t_5 = NULL;
   size_t __pyx_t_6;
-  PyObject *__pyx_t_7 = NULL;
-  PyObject *__pyx_t_8 = NULL;
+  int __pyx_t_7;
+  int __pyx_t_8;
   PyObject *__pyx_t_9 = NULL;
   PyObject *__pyx_t_10 = NULL;
+  PyObject *__pyx_t_11 = NULL;
+  PyObject *__pyx_t_12 = NULL;
+  PyObject *__pyx_t_13 = NULL;
+  PyObject *(*__pyx_t_14)(PyObject *);
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -6998,7 +7464,7 @@ __Pyx_RefNannySetupContext("PyInit_gemini", 0);
  * import asyncio
  * import json             # <<<<<<<<<<<<<<
  * import os
- * 
+ * import sys
 */
   __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_json_2, 0, 0, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 4, __pyx_L1_error)
   __pyx_t_2 = __pyx_t_1;
@@ -7010,8 +7476,8 @@ __Pyx_RefNannySetupContext("PyInit_gemini", 0);
  * import asyncio
  * import json
  * import os             # <<<<<<<<<<<<<<
- * 
- * from google import genai
+ * import sys
+ * from pathlib import Path
 */
   __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_os, 0, 0, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 5, __pyx_L1_error)
   __pyx_t_2 = __pyx_t_1;
@@ -7019,21 +7485,34 @@ __Pyx_RefNannySetupContext("PyInit_gemini", 0);
   if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_os, __pyx_t_2) < (0)) __PYX_ERR(0, 5, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
+  /* "providers/gemini.py":6
+ * import json
+ * import os
+ * import sys             # <<<<<<<<<<<<<<
+ * from pathlib import Path
+ * 
+*/
+  __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_sys, 0, 0, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 6, __pyx_L1_error)
+  __pyx_t_2 = __pyx_t_1;
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_sys, __pyx_t_2) < (0)) __PYX_ERR(0, 6, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
   /* "providers/gemini.py":7
  * import os
+ * import sys
+ * from pathlib import Path             # <<<<<<<<<<<<<<
  * 
- * from google import genai             # <<<<<<<<<<<<<<
- * 
- * from app.ai_tutor.schemas import TutorRequest
+ * from google import genai
 */
   {
-    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_genai};
-    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_google, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 7, __pyx_L1_error)
+    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_Path};
+    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_pathlib, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 7, __pyx_L1_error)
   }
   __pyx_t_2 = __pyx_t_1;
   __Pyx_GOTREF(__pyx_t_2);
   {
-    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_genai};
+    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_Path};
     __pyx_t_3 = 0; {
       __pyx_t_4 = __Pyx_ImportFrom(__pyx_t_2, __pyx_imported_names[__pyx_t_3]); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 7, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
@@ -7044,20 +7523,20 @@ __Pyx_RefNannySetupContext("PyInit_gemini", 0);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "providers/gemini.py":9
- * from google import genai
+ * from pathlib import Path
  * 
- * from app.ai_tutor.schemas import TutorRequest             # <<<<<<<<<<<<<<
- * from app.ai_tutor.services.providers.base import AIProvider
+ * from google import genai             # <<<<<<<<<<<<<<
  * from dotenv import load_dotenv
+ * 
 */
   {
-    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_TutorRequest};
-    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_app_ai_tutor_schemas, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 9, __pyx_L1_error)
+    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_genai};
+    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_google, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 9, __pyx_L1_error)
   }
   __pyx_t_2 = __pyx_t_1;
   __Pyx_GOTREF(__pyx_t_2);
   {
-    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_TutorRequest};
+    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_genai};
     __pyx_t_3 = 0; {
       __pyx_t_4 = __Pyx_ImportFrom(__pyx_t_2, __pyx_imported_names[__pyx_t_3]); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 9, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
@@ -7069,19 +7548,19 @@ __Pyx_RefNannySetupContext("PyInit_gemini", 0);
 
   /* "providers/gemini.py":10
  * 
- * from app.ai_tutor.schemas import TutorRequest
- * from app.ai_tutor.services.providers.base import AIProvider             # <<<<<<<<<<<<<<
- * from dotenv import load_dotenv
+ * from google import genai
+ * from dotenv import load_dotenv             # <<<<<<<<<<<<<<
  * 
+ * from app.ai_tutor.schemas import TutorRequest
 */
   {
-    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_AIProvider};
-    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_app_ai_tutor_services_providers, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 10, __pyx_L1_error)
+    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_load_dotenv};
+    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_dotenv, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 10, __pyx_L1_error)
   }
   __pyx_t_2 = __pyx_t_1;
   __Pyx_GOTREF(__pyx_t_2);
   {
-    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_AIProvider};
+    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_load_dotenv};
     __pyx_t_3 = 0; {
       __pyx_t_4 = __Pyx_ImportFrom(__pyx_t_2, __pyx_imported_names[__pyx_t_3]); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 10, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
@@ -7091,274 +7570,715 @@ __Pyx_RefNannySetupContext("PyInit_gemini", 0);
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "providers/gemini.py":11
- * from app.ai_tutor.schemas import TutorRequest
- * from app.ai_tutor.services.providers.base import AIProvider
- * from dotenv import load_dotenv             # <<<<<<<<<<<<<<
+  /* "providers/gemini.py":12
+ * from dotenv import load_dotenv
  * 
+ * from app.ai_tutor.schemas import TutorRequest             # <<<<<<<<<<<<<<
+ * from app.ai_tutor.services.providers.base import AIProvider
  * 
 */
   {
-    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_load_dotenv};
-    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_dotenv, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 11, __pyx_L1_error)
+    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_TutorRequest};
+    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_app_ai_tutor_schemas, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 12, __pyx_L1_error)
   }
   __pyx_t_2 = __pyx_t_1;
   __Pyx_GOTREF(__pyx_t_2);
   {
-    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_load_dotenv};
+    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_TutorRequest};
     __pyx_t_3 = 0; {
-      __pyx_t_4 = __Pyx_ImportFrom(__pyx_t_2, __pyx_imported_names[__pyx_t_3]); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 11, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_ImportFrom(__pyx_t_2, __pyx_imported_names[__pyx_t_3]); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 12, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_imported_names[__pyx_t_3], __pyx_t_4) < (0)) __PYX_ERR(0, 11, __pyx_L1_error)
+      if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_imported_names[__pyx_t_3], __pyx_t_4) < (0)) __PYX_ERR(0, 12, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "providers/gemini.py":14
+  /* "providers/gemini.py":13
  * 
+ * from app.ai_tutor.schemas import TutorRequest
+ * from app.ai_tutor.services.providers.base import AIProvider             # <<<<<<<<<<<<<<
  * 
- * load_dotenv(".env")             # <<<<<<<<<<<<<<
+ * # Load .env from multiple potential locations (frozen exe dir, cwd, project root)
+*/
+  {
+    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_AIProvider};
+    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_app_ai_tutor_services_providers, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 13, __pyx_L1_error)
+  }
+  __pyx_t_2 = __pyx_t_1;
+  __Pyx_GOTREF(__pyx_t_2);
+  {
+    PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_AIProvider};
+    __pyx_t_3 = 0; {
+      __pyx_t_4 = __Pyx_ImportFrom(__pyx_t_2, __pyx_imported_names[__pyx_t_3]); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 13, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_4);
+      if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_imported_names[__pyx_t_3], __pyx_t_4) < (0)) __PYX_ERR(0, 13, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    }
+  }
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "providers/gemini.py":16
  * 
- * 
+ * # Load .env from multiple potential locations (frozen exe dir, cwd, project root)
+ * load_dotenv()             # <<<<<<<<<<<<<<
+ * if getattr(sys, "frozen", False) or hasattr(sys, "_MEIPASS"):
+ *     exe_dir = Path(sys.executable).resolve().parent
 */
   __pyx_t_4 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_load_dotenv); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 14, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_load_dotenv); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 16, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __pyx_t_6 = 1;
   {
-    PyObject *__pyx_callargs[2] = {__pyx_t_4, __pyx_mstate_global->__pyx_kp_u_env};
-    __pyx_t_2 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_5, __pyx_callargs+__pyx_t_6, (2-__pyx_t_6) | (__pyx_t_6*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    PyObject *__pyx_callargs[2] = {__pyx_t_4, NULL};
+    __pyx_t_2 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_5, __pyx_callargs+__pyx_t_6, (1-__pyx_t_6) | (__pyx_t_6*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 14, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 16, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "providers/gemini.py":17
+ * # Load .env from multiple potential locations (frozen exe dir, cwd, project root)
+ * load_dotenv()
+ * if getattr(sys, "frozen", False) or hasattr(sys, "_MEIPASS"):             # <<<<<<<<<<<<<<
+ *     exe_dir = Path(sys.executable).resolve().parent
+ *     load_dotenv(exe_dir / ".env")
+*/
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_sys); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 17, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_5 = __Pyx_GetAttr3(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_frozen, Py_False); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 17, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_8 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely((__pyx_t_8 < 0))) __PYX_ERR(0, 17, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  if (!__pyx_t_8) {
+
+  } else {
+
+    __pyx_t_7 = __pyx_t_8;
+
+    goto __pyx_L3_bool_binop_done;
+  }
+  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_sys); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 17, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_t_8 = __Pyx_HasAttr(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_MEIPASS); if (unlikely(__pyx_t_8 == ((int)-1))) __PYX_ERR(0, 17, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+
+  __pyx_t_7 = __pyx_t_8;
+
+  __pyx_L3_bool_binop_done:;
+  if (__pyx_t_7) {
+
+
+    /* "providers/gemini.py":18
+ * load_dotenv()
+ * if getattr(sys, "frozen", False) or hasattr(sys, "_MEIPASS"):
+ *     exe_dir = Path(sys.executable).resolve().parent             # <<<<<<<<<<<<<<
+ *     load_dotenv(exe_dir / ".env")
+ *     if hasattr(sys, "_MEIPASS"):
+*/
+    __pyx_t_9 = NULL;
+    __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_Path); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 18, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_10);
+    __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_mstate_global->__pyx_n_u_sys); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 18, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_11);
+    __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_t_11, __pyx_mstate_global->__pyx_n_u_executable); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 18, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_12);
+    __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
+    __pyx_t_6 = 1;
+    {
+      PyObject *__pyx_callargs[2] = {__pyx_t_9, __pyx_t_12};
+      __pyx_t_4 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_10, __pyx_callargs+__pyx_t_6, (2-__pyx_t_6) | (__pyx_t_6*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+      __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
+      __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
+      __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
+      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 18, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_4);
+    }
+    __pyx_t_2 = __pyx_t_4;
+    __Pyx_INCREF(__pyx_t_2);
+    __pyx_t_6 = 0;
+    {
+      PyObject *__pyx_callargs[2] = {__pyx_t_2, NULL};
+      __pyx_t_5 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_resolve, __pyx_callargs+__pyx_t_6, (1-__pyx_t_6) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+      __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+      if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 18, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_5);
+    }
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_parent); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 18, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_exe_dir, __pyx_t_4) < (0)) __PYX_ERR(0, 18, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+
+    /* "providers/gemini.py":19
+ * if getattr(sys, "frozen", False) or hasattr(sys, "_MEIPASS"):
+ *     exe_dir = Path(sys.executable).resolve().parent
+ *     load_dotenv(exe_dir / ".env")             # <<<<<<<<<<<<<<
+ *     if hasattr(sys, "_MEIPASS"):
+ *         load_dotenv(Path(sys._MEIPASS) / ".env")
+*/
+    __pyx_t_5 = NULL;
+    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_load_dotenv); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 19, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_exe_dir); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 19, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_10);
+    __pyx_t_12 = __Pyx_PyNumber_Divide(__pyx_t_10, __pyx_mstate_global->__pyx_kp_u_env); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 19, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_12);
+    __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
+    __pyx_t_6 = 1;
+    {
+      PyObject *__pyx_callargs[2] = {__pyx_t_5, __pyx_t_12};
+      __pyx_t_4 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_2, __pyx_callargs+__pyx_t_6, (2-__pyx_t_6) | (__pyx_t_6*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+      __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+      __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
+      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 19, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_4);
+    }
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+
+    /* "providers/gemini.py":20
+ *     exe_dir = Path(sys.executable).resolve().parent
+ *     load_dotenv(exe_dir / ".env")
+ *     if hasattr(sys, "_MEIPASS"):             # <<<<<<<<<<<<<<
+ *         load_dotenv(Path(sys._MEIPASS) / ".env")
+ * else:
+*/
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_sys); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 20, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_7 = __Pyx_HasAttr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_MEIPASS); if (unlikely(__pyx_t_7 == ((int)-1))) __PYX_ERR(0, 20, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    if (__pyx_t_7) {
+
+
+      /* "providers/gemini.py":21
+ *     load_dotenv(exe_dir / ".env")
+ *     if hasattr(sys, "_MEIPASS"):
+ *         load_dotenv(Path(sys._MEIPASS) / ".env")             # <<<<<<<<<<<<<<
+ * else:
+ *     for p in Path(__file__).resolve().parents:
+*/
+      __pyx_t_2 = NULL;
+      __Pyx_GetModuleGlobalName(__pyx_t_12, __pyx_mstate_global->__pyx_n_u_load_dotenv); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 21, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_12);
+      __pyx_t_10 = NULL;
+      __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_Path); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 21, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_9);
+      __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_mstate_global->__pyx_n_u_sys); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 21, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_11);
+      __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_11, __pyx_mstate_global->__pyx_n_u_MEIPASS); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 21, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_13);
+      __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
+      __pyx_t_6 = 1;
+      {
+        PyObject *__pyx_callargs[2] = {__pyx_t_10, __pyx_t_13};
+        __pyx_t_5 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_9, __pyx_callargs+__pyx_t_6, (2-__pyx_t_6) | (__pyx_t_6*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
+        __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+        __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+        if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 21, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_5);
+      }
+      __pyx_t_9 = __Pyx_PyNumber_Divide(__pyx_t_5, __pyx_mstate_global->__pyx_kp_u_env); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 21, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_9);
+      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+      __pyx_t_6 = 1;
+      {
+        PyObject *__pyx_callargs[2] = {__pyx_t_2, __pyx_t_9};
+        __pyx_t_4 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_12, __pyx_callargs+__pyx_t_6, (2-__pyx_t_6) | (__pyx_t_6*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+        __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
+        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 21, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_4);
+      }
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+
+      /* "providers/gemini.py":20
+ *     exe_dir = Path(sys.executable).resolve().parent
+ *     load_dotenv(exe_dir / ".env")
+ *     if hasattr(sys, "_MEIPASS"):             # <<<<<<<<<<<<<<
+ *         load_dotenv(Path(sys._MEIPASS) / ".env")
+ * else:
+*/
+    }
+
+    /* "providers/gemini.py":17
+ * # Load .env from multiple potential locations (frozen exe dir, cwd, project root)
+ * load_dotenv()
+ * if getattr(sys, "frozen", False) or hasattr(sys, "_MEIPASS"):             # <<<<<<<<<<<<<<
+ *     exe_dir = Path(sys.executable).resolve().parent
+ *     load_dotenv(exe_dir / ".env")
+*/
+    goto __pyx_L2;
+  }
+
+  /* "providers/gemini.py":23
+ *         load_dotenv(Path(sys._MEIPASS) / ".env")
+ * else:
+ *     for p in Path(__file__).resolve().parents:             # <<<<<<<<<<<<<<
+ *         env_file = p / ".env"
+ *         if env_file.exists():
+*/
+  /*else*/ {
+    __pyx_t_2 = NULL;
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_Path); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 23, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    __Pyx_GetModuleGlobalName(__pyx_t_13, __pyx_mstate_global->__pyx_n_u_file); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 23, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_13);
+    __pyx_t_6 = 1;
+    #if CYTHON_UNPACK_METHODS
+    if (unlikely(PyMethod_Check(__pyx_t_5))) {
+      __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_5);
+      assert(__pyx_t_2);
+      PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_5);
+      __Pyx_INCREF(__pyx_t_2);
+      __Pyx_INCREF(__pyx__function);
+      __Pyx_DECREF_SET(__pyx_t_5, __pyx__function);
+      __pyx_t_6 = 0;
+    }
+    #endif
+    {
+      PyObject *__pyx_callargs[2] = {__pyx_t_2, __pyx_t_13};
+      __pyx_t_9 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_5, __pyx_callargs+__pyx_t_6, (2-__pyx_t_6) | (__pyx_t_6*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+      __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+      __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+      if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 23, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_9);
+    }
+    __pyx_t_12 = __pyx_t_9;
+    __Pyx_INCREF(__pyx_t_12);
+    __pyx_t_6 = 0;
+    {
+      PyObject *__pyx_callargs[2] = {__pyx_t_12, NULL};
+      __pyx_t_4 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_resolve, __pyx_callargs+__pyx_t_6, (1-__pyx_t_6) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+      __Pyx_XDECREF(__pyx_t_12); __pyx_t_12 = 0;
+      __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 23, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_4);
+    }
+    __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_parents); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 23, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_9);
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    if (likely(PyList_CheckExact(__pyx_t_9)) || PyTuple_CheckExact(__pyx_t_9)) {
+      __pyx_t_4 = __pyx_t_9; __Pyx_INCREF(__pyx_t_4);
+      __pyx_t_3 = 0;
+      __pyx_t_14 = NULL;
+    } else {
+      __pyx_t_3 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_9); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 23, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_4);
+      __pyx_t_14 = (CYTHON_COMPILING_IN_LIMITED_API) ? PyIter_Next : __Pyx_PyObject_GetIterNextFunc(__pyx_t_4); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 23, __pyx_L1_error)
+    }
+    __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+    for (;;) {
+      if (likely(!__pyx_t_14)) {
+        if (likely(PyList_CheckExact(__pyx_t_4))) {
+          {
+            Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_4);
+            #if !CYTHON_ASSUME_SAFE_SIZE
+            if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 23, __pyx_L1_error)
+            #endif
+            if (__pyx_t_3 >= __pyx_temp) break;
+          }
+          __pyx_t_9 = __Pyx_PyList_GET_ITEM_REF(__pyx_t_4, __pyx_t_3, __Pyx_ReferenceSharing_OwnStrongReference);
+          ++__pyx_t_3;
+        } else {
+          {
+            Py_ssize_t __pyx_temp = __Pyx_PyTuple_GET_SIZE(__pyx_t_4);
+            #if !CYTHON_ASSUME_SAFE_SIZE
+            if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 23, __pyx_L1_error)
+            #endif
+            if (__pyx_t_3 >= __pyx_temp) break;
+          }
+          #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
+          __pyx_t_9 = __Pyx_NewRef(PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_3));
+          #else
+          __pyx_t_9 = __Pyx_PySequence_ITEM(__pyx_t_4, __pyx_t_3);
+          #endif
+          ++__pyx_t_3;
+        }
+        if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 23, __pyx_L1_error)
+      } else {
+        __pyx_t_9 = __pyx_t_14(__pyx_t_4);
+        if (unlikely(!__pyx_t_9)) {
+          PyObject* exc_type = PyErr_Occurred();
+          if (exc_type) {
+            if (unlikely(!__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) __PYX_ERR(0, 23, __pyx_L1_error)
+            PyErr_Clear();
+          }
+          break;
+        }
+      }
+      __Pyx_GOTREF(__pyx_t_9);
+      if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_p, __pyx_t_9) < (0)) __PYX_ERR(0, 23, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+
+      /* "providers/gemini.py":24
+ * else:
+ *     for p in Path(__file__).resolve().parents:
+ *         env_file = p / ".env"             # <<<<<<<<<<<<<<
+ *         if env_file.exists():
+ *             load_dotenv(env_file)
+*/
+      __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_p); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 24, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_9);
+      __pyx_t_12 = __Pyx_PyNumber_Divide(__pyx_t_9, __pyx_mstate_global->__pyx_kp_u_env); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 24, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_12);
+      __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+      if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_env_file, __pyx_t_12) < (0)) __PYX_ERR(0, 24, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
+
+      /* "providers/gemini.py":25
+ *     for p in Path(__file__).resolve().parents:
+ *         env_file = p / ".env"
+ *         if env_file.exists():             # <<<<<<<<<<<<<<
+ *             load_dotenv(env_file)
+ *             break
+*/
+      __pyx_t_9 = NULL;
+      __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_env_file); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 25, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_5);
+      __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_exists); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 25, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_13);
+      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+      __pyx_t_6 = 1;
+      #if CYTHON_UNPACK_METHODS
+      if (unlikely(PyMethod_Check(__pyx_t_13))) {
+        __pyx_t_9 = PyMethod_GET_SELF(__pyx_t_13);
+        assert(__pyx_t_9);
+        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_13);
+        __Pyx_INCREF(__pyx_t_9);
+        __Pyx_INCREF(__pyx__function);
+        __Pyx_DECREF_SET(__pyx_t_13, __pyx__function);
+        __pyx_t_6 = 0;
+      }
+      #endif
+      {
+        PyObject *__pyx_callargs[2] = {__pyx_t_9, NULL};
+        __pyx_t_12 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_13, __pyx_callargs+__pyx_t_6, (1-__pyx_t_6) | (__pyx_t_6*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
+        __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+        if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 25, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_12);
+      }
+      __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_12); if (unlikely((__pyx_t_7 < 0))) __PYX_ERR(0, 25, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
+      if (__pyx_t_7) {
+
+
+        /* "providers/gemini.py":26
+ *         env_file = p / ".env"
+ *         if env_file.exists():
+ *             load_dotenv(env_file)             # <<<<<<<<<<<<<<
+ *             break
+ * 
+*/
+        __pyx_t_13 = NULL;
+        __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_load_dotenv); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 26, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_9);
+        __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_env_file); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 26, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_5);
+        __pyx_t_6 = 1;
+        #if CYTHON_UNPACK_METHODS
+        if (unlikely(PyMethod_Check(__pyx_t_9))) {
+          __pyx_t_13 = PyMethod_GET_SELF(__pyx_t_9);
+          assert(__pyx_t_13);
+          PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_9);
+          __Pyx_INCREF(__pyx_t_13);
+          __Pyx_INCREF(__pyx__function);
+          __Pyx_DECREF_SET(__pyx_t_9, __pyx__function);
+          __pyx_t_6 = 0;
+        }
+        #endif
+        {
+          PyObject *__pyx_callargs[2] = {__pyx_t_13, __pyx_t_5};
+          __pyx_t_12 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_9, __pyx_callargs+__pyx_t_6, (2-__pyx_t_6) | (__pyx_t_6*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+          __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
+          __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+          __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+          if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 26, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_12);
+        }
+        __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
+
+        /* "providers/gemini.py":27
+ *         if env_file.exists():
+ *             load_dotenv(env_file)
+ *             break             # <<<<<<<<<<<<<<
+ * 
+ * 
+*/
+        goto __pyx_L7_break;
+
+        /* "providers/gemini.py":25
+ *     for p in Path(__file__).resolve().parents:
+ *         env_file = p / ".env"
+ *         if env_file.exists():             # <<<<<<<<<<<<<<
+ *             load_dotenv(env_file)
+ *             break
+*/
+      }
+
+      /* "providers/gemini.py":23
+ *         load_dotenv(Path(sys._MEIPASS) / ".env")
+ * else:
+ *     for p in Path(__file__).resolve().parents:             # <<<<<<<<<<<<<<
+ *         env_file = p / ".env"
+ *         if env_file.exists():
+*/
+    }
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    goto __pyx_L9_for_end;
+    __pyx_L7_break:;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    goto __pyx_L9_for_end;
+    __pyx_L9_for_end:;
+  }
+  __pyx_L2:;
+
+  /* "providers/gemini.py":30
  * 
  * 
  * class GeminiProvider(AIProvider):             # <<<<<<<<<<<<<<
  *     def __init__(self):
- * 
+ *         self.api_key = None
 */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_AIProvider); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 17, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  {
-    PyObject* __pyx_temp[1] = {__pyx_t_2};
-    __pyx_t_5 = __Pyx_PyTuple_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 17, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_5);
-  }
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PEP560_update_bases(__pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 17, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_4 = __Pyx_CalculateMetaclass(NULL, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 17, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_AIProvider); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 30, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_7 = __Pyx_Py3MetaclassPrepare(__pyx_t_4, __pyx_t_2, __pyx_mstate_global->__pyx_n_u_GeminiProvider, __pyx_mstate_global->__pyx_n_u_GeminiProvider, (PyObject *) NULL, __pyx_mstate_global->__pyx_n_u_providers_gemini, (PyObject *) NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 17, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_7);
-  if (__pyx_t_2 != __pyx_t_5) {
-    if (unlikely((PyDict_SetItemString(__pyx_t_7, "__orig_bases__", __pyx_t_5) < 0))) __PYX_ERR(0, 17, __pyx_L1_error)
+  {
+    PyObject* __pyx_temp[1] = {__pyx_t_4};
+    __pyx_t_12 = __Pyx_PyTuple_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 30, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_12);
   }
-  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_t_4 = __Pyx_PEP560_update_bases(__pyx_t_12); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 30, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_9 = __Pyx_CalculateMetaclass(NULL, __pyx_t_4); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 30, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_9);
+  __pyx_t_5 = __Pyx_Py3MetaclassPrepare(__pyx_t_9, __pyx_t_4, __pyx_mstate_global->__pyx_n_u_GeminiProvider, __pyx_mstate_global->__pyx_n_u_GeminiProvider, (PyObject *) NULL, __pyx_mstate_global->__pyx_n_u_providers_gemini, (PyObject *) NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 30, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  if (__pyx_t_4 != __pyx_t_12) {
+    if (unlikely((PyDict_SetItemString(__pyx_t_5, "__orig_bases__", __pyx_t_12) < 0))) __PYX_ERR(0, 30, __pyx_L1_error)
+  }
+  __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
 
-  /* "providers/gemini.py":18
+  /* "providers/gemini.py":31
  * 
  * class GeminiProvider(AIProvider):
  *     def __init__(self):             # <<<<<<<<<<<<<<
- * 
- *         self.api_key = os.getenv("GEMINI_API_KEY")
+ *         self.api_key = None
+ *         self.client = None
 */
-  __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_9providers_6gemini_14GeminiProvider_1__init__, 0, __pyx_mstate_global->__pyx_n_u_GeminiProvider___init, NULL, __pyx_mstate_global->__pyx_n_u_providers_gemini, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[3])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 18, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_t_12 = __Pyx_CyFunction_New(&__pyx_mdef_9providers_6gemini_14GeminiProvider_1__init__, 0, __pyx_mstate_global->__pyx_n_u_GeminiProvider___init, NULL, __pyx_mstate_global->__pyx_n_u_providers_gemini, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[3])); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 31, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_12);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
-  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_5);
+  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_12);
   #endif
-  if (__Pyx_SetNameInClass(__pyx_t_7, __pyx_mstate_global->__pyx_n_u_init, __pyx_t_5) < (0)) __PYX_ERR(0, 18, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_init, __pyx_t_12) < (0)) __PYX_ERR(0, 31, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
 
-  /* "providers/gemini.py":34
- *             self.client = genai.Client(api_key=self.api_key)
+  /* "providers/gemini.py":38
+ *         self._ensure_client()
+ * 
+ *     def _ensure_client(self):             # <<<<<<<<<<<<<<
+ *         """Dynamically initialize or refresh Gemini client if API key is present."""
+ *         key = os.getenv("GEMINI_API_KEY")
+*/
+  __pyx_t_12 = __Pyx_CyFunction_New(&__pyx_mdef_9providers_6gemini_14GeminiProvider_3_ensure_client, 0, __pyx_mstate_global->__pyx_n_u_GeminiProvider__ensure_client, NULL, __pyx_mstate_global->__pyx_n_u_providers_gemini, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[4])); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 38, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_12);
+  #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
+  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_12);
+  #endif
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_ensure_client, __pyx_t_12) < (0)) __PYX_ERR(0, 38, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
+
+  /* "providers/gemini.py":49
+ *                 self.client = None
  * 
  *     @property             # <<<<<<<<<<<<<<
  *     def name(self) -> str:
  *         return "gemini"
 */
-  __pyx_t_8 = NULL;
-  __pyx_t_9 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 34, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_9);
-  if (PyDict_SetItem(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_return, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 34, __pyx_L1_error)
-  __pyx_t_10 = __Pyx_CyFunction_New(&__pyx_mdef_9providers_6gemini_14GeminiProvider_3name, 0, __pyx_mstate_global->__pyx_n_u_GeminiProvider_name, NULL, __pyx_mstate_global->__pyx_n_u_providers_gemini, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[4])); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 34, __pyx_L1_error)
+  __pyx_t_13 = NULL;
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 49, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_return, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 49, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_CyFunction_New(&__pyx_mdef_9providers_6gemini_14GeminiProvider_5name, 0, __pyx_mstate_global->__pyx_n_u_GeminiProvider_name, NULL, __pyx_mstate_global->__pyx_n_u_providers_gemini, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[5])); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 49, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_10);
   #endif
-  __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_10, __pyx_t_9);
-  __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+  __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_10, __pyx_t_2);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_6 = 1;
   {
-    PyObject *__pyx_callargs[2] = {__pyx_t_8, __pyx_t_10};
-    __pyx_t_5 = __Pyx_PyObject_FastCall((PyObject*)__pyx_builtin_property, __pyx_callargs+__pyx_t_6, (2-__pyx_t_6) | (__pyx_t_6*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-    __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
+    PyObject *__pyx_callargs[2] = {__pyx_t_13, __pyx_t_10};
+    __pyx_t_12 = __Pyx_PyObject_FastCall((PyObject*)__pyx_builtin_property, __pyx_callargs+__pyx_t_6, (2-__pyx_t_6) | (__pyx_t_6*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
     __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-    if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 34, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_5);
+    if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 49, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_12);
   }
-  if (__Pyx_SetNameInClass(__pyx_t_7, __pyx_mstate_global->__pyx_n_u_name_2, __pyx_t_5) < (0)) __PYX_ERR(0, 34, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_name_2, __pyx_t_12) < (0)) __PYX_ERR(0, 49, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
 
-  /* "providers/gemini.py":38
+  /* "providers/gemini.py":53
  *         return "gemini"
  * 
  *     @property             # <<<<<<<<<<<<<<
  *     def available(self) -> bool:
- *         # Check if client is initialized and API key exists
+ *         self._ensure_client()
 */
   __pyx_t_10 = NULL;
-  __pyx_t_8 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 38, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_8);
-  if (PyDict_SetItem(__pyx_t_8, __pyx_mstate_global->__pyx_n_u_return, __pyx_mstate_global->__pyx_n_u_bool) < (0)) __PYX_ERR(0, 38, __pyx_L1_error)
-  __pyx_t_9 = __Pyx_CyFunction_New(&__pyx_mdef_9providers_6gemini_14GeminiProvider_5available, 0, __pyx_mstate_global->__pyx_n_u_GeminiProvider_available, NULL, __pyx_mstate_global->__pyx_n_u_providers_gemini, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[5])); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 38, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_9);
+  __pyx_t_13 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 53, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_13);
+  if (PyDict_SetItem(__pyx_t_13, __pyx_mstate_global->__pyx_n_u_return, __pyx_mstate_global->__pyx_n_u_bool) < (0)) __PYX_ERR(0, 53, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9providers_6gemini_14GeminiProvider_7available, 0, __pyx_mstate_global->__pyx_n_u_GeminiProvider_available, NULL, __pyx_mstate_global->__pyx_n_u_providers_gemini, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[6])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 53, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
-  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_9);
+  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_2);
   #endif
-  __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_9, __pyx_t_8);
-  __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+  __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_2, __pyx_t_13);
+  __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
   __pyx_t_6 = 1;
   {
-    PyObject *__pyx_callargs[2] = {__pyx_t_10, __pyx_t_9};
-    __pyx_t_5 = __Pyx_PyObject_FastCall((PyObject*)__pyx_builtin_property, __pyx_callargs+__pyx_t_6, (2-__pyx_t_6) | (__pyx_t_6*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    PyObject *__pyx_callargs[2] = {__pyx_t_10, __pyx_t_2};
+    __pyx_t_12 = __Pyx_PyObject_FastCall((PyObject*)__pyx_builtin_property, __pyx_callargs+__pyx_t_6, (2-__pyx_t_6) | (__pyx_t_6*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
-    __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-    if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 38, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_5);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 53, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_12);
   }
-  if (__Pyx_SetNameInClass(__pyx_t_7, __pyx_mstate_global->__pyx_n_u_available, __pyx_t_5) < (0)) __PYX_ERR(0, 38, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_available, __pyx_t_12) < (0)) __PYX_ERR(0, 53, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
 
-  /* "providers/gemini.py":45
- *         return self.client is not None and self.api_key is not None
+  /* "providers/gemini.py":58
+ *         return self.client is not None and bool(self.api_key)
  * 
  *     async def ask_tutor(             # <<<<<<<<<<<<<<
  *         self,
  *         request: TutorRequest,
 */
-  __pyx_t_5 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 45, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
-  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_request, __pyx_mstate_global->__pyx_n_u_TutorRequest) < (0)) __PYX_ERR(0, 45, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_return, __pyx_mstate_global->__pyx_n_u_dict) < (0)) __PYX_ERR(0, 45, __pyx_L1_error)
-  __pyx_t_9 = __Pyx_CyFunction_New(&__pyx_mdef_9providers_6gemini_14GeminiProvider_7ask_tutor, __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_GeminiProvider_ask_tutor, NULL, __pyx_mstate_global->__pyx_n_u_providers_gemini, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[1])); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 45, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_9);
+  __pyx_t_12 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 58, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_12);
+  if (PyDict_SetItem(__pyx_t_12, __pyx_mstate_global->__pyx_n_u_request, __pyx_mstate_global->__pyx_n_u_TutorRequest) < (0)) __PYX_ERR(0, 58, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_12, __pyx_mstate_global->__pyx_n_u_return, __pyx_mstate_global->__pyx_n_u_dict) < (0)) __PYX_ERR(0, 58, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9providers_6gemini_14GeminiProvider_9ask_tutor, __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_GeminiProvider_ask_tutor, NULL, __pyx_mstate_global->__pyx_n_u_providers_gemini, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[1])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 58, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
-  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_9);
+  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_2);
   #endif
-  __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_9, __pyx_t_5);
-  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (__Pyx_SetNameInClass(__pyx_t_7, __pyx_mstate_global->__pyx_n_u_ask_tutor, __pyx_t_9) < (0)) __PYX_ERR(0, 45, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+  __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_2, __pyx_t_12);
+  __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_ask_tutor, __pyx_t_2) < (0)) __PYX_ERR(0, 58, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "providers/gemini.py":74
+  /* "providers/gemini.py":86
  *         return self._parse_response(raw)
  * 
  *     async def chat(self, prompt: str) -> str:             # <<<<<<<<<<<<<<
+ *         self._ensure_client()
  *         if not self.available:
- *             raise RuntimeError("Gemini provider is not configured.")
 */
-  __pyx_t_9 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 74, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_9);
-  if (PyDict_SetItem(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_prompt, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 74, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_return, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 74, __pyx_L1_error)
-  __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_9providers_6gemini_14GeminiProvider_10chat, __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_GeminiProvider_chat, NULL, __pyx_mstate_global->__pyx_n_u_providers_gemini, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[2])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 74, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 86, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_prompt, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 86, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_return, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 86, __pyx_L1_error)
+  __pyx_t_12 = __Pyx_CyFunction_New(&__pyx_mdef_9providers_6gemini_14GeminiProvider_12chat, __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_GeminiProvider_chat, NULL, __pyx_mstate_global->__pyx_n_u_providers_gemini, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[2])); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 86, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_12);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
-  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_5);
+  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_12);
   #endif
-  __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_5, __pyx_t_9);
-  __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-  if (__Pyx_SetNameInClass(__pyx_t_7, __pyx_mstate_global->__pyx_n_u_chat, __pyx_t_5) < (0)) __PYX_ERR(0, 74, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_12, __pyx_t_2);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_chat, __pyx_t_12) < (0)) __PYX_ERR(0, 86, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
 
-  /* "providers/gemini.py":86
+  /* "providers/gemini.py":100
  *         return response.text.strip()
  * 
  *     def _build_prompt(             # <<<<<<<<<<<<<<
  *         self,
  *         request: TutorRequest,
 */
-  __pyx_t_5 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 86, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
-  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_request, __pyx_mstate_global->__pyx_n_u_TutorRequest) < (0)) __PYX_ERR(0, 86, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_options_text, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 86, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_return, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 86, __pyx_L1_error)
-  __pyx_t_9 = __Pyx_CyFunction_New(&__pyx_mdef_9providers_6gemini_14GeminiProvider_13_build_prompt, 0, __pyx_mstate_global->__pyx_n_u_GeminiProvider__build_prompt, NULL, __pyx_mstate_global->__pyx_n_u_providers_gemini, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[6])); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 86, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_9);
+  __pyx_t_12 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 100, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_12);
+  if (PyDict_SetItem(__pyx_t_12, __pyx_mstate_global->__pyx_n_u_request, __pyx_mstate_global->__pyx_n_u_TutorRequest) < (0)) __PYX_ERR(0, 100, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_12, __pyx_mstate_global->__pyx_n_u_options_text, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 100, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_12, __pyx_mstate_global->__pyx_n_u_return, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 100, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_9providers_6gemini_14GeminiProvider_15_build_prompt, 0, __pyx_mstate_global->__pyx_n_u_GeminiProvider__build_prompt, NULL, __pyx_mstate_global->__pyx_n_u_providers_gemini, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[7])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 100, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
-  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_9);
+  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_2);
   #endif
-  __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_9, __pyx_t_5);
-  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (__Pyx_SetNameInClass(__pyx_t_7, __pyx_mstate_global->__pyx_n_u_build_prompt, __pyx_t_9) < (0)) __PYX_ERR(0, 86, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+  __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_2, __pyx_t_12);
+  __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_build_prompt, __pyx_t_2) < (0)) __PYX_ERR(0, 100, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "providers/gemini.py":169
+  /* "providers/gemini.py":173
  * """
  * 
  *     @staticmethod             # <<<<<<<<<<<<<<
- *     def _parse_response(
- *         raw: str,
+ *     def _parse_response(raw: str) -> dict:
+ *         if raw.startswith("```json"):
 */
-  __pyx_t_5 = NULL;
-  __pyx_t_10 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 169, __pyx_L1_error)
+  __pyx_t_12 = NULL;
+  __pyx_t_10 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 173, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
-  if (PyDict_SetItem(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_raw, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 169, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_return, __pyx_mstate_global->__pyx_n_u_dict) < (0)) __PYX_ERR(0, 169, __pyx_L1_error)
-  __pyx_t_8 = __Pyx_CyFunction_New(&__pyx_mdef_9providers_6gemini_14GeminiProvider_15_parse_response, __Pyx_CYFUNCTION_STATICMETHOD, __pyx_mstate_global->__pyx_n_u_GeminiProvider__parse_response, NULL, __pyx_mstate_global->__pyx_n_u_providers_gemini, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[7])); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 169, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_8);
+  if (PyDict_SetItem(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_raw, __pyx_mstate_global->__pyx_n_u_str) < (0)) __PYX_ERR(0, 173, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_return, __pyx_mstate_global->__pyx_n_u_dict) < (0)) __PYX_ERR(0, 173, __pyx_L1_error)
+  __pyx_t_13 = __Pyx_CyFunction_New(&__pyx_mdef_9providers_6gemini_14GeminiProvider_17_parse_response, __Pyx_CYFUNCTION_STATICMETHOD, __pyx_mstate_global->__pyx_n_u_GeminiProvider__parse_response, NULL, __pyx_mstate_global->__pyx_n_u_providers_gemini, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[8])); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 173, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_13);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
-  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_8);
+  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_13);
   #endif
-  __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_8, __pyx_t_10);
+  __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_13, __pyx_t_10);
   __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
   __pyx_t_6 = 1;
   {
-    PyObject *__pyx_callargs[2] = {__pyx_t_5, __pyx_t_8};
-    __pyx_t_9 = __Pyx_PyObject_FastCall((PyObject*)__pyx_builtin_staticmethod, __pyx_callargs+__pyx_t_6, (2-__pyx_t_6) | (__pyx_t_6*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-    __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-    if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 169, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_9);
+    PyObject *__pyx_callargs[2] = {__pyx_t_12, __pyx_t_13};
+    __pyx_t_2 = __Pyx_PyObject_FastCall((PyObject*)__pyx_builtin_staticmethod, __pyx_callargs+__pyx_t_6, (2-__pyx_t_6) | (__pyx_t_6*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_12); __pyx_t_12 = 0;
+    __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 173, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
   }
-  if (__Pyx_SetNameInClass(__pyx_t_7, __pyx_mstate_global->__pyx_n_u_parse_response, __pyx_t_9) < (0)) __PYX_ERR(0, 169, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+  if (__Pyx_SetNameInClass(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_parse_response, __pyx_t_2) < (0)) __PYX_ERR(0, 173, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "providers/gemini.py":17
+  /* "providers/gemini.py":30
  * 
  * 
  * class GeminiProvider(AIProvider):             # <<<<<<<<<<<<<<
  *     def __init__(self):
- * 
+ *         self.api_key = None
 */
-  __pyx_t_9 = __Pyx_Py3ClassCreate(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_GeminiProvider, __pyx_t_2, __pyx_t_7, NULL, 0, 0); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 17, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_9);
+  __pyx_t_2 = __Pyx_Py3ClassCreate(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_GeminiProvider, __pyx_t_4, __pyx_t_5, NULL, 0, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 30, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
-  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_9);
+  PyUnstable_Object_EnableDeferredRefcount(__pyx_t_2);
   #endif
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_GeminiProvider, __pyx_t_9) < (0)) __PYX_ERR(0, 17, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-  __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_GeminiProvider, __pyx_t_2) < (0)) __PYX_ERR(0, 30, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
   /* "providers/gemini.py":1
  * from __future__ import annotations             # <<<<<<<<<<<<<<
  * 
  * import asyncio
 */
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_test, __pyx_t_2) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_test, __pyx_t_4) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
   /*--- Wrapped vars code ---*/
 
@@ -7367,10 +8287,11 @@ __Pyx_RefNannySetupContext("PyInit_gemini", 0);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_XDECREF(__pyx_t_7);
-  __Pyx_XDECREF(__pyx_t_8);
   __Pyx_XDECREF(__pyx_t_9);
   __Pyx_XDECREF(__pyx_t_10);
+  __Pyx_XDECREF(__pyx_t_11);
+  __Pyx_XDECREF(__pyx_t_12);
+  __Pyx_XDECREF(__pyx_t_13);
   if (__pyx_m) {
     if (__pyx_mstate->__pyx_d && stringtab_initialized) {
       __Pyx_AddTraceback("init providers.gemini", __pyx_clineno, __pyx_lineno, __pyx_filename);
@@ -7405,8 +8326,9 @@ static int __Pyx_InitCachedBuiltins(__pyx_mstatetype *__pyx_mstate) {
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   CYTHON_UNUSED_VAR(__pyx_mstate);
-  __pyx_builtin_property = __Pyx_GetBuiltinName(__pyx_mstate->__pyx_n_u_property); if (!__pyx_builtin_property) __PYX_ERR(0, 34, __pyx_L1_error)
-  __pyx_builtin_staticmethod = __Pyx_GetBuiltinName(__pyx_mstate->__pyx_n_u_staticmethod); if (!__pyx_builtin_staticmethod) __PYX_ERR(0, 169, __pyx_L1_error)
+  __pyx_builtin_property = __Pyx_GetBuiltinName(__pyx_mstate->__pyx_n_u_property); if (!__pyx_builtin_property) __PYX_ERR(0, 49, __pyx_L1_error)
+  __pyx_builtin_staticmethod = __Pyx_GetBuiltinName(__pyx_mstate->__pyx_n_u_staticmethod); if (!__pyx_builtin_staticmethod) __PYX_ERR(0, 173, __pyx_L1_error)
+  __pyx_builtin_print = __Pyx_GetBuiltinName(__pyx_mstate->__pyx_n_u_print); if (!__pyx_builtin_print) __PYX_ERR(0, 46, __pyx_L1_error)
 
   /* Cached unbound methods */
   __pyx_mstate->__pyx_umethod_PyDict_Type_items.type = (PyObject*)&PyDict_Type;
@@ -7431,49 +8353,49 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
   CYTHON_UNUSED_VAR(__pyx_mstate);
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "providers/gemini.py":22
- *         self.api_key = os.getenv("GEMINI_API_KEY")
- * 
- *         self.model = os.getenv(             # <<<<<<<<<<<<<<
- *             "GEMINI_MODEL",
- *             "gemini-3.6-flash",
+  /* "providers/gemini.py":34
+ *         self.api_key = None
+ *         self.client = None
+ *         self.model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")             # <<<<<<<<<<<<<<
+ *         self.timeout = float(os.getenv("GEMINI_TIMEOUT", "15"))
+ *         self._ensure_client()
 */
   {
-    PyObject* __pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_GEMINI_MODEL, __pyx_mstate_global->__pyx_kp_u_gemini_3_6_flash};
-    __pyx_mstate_global->__pyx_tuple[0] = __Pyx_PyTuple_FromArray(__pyx_temp, 2); if (unlikely(!__pyx_mstate_global->__pyx_tuple[0])) __PYX_ERR(0, 22, __pyx_L1_error)
+    PyObject* __pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_GEMINI_MODEL, __pyx_mstate_global->__pyx_kp_u_gemini_2_5_flash};
+    __pyx_mstate_global->__pyx_tuple[0] = __Pyx_PyTuple_FromArray(__pyx_temp, 2); if (unlikely(!__pyx_mstate_global->__pyx_tuple[0])) __PYX_ERR(0, 34, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[0]);
   }
   __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[0]);
 
-  /* "providers/gemini.py":27
- *         )
- * 
- *         self.timeout = float(os.getenv("GEMINI_TIMEOUT", "8"))             # <<<<<<<<<<<<<<
- * 
+  /* "providers/gemini.py":35
  *         self.client = None
+ *         self.model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+ *         self.timeout = float(os.getenv("GEMINI_TIMEOUT", "15"))             # <<<<<<<<<<<<<<
+ *         self._ensure_client()
+ * 
 */
   {
-    PyObject* __pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_GEMINI_TIMEOUT, __pyx_mstate_global->__pyx_kp_u_8};
-    __pyx_mstate_global->__pyx_tuple[1] = __Pyx_PyTuple_FromArray(__pyx_temp, 2); if (unlikely(!__pyx_mstate_global->__pyx_tuple[1])) __PYX_ERR(0, 27, __pyx_L1_error)
+    PyObject* __pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_GEMINI_TIMEOUT, __pyx_mstate_global->__pyx_kp_u_15};
+    __pyx_mstate_global->__pyx_tuple[1] = __Pyx_PyTuple_FromArray(__pyx_temp, 2); if (unlikely(!__pyx_mstate_global->__pyx_tuple[1])) __PYX_ERR(0, 35, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[1]);
   }
   __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[1]);
 
-  /* "providers/gemini.py":32
- * 
- *         if self.api_key:
- *             self.client = genai.Client(api_key=self.api_key)             # <<<<<<<<<<<<<<
- * 
- *     @property
+  /* "providers/gemini.py":44
+ *             self.api_key = key
+ *             try:
+ *                 self.client = genai.Client(api_key=self.api_key)             # <<<<<<<<<<<<<<
+ *             except Exception as err:
+ *                 print(f"[GeminiProvider] Client initialization error: {err}")
 */
   {
     PyObject* __pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_api_key};
-    __pyx_mstate_global->__pyx_tuple[2] = __Pyx_PyTuple_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_mstate_global->__pyx_tuple[2])) __PYX_ERR(0, 32, __pyx_L1_error)
+    __pyx_mstate_global->__pyx_tuple[2] = __Pyx_PyTuple_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_mstate_global->__pyx_tuple[2])) __PYX_ERR(0, 44, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[2]);
   }
   __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[2]);
 
-  /* "providers/gemini.py":57
+  /* "providers/gemini.py":70
  *         )
  * 
  *         prompt = self._build_prompt(             # <<<<<<<<<<<<<<
@@ -7482,12 +8404,12 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
 */
   {
     PyObject* __pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_request, __pyx_mstate_global->__pyx_n_u_options_text};
-    __pyx_mstate_global->__pyx_tuple[3] = __Pyx_PyTuple_FromArray(__pyx_temp, 2); if (unlikely(!__pyx_mstate_global->__pyx_tuple[3])) __PYX_ERR(0, 57, __pyx_L1_error)
+    __pyx_mstate_global->__pyx_tuple[3] = __Pyx_PyTuple_FromArray(__pyx_temp, 2); if (unlikely(!__pyx_mstate_global->__pyx_tuple[3])) __PYX_ERR(0, 70, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[3]);
   }
   __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[3]);
 
-  /* "providers/gemini.py":63
+  /* "providers/gemini.py":76
  * 
  *         response = await asyncio.wait_for(
  *             self.client.aio.models.generate_content(             # <<<<<<<<<<<<<<
@@ -7496,12 +8418,12 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
 */
   {
     PyObject* __pyx_temp[2] = {__pyx_mstate_global->__pyx_n_u_model, __pyx_mstate_global->__pyx_n_u_contents};
-    __pyx_mstate_global->__pyx_tuple[4] = __Pyx_PyTuple_FromArray(__pyx_temp, 2); if (unlikely(!__pyx_mstate_global->__pyx_tuple[4])) __PYX_ERR(0, 63, __pyx_L1_error)
+    __pyx_mstate_global->__pyx_tuple[4] = __Pyx_PyTuple_FromArray(__pyx_temp, 2); if (unlikely(!__pyx_mstate_global->__pyx_tuple[4])) __PYX_ERR(0, 76, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[4]);
   }
   __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[4]);
 
-  /* "providers/gemini.py":62
+  /* "providers/gemini.py":75
  *         )
  * 
  *         response = await asyncio.wait_for(             # <<<<<<<<<<<<<<
@@ -7510,7 +8432,7 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
 */
   {
     PyObject* __pyx_temp[1] = {__pyx_mstate_global->__pyx_n_u_timeout};
-    __pyx_mstate_global->__pyx_tuple[5] = __Pyx_PyTuple_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_mstate_global->__pyx_tuple[5])) __PYX_ERR(0, 62, __pyx_L1_error)
+    __pyx_mstate_global->__pyx_tuple[5] = __Pyx_PyTuple_FromArray(__pyx_temp, 1); if (unlikely(!__pyx_mstate_global->__pyx_tuple[5])) __PYX_ERR(0, 75, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[5]);
   }
   __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[5]);
@@ -7551,14 +8473,14 @@ static int __Pyx_InitConstants(__pyx_mstatetype *__pyx_mstate) {
   int __pyx_clineno = 0;
   CYTHON_UNUSED_VAR(__pyx_mstate);
   {
-    const struct { const unsigned int length: 11; } str_length_index[] = {{1},{18},{1778},{11},{12},{22},{20},{548},{1},{2},{4},{1},{1},{34},{36},{18},{19},{31},{12},{179},{3},{7},{8},{41},{7},{6},{2},{16},{9},{10},{6},{14},{12},{14},{14},{23},{28},{30},{24},{41},{24},{19},{19},{12},{20},{12},{9},{7},{8},{8},{8},{13},{10},{15},{8},{11},{12},{8},{13},{13},{15},{3},{7},{20},{36},{9},{7},{18},{9},{4},{4},{6},{18},{5},{8},{14},{4},{6},{11},{6},{5},{16},{7},{6},{6},{5},{4},{5},{11},{5},{5},{6},{4},{4},{6},{7},{12},{2},{3},{6},{8},{16},{8},{3},{7},{8},{6},{6},{4},{4},{10},{12},{3},{5},{14},{7},{4},{5},{7},{5},{6},{8}};
-    const struct { const unsigned int length: 7; } bytes_length_index[] = {{10},{28},{85},{113},{86},{8},{2},{7}};
+    const struct { const unsigned int length: 11; } str_length_index[] = {{1},{18},{1498},{11},{12},{22},{20},{545},{1},{2},{4},{2},{1},{58},{36},{18},{19},{31},{12},{179},{46},{3},{7},{8},{41},{7},{6},{2},{16},{9},{10},{6},{14},{12},{14},{14},{23},{28},{29},{30},{24},{41},{24},{19},{19},{4},{12},{8},{20},{12},{9},{7},{8},{8},{8},{8},{13},{10},{15},{8},{11},{12},{8},{13},{14},{13},{15},{3},{7},{20},{36},{9},{7},{18},{9},{4},{4},{6},{18},{5},{8},{14},{4},{6},{8},{3},{7},{10},{6},{11},{6},{6},{5},{16},{7},{6},{6},{5},{4},{3},{5},{11},{5},{5},{6},{4},{4},{6},{7},{12},{2},{1},{6},{7},{7},{3},{5},{6},{8},{16},{8},{3},{7},{7},{8},{6},{6},{4},{4},{10},{12},{3},{5},{14},{7},{3},{4},{5},{7},{5},{6},{8}};
+    const struct { const unsigned int length: 7; } bytes_length_index[] = {{59},{10},{33},{112},{91},{86},{8},{2},{7}};
     #ifndef CYTHON_COMPRESS_STRINGS
       #define CYTHON_COMPRESS_STRINGS 90
     #endif
-    #if (CYTHON_COMPRESS_STRINGS) == 1 /* compression: zlib (2018 bytes) */
-static const char cstring[] = "x\332\215WMo\033\271\031\216[\240uf\343m\274(6\013\264\005\030\025\013\247\205\254 \330\240M\215\242\205\326V\002gm\311\221\345\264\301b1\245f(\211\361h8&9\226\325\242\300\036u\324QG\037s\3541?#G\037\375\023\362\023\372\274\344\214,\313\016\260B23$_\276\237\317\373\341 \010\266[\355vc\273\303\352\315\303\1774\332[A\020\274\220\247\202q\026%\202\353*\353i)\3228\0313+x4\220i\237\211\263,\341)\267R\245\265 \330\3551;\020\314\330<\026\251eF$\"\262\"v\233#\255@\317S3\022\032\2347\375U\231\262\321`L\004R\263h\240d$\2304\236\370&\r\213\224\326`Y\260!\312b\007\264\261b\251\262L\014\273\\kn\314\242*s\325NraHY\246\305I.\2650\370\340F\245\260\245\032\224\322\210p\276\r\026\"c\335\261{\223\215\373\007\255v\247\336\354l\261\347J;\332\n\035\231\n\353I\221\304[P\245\225\302G2\215\022\010g<\2629O\252l(8\361\353\345\211c\265\331\035o:\326W\222\344\247t\224\226=\032r\234\341!#Se\021O\242<qn\307*Q}\211\235\005S\230\260Q\355\017\320\244\2018y\013\314@\345I\314\272.\234j\230%\302\212\252\017\354b\024\231\3521\225\n\226qm\351\3339Q%9\235\021\2773NW\351\244\257T\354X\233-\366}\345\271\324\306V\231$o\313\236\217VO\351!\264d\251\020\261\210+UV9\314\2730\315\346V8\202>\320\225\262S\236\344ddj\325\3425\242\337.\354\024ELL\236\330k\001!\242\327B\227\022\013\\\014\3711\030\032\221\032Q\371\001Z/\007?V8n\266:\245\207?\021\220*>m\256S\260\005\2542;f\204\2541\314%\246\315\306\353F\233\345\006\276Jx$\006*\211!\332\2123\313\022y\\\240\202|I:\272o;R\025\006PK(\243\235\361$\313\303\3010\200\251\020\007\366\301v{\267\263\273]\337\333boT\316\366\217\016;,\323\352\024\376E\364RK\351\005?\261\372\336\236\207\235\251\261\035\237\000\210(\345l:\366\007^sBe\245\257\205\260\260\253\262\305\352\311\210\217\315\234%\047xh\273\220\341%-\343\031\2102-)\010\275\002\360N\2033J\272\312\002tnc[\024\216XX.\023T\202%\244]\305\214x\3714\332\232_\377\t\031\343b\343\242\302\210\003j\222\275M\215\201H2b3\024C\245\021F\031\223\273\255$^\004/\224(u\r\"\316\2644R\271\346}1\024\267q-\217I\217\221\322\261\271\325UE\001\332\300=""\241\t\331<\215\004q\357\251$Q\2430\317\302R\346m\212[dm\177`7iG\035\223(\177o3\317\256\340\014\335c!2\244R\236\002\203\306\3624\006i\020\264=\236Z\315\2757\224e\260\372\345a\253\211\"v\004\324\2123T&\252\345\003\224Qcu\216:\245\005J\363\177\002\206\337\"Z*\016\0357\301Q\251z\322\353 \250\334(*%]\031\340\357\177(6\212xU>\031\237\271\204\245XTnx\277\244\274\325\257\225\237\342\307J\360_t\274\326Ag\267\325<\244\346\367\352\250qH\013\372>\354\264\332\215\035\326\370\347\301^\275Y\277\332=\332i4;\033\207W-\223\322\225k\341j\306Y$\222\304wB\244L\3145\000\214&\247\022\337@\201z2\334e\331\274i^\205\020\233\333\337v(NCY\244L\251j\355\252@\260\366\321^\003r;\000\333\365\376\315L\236e\211\004\270\273\276:\02273F\020\206\3249y\016\247hi\301\371T\324\274\342\256\316Pa\214\006<\355\243\025[\252\201\321\274\n\3735\202&t\206bE\353@\271\306\255\014\231\254\\eSY\241#Xj\366VuI\034@\272\330_\347\272]o\3517\206\010$NQ\324c\331\353\3013@\241\032zs\256Y[\r\034\354\200\316\345\241\341\006\047I\315\346Jn\034\314)oWja\316\200~Mq\212-D\250\350J7\330ss\313\254\202\213\207G\337\276\204\276[A\255\306j\"=}\366\367\027\002\221\225e\272;9T\301\201\225\236\354#\031\343ZA\341\033\003\024\003\252d\352S\031\3350C\373\027\265\246*%\227\003\027v|\014\314\334$l\031\253\364R\t\346\247(\313\274\233\210&\304^\221:\313\270e\333c@$%\265b\221\310\256\320\2609\241\306\253%\304P\201\203>\007\215\203\315\247\317\236\222#\241\323[(@R\273Q\202\031\014m\026U\276\233\313\304R\334\307\231@\237B\200\307\300\032M\005\204\212\214f\265\205\013\360]\nK\254s\342\006O\341\021\247l\210\353H\225\r\000\201\374J\335\023\267\237\363\004.\370\227\373\275EW\340q\034\342\206@-~\314e\210QC\351\307F\350SL\226\346q\351i\363\270\357\034[\313\306\2614\344\000\221\322\263\037\371\375\315oj\177\332\354A!\324F\177\022\327w\017\212\313\333pRj_4\366w\233\273a\375`7\374\256\361\246X\355\267v\032{\305wgw\277\321:\352\370\010\226w\257\257ja\210\225\r\303\345m\362X\034B[\364\356\3453LfF\204e\364\227N\2719\3666\177j\277\366\327D!\237\315\337j}""\221\002\n7\010KD,\355\243 ,k\222\362\241\350\020\317\266pu)\014\017\306g\370\277\003p\204M\314\007m\321\013\303\"\200\"\304\217\2178Y\033\206\261\212\350\325\313S\367\366N\010\303!\322\326\2751.88\270\205\212\363\304]\037j\025\302\363\350B\356\200\344\323\033\225\010>q\237\047\230\264\313m\353T\272\346\312P\232\020i\2510\315\246b\311\221\\*\236\311\360X\214\001\235Z\t\235\032\3525\246ns}\257\200Sm\016\247Z\227\203C\351cn\306i\004v\376U\233K4s\347v\321\003\310\243\221\203\022\236P\007\246[\215A\262\313\243\343(Q\256e\320\234g\212B\022\372$\217\341\335\030\000OO\027\022\331\243\026\021\345\364py\032\026\327\2130\367\005]\301\314\336O0\177\212\241\241d\201.hP\212\307\241\347H\237\006\376\026\211{\030r%n[_L\212\222R\274B\232\000\025|\227y\337\322\350#4rt\356\023\257T\331\2624\037i\217\223\322\343~\234\367\245\r\225\253\207L\213\221\367\261\350q\354S\201\225\021\2200P1\356P\315\311\212R[x\0025\203\252\r\351a\007Z\215\254\034\n8\332\3759\341\377\246pp\303\320\365c\375\342\313\007\027\253\277\232\234\340\3537\277\375\270z\347\356\375\211\235>\233\375\371\374\353s\373\356\351\273\361\373_\276\307\331\345\352\275\311wS={p\276r\276N\213\335i{:\232\361\213{k\370\367\361\027w\356\256\341<\237\325g\355\331\350\234\177\330\370\313{G\366r\312/W?\233<\235\234\\\334\273?\rf_\323\351\371\331;\373\277\047`\272\366\371\305\335\200\316\277\231\034\317\326g\017/\356}1\375\375\364\025\356\254\335\237~6{2\253_\3558*9=\231\255\370\275\303\331\312\345\352\347\223h\372\345\364\344ru}\372\353\351k\272\340\245\375\033\334\036\235;~\177\204N\257.\275\205\227\353_\220\271$\023\353\217\217\356\254\374\354\307\007\223\025\250\277\370\361;0]/\366>\254~5\373\371\354\311\255\253\311\032)1yH\\\357\006\223\372\207\340\341\371W\357\326\377\017xf\341\356";
-    PyObject *data = __Pyx_DecompressString(cstring, 2018, 1);
+    #if (CYTHON_COMPRESS_STRINGS) == 1 /* compression: zlib (2030 bytes) */
+static const char cstring[] = "x\332\215V\317o\033\307\025\256\353\242U6vk\245\251\023\240\r:f\0328-\2445\334\332\210K\364\007\030\2116\350H\244LRI\r\303\330\016w\207\344\332\313\235\345\314\254(\272(\220\243\216<\362\250\243\216:\366\230?\301G\035\363\047\344O\350\367fv)\221\222\201\020\322\376x;\363\346\233\357}\357\275\361<o\253\325n\327\267\272\254\326\354|SoW=\317{\022\037\010\306Y\230\010\2566X_\305\"\215\222)3\202\207\3038\0350q\230%<\345&\226\251\3575\372\314\014\005\323&\217Dj\230\026\211\010\215\210\254q\242$\206\363TO\204\252z\233nb\234\262\311pJ\337c\305\302\241\214C\301b\355\306^\036\303B\251\024<\026^hda\301\330H\262T\032&F=\256\024\327\372\"\022\257D6\316\205&\250L\211q\036+\241\361\300\265L\261\223\215\305j4pa\206\013\221\261\336\324\336}8\332\335k\265\273\265f\267\312\036Ke\307V\350\223\256\260~,\222\210\266\326J\301P\234\206\t\026g<49O6\330Hp\362\327\317\023\353j\2637\335\264\256\317W\212\337\20516\354\363\021\3077\\\342Po\260\220\047a\236X\322\361\226\310A\014\313\322VL\350\377\021H\352\210\222\333\201\036\312<\211X\317\006S\216\262D\030\261\341\302z1\206L\366\231L\005\313\2702\364lI\224IN\337\340o\225\306H\002^\263\325-\261\276ck\033x4\271J\0218\004(3SF1\232V\331\213\227\320\\\273\321ml\325v\252\354\271\314\331\356~\247\3132%\017\342\210\342\235\032\022R\037L\327vv\034\303\332g\333.\326\000O\342L\247\356\203sM\001\250\014\224\020\006\013W\252\254\226L\370T/\\rbB\231\013R.\3072\236aP\246bn\204]\321)\016\010\016I_\225\013,]\345\266\310\220H\030\036\047\320\374\n\251\344\314\311\226|9\305T\027\323\177\2048,y\2266F\036\220|\346*\030C\221d\344f$FR\201\3478b\264\225\230|A1\224\214r)\206vki(s\305\007b$\256\362Z~&\034\023\251\"}%UE\256\335\305<\241`\034\3614\024\344\275/\223DN\202<\013\3125\257\002n \320\301\320l\222E\276\246\245\334\274\315<;\327\033\260GBd\"ey\032\t\245\rO#\014\365\274\266\323W\253\271\363\234\035\360\004\273~\332i5\221\257\373\032\370\017\221\204T\264\206\250\030\332\250\034)\251D\325\373\217\307\360\273(\226\212\025\307emT6\334\320e\rT.\245O9\256\214\357\213\227""\205\241\010W\345\235\341Y\254\260\022\212\312%\362\313\221W\322Z\37114V\274\377\242\262\267\366\272\215V\263CE\376\331~\275C/\364\334\351\266\332\365mV\377\327\336N\255Y;\267\356o\327\233\335\273\235\363\326@\331\312\225\2609}\030\212$q%\037\031\023q\005\375\242\234\313\3045\n\210\2366n\223l\321\035\316#\010\343\326\227]\n\323(.2\246\204\352\237\327\007\326\336\337\251W\275.\244\266\334\246\230\316\263,\211!\355\236k\023\344LO\021\203\021\265\010\236\203\023\025\0338>\020\276\267(2T\266\302!O\007h9\206*TYU\313w\204L\250\014\225\213\336=i\033\224\324\264a\211U\024\223\231C\010\217\212\275\222=Z\014\002\275\330F\026\310\226;\227\357\255\264J$M\321\323\242\270\337\007-\220\240\034\271\315,\355u\303\263\232\2034W{\343%O@\203\036\264X7\362\026#\257\006u\241\235\002_S\034\300\204\360\200\216+\335s}EK\306\304\316\376\227O\201\267\352\371>\363Ezp\377\341?\237\010\3045.s\335.D\345\033J\351\307\003db\344\263\335Xk\222\307\223\372n\243\331\010j{\215\340\253\372s\277\230\351\272\007\020Ckq\352\362\033\2151C\373\023~S\226\220\312\363\006,.6z\261W\230\264\221j\245.\363\003\324j\336KD\023p\316\207\332-s\303\266\246PNJp#\221\304=\241@FB\047\001\025c\031\252z\300\263W\337\333|\360\350\0011\014L\257\000\200V\355\205\t\316 h\216(\375\275<N\014\tb\232\t4/D~\n\r\246\302\325\342\214\316*\027&\200\324\024;1\226\335\273<\005S\026l\200\351`\350.\024B\204\323\261\014\263\037\363\004\024\274p<\355\025\004\277d[\330\010R\0146\023\203\2557n\273B)\251\252\354\337\366\367\n\215\205GQ\000\377\002\345\374\036\217\003\223\203\242{Z\250\003\234\303\364\2752^\372\336\300\272\367\263i\024k\242K\244t\035\204\316\276\371g\377\341f\037\360Q^\335\227\250\326(\2618$\313a-\336v[\333\365\235\342\271\333\330\255\267\366\273\313\373X~\363\203\200\366\023\004\253f\3427\n\200\026\355\177\365\233H5\004\026\204\016\305\312G\034r\264\010J!\255|\345\372\265#\344]v\377o\211D\311\320\377\360\007\"\205\252.\r,\305\265bG\315YE\222\362\221\330\303\001\257K~\333\302\026\277`\267\336\330\253u:A\2607=\304\37764\0274q\026i""\213~\020\024\272\020\001~|\302\211\226 \210dH\267>\316\037\366\236\247\366\335\261\026\004#\224\013{\307\021\305\252\315\276\310(w\303GJ\202.h[\330\017\204\211\356(\200\340\311>\216q\220-\315\206 \006K\334/\223\035\304:@q\2208:\246b\205j\036K\236\305\301k1\205\362\374Ry>Z\006\216\270z\331V\250\321_\250\321\357qx(\243\300\3654\r\341\316\335\374\305\212zA\177\017m\2108w\260p\005\034\020a\024\017E\217\207\257\303D\332\256E\047M]\224\263\300U\224\010\234G\310\217\364\000\177\226W\244\2208\024\001\345\340\241\010sc\263\3410\326F_\250+\250\335oD\352\222\003\332\340t\261\305#(\226)\0043\020\344z \345 \0211\272\225\246\234\004)\200\215v*y\024\270\305\351Q#P\"\261\027M1\200\003\343\212\\Q\352\212[@\307U\2513\212Yj\334Ug\320\026\nX&qlCWs\341\242\023\234P\250*\013b\035\342\262\365*>QN\212\010\233L\320\016\212\350\341\236\047\306\325d\224\334>\222>B\301\212D\237\303N-#\016\241\261\241\2140\225\212eV4\217\202U\024;[&\251C\037\0323Trb\342\221@\334P\331sa/\332j\032\247\310okgk7\216\276\232\215\351\366t\306\351\326\230\265g\2239\177\373\373{\047c\3675\237\327\346\355\371\344\230\277\275\373\327\377\255\223\2555\277\217\251\267?:[\373\325\321\030O\277\375]a%\203\231=\232\177q\374\331\2619yp2>\375\331i\r\003>\371\354\370\331\331\332\373G\1779z=_\237\3379\273\361\301\354\323\3313,x\363\326\354\375\371\375y\355\334bG\305\263\361\374\232\263u\360\260\366\313\243pv{6\376~m}\366\341\354k;\001\343\036\034\275\201\267\317\217\255\277?\001\345\263\002\320\367\230\320\233\375\302:\261\343\362\331\366|\355\370\372\361\303\223\353@\245O\377p\312\317n\330\245\317n\334<\273\365\341\354\351\\\034\177qr\347\344\321\351\203\323\361\331\215_\317\376~|\355\354\326of\317\336\336~\374\035\377n\354\306p\270^\377\2006\376\236g\227\372\241\362\223k?\375\366\243\243k?\374|\351\341\023\340]/lo\327>\236_\237\337\277\362\355\350&\355\357\350\016y}\317;\252\275\365\356\034\177|\262\376\177\363\275\361`";
+    PyObject *data = __Pyx_DecompressString(cstring, 2030, 1);
     #define __Pyx_DecompressString_LZSS_UNUSED
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
@@ -7566,26 +8488,26 @@ static const char cstring[] = "x\332\215WMo\033\271\031\216[\240uf\343m\274(6\01
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
     #elif (CYTHON_COMPRESS_STRINGS) > 0 && (CYTHON_COMPRESS_STRINGS) <= 90 /* compression: lzss (2730 bytes) */
-static const char cstring[] = "\377\n\n\nCORRE\377CT ANSWE\373R:\017\000Give \377a clear,\377 friendl\377y teachi\377ng expla\377nation.\n\377\nIf the \377student \377selected\356\020\002wro-\000ans\327werW\000-5\003in\367 whM\000heir\377 choice \327is (\002\n\023\016 c\027orrP\000 A\003&\001\013\004\376)\000do not \377embarrasys\177\t\222\006ques\251\001\377 require\275s\006\000ason\311\000,1\n\310\002\217\000\300\001re\020\004\313\000\237ep by\003\002\340\001M\377PORTANT:\357 For\353\002\"st\377eps\" fie\267ld:\264\000On\241 i\367ncl\205  act\377ual, mea\356c\001fulN\002-by\231-4\001w\007 i\271#\222\017i\237t (ma\330 \002\000i\377cs, calc\363ul\362\"\013\000logi\374\017\000\300\010 etc.)\362\276 E\245@\274\003shou\357ld b\312Bomp\237lete,\323C\272I \377of one p\347art\010\001\313Bolu\314\336AL\001xa7\001\"\001go\373od\230\"s: [\"\377First, i\366\365Aif\315B for\375m\243\000 neede\377d\", \"Sub^\374 tute\244bg\333`\337n val\223@ iGnto\272b0\004,\001C\341\004\234)\003\254@ult\204JQ\001Vserj\005\221dmak\327@\177sense\"]\304`\355I\312,do\366@NOT\364\376E\3724,\243`turn\274\354`\324`pty \326ay\374\354\000Q\001NEVER \373us\251 laceh\357olde\215`ext? like \221b\310!\374\365\001\345Btwo\" -\037 eith\047\000\371\001\372a\266\211cs \312`rej\002[\377]\n\nCRITI\377CAL: You\377 MUST pr\373ov\335  cont\274\333\205\001\334  ALL\361csw. D\373\204\003lea\260\206\001\343ny\212\204\003\264\003\222\204\001\"gr\377eeting\":\177 AlwaysJ\006\233a \234`rt\327\206\010$\005 {apu\000pria\261@\371f\352\204\004}\002xt\n- \361\"\366\206\010C\021\262\207\004deta\017iled\332m\252\207\001\215\207\003H\001B\301\205\003:\340\006\217\205 \227B\221B \212\001yh\302`\312\021help\365\205\001\337memor\304@id\376\353!tip rel\341a\236\210\002\366c\230\207\005\326\002nco\377uragemen\345t\242/e\030\004\203\211\001wor\323ds\2262\205\211\004\047\351 er\336\215\205\001ance\265!fo\377llow_up_\374\214\210\005\203Qthough\233t-\370Aok\356\211\0012\003-\367up \303\210\006to d\377eepen un\377derstand\277ing\n\nR\312cO\347NLY\342\205\001\363\000JSO""\377N.\n\nUse \337exact\310\212\001hi\377s struct\377ure:\n\n{\n/    \242i\"\231b\365\212\007\222\300f,%\003\367K\"\251\213\002\217\213\t\"L!\004\331E[]2\004\251D\"\207V\2122\005e\375,\"\355.\\\005\3032\"\376\244\201!\"\n}\n\n\nO\277PTIONS\371\214\001Q\347UES\t\001\205\215\001STO\377RED EXPL\367ANA\014\007UDEN\347T\047S\251\215\007\253\206\001are\276\257\207\002xcell\204\215\003c\377ondary-s\337chool\273\215\003er\311\n\225\204\001\304\215\001a\254\215\006\271G ao CBT\244Ami\335\215\003\372\352F.\227\207\007 RULE\177:\n\nThe \262\216\013\377 supplie\361d\272\214\001\224\216\001J\001syst\333em\340\215\001au\332`ri\377tative.\n\371\n\337\207\006\225\211\001chang\217e it\200\211\001\346\213\005\010\005i\377nterpret\266\034\001\no\264\216\002os\357\001o\366\325\210\002op\211\217\004Your\357 job\317\216\001to \260\324\215\t\223\006\305\216\013\264\217\016\047s\345\216\005d\377iffers fgrom\342\217\002\240\220\013,\n\240\220\002\313ly\311\217\r \371\205\007\255\217\007in\226\301\217\007d\n\374\217\004 ~\024\335\217\010.\377\n\nNever %s\265 e\342\220\t\237\007a\365\217\003\310\016\377SUBJECT:\377\n.. .env\2578?Ge\327@i\321\212\005r\374\366\220\001\277\220\001config\237ured.\033\004\223\213\003e\375d\206\214\001invali\377d respon\037se.No\210\221\005\351\221\005\017\000\362\376#s\373F\"\000stor\376\364\211\014availab\237leNot \010\232\216\002a\377t Cython\376\215\222\001deliber\357atel\206\221\001ric\366\200` t\243` PEP\177-484 an\220\001\357jectr\001bcl\337asses\314\217\001bu\367ilt\324\221\001ypes\377. If you\276\221\217\002 to p\250\222\001s\375u(\006then s|\332`\307\223\001\047anno\237\204\001\377on_typin\237g\047 di\200\223\001\225\224\001t\337o Fal\200 ``\375`\000\000jsonad\377d_noteap\177p/ai_tu\362\000\377/service{s/\274\215\004rs/g\366\"\277.pydis\375\001e\355n\203!gc\022\003-3.w6-f\277\000his\024\003\357dAIP\372\215\003rCl\377ientGEMI\377NI_API_K\373EY\007\004MODEL\376\023\004TIMEOUT\370\336C4\005\000\013.__in\317it__\007\r\256!d_\277prompt#\rp\237arse_\366EB\014a""\363sk\356\003\000\025.<lo\375c\261 >.gene\307xpr1\r\212e\233\014ch}az\rnameT\334!\373Re\322\225\002__Pyx\372\001\000D\232`_Next\337Ref__\272De_\355_\t\000wa\352\001__d;oc\014\001fun\003\002\377\003\277__main$\001m\347eta\273b\010\002odu\375l:\002mro_en\037triesJ\001|\001R\001\277prepar\\\002qwual\017\005tes\327 \375_\277)_is_co\377routine_\376\273+aioapi_\177keyapp.\263e\377.schemas\364\006\013\310d.\306f.bas}e\363&asyncL\000\352\001\003.i\006s\346\205\006boo\205l\316!c\306b\003\000\214\000\370\000t\377raceback_close\341\222\004s\356\230\004\375_\266\231\003dictdo\217tenv\361\231\010\310\204\003\317@a\311i\323A\244\206\001_\240\223\004\340Dge\376/\001googlei\357tems\251\205\001lab\177elload_L\003~\007\001smodel\000\002\211s\336A\242`t\313\212\003\314\207\004\323\207\004_\377textospoyp\241\204\003\242\223\001erty\212\047<\335\205\003\352\231\005rawr\242c\261\210\005\374\311\226\003\356\224\003selfse\377ndsetdefoault\335\211\001ic\207`\177hodstrs\364@9p\322\233\004\203$sub\352\207\001\204\001\377throwtim\341e\330@\312\227\002\316\227\003\352bfor\377\200A\330\026\027\330\010\017\373\210q\007\000\033\034\360\010\000\377\t\020\210t\2208\2307\377\240%\240t\2504\250y\367\270\007\270\031\000\340\010\014\210\377K\220r\230\027\240\001\240\375\021\t\001I\220R\220w\230\357a\330\014\r\000\000\360\006\000\373\t\r\035\000u\230A\230R\377\230w\240a\320\0479\270\376\"\002J\220a\340\010\013\210\3774\210q\330\014\020\220\n\373\230%\032\001\240x\250t\260\3771\200A\340\r\016\330\t\375\n\034\0013\210k\230\021\230\377!\330\014\022\220#\220Q\3761\000\r\020\220\013\2301\230\371A\010\007C\0003\210i\220q\373\230\001 \003S\230\001\340\010\377\016\210c\220\026\220q\340?\010\021\220\024\220V-\001h\003\255zK\000(\240K\002*\221\000Q\035\340\334\003\340\021\022\353\001p\001\357\000\377\360(\000\001\002\200\027\210Q\001\274\000\000\006\017\000\035R\000\021\r\004\177\320\010\030\230\003\2301\000\013\266(\005\r\220\202\000\210!R\001\t\377\n\210A\320\n!\240\030\003\250\021";
-    PyObject *data = __Pyx_DecompressString_LZSS(cstring, 2730, 4142);
+static const char cstring[] = "\377\n\n\nCORRE\377CT ANSWE\373R:\017\000Give \377a clear,\377 friendl\377y teachi\377ng expla\377nation.\n\377If the s\377tudent s\177elected\020\002\367wro,\000answ\337er:\n-3\003in\367 whK\000heir\377 choice \347is \047\002\022\017 co\013rrO\000 @\003&\001\013\004M\000\377do not e\377mbarrassz~\t\n\222\005ques\247\001\377 require\275s\006\000ason\307\000,\314\211\006\277\001re\020\004\312\000ep\327 by\003\002.F\000MP\377ORTANT: \367For\352\002\"ste\377ps\" fiel\355d\327\001On\237 inc\375l\204  actua\277l, meac\001f{ulN\002-by-4\001\346w\007 i\270#\222\017it \347(ma\327 \002\000ics\377, calcul<\360\"\013\000logi\017\000\276\n/tc.)\342 E\243@\274\003\377should b\376\310Bomplete\371,\321C\270I of o\177ne part\010\001N\312Bolu\334A\262@I\224\014;do\300 NOT\310%\304\024=,\355 turn\266@\236@\357pty \240Ay: \373[]\361`RITIC\377AL: You \377MUST proovide\355@nt\305a\335f\347 ALL\334#s.\273 D\346Clea\231\204\001n\361y\365#U\003\330a\"gre\377eting\": \277AlwaysJ\006a\315 \207 rt\300\204\010$\005 a\375pu\000priate\333 f\325Dco\177\000xt\217\n- \"\337\204\010C\021\233\205\004d\177etailed\305-\020\224\205\001\367\204\003H\001\254c:\340\006\372\202 \270\"z\262\" \212\001hint\312\021\357help\340amem\273or\345 id \243\204\001iOp re\257`\211\206\001o\240\206\002\374\203\205\005\326\002ncoura/gemeB\021e\030\004\354\206\001\237words\2262\357\206\004\047\366\351 er\257@manc\375e\265!follow\317_up_\367\205\005\203Qth\277ought-\370Aoyk\327\207\0012\003-up \256\206\006\377to deepe\377n unders\377tanding\n\367\nRe\333bONLY\357 val\363\000JSO\377N.\n\nUse \337exact\261\210\001hi\377s struct\377ure:\n{\n \027   \241i\"\230b\335\210\007\277fI,%\003\366K\"\221\211\002\367\210\t\"!\004&\330E[]2\004\250D\"\206V2\005Ee\374,\"\354.\\\005\3022\"\243\201!\377\"\n}\n\n\nOP\337TIONS\341\212\001QU\363ES\t\001\355\212\001STOR\377ED EXPLA\373NA\014\007UDENTs\047S\221\213\007\252\206\001are\317\206\002\337xcell\355\212\003co\377ndary-sc\357hool\243\213\003er\n\344\224\204\001\254\213\001a\225\213\006""\270G a 7CBT\243Ami\305\213\003\351F\375.\226\207\007 RULE:\337\nThe \231\214\013 s\177upplied\243\212\001\374\374\213\001I\001system\366\311\213\001au\330`rita?tive.\n\334\207\006\263\210\001\377change i\361t\236\210\001\316\211\005\010\005inte\337rpret\034\001\no\372\234\214\002o\314`anoth\337er op\360\214\003Yo\277ur job\266\214\001t\261o\272\213\n\221\006\254\214\013.\n\234\215\014\047\375s\314\214\005differ?s from\310\215\002\205\216\013[,\n\205\216\002ly\260\215\r \365\205\007\266\224\215\007in\250\215\007d\n\343\215\004 \374~\024\304\215\010.\n\nNevJ\340\000s\263 e\310\216\t\237\007a\334\215\003\376\310\016SUBJECT\377:\n.. .en\277v15?Ge\325@i\362\316\212\005r\336\216\001\247\216\001conf\377igured. \357Miss\313\217\001GEM\377INI_API_\257KEY.3\004r\331\206\002e\355d\274\213\001in\332\206\003res\377ponse.No\220\210\217\005\350\217\005\017\000\226Cs\222f\"\000s\367tor\211\212\014avai\377lableNot\372 \010t\357\001at Cy\357thon\215\220\001del\377iberateln\206\217\001ric\230` t\273`\377 PEP-484\377 and rej\367ectr\001bcla\357sses\314\215\001bui\377ltin typ\377es. If y_ou ne\206\212\003p\250\220\001\373su(\006then \371s\362`\306\221\001\047anno\356\266\204\001on_<\000ing\317\047 di\200\221\001\223\222\001to\257 Fal\200 [\334#P~\261\215\003r] Cli\375\221\001\377initiali\375z\233\222\002 error\337: ```\000\000js\377onadd_no\377teapp/ai\367_tu\240 /ser\277vices/\377\215\004r\367s/g\274B.pyd\333is\253!en\261!gc~\022\003-2.5-f\355\000whis\024\003dAI\204\005\370\204\003\311K\336DMODEL\376\352DTIMEOUT\334\272\013\310\013.__\314\001__\374\007\r\334!d_prom\373pt#\rensur\347e_c\213\"@\rpar\347se_\301e_\014ask|\213#\000\025.<loc\374 \377>.genexpqr1\r\325e\270\014cha\227\r\377namePath\355T\375!Re\241\224\002_ME\377IPASS__P\353yx\001\000D\361`_Ne\177xtRef__\221d\367e__\t\000wait\356\005\001doc\014\001fil\316\023\002fun\013\002\260#__\357main,\001met\271a\232\204\002\010\002odu)\003m\377ro_entri\343esR\001\220\001Z\001pre\367pard\002qualN\017\005tesp\001\360)_\340*\377_is_coro""\277utine_\335+a\377ioapi_ke\337yapp.\362e.s?chemas\006\013\207\204\004}.\205\204\006.base\225F\237asyncL\000\001\003.zi\006s\323\206\006bool\360!\360\376C\207`\214\000\206 trac\377ebackclo\273se\343\222\002nts\333\227\004_\376\242\230\003dictdot\177envenv_\324!\177errexe_\200\206\001\337xecut\211\205\002xi\367sts\376\230\010froz3en\257\205\003\231`ai\235a\271\207\001\331_`\004\252dgeW\001go\377ogleitem\371s\220\206\001\222 label\237load_w\003\007\001s_model\000\002s\253ab\357`t\373\213\003\344\210\004\353\210\004_t\240`\267osp\260Ant\000\003s\377pathlibp\037oppri\023\000\246\205\002\351\224\001\217erty\317\047\341\206\003\234\231\005r\367awr\205\204\003reso\367lve\352\211\005resu\373lt\216\212\003selfs\377endsetde\263fa\025\000\257\213\001ic\341`h\277odstrs\316`p\234\212\233\004\317$sub\242\211\002\236\216\001x\377tthrowti\373me\247`value\372\000\002s\317\204\002for\200A\177\330\010\014\210K\220q\003\001\367J\220a\n\001I\220R\220\177w\230a\320\037/\250\022\002\377K\220u\230A\230R\230\377w\240a\320\0479\270\021\356.\001O\23018\000\026\027\330o\010\017\210qB\000\033\034\017\004\376\r\001t\2208\2307\240%\377\240t\2504\250q\260\004\373\260Ac\000\035%\240Q\330\377\010\013\2103\210k\230\021\377\230!\330\014\022\220#\220\375Qn\000\r\020\220\013\2301\363\230A\010\007!\002i\220q\230\365\001 \003S\006\000\010\016\210c\377\220\026\220q\340\010\021\220\347\024\220V,\002K\0004\210zVK\000(\240K\002*\243\000Q\212\004\235\340.\000b\220\007@\002#\002u\377\220D\230\010\240\003\2405\373\250\003\223\000s\260$\260a\373\330\014v\002\330\014\r\330\020\377\024\220J\230e\2407\250\377!\2508\2604\260q\330\377\014\023\220=\240\001\330\020\377\025\220Q\320\026F\300a\373\300q\036\003a\200A\340\021\333\022\330\366\000\t\n\367\002\360\"\377\000\001\002\200\027\210\001\360\251\006\000\006\016\001\035\255\000\021\r\004\320?\010\030\230\003\2301\000\013(\005\333\r\220\335\000\210!R\001\t\n\377\210A\320\n!\240\030\250\001\021";
+    PyObject *data = __Pyx_DecompressString_LZSS(cstring, 2730, 4141);
     #define __Pyx_DecompressString_UNUSED
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #else /* compression: none (4142 bytes) */
-static const char bytes[] = "\n\n\nCORRECT ANSWER:\n\n\nGive a clear, friendly teaching explanation.\n\nIf the student selected the wrong answer:\n\n- explain why their choice is wrong\n- explain why the correct answer is correct\n- do not embarrass the student\n\nIf the question requires reasoning,\nexplain the reasoning step by step.\n\nIMPORTANT: For the \"steps\" field:\n- Only include actual, meaningful step-by-step reasoning if the question requires it (mathematics, calculations, logical reasoning, etc.)\n- Each step should be a complete, clear explanation of one part of the solution\n- Example of good steps: [\"First, identify the formula needed\", \"Substitute the given values into the formula\", \"Calculate the result step by step\", \"Verify the answer makes sense\"]\n- If the question does NOT require step-by-step reasoning, return an empty array: []\n- NEVER use placeholder text like \"step one\", \"step two\" - either give real steps or return []\n\nCRITICAL: You MUST provide content for ALL fields. Do not leave any field empty:\n- \"greeting\": Always provide a short, friendly greeting appropriate for the context\n- \"explanation\": Always provide a clear, detailed explanation of the answer\n- \"steps\": provide meaningful step-by-step reasoning in an array \n- \"hint\": Always provide a helpful memory aid or tip related to the question\n- \"encouragement\": Always provide encouraging words appropriate for the student\047s performance\n- \"follow_up_question\": Always provide a thought-provoking follow-up question to deepen understanding\n\nReturn ONLY valid JSON.\n\nUse exactly this structure:\n\n{\n    \"greeting\": \"short friendly greeting\",\n    \"explanation\": \"clear explanation\",\n    \"steps\": [],\n    \"hint\": \"helpful memory aid or tip\",\n    \"encouragement\": \"encouraging words\",\n    \"follow_up_question\": \"thought-provoking follow-up question\"\n}\n\n\nOPTIONS:\n\n\nQUESTION:\n\n\nSTORED EXPLANATION:\n\n\nSTUDENT\047S ANSWER:\n\nYou are an excellent secon""dary-school teacher\nhelping a student understand a CBT examination question.\n\nCRITICAL RULE:\n\nThe CORRECT ANSWER supplied by the CBT system is authoritative.\n\nYou MUST NOT change it, recalculate it, reinterpret it,\nor choose another option.\n\nYour job is to explain the supplied correct answer.\n\nIf the student\047s answer differs from the CORRECT ANSWER,\nclearly explain why the student\047s answer is incorrect and\nwhy the supplied correct answer is correct.\n\nNever state the student\047s answer as the correct answer.\n\nSUBJECT:\n.. .env8?Gemini provider is not configured.Gemini returned an invalid response.No answer selectedNo options suppliedNo stored explanation availableNot suppliedNote that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the \047annotation_typing\047 directive to False.``````jsonadd_noteapp/ai_tutor/services/providers/gemini.pydisableenablegcgemini-3.6-flashisenabledAIProviderClientGEMINI_API_KEYGEMINI_MODELGEMINI_TIMEOUTGeminiProviderGeminiProvider.__init__GeminiProvider._build_promptGeminiProvider._parse_responseGeminiProvider.ask_tutorGeminiProvider.ask_tutor.<locals>.genexprGeminiProvider.availableGeminiProvider.chatGeminiProvider.nameTutorRequest__Pyx_PyDict_NextRef__annotate____await____doc____func____init____main____metaclass____module____mro_entries____name____prepare____qualname____test___build_prompt_is_coroutine_parse_responseaioapi_keyapp.ai_tutor.schemasapp.ai_tutor.services.providers.baseask_tutorasyncioasyncio.coroutinesavailableboolchatclientcline_in_tracebackclosecontentscorrect_answerdictdotenvexplanationgeminigenaigenerate_contentgenexprgetenvgoogleitemsjsonlabelload_dotenvloadsmodelmodelsnamenextoptionoptionsoptions_textospoppromptpropertyproviders.geminiquestionrawrequestresponseresultreturnselfsendsetdefaultstaticmethodstrstripstudent_answersubjecttextthrowtimeoutvaluevalueswait_for\200A\330\026\027\330\010\017\210q\200A\330\033\034""\360\010\000\t\020\210t\2208\2307\240%\240t\2504\250y\270\007\270q\200A\340\010\014\210K\220r\230\027\240\001\240\021\340\010\014\210I\220R\220w\230a\330\014\r\330\014\r\360\006\000\t\r\210K\220u\230A\230R\230w\240a\320\0479\270\021\340\010\014\210J\220a\340\010\013\2104\210q\330\014\020\220\n\230%\230w\240a\240x\250t\2601\200A\340\r\016\330\t\n\340\010\013\2103\210k\230\021\230!\330\014\022\220#\220Q\220a\340\r\020\220\013\2301\230A\330\014\022\220#\220Q\220a\340\010\013\2103\210i\220q\230\001\330\014\022\220#\220S\230\001\340\010\016\210c\220\026\220q\340\010\021\220\024\220V\2301\230A\340\010\013\2104\210z\230\021\230(\240!\330\014\022\220*\230A\230Q\340\010\017\210q\200A\340\021\022\330\026\027\330\t\n\340\010\017\210q\360(\000\001\002\200\027\210\001\360\006\000\001\002\200\027\210\001\360\006\000\001\002\200\035\210c\220\021\360\006\000\001\002\200\027\320\010\030\230\003\2301\360\006\000\001\002\200\027\320\010\030\230\003\2301\360\006\000\001\002\200\027\210\r\220S\230\001\210!\340\021\022\330\t\n\210A\320\n!\240\030\250\021";
+    #else /* compression: none (4141 bytes) */
+static const char bytes[] = "\n\n\nCORRECT ANSWER:\n\n\nGive a clear, friendly teaching explanation.\nIf the student selected the wrong answer:\n- explain why their choice is wrong\n- explain why the correct answer is correct\n- do not embarrass the student\n\nIf the question requires reasoning, explain the reasoning step by step.\n\nIMPORTANT: For the \"steps\" field:\n- Only include actual, meaningful step-by-step reasoning if the question requires it (mathematics, calculations, logical reasoning, etc.)\n- Each step should be a complete, clear explanation of one part of the solution\n- If the question does NOT require step-by-step reasoning, return an empty array: []\n\nCRITICAL: You MUST provide content for ALL fields. Do not leave any field empty:\n- \"greeting\": Always provide a short, friendly greeting appropriate for the context\n- \"explanation\": Always provide a clear, detailed explanation of the answer\n- \"steps\": provide meaningful step-by-step reasoning in an array \n- \"hint\": Always provide a helpful memory aid or tip related to the question\n- \"encouragement\": Always provide encouraging words appropriate for the student\047s performance\n- \"follow_up_question\": Always provide a thought-provoking follow-up question to deepen understanding\n\nReturn ONLY valid JSON.\n\nUse exactly this structure:\n{\n    \"greeting\": \"short friendly greeting\",\n    \"explanation\": \"clear explanation\",\n    \"steps\": [],\n    \"hint\": \"helpful memory aid or tip\",\n    \"encouragement\": \"encouraging words\",\n    \"follow_up_question\": \"thought-provoking follow-up question\"\n}\n\n\nOPTIONS:\n\n\nQUESTION:\n\n\nSTORED EXPLANATION:\n\n\nSTUDENT\047S ANSWER:\n\nYou are an excellent secondary-school teacher\nhelping a student understand a CBT examination question.\n\nCRITICAL RULE:\nThe CORRECT ANSWER supplied by the CBT system is authoritative.\nYou MUST NOT change it, recalculate it, reinterpret it,\nor choose another option.\nYour job is to explain the supplied correct answer.""\n\nIf the student\047s answer differs from the CORRECT ANSWER,\nclearly explain why the student\047s answer is incorrect and\nwhy the supplied correct answer is correct.\n\nNever state the student\047s answer as the correct answer.\n\nSUBJECT:\n.. .env15?Gemini provider is not configured. Missing GEMINI_API_KEY.Gemini returned an invalid response.No answer selectedNo options suppliedNo stored explanation availableNot suppliedNote that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the \047annotation_typing\047 directive to False.[GeminiProvider] Client initialization error: ``````jsonadd_noteapp/ai_tutor/services/providers/gemini.pydisableenablegcgemini-2.5-flashisenabledAIProviderClientGEMINI_API_KEYGEMINI_MODELGEMINI_TIMEOUTGeminiProviderGeminiProvider.__init__GeminiProvider._build_promptGeminiProvider._ensure_clientGeminiProvider._parse_responseGeminiProvider.ask_tutorGeminiProvider.ask_tutor.<locals>.genexprGeminiProvider.availableGeminiProvider.chatGeminiProvider.namePathTutorRequest_MEIPASS__Pyx_PyDict_NextRef__annotate____await____doc____file____func____init____main____metaclass____module____mro_entries____name____prepare____qualname____test___build_prompt_ensure_client_is_coroutine_parse_responseaioapi_keyapp.ai_tutor.schemasapp.ai_tutor.services.providers.baseask_tutorasyncioasyncio.coroutinesavailableboolchatclientcline_in_tracebackclosecontentscorrect_answerdictdotenvenv_fileerrexe_direxecutableexistsexplanationfrozengeminigenaigenerate_contentgenexprgetenvgoogleitemsjsonkeylabelload_dotenvloadsmodelmodelsnamenextoptionoptionsoptions_textospparentparentspathlibpopprintpromptpropertyproviders.geminiquestionrawrequestresolveresponseresultreturnselfsendsetdefaultstaticmethodstrstripstudent_answersubjectsystextthrowtimeoutvaluevalueswait_for\200A\330\010\014\210K\220q\330\010\014\210J\220a\330\010\014\210I\220R\220w\230a\320\037/\250q\330\010\014\210K\220u\230A\230R\230w\240a\320""\0479\270\021\330\010\014\210O\2301\200A\330\026\027\330\010\017\210q\200A\330\033\034\330\010\014\210O\2301\330\010\017\210t\2208\2307\240%\240t\2504\250q\260\004\260A\200A\330\035%\240Q\330\010\013\2103\210k\230\021\230!\330\014\022\220#\220Q\220a\330\r\020\220\013\2301\230A\330\014\022\220#\220Q\220a\330\010\013\2103\210i\220q\230\001\330\014\022\220#\220S\230\001\330\010\016\210c\220\026\220q\340\010\021\220\024\220V\2301\230A\330\010\013\2104\210z\230\021\230(\240!\330\014\022\220*\230A\230Q\330\010\017\210q\200A\340\010\016\210b\220\007\220q\230\001\330\010\013\2104\210u\220D\230\010\240\003\2405\250\003\2504\250s\260$\260a\330\014\020\220\013\2301\330\014\r\330\020\024\220J\230e\2407\250!\2508\2604\260q\330\014\023\220=\240\001\330\020\025\220Q\320\026F\300a\300q\330\020\024\220J\230a\200A\340\021\022\330\026\027\330\t\n\330\010\017\210q\360\"\000\001\002\200\027\210\001\360\006\000\001\002\200\027\210\001\360\006\000\001\002\200\035\210c\220\021\360\006\000\001\002\200\027\320\010\030\230\003\2301\360\006\000\001\002\200\027\320\010\030\230\003\2301\360\006\000\001\002\200\027\210\r\220S\230\001\210!\340\021\022\330\t\n\210A\320\n!\240\030\250\021";
     PyObject *data = NULL;
     #define __Pyx_DecompressString_UNUSED
     #define __Pyx_DecompressString_LZSS_UNUSED
     #endif
     PyObject **stringtab = __pyx_mstate->__pyx_string_tab;
     Py_ssize_t pos = 0;
-    for (int i = 0; i < 122; i++) {
+    for (int i = 0; i < 142; i++) {
       Py_ssize_t bytes_length = str_length_index[i].length;
       PyObject *string = PyUnicode_DecodeUTF8(bytes + pos, bytes_length, NULL);
-      if (likely(string) && i >= 29) PyUnicode_InternInPlace(&string);
+      if (likely(string) && i >= 30) PyUnicode_InternInPlace(&string);
       if (unlikely(!string)) {
         Py_XDECREF(data);
         __PYX_ERR(0, 1, __pyx_L1_error)
@@ -7593,8 +8515,8 @@ static const char bytes[] = "\n\n\nCORRECT ANSWER:\n\n\nGive a clear, friendly t
       stringtab[i] = string;
       pos += bytes_length;
     }
-    for (int i = 122; i < 130; i++) {
-      Py_ssize_t bytes_length = bytes_length_index[i-122].length;
+    for (int i = 142; i < 151; i++) {
+      Py_ssize_t bytes_length = bytes_length_index[i-142].length;
       PyObject *string = PyBytes_FromStringAndSize(bytes + pos, bytes_length);
       stringtab[i] = string;
       pos += bytes_length;
@@ -7604,15 +8526,15 @@ static const char bytes[] = "\n\n\nCORRECT ANSWER:\n\n\nGive a clear, friendly t
       }
     }
     Py_XDECREF(data);
-    for (Py_ssize_t i = 0; i < 130; i++) {
+    for (Py_ssize_t i = 0; i < 151; i++) {
       if (unlikely(PyObject_Hash(stringtab[i]) == -1)) {
         __PYX_ERR(0, 1, __pyx_L1_error)
       }
     }
     #if CYTHON_IMMORTAL_CONSTANTS
     {
-      PyObject **table = stringtab + 122;
-      for (Py_ssize_t i=0; i<8; ++i) {
+      PyObject **table = stringtab + 142;
+      for (Py_ssize_t i=0; i<9; ++i) {
         #if PY_VERSION_HEX >= 0x030F0000
         PyUnstable_SetImmortal(table[i]);
         #elif CYTHON_COMPILING_IN_CPYTHON_FREETHREADING
@@ -7667,44 +8589,49 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
   PyObject* tuple_dedup_map = PyDict_New();
   if (unlikely(!tuple_dedup_map)) return -1;
   {
-    const __Pyx_PyCode_New_function_description descr = {0, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_GENERATOR), 54};
+    const __Pyx_PyCode_New_function_description descr = {0, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_GENERATOR), 67};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_option};
     __pyx_mstate_global->__pyx_codeobj_tab[0] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_ai_tutor_services_providers_2, __pyx_mstate->__pyx_n_u_genexpr, __pyx_mstate->__pyx_kp_b_iso88591_A, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[0])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 8, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 45};
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 8, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 58};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_request, __pyx_mstate->__pyx_n_u_options_text, __pyx_mstate->__pyx_n_u_prompt, __pyx_mstate->__pyx_n_u_response, __pyx_mstate->__pyx_n_u_raw, __pyx_mstate->__pyx_n_u_genexpr, __pyx_mstate->__pyx_n_u_genexpr};
     __pyx_mstate_global->__pyx_codeobj_tab[1] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_ai_tutor_services_providers_2, __pyx_mstate->__pyx_n_u_ask_tutor, __pyx_mstate->__pyx_kp_b_iso88591__6, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[1])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 3, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 74};
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 3, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 86};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_prompt, __pyx_mstate->__pyx_n_u_response};
     __pyx_mstate_global->__pyx_codeobj_tab[2] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_ai_tutor_services_providers_2, __pyx_mstate->__pyx_n_u_chat, __pyx_mstate->__pyx_kp_b_iso88591__7, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[2])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 18};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 31};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
-    __pyx_mstate_global->__pyx_codeobj_tab[3] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_ai_tutor_services_providers_2, __pyx_mstate->__pyx_n_u_init, __pyx_mstate->__pyx_kp_b_iso88591_A_Kr_IRwa_KuARwa_9_Ja_4q_waxt1, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[3])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[3] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_ai_tutor_services_providers_2, __pyx_mstate->__pyx_n_u_init, __pyx_mstate->__pyx_kp_b_iso88591_A_Kq_Ja_IRwa_q_KuARwa_9_O1, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[3])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 34};
-    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
-    __pyx_mstate_global->__pyx_codeobj_tab[4] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_ai_tutor_services_providers_2, __pyx_mstate->__pyx_n_u_name_2, __pyx_mstate->__pyx_kp_b_iso88591_A_q, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[4])) goto bad;
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 3, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 38};
+    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_key, __pyx_mstate->__pyx_n_u_err};
+    __pyx_mstate_global->__pyx_codeobj_tab[4] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_ai_tutor_services_providers_2, __pyx_mstate->__pyx_n_u_ensure_client, __pyx_mstate->__pyx_kp_b_iso88591_A_b_q_4uD_5_4s_a_1_Je7_84q_Q_Faq, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[4])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 38};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 49};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
-    __pyx_mstate_global->__pyx_codeobj_tab[5] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_ai_tutor_services_providers_2, __pyx_mstate->__pyx_n_u_available, __pyx_mstate->__pyx_kp_b_iso88591_A_t87_t4y_q, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[5])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[5] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_ai_tutor_services_providers_2, __pyx_mstate->__pyx_n_u_name_2, __pyx_mstate->__pyx_kp_b_iso88591_A_q, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[5])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {3, 0, 0, 3, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 86};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 53};
+    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
+    __pyx_mstate_global->__pyx_codeobj_tab[6] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_ai_tutor_services_providers_2, __pyx_mstate->__pyx_n_u_available, __pyx_mstate->__pyx_kp_b_iso88591_A_O1_t87_t4q_A, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[6])) goto bad;
+  }
+  {
+    const __Pyx_PyCode_New_function_description descr = {3, 0, 0, 3, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 100};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_request, __pyx_mstate->__pyx_n_u_options_text};
-    __pyx_mstate_global->__pyx_codeobj_tab[6] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_ai_tutor_services_providers_2, __pyx_mstate->__pyx_n_u_build_prompt, __pyx_mstate->__pyx_kp_b_iso88591_A_q_c_1_1_S, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[6])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[7] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_ai_tutor_services_providers_2, __pyx_mstate->__pyx_n_u_build_prompt, __pyx_mstate->__pyx_kp_b_iso88591_A_q_c_1_1_S, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[7])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 169};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 173};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_raw, __pyx_mstate->__pyx_n_u_result};
-    __pyx_mstate_global->__pyx_codeobj_tab[7] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_ai_tutor_services_providers_2, __pyx_mstate->__pyx_n_u_parse_response, __pyx_mstate->__pyx_kp_b_iso88591_A_3k_Qa_1A_Qa_3iq_S_c_q_V1A_4z_A, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[7])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[8] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_app_ai_tutor_services_providers_2, __pyx_mstate->__pyx_n_u_parse_response, __pyx_mstate->__pyx_kp_b_iso88591_A_Q_3k_Qa_1A_Qa_3iq_S_c_q_V1A_4z, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[8])) goto bad;
   }
   Py_DECREF(tuple_dedup_map);
   return 0;
@@ -8995,6 +9922,16 @@ static void __Pyx_RaiseArgtupleInvalid(
                  (num_expected == 1) ? "" : "s", num_found);
 }
 
+/* PyObjectSetAttrStr */
+#if CYTHON_USE_TYPE_SLOTS
+static CYTHON_INLINE int __Pyx_PyObject_SetAttrStr(PyObject* obj, PyObject* attr_name, PyObject* value) {
+    PyTypeObject* tp = Py_TYPE(obj);
+    if (likely(tp->tp_setattro))
+        return tp->tp_setattro(obj, attr_name, value);
+    return PyObject_SetAttr(obj, attr_name, value);
+}
+#endif
+
 /* PyDictVersioning (used by GetModuleGlobalName) */
 #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_TYPE_SLOTS
 static CYTHON_INLINE PY_UINT64_T __Pyx_get_tp_dict_version(PyObject *obj) {
@@ -9065,16 +10002,6 @@ static CYTHON_INLINE PyObject *__Pyx__GetModuleGlobalName(PyObject *name)
 #endif
     return __Pyx_GetBuiltinName(name);
 }
-
-/* PyObjectSetAttrStr */
-#if CYTHON_USE_TYPE_SLOTS
-static CYTHON_INLINE int __Pyx_PyObject_SetAttrStr(PyObject* obj, PyObject* attr_name, PyObject* value) {
-    PyTypeObject* tp = Py_TYPE(obj);
-    if (likely(tp->tp_setattro))
-        return tp->tp_setattro(obj, attr_name, value);
-    return PyObject_SetAttr(obj, attr_name, value);
-}
-#endif
 
 /* pybytes_as_double (used by pynumber_float) */
 static double __Pyx_SlowPyString_AsDouble(PyObject *obj) {
@@ -9321,6 +10248,408 @@ bad:
     return -1;
 }
 
+/* PyObjectFastCallMethod */
+#if !CYTHON_VECTORCALL
+static PyObject *__Pyx_PyObject_FastCallMethod(PyObject *name, PyObject *const *args, size_t nargsf) {
+    PyObject *result;
+    switch (__Pyx_PyVectorcall_NARGS(nargsf)) {
+        case 1:
+            return PyObject_CallMethodObjArgs(args[0], name, NULL);
+        case 2:
+            return PyObject_CallMethodObjArgs(args[0], name, args[1], NULL);
+        case 3:
+            return PyObject_CallMethodObjArgs(args[0], name, args[1], args[2], NULL);
+        case 4:
+            return PyObject_CallMethodObjArgs(args[0], name, args[1], args[2], args[3], NULL);
+        case 5:
+            return PyObject_CallMethodObjArgs(args[0], name, args[1], args[2], args[3], args[4], NULL);
+    }
+    PyObject *attr = PyObject_GetAttr(args[0], name);
+    if (unlikely(!attr))
+        return NULL;
+    result = __Pyx_PyObject_FastCall(attr, args+1, nargsf - 1);
+    Py_DECREF(attr);
+    return result;
+}
+#endif
+
+/* PyObjectCompare */
+#ifndef __Pyx_DEFINED_PyObject_CompareStrStrBoolNe
+#define __Pyx_DEFINED_PyObject_CompareStrStrBoolNe
+static CYTHON_INLINE int __Pyx_PyObject_CompareStrStrBoolNe(PyObject* s1, PyObject* s2) {
+    #if __PYX_LIMITED_VERSION_HEX >= 0x030e0000
+    int result = PyUnicode_Equal(s1, s2);
+    #if !CYTHON_COMPILING_IN_CPYTHON
+    if (unlikely(result == -1)) return -1;
+    #endif
+    if (result != 0) goto __pyx_return_false; else goto __pyx_return_true;
+    #else
+    int result = PyUnicode_Compare(s1, s2);
+    if (unlikely((result == -1) && PyErr_Occurred())) return -1;
+    if (result != 0) goto __pyx_return_true; else goto __pyx_return_false;
+    #endif
+__pyx_return_true:
+    return 1;
+__pyx_return_false:
+    return 0;
+}
+#endif
+#if !(CYTHON_COMPILING_IN_PYPY || CYTHON_COMPILING_IN_GRAAL)
+#ifndef __Pyx_DEFINED_PyObject_ComparePyBytesPyBytesBoolNe
+#define __Pyx_DEFINED_PyObject_ComparePyBytesPyBytesBoolNe
+static CYTHON_INLINE int __Pyx_PyObject_ComparePyBytesPyBytesBoolNe(PyObject* s1, PyObject* s2) {
+    #if CYTHON_ASSUME_SAFE_SIZE && CYTHON_ASSUME_SAFE_MACROS
+    const char *ps1, *ps2;
+    Py_ssize_t length = PyBytes_GET_SIZE(s1);
+    if (length != PyBytes_GET_SIZE(s2)) goto __pyx_return_true;
+    ps1 = PyBytes_AS_STRING(s1);
+    ps2 = PyBytes_AS_STRING(s2);
+    #else
+    char *ps1, *ps2;
+    Py_ssize_t length, length2;
+    if (unlikely(PyBytes_AsStringAndSize(s1, &ps1, &length) == -1)) return -1;
+    if (unlikely(PyBytes_AsStringAndSize(s2, &ps2, &length2) == -1)) return -1;
+    if (length != length2) goto __pyx_return_true;
+    #endif
+    if (ps1[0] != ps2[0]) goto __pyx_return_true;
+    if (length == 1) goto __pyx_return_false;
+    {
+        int cmp;
+#if CYTHON_USE_UNICODE_INTERNALS && (PY_VERSION_HEX < 0x030B0000)
+        Py_hash_t hash1 = ((PyBytesObject*)s1)->ob_shash;
+        Py_hash_t hash2 = ((PyBytesObject*)s2)->ob_shash;
+        if (hash1 != hash2 && hash1 != -1 && hash2 != -1) goto __pyx_return_true;
+#endif
+        cmp = memcmp(ps1, ps2, (size_t)length);
+        if (cmp != 0) goto __pyx_return_true; else goto __pyx_return_false;
+    }
+__pyx_return_true:
+    return 1;
+__pyx_return_false:
+    return 0;
+}
+#endif
+#endif
+#if !(CYTHON_COMPILING_IN_PYPY || CYTHON_COMPILING_IN_GRAAL)
+#ifndef __Pyx_DEFINED_PyObject_ComparePyBytesPyByteArrayBoolNe
+#define __Pyx_DEFINED_PyObject_ComparePyBytesPyByteArrayBoolNe
+static CYTHON_INLINE int __Pyx_PyObject_ComparePyBytesPyByteArrayBoolNe(PyObject* s1, PyObject* s2) {
+    #if CYTHON_ASSUME_SAFE_SIZE && CYTHON_ASSUME_SAFE_MACROS
+    const char *ps1, *ps2;
+    Py_ssize_t length = PyBytes_GET_SIZE(s1);
+    if (length != PyByteArray_GET_SIZE(s2)) goto __pyx_return_true;
+    ps1 = PyBytes_AS_STRING(s1);
+    ps2 = PyByteArray_AS_STRING(s2);
+    #else
+    char *ps1, *ps2;
+    Py_ssize_t length, length2;
+    if (unlikely(PyBytes_AsStringAndSize(s1, &ps1, &length) == -1)) return -1;
+    ps2 = __Pyx_PyByteArray_AsString(s2); if (unlikely(!ps2)) return -1;
+    length2 = __Pyx_PyByteArray_GET_SIZE(s2); if (unlikely(length2 == -1)) return -1;
+    if (length != length2) goto __pyx_return_true;
+    #endif
+    if (ps1[0] != ps2[0]) goto __pyx_return_true;
+    if (length == 1) goto __pyx_return_false;
+    {
+        int cmp;
+        cmp = memcmp(ps1, ps2, (size_t)length);
+        if (cmp != 0) goto __pyx_return_true; else goto __pyx_return_false;
+    }
+__pyx_return_true:
+    return 1;
+__pyx_return_false:
+    return 0;
+}
+#endif
+#endif
+#if !(CYTHON_COMPILING_IN_PYPY || CYTHON_COMPILING_IN_GRAAL)
+#ifndef __Pyx_DEFINED_PyObject_ComparePyByteArrayPyBytesBoolNe
+#define __Pyx_DEFINED_PyObject_ComparePyByteArrayPyBytesBoolNe
+static CYTHON_INLINE int __Pyx_PyObject_ComparePyByteArrayPyBytesBoolNe(PyObject* s1, PyObject* s2) {
+    #if CYTHON_ASSUME_SAFE_SIZE && CYTHON_ASSUME_SAFE_MACROS
+    const char *ps1, *ps2;
+    Py_ssize_t length = PyByteArray_GET_SIZE(s1);
+    if (length != PyBytes_GET_SIZE(s2)) goto __pyx_return_true;
+    ps1 = PyByteArray_AS_STRING(s1);
+    ps2 = PyBytes_AS_STRING(s2);
+    #else
+    char *ps1, *ps2;
+    Py_ssize_t length, length2;
+    ps1 = __Pyx_PyByteArray_AsString(s1); if (unlikely(!ps1)) return -1;
+    length = __Pyx_PyByteArray_GET_SIZE(s1); if (unlikely(length == -1)) return -1;
+    if (unlikely(PyBytes_AsStringAndSize(s2, &ps2, &length2) == -1)) return -1;
+    if (length != length2) goto __pyx_return_true;
+    #endif
+    if (length == 0) goto __pyx_return_false;
+    if (ps1[0] != ps2[0]) goto __pyx_return_true;
+    if (length == 1) goto __pyx_return_false;
+    {
+        int cmp;
+        cmp = memcmp(ps1, ps2, (size_t)length);
+        if (cmp != 0) goto __pyx_return_true; else goto __pyx_return_false;
+    }
+__pyx_return_true:
+    return 1;
+__pyx_return_false:
+    return 0;
+}
+#endif
+#endif
+#if !(CYTHON_COMPILING_IN_PYPY || CYTHON_COMPILING_IN_GRAAL)
+#ifndef __Pyx_DEFINED_PyObject_ComparePyByteArrayPyByteArrayBoolNe
+#define __Pyx_DEFINED_PyObject_ComparePyByteArrayPyByteArrayBoolNe
+static CYTHON_INLINE int __Pyx_PyObject_ComparePyByteArrayPyByteArrayBoolNe(PyObject* s1, PyObject* s2) {
+    #if CYTHON_ASSUME_SAFE_SIZE && CYTHON_ASSUME_SAFE_MACROS
+    const char *ps1, *ps2;
+    Py_ssize_t length = PyByteArray_GET_SIZE(s1);
+    if (length != PyByteArray_GET_SIZE(s2)) goto __pyx_return_true;
+    ps1 = PyByteArray_AS_STRING(s1);
+    ps2 = PyByteArray_AS_STRING(s2);
+    #else
+    char *ps1, *ps2;
+    Py_ssize_t length, length2;
+    ps1 = __Pyx_PyByteArray_AsString(s1); if (unlikely(!ps1)) return -1;
+    length = __Pyx_PyByteArray_GET_SIZE(s1); if (unlikely(length == -1)) return -1;
+    ps2 = __Pyx_PyByteArray_AsString(s2); if (unlikely(!ps2)) return -1;
+    length2 = __Pyx_PyByteArray_GET_SIZE(s2); if (unlikely(length2 == -1)) return -1;
+    if (length != length2) goto __pyx_return_true;
+    #endif
+    if (length == 0) goto __pyx_return_false;
+    if (ps1[0] != ps2[0]) goto __pyx_return_true;
+    if (length == 1) goto __pyx_return_false;
+    {
+        int cmp;
+        cmp = memcmp(ps1, ps2, (size_t)length);
+        if (cmp != 0) goto __pyx_return_true; else goto __pyx_return_false;
+    }
+__pyx_return_true:
+    return 1;
+__pyx_return_false:
+    return 0;
+}
+#endif
+#endif
+#ifndef __Pyx_DEFINED_PyObject_CompareFloatIntBoolNe
+#define __Pyx_DEFINED_PyObject_CompareFloatIntBoolNe
+static int __Pyx_PyObject_CompareFloatIntBoolNe(PyObject *op1, PyObject *op2) {
+    double float_op1 = __Pyx_PyFloat_AS_DOUBLE(op1);
+    #if !CYTHON_ASSUME_SAFE_MACROS
+    if (unlikely(float_op1 == -1. && PyErr_Occurred())) return -1;
+    #endif
+    #if CYTHON_USE_PYLONG_INTERNALS
+    if (__Pyx_PyLong_IsCompact(op2)) {
+        Py_ssize_t iop2 = __Pyx_PyLong_CompactValue(op2);
+        if (float_op1 != ((double)iop2)) goto __pyx_return_true; else goto __pyx_return_false;
+    }
+    if (unlikely(!isfinite(float_op1))) {
+        if (float_op1 != 0.0) goto __pyx_return_true; else goto __pyx_return_false;
+    } else {
+        int sign2 = __Pyx_PyLong_Sign(op2);
+        if (float_op1 >= 0.) {
+            if (sign2 < 0) goto __pyx_return_true;
+            if (float_op1 < (double) (1L << PyLong_SHIFT)) goto __pyx_return_true;
+        } else {
+            if (sign2 > 0) goto __pyx_return_true;
+            if (float_op1 > -(double) (1L << PyLong_SHIFT)) goto __pyx_return_true;
+        }
+    }
+    #else
+    if (unlikely(!isfinite(float_op1))) {
+        if (float_op1 != 0.0) goto __pyx_return_true; else goto __pyx_return_false;
+    } else {
+        int overflow2;
+        long iop2 = PyLong_AsLongAndOverflow(op2, &overflow2);
+        if (likely(!overflow2)) {
+            if ((long long) iop2 >= (1LL << 53)) {
+                overflow2 = 1;
+            } else if ((long long) iop2 <= - (1LL << 53)) {
+                overflow2 = -1;
+            } else {
+                if (float_op1 != ((double) iop2)) goto __pyx_return_true; else goto __pyx_return_false;
+            }
+        }
+        if (overflow2 > 0) {
+            if (float_op1 < ((double) (1LL << 53))) goto __pyx_return_true;
+        } else {
+            if (float_op1 > - ((double) (1LL << 53))) goto __pyx_return_true;
+        }
+    }
+    #endif
+    return __Pyx_PyObject_RichCompareBool(op1, op2, Py_NE);
+__pyx_return_true:
+    return 1;
+__pyx_return_false:
+    return 0;
+}
+#endif
+#ifndef __Pyx_DEFINED_PyObject_CompareIntFloatBoolNe
+#define __Pyx_DEFINED_PyObject_CompareIntFloatBoolNe
+static int __Pyx_PyObject_CompareIntFloatBoolNe(PyObject *op1, PyObject *op2) {
+    double float_op2 = __Pyx_PyFloat_AS_DOUBLE(op2);
+    #if !CYTHON_ASSUME_SAFE_MACROS
+    if (unlikely(float_op2 == -1. && PyErr_Occurred())) return -1;
+    #endif
+    #if CYTHON_USE_PYLONG_INTERNALS
+    if (__Pyx_PyLong_IsCompact(op1)) {
+        Py_ssize_t iop1 = __Pyx_PyLong_CompactValue(op1);
+        if (((double)iop1) != float_op2) goto __pyx_return_true; else goto __pyx_return_false;
+    }
+    if (unlikely(!isfinite(float_op2))) {
+        if (0.0 != float_op2) goto __pyx_return_true; else goto __pyx_return_false;
+    } else {
+        int sign1 = __Pyx_PyLong_Sign(op1);
+        if (float_op2 >= 0.) {
+            if (sign1 < 0) goto __pyx_return_true;
+            if (float_op2 < (double) (1L << PyLong_SHIFT)) goto __pyx_return_true;
+        } else {
+            if (sign1 > 0) goto __pyx_return_true;
+            if (float_op2 > -(double) (1L << PyLong_SHIFT)) goto __pyx_return_true;
+        }
+    }
+    #else
+    if (unlikely(!isfinite(float_op2))) {
+        if (0.0 != float_op2) goto __pyx_return_true; else goto __pyx_return_false;
+    } else {
+        int overflow1;
+        long iop1 = PyLong_AsLongAndOverflow(op1, &overflow1);
+        if (likely(!overflow1)) {
+            if ((long long) iop1 >= (1LL << 53)) {
+                overflow1 = 1;
+            } else if ((long long) iop1 <= - (1LL << 53)) {
+                overflow1 = -1;
+            } else {
+                if (((double) iop1) != float_op2) goto __pyx_return_true; else goto __pyx_return_false;
+            }
+        }
+        if (overflow1 < 0) {
+            if (float_op2 > ((double) (1LL << 53))) goto __pyx_return_true;
+        } else {
+            if (float_op2 < - ((double) (1LL << 53))) goto __pyx_return_true;
+        }
+    }
+    #endif
+    return __Pyx_PyObject_RichCompareBool(op1, op2, Py_NE);
+__pyx_return_true:
+    return 1;
+__pyx_return_false:
+    return 0;
+}
+#endif
+#ifndef __Pyx_DEFINED_PyObject_CompareIntIntBoolNe
+#define __Pyx_DEFINED_PyObject_CompareIntIntBoolNe
+static int __Pyx_PyObject_CompareIntIntBoolNe(PyObject *op1, PyObject *op2) {
+#if CYTHON_USE_PYLONG_INTERNALS
+    Py_ssize_t cmp = __Pyx_PyLong_CompareSignAndSize(op1, op2);
+    if (cmp == 0) {
+        Py_ssize_t size = __Pyx_PyLong_DigitCount(op1);
+        if (size > 0) {
+            const digit* digits1 = __Pyx_PyLong_Digits(op1);
+            const digit* digits2 = __Pyx_PyLong_Digits(op2);
+            if (size == 1) {
+                cmp = (Py_ssize_t) digits1[0] - (Py_ssize_t) digits2[0];
+            } else if ((size == 2) && (8 * sizeof(Py_ssize_t) >= 2 * PyLong_SHIFT)) {
+                cmp = (Py_ssize_t) (((((size_t)digits1[1]) << PyLong_SHIFT) | (size_t)digits1[0])) - (Py_ssize_t) (((((size_t)digits2[1]) << PyLong_SHIFT) | (size_t)digits2[0]));
+            } else {
+                for (Py_ssize_t i=size-1; i >= 0 && !cmp; --i) {
+                    cmp = (Py_ssize_t) digits1[i] - (Py_ssize_t) digits2[i];
+                }
+            }
+        }
+        if (cmp == 0) goto __pyx_return_false;
+        if (__Pyx_PyLong_IsNeg(op1)) cmp = -cmp;
+    }
+    goto __pyx_return_true;
+#else
+    int overflow1, overflow2;
+    long long iop1 = PyLong_AsLongLongAndOverflow(op1, &overflow1);
+    long long iop2 = PyLong_AsLongLongAndOverflow(op2, &overflow2);
+    if (likely(!(overflow1 | overflow2))) {
+        if (iop1 != iop2) goto __pyx_return_true; else goto __pyx_return_false;
+    } else if (overflow1 != overflow2) {
+        if (overflow1 != overflow2) goto __pyx_return_true; else goto __pyx_return_false;
+    } else {
+        return __Pyx_PyObject_RichCompareBool(op1, op2, Py_NE);
+    }
+#endif
+__pyx_return_true:
+    return 1;
+__pyx_return_false:
+    return 0;
+}
+#endif
+static CYTHON_INLINE int __Pyx_PyObject_CompareBoolNe_object_object(PyObject *op1, PyObject *op2, int pyop) {
+    CYTHON_UNUSED_VAR(pyop);
+    if (PyFloat_CheckExact(op1)) {
+        if (PyFloat_CheckExact(op2)) {
+            double float_op1 = __Pyx_PyFloat_AS_DOUBLE(op1);
+            #if !CYTHON_ASSUME_SAFE_MACROS
+            if (unlikely(float_op1 == -1. && PyErr_Occurred())) return -1;
+            #endif
+            double float_op2 = __Pyx_PyFloat_AS_DOUBLE(op2);
+            #if !CYTHON_ASSUME_SAFE_MACROS
+            if (unlikely(float_op2 == -1. && PyErr_Occurred())) return -1;
+            #endif
+            if (float_op1 != float_op2) goto __pyx_return_true; else goto __pyx_return_false;
+        }
+        if (PyLong_CheckExact(op2)) {
+            return __Pyx_PyObject_CompareFloatIntBoolNe(op1, op2);
+        }
+        goto __pyx_richcmp;
+    }
+    if (PyLong_CheckExact(op1)) {
+        if (op1 == op2) goto __pyx_return_false;
+        if (PyLong_CheckExact(op2)) {
+            return __Pyx_PyObject_CompareIntIntBoolNe(op1, op2);
+        }
+        if (PyFloat_CheckExact(op2)) {
+            return __Pyx_PyObject_CompareIntFloatBoolNe(op1, op2);
+        }
+        goto __pyx_richcmp;
+    }
+    
+    if (PyUnicode_CheckExact(op1)) {
+        if (op1 == op2) goto __pyx_return_false;
+        if (PyUnicode_CheckExact(op2)) {
+            return __Pyx_PyObject_CompareStrStrBoolNe(op1, op2);
+        }
+        goto __pyx_richcmp;
+    }
+    
+    #if !(CYTHON_COMPILING_IN_PYPY || CYTHON_COMPILING_IN_GRAAL)
+    if (PyBytes_CheckExact(op1)) {
+        if (op1 == op2) goto __pyx_return_false;
+        if (PyBytes_CheckExact(op2)) {
+            return __Pyx_PyObject_ComparePyBytesPyBytesBoolNe(op1, op2);
+        }
+        if (PyByteArray_CheckExact(op2)) {
+            return __Pyx_PyObject_ComparePyBytesPyByteArrayBoolNe(op1, op2);
+        }
+        goto __pyx_richcmp;
+    }
+    #endif
+    #if !(CYTHON_COMPILING_IN_PYPY || CYTHON_COMPILING_IN_GRAAL)
+    if (PyByteArray_CheckExact(op1)) {
+        if (op1 == op2) goto __pyx_return_false;
+        if (PyByteArray_CheckExact(op2)) {
+            return __Pyx_PyObject_ComparePyByteArrayPyByteArrayBoolNe(op1, op2);
+        }
+        if (PyBytes_CheckExact(op2)) {
+            return __Pyx_PyObject_ComparePyByteArrayPyBytesBoolNe(op1, op2);
+        }
+        goto __pyx_richcmp;
+    }
+    #endif
+    if ((0)) goto __pyx_richcmp;
+    if ((0)) goto __pyx_return_true;
+    if ((0)) goto __pyx_return_false;
+__pyx_richcmp:
+    return __Pyx_PyObject_RichCompareBool(op1, op2, Py_NE);
+__pyx_return_true:
+    return 1;
+__pyx_return_false:
+    return 0;
+}
+
 /* PyObjectVectorcallKwds */
 #if CYTHON_VECTORCALL
 CYTHON_UNUSED static int __Pyx_CheckVectorcallKwarg(PyObject *kwnames, Py_ssize_t i) {
@@ -9353,6 +10682,245 @@ CYTHON_UNUSED static int __Pyx_CheckVectorcallKwarg(PyObject **kwnames, Py_ssize
         return -1;
     }
     return 0;
+}
+#endif
+
+/* GetTopmostException (used by SaveResetException) */
+#if CYTHON_USE_EXC_INFO_STACK && CYTHON_FAST_THREAD_STATE
+static _PyErr_StackItem *
+__Pyx_PyErr_GetTopmostException(PyThreadState *tstate)
+{
+    _PyErr_StackItem *exc_info = tstate->exc_info;
+    while ((exc_info->exc_value == NULL || exc_info->exc_value == Py_None) &&
+           exc_info->previous_item != NULL)
+    {
+        exc_info = exc_info->previous_item;
+    }
+    return exc_info;
+}
+#endif
+
+/* SaveResetException */
+#if CYTHON_FAST_THREAD_STATE
+static CYTHON_INLINE void __Pyx__ExceptionSave(PyThreadState *tstate, PyObject **type, PyObject **value, PyObject **tb) {
+  #if CYTHON_USE_EXC_INFO_STACK && PY_VERSION_HEX >= 0x030B00a4
+    _PyErr_StackItem *exc_info = __Pyx_PyErr_GetTopmostException(tstate);
+    PyObject *exc_value = exc_info->exc_value;
+    if (exc_value == NULL || exc_value == Py_None) {
+        *value = NULL;
+        *type = NULL;
+        *tb = NULL;
+    } else {
+        *value = exc_value;
+        Py_INCREF(*value);
+        *type = (PyObject*) Py_TYPE(exc_value);
+        Py_INCREF(*type);
+        *tb = PyException_GetTraceback(exc_value);
+    }
+  #elif CYTHON_USE_EXC_INFO_STACK
+    _PyErr_StackItem *exc_info = __Pyx_PyErr_GetTopmostException(tstate);
+    *type = exc_info->exc_type;
+    *value = exc_info->exc_value;
+    *tb = exc_info->exc_traceback;
+    Py_XINCREF(*type);
+    Py_XINCREF(*value);
+    Py_XINCREF(*tb);
+  #else
+    *type = tstate->exc_type;
+    *value = tstate->exc_value;
+    *tb = tstate->exc_traceback;
+    Py_XINCREF(*type);
+    Py_XINCREF(*value);
+    Py_XINCREF(*tb);
+  #endif
+}
+static CYTHON_INLINE void __Pyx__ExceptionReset(PyThreadState *tstate, PyObject *type, PyObject *value, PyObject *tb) {
+  #if CYTHON_USE_EXC_INFO_STACK && PY_VERSION_HEX >= 0x030B00a4
+    _PyErr_StackItem *exc_info = tstate->exc_info;
+    PyObject *tmp_value = exc_info->exc_value;
+    exc_info->exc_value = value;
+    Py_XDECREF(tmp_value);
+    Py_XDECREF(type);
+    Py_XDECREF(tb);
+  #else
+    PyObject *tmp_type, *tmp_value, *tmp_tb;
+    #if CYTHON_USE_EXC_INFO_STACK
+    _PyErr_StackItem *exc_info = tstate->exc_info;
+    tmp_type = exc_info->exc_type;
+    tmp_value = exc_info->exc_value;
+    tmp_tb = exc_info->exc_traceback;
+    exc_info->exc_type = type;
+    exc_info->exc_value = value;
+    exc_info->exc_traceback = tb;
+    #else
+    tmp_type = tstate->exc_type;
+    tmp_value = tstate->exc_value;
+    tmp_tb = tstate->exc_traceback;
+    tstate->exc_type = type;
+    tstate->exc_value = value;
+    tstate->exc_traceback = tb;
+    #endif
+    Py_XDECREF(tmp_type);
+    Py_XDECREF(tmp_value);
+    Py_XDECREF(tmp_tb);
+  #endif
+}
+#endif
+
+/* GetException */
+#if CYTHON_FAST_THREAD_STATE
+static int __Pyx__GetException(PyThreadState *tstate, PyObject **type, PyObject **value, PyObject **tb)
+#else
+static int __Pyx_GetException(PyObject **type, PyObject **value, PyObject **tb)
+#endif
+{
+    PyObject *local_type = NULL, *local_value, *local_tb = NULL;
+#if CYTHON_FAST_THREAD_STATE
+    PyObject *tmp_type, *tmp_value, *tmp_tb;
+  #if PY_VERSION_HEX >= 0x030C0000
+    local_value = tstate->current_exception;
+    tstate->current_exception = 0;
+  #else
+    local_type = tstate->curexc_type;
+    local_value = tstate->curexc_value;
+    local_tb = tstate->curexc_traceback;
+    tstate->curexc_type = 0;
+    tstate->curexc_value = 0;
+    tstate->curexc_traceback = 0;
+  #endif
+#elif __PYX_LIMITED_VERSION_HEX >= 0x030C0000
+    local_value = PyErr_GetRaisedException();
+#else
+    PyErr_Fetch(&local_type, &local_value, &local_tb);
+#endif
+#if __PYX_LIMITED_VERSION_HEX >= 0x030C0000
+    if (likely(local_value)) {
+        local_type = (PyObject*) Py_TYPE(local_value);
+        Py_INCREF(local_type);
+        local_tb = PyException_GetTraceback(local_value);
+    }
+#else
+    PyErr_NormalizeException(&local_type, &local_value, &local_tb);
+#if CYTHON_FAST_THREAD_STATE
+    if (unlikely(tstate->curexc_type))
+#else
+    if (unlikely(PyErr_Occurred()))
+#endif
+        goto bad;
+    if (local_tb) {
+        if (unlikely(PyException_SetTraceback(local_value, local_tb) < 0))
+            goto bad;
+    }
+#endif // __PYX_LIMITED_VERSION_HEX >= 0x030C0000
+    Py_XINCREF(local_tb);
+    Py_XINCREF(local_type);
+    Py_XINCREF(local_value);
+    *type = local_type;
+    *value = local_value;
+    *tb = local_tb;
+#if CYTHON_FAST_THREAD_STATE
+    #if CYTHON_USE_EXC_INFO_STACK
+    {
+        _PyErr_StackItem *exc_info = tstate->exc_info;
+      #if PY_VERSION_HEX >= 0x030B00a4
+        tmp_value = exc_info->exc_value;
+        exc_info->exc_value = local_value;
+        tmp_type = NULL;
+        tmp_tb = NULL;
+        Py_XDECREF(local_type);
+        Py_XDECREF(local_tb);
+      #else
+        tmp_type = exc_info->exc_type;
+        tmp_value = exc_info->exc_value;
+        tmp_tb = exc_info->exc_traceback;
+        exc_info->exc_type = local_type;
+        exc_info->exc_value = local_value;
+        exc_info->exc_traceback = local_tb;
+      #endif
+    }
+    #else
+    tmp_type = tstate->exc_type;
+    tmp_value = tstate->exc_value;
+    tmp_tb = tstate->exc_traceback;
+    tstate->exc_type = local_type;
+    tstate->exc_value = local_value;
+    tstate->exc_traceback = local_tb;
+    #endif
+    Py_XDECREF(tmp_type);
+    Py_XDECREF(tmp_value);
+    Py_XDECREF(tmp_tb);
+#elif __PYX_LIMITED_VERSION_HEX >= 0x030b0000
+    PyErr_SetHandledException(local_value);
+    Py_XDECREF(local_value);
+    Py_XDECREF(local_type);
+    Py_XDECREF(local_tb);
+#else
+    PyErr_SetExcInfo(local_type, local_value, local_tb);
+#endif
+    return 0;
+#if __PYX_LIMITED_VERSION_HEX < 0x030C0000
+bad:
+    *type = 0;
+    *value = 0;
+    *tb = 0;
+    Py_XDECREF(local_type);
+    Py_XDECREF(local_value);
+    Py_XDECREF(local_tb);
+    return -1;
+#endif
+}
+
+/* SwapException */
+#if CYTHON_FAST_THREAD_STATE
+static CYTHON_INLINE void __Pyx__ExceptionSwap(PyThreadState *tstate, PyObject **type, PyObject **value, PyObject **tb) {
+    PyObject *tmp_type, *tmp_value, *tmp_tb;
+  #if CYTHON_USE_EXC_INFO_STACK && PY_VERSION_HEX >= 0x030B00a4
+    _PyErr_StackItem *exc_info = tstate->exc_info;
+    tmp_value = exc_info->exc_value;
+    exc_info->exc_value = *value;
+    if (tmp_value == NULL || tmp_value == Py_None) {
+        Py_XDECREF(tmp_value);
+        tmp_value = NULL;
+        tmp_type = NULL;
+        tmp_tb = NULL;
+    } else {
+        tmp_type = (PyObject*) Py_TYPE(tmp_value);
+        Py_INCREF(tmp_type);
+        #if CYTHON_COMPILING_IN_CPYTHON
+        tmp_tb = ((PyBaseExceptionObject*) tmp_value)->traceback;
+        Py_XINCREF(tmp_tb);
+        #else
+        tmp_tb = PyException_GetTraceback(tmp_value);
+        #endif
+    }
+  #elif CYTHON_USE_EXC_INFO_STACK
+    _PyErr_StackItem *exc_info = tstate->exc_info;
+    tmp_type = exc_info->exc_type;
+    tmp_value = exc_info->exc_value;
+    tmp_tb = exc_info->exc_traceback;
+    exc_info->exc_type = *type;
+    exc_info->exc_value = *value;
+    exc_info->exc_traceback = *tb;
+  #else
+    tmp_type = tstate->exc_type;
+    tmp_value = tstate->exc_value;
+    tmp_tb = tstate->exc_traceback;
+    tstate->exc_type = *type;
+    tstate->exc_value = *value;
+    tstate->exc_traceback = *tb;
+  #endif
+    *type = tmp_type;
+    *value = tmp_value;
+    *tb = tmp_tb;
+}
+#else
+static CYTHON_INLINE void __Pyx_ExceptionSwap(PyObject **type, PyObject **value, PyObject **tb) {
+    PyObject *tmp_type, *tmp_value, *tmp_tb;
+    PyErr_GetExcInfo(&tmp_type, &tmp_value, &tmp_tb);
+    PyErr_SetExcInfo(*type, *value, *tb);
+    *type = tmp_type;
+    *value = tmp_value;
+    *tb = tmp_tb;
 }
 #endif
 
@@ -9464,109 +11032,6 @@ bad:
 bad:
     Py_DECREF(value_tuple);
     return result;
-#endif
-}
-
-/* GetException (used by pep479) */
-#if CYTHON_FAST_THREAD_STATE
-static int __Pyx__GetException(PyThreadState *tstate, PyObject **type, PyObject **value, PyObject **tb)
-#else
-static int __Pyx_GetException(PyObject **type, PyObject **value, PyObject **tb)
-#endif
-{
-    PyObject *local_type = NULL, *local_value, *local_tb = NULL;
-#if CYTHON_FAST_THREAD_STATE
-    PyObject *tmp_type, *tmp_value, *tmp_tb;
-  #if PY_VERSION_HEX >= 0x030C0000
-    local_value = tstate->current_exception;
-    tstate->current_exception = 0;
-  #else
-    local_type = tstate->curexc_type;
-    local_value = tstate->curexc_value;
-    local_tb = tstate->curexc_traceback;
-    tstate->curexc_type = 0;
-    tstate->curexc_value = 0;
-    tstate->curexc_traceback = 0;
-  #endif
-#elif __PYX_LIMITED_VERSION_HEX >= 0x030C0000
-    local_value = PyErr_GetRaisedException();
-#else
-    PyErr_Fetch(&local_type, &local_value, &local_tb);
-#endif
-#if __PYX_LIMITED_VERSION_HEX >= 0x030C0000
-    if (likely(local_value)) {
-        local_type = (PyObject*) Py_TYPE(local_value);
-        Py_INCREF(local_type);
-        local_tb = PyException_GetTraceback(local_value);
-    }
-#else
-    PyErr_NormalizeException(&local_type, &local_value, &local_tb);
-#if CYTHON_FAST_THREAD_STATE
-    if (unlikely(tstate->curexc_type))
-#else
-    if (unlikely(PyErr_Occurred()))
-#endif
-        goto bad;
-    if (local_tb) {
-        if (unlikely(PyException_SetTraceback(local_value, local_tb) < 0))
-            goto bad;
-    }
-#endif // __PYX_LIMITED_VERSION_HEX >= 0x030C0000
-    Py_XINCREF(local_tb);
-    Py_XINCREF(local_type);
-    Py_XINCREF(local_value);
-    *type = local_type;
-    *value = local_value;
-    *tb = local_tb;
-#if CYTHON_FAST_THREAD_STATE
-    #if CYTHON_USE_EXC_INFO_STACK
-    {
-        _PyErr_StackItem *exc_info = tstate->exc_info;
-      #if PY_VERSION_HEX >= 0x030B00a4
-        tmp_value = exc_info->exc_value;
-        exc_info->exc_value = local_value;
-        tmp_type = NULL;
-        tmp_tb = NULL;
-        Py_XDECREF(local_type);
-        Py_XDECREF(local_tb);
-      #else
-        tmp_type = exc_info->exc_type;
-        tmp_value = exc_info->exc_value;
-        tmp_tb = exc_info->exc_traceback;
-        exc_info->exc_type = local_type;
-        exc_info->exc_value = local_value;
-        exc_info->exc_traceback = local_tb;
-      #endif
-    }
-    #else
-    tmp_type = tstate->exc_type;
-    tmp_value = tstate->exc_value;
-    tmp_tb = tstate->exc_traceback;
-    tstate->exc_type = local_type;
-    tstate->exc_value = local_value;
-    tstate->exc_traceback = local_tb;
-    #endif
-    Py_XDECREF(tmp_type);
-    Py_XDECREF(tmp_value);
-    Py_XDECREF(tmp_tb);
-#elif __PYX_LIMITED_VERSION_HEX >= 0x030b0000
-    PyErr_SetHandledException(local_value);
-    Py_XDECREF(local_value);
-    Py_XDECREF(local_type);
-    Py_XDECREF(local_tb);
-#else
-    PyErr_SetExcInfo(local_type, local_value, local_tb);
-#endif
-    return 0;
-#if __PYX_LIMITED_VERSION_HEX < 0x030C0000
-bad:
-    *type = 0;
-    *value = 0;
-    *tb = 0;
-    Py_XDECREF(local_type);
-    Py_XDECREF(local_value);
-    Py_XDECREF(local_tb);
-    return -1;
 #endif
 }
 
@@ -9952,142 +11417,6 @@ static int __pyx_CommonTypesMetaclass_init(PyObject *module) {
     }
     return 0;
 }
-
-/* GetTopmostException (used by SaveResetException) */
-#if CYTHON_USE_EXC_INFO_STACK && CYTHON_FAST_THREAD_STATE
-static _PyErr_StackItem *
-__Pyx_PyErr_GetTopmostException(PyThreadState *tstate)
-{
-    _PyErr_StackItem *exc_info = tstate->exc_info;
-    while ((exc_info->exc_value == NULL || exc_info->exc_value == Py_None) &&
-           exc_info->previous_item != NULL)
-    {
-        exc_info = exc_info->previous_item;
-    }
-    return exc_info;
-}
-#endif
-
-/* SaveResetException (used by CoroutineBase) */
-#if CYTHON_FAST_THREAD_STATE
-static CYTHON_INLINE void __Pyx__ExceptionSave(PyThreadState *tstate, PyObject **type, PyObject **value, PyObject **tb) {
-  #if CYTHON_USE_EXC_INFO_STACK && PY_VERSION_HEX >= 0x030B00a4
-    _PyErr_StackItem *exc_info = __Pyx_PyErr_GetTopmostException(tstate);
-    PyObject *exc_value = exc_info->exc_value;
-    if (exc_value == NULL || exc_value == Py_None) {
-        *value = NULL;
-        *type = NULL;
-        *tb = NULL;
-    } else {
-        *value = exc_value;
-        Py_INCREF(*value);
-        *type = (PyObject*) Py_TYPE(exc_value);
-        Py_INCREF(*type);
-        *tb = PyException_GetTraceback(exc_value);
-    }
-  #elif CYTHON_USE_EXC_INFO_STACK
-    _PyErr_StackItem *exc_info = __Pyx_PyErr_GetTopmostException(tstate);
-    *type = exc_info->exc_type;
-    *value = exc_info->exc_value;
-    *tb = exc_info->exc_traceback;
-    Py_XINCREF(*type);
-    Py_XINCREF(*value);
-    Py_XINCREF(*tb);
-  #else
-    *type = tstate->exc_type;
-    *value = tstate->exc_value;
-    *tb = tstate->exc_traceback;
-    Py_XINCREF(*type);
-    Py_XINCREF(*value);
-    Py_XINCREF(*tb);
-  #endif
-}
-static CYTHON_INLINE void __Pyx__ExceptionReset(PyThreadState *tstate, PyObject *type, PyObject *value, PyObject *tb) {
-  #if CYTHON_USE_EXC_INFO_STACK && PY_VERSION_HEX >= 0x030B00a4
-    _PyErr_StackItem *exc_info = tstate->exc_info;
-    PyObject *tmp_value = exc_info->exc_value;
-    exc_info->exc_value = value;
-    Py_XDECREF(tmp_value);
-    Py_XDECREF(type);
-    Py_XDECREF(tb);
-  #else
-    PyObject *tmp_type, *tmp_value, *tmp_tb;
-    #if CYTHON_USE_EXC_INFO_STACK
-    _PyErr_StackItem *exc_info = tstate->exc_info;
-    tmp_type = exc_info->exc_type;
-    tmp_value = exc_info->exc_value;
-    tmp_tb = exc_info->exc_traceback;
-    exc_info->exc_type = type;
-    exc_info->exc_value = value;
-    exc_info->exc_traceback = tb;
-    #else
-    tmp_type = tstate->exc_type;
-    tmp_value = tstate->exc_value;
-    tmp_tb = tstate->exc_traceback;
-    tstate->exc_type = type;
-    tstate->exc_value = value;
-    tstate->exc_traceback = tb;
-    #endif
-    Py_XDECREF(tmp_type);
-    Py_XDECREF(tmp_value);
-    Py_XDECREF(tmp_tb);
-  #endif
-}
-#endif
-
-/* SwapException (used by CoroutineBase) */
-#if CYTHON_FAST_THREAD_STATE
-static CYTHON_INLINE void __Pyx__ExceptionSwap(PyThreadState *tstate, PyObject **type, PyObject **value, PyObject **tb) {
-    PyObject *tmp_type, *tmp_value, *tmp_tb;
-  #if CYTHON_USE_EXC_INFO_STACK && PY_VERSION_HEX >= 0x030B00a4
-    _PyErr_StackItem *exc_info = tstate->exc_info;
-    tmp_value = exc_info->exc_value;
-    exc_info->exc_value = *value;
-    if (tmp_value == NULL || tmp_value == Py_None) {
-        Py_XDECREF(tmp_value);
-        tmp_value = NULL;
-        tmp_type = NULL;
-        tmp_tb = NULL;
-    } else {
-        tmp_type = (PyObject*) Py_TYPE(tmp_value);
-        Py_INCREF(tmp_type);
-        #if CYTHON_COMPILING_IN_CPYTHON
-        tmp_tb = ((PyBaseExceptionObject*) tmp_value)->traceback;
-        Py_XINCREF(tmp_tb);
-        #else
-        tmp_tb = PyException_GetTraceback(tmp_value);
-        #endif
-    }
-  #elif CYTHON_USE_EXC_INFO_STACK
-    _PyErr_StackItem *exc_info = tstate->exc_info;
-    tmp_type = exc_info->exc_type;
-    tmp_value = exc_info->exc_value;
-    tmp_tb = exc_info->exc_traceback;
-    exc_info->exc_type = *type;
-    exc_info->exc_value = *value;
-    exc_info->exc_traceback = *tb;
-  #else
-    tmp_type = tstate->exc_type;
-    tmp_value = tstate->exc_value;
-    tmp_tb = tstate->exc_traceback;
-    tstate->exc_type = *type;
-    tstate->exc_value = *value;
-    tstate->exc_traceback = *tb;
-  #endif
-    *type = tmp_type;
-    *value = tmp_value;
-    *tb = tmp_tb;
-}
-#else
-static CYTHON_INLINE void __Pyx_ExceptionSwap(PyObject **type, PyObject **value, PyObject **tb) {
-    PyObject *tmp_type, *tmp_value, *tmp_tb;
-    PyErr_GetExcInfo(&tmp_type, &tmp_value, &tmp_tb);
-    PyErr_SetExcInfo(*type, *value, *tb);
-    *type = tmp_type;
-    *value = tmp_value;
-    *tb = tmp_tb;
-}
-#endif
 
 /* CallTypeTraverse (used by CoroutineBase) */
 #if !CYTHON_USE_TYPE_SPECS
@@ -11613,31 +12942,6 @@ static CYTHON_INLINE __Pyx_PySendResult __Pyx_Coroutine_Yield_From(__pyx_Corouti
     return __Pyx_Coroutine_Yield_From_Generic(gen, source, retval);
 }
 
-/* PyObjectFastCallMethod */
-#if !CYTHON_VECTORCALL
-static PyObject *__Pyx_PyObject_FastCallMethod(PyObject *name, PyObject *const *args, size_t nargsf) {
-    PyObject *result;
-    switch (__Pyx_PyVectorcall_NARGS(nargsf)) {
-        case 1:
-            return PyObject_CallMethodObjArgs(args[0], name, NULL);
-        case 2:
-            return PyObject_CallMethodObjArgs(args[0], name, args[1], NULL);
-        case 3:
-            return PyObject_CallMethodObjArgs(args[0], name, args[1], args[2], NULL);
-        case 4:
-            return PyObject_CallMethodObjArgs(args[0], name, args[1], args[2], args[3], NULL);
-        case 5:
-            return PyObject_CallMethodObjArgs(args[0], name, args[1], args[2], args[3], args[4], NULL);
-    }
-    PyObject *attr = PyObject_GetAttr(args[0], name);
-    if (unlikely(!attr))
-        return NULL;
-    result = __Pyx_PyObject_FastCall(attr, args+1, nargsf - 1);
-    Py_DECREF(attr);
-    return result;
-}
-#endif
-
 /* RaiseErrorWithObjectType1 (used by RaiseUnexpectedTypeError) */
 static void __Pyx_RaiseErrorWithType1(PyObject* exc_type, const char* message, const char *arg, PyTypeObject *type_obj) {
     __Pyx_TypeName type_name = __Pyx_PyType_GetFullyQualifiedName(type_obj);
@@ -12354,6 +13658,38 @@ static PyObject* __Pyx_ImportFrom(PyObject* module, PyObject* name) {
         PyErr_Format(PyExc_ImportError, "cannot import name %S", name);
     }
     return value;
+}
+
+/* GetAttr3 */
+#if __PYX_LIMITED_VERSION_HEX < 0x030d0000
+static PyObject *__Pyx_GetAttr3Default(PyObject *d) {
+    __Pyx_PyThreadState_declare
+    __Pyx_PyThreadState_assign
+    if (unlikely(!__Pyx_PyErr_ExceptionMatches(PyExc_AttributeError)))
+        return NULL;
+    __Pyx_PyErr_Clear();
+    Py_INCREF(d);
+    return d;
+}
+#endif
+static CYTHON_INLINE PyObject *__Pyx_GetAttr3(PyObject *o, PyObject *n, PyObject *d) {
+    PyObject *r;
+#if __PYX_LIMITED_VERSION_HEX >= 0x030d0000
+    int res = PyObject_GetOptionalAttr(o, n, &r);
+    return (res != 0) ? r : __Pyx_NewRef(d);
+#else
+  #if CYTHON_USE_TYPE_SLOTS
+    if (likely(PyUnicode_Check(n))) {
+        r = __Pyx_PyObject_GetAttrStrNoError(o, n);
+        if (unlikely(!r) && likely(!PyErr_Occurred())) {
+            r = __Pyx_NewRef(d);
+        }
+        return r;
+    }
+  #endif
+    r = PyObject_GetAttr(o, n);
+    return (likely(r)) ? r : __Pyx_GetAttr3Default(d);
+#endif
 }
 
 /* Py3UpdateBases */

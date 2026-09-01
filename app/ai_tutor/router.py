@@ -23,6 +23,10 @@ from app.ai_tutor.services.providers.ollama import (
     OllamaProvider,
 )
 
+from app.ai_tutor.services.providers.remote_server import (
+    RemoteServerProvider,
+)
+
 from pathlib import Path
 
 from fastapi.responses import FileResponse
@@ -38,6 +42,7 @@ router = APIRouter(
 provider_manager = AIProviderManager(
     providers=[
         GeminiProvider(),
+        RemoteServerProvider(),
         OllamaProvider(),
     ]
 )
