@@ -1,0 +1,38 @@
+EXAM RESULT SHEET
+Student Name:
+Oladimeji Ademola
+Exam:
+Geography - JSS3 Term 1 Exam
+Class:
+JSS3
+Date:
+05-02-2026 08:32
+ANSWER BREAKDOWN
+Q#
+Type
+Marks
+Status
+1
+Objective
+5
+ Correct
+2
+Subjective
+0
+Pending
+3
+Objective
+2
+ Correct
+Objective Score:
+7
+Subjective Score:
+0
+Total Score:
+7
+Total Marks:
+15
+Percentage:
+46.7%
+Grade:
+F

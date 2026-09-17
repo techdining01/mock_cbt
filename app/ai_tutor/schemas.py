@@ -116,3 +116,15 @@ class ChatResponse(BaseModel):
     success: bool
     reply: str
     provider: str = ""
+
+
+class RawChatRequest(BaseModel):
+    prompt: str
+
+    @field_validator("prompt")
+    @classmethod
+    def validate_prompt(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("Prompt cannot be empty.")
+        return value

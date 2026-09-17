@@ -69,8 +69,9 @@ class ReportlabReportService:
         fallback_candidates = [
             base_dir / "app" / "web" / "images" / "school_logo_custom.png",
             base_dir / "app" / "web" / "images" / "school_logo_custom.jpg",
-            base_dir / "app" / "web" / "images" / "school_logo.png",
-            base_dir / "app" / "web" / "images" / "school_logo.ico",
+            base_dir / "app" / "web" / "images" / "default_logo.png",
+            base_dir / "app" / "web" / "images" / "company_logo.ico",
+            base_dir / "app" / "web" / "images" / "company.ico",
         ]
         for fb in fallback_candidates:
             if fb.exists() and fb.is_file():

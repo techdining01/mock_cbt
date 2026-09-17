@@ -1,360 +1,166 @@
-﻿import json
-import os
-from pathlib import Path
-from typing import Dict, Any, Optional
-import requests
+"""
+Offline LicenseClient for LLS-CBT.
+
+Activation flow:
+  1. User pastes product key.
+  2. decode_key()  — verifies RSA-PSS signature with embedded public key.
+  3. validate_payload() — checks expiry, credits, machine binding.
+  4. Deduct one credit and save license file to user home directory.
+  5. On every subsequent launch, validate_license() re-checks the saved file
+     (signature + expiry + machine) — no internet required.
+"""
+
+from __future__ import annotations
+
+import json
 from datetime import datetime
+from pathlib import Path
+from typing import Any
 
+from app.services.licensing.crypto import decode_key, validate_payload
 from app.services.licensing.machine_fingerprint import MachineFingerprint
-from app.services.licensing.crypto import LicenseCrypto
-from dotenv import load_dotenv
 
-# Load the environment variables from the .env file
-load_dotenv()
-load_dotenv(Path(__file__).resolve().parent.parent.parent.parent / ".env")
+
+_LICENSE_FILE = Path.home() / ".lls_cbt_license.json"
 
 
 class LicenseClient:
-    """Client-side license validation and management."""
-    
-    def __init__(self, license_server_url: str = "https://lls-cbt-activator.onrender.com"):
-        """
-        Initialize the license client.
-        
-        Args:
-            license_server_url: URL of the license activation server
-        """
-        self.license_server_url = license_server_url
-        self.license_file_path = Path.home() / ".lls_cbt_license.json"
-        self.public_key_pem = self._load_public_key()
-        self.crypto = LicenseCrypto(public_key_pem=self.public_key_pem)
+
+    def __init__(self, license_server_url: str = ""):
+        # license_server_url kept for API compatibility but unused
         self.machine_fingerprint = MachineFingerprint.get_machine_id()
-    
-    def _load_public_key(self) -> str:
-        """
-        Load the public key for product key verification.
-        
-        Loads from environment variable, file, or embedded fallback.
-        """
-        # Try environment variable first
-        public_key = os.getenv("LICENSE_PUBLIC_KEY")
-        if public_key:
-            return public_key
-        
-        # Try to load from file in the licensing directory
-        key_file = Path(__file__).parent / "public_key.pem"
-        if key_file.exists():
-            return key_file.read_text()
-            
-        # Try to load from project root
-        root_key_file = Path(__file__).resolve().parent.parent.parent.parent / "license_public_key.pem"
-        if root_key_file.exists():
-            return root_key_file.read_text()
-        
-        # Embedded fallback public key (for client distribution)
-        # In production, replace this with your actual public key
-        embedded_key = """-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwq/XMIVF9N3D6QKfnac/
-00ku5pidy2/a14YSRiJ1StEEusplVAjVgJo1C85uQm5aBTItDrPu6x0C79BzZF9w
-IW7NS1FjxmgoF1aNUI0B0WP2RUoN5CHotw0j36+1zP047AKT6ghAzJq5L02w7QAL
-KK/T4wJzqncRA6czhznKhcW0VBisIuplaXlvwS/k6Gx/bZP8mesYawFM8kjZCTeO
-FJuUlYcnlGgKQ3oiemc25OS8uJO51UtDcsggl185TQ1EIyMw07uxO14t6ppgkkBd
-wF058X6/y5WAgZc/EKd4dlb8YfLy8SJIGOWEudF6Ij4m8/KVvAwHNkA+JnqSDCVv
-EwIDAQAB
------END PUBLIC KEY-----"""
 
-        return embedded_key
-    
-    def activate_license(self, product_key: str, user_email: str = "", user_name: str = "") -> Dict[str, Any]:
-        """
-        Activate a license online.
-        
-        Args:
-            product_key: The product key to activate
-            user_email: User email for support and tracking
-            user_name: User name for support
-            
-        Returns:
-            Dictionary with activation result
-        """
-        # Clean the product key: strip dashes, spaces and fix base64 padding
-        clean_key = product_key.strip().replace("-", "").replace(" ", "").replace("\r", "").replace("\n", "")
-        missing_padding = len(clean_key) % 4
-        if missing_padding:
-            clean_key += "=" * (4 - missing_padding)
-        product_key = clean_key
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
 
+    def activate_license(self, product_key: str, user_email: str = "", user_name: str = "") -> dict[str, Any]:
+        """
+        Verify the product key offline and save the license locally.
+        Consumes one credit.
+        """
+        product_key = self._normalise_key(product_key)
+
+        # 1. Verify signature
         try:
-            # Prepare activation request
-            payload = {
-                "product_key": product_key,
-                "machine_fingerprint": self.machine_fingerprint,
-                "user_email": user_email,
-                "user_name": user_name,
-                "machine_info": {
-                    "platform": os.name,
-                    "timestamp": datetime.now().isoformat()
-                }
-            }
-            
-            # Call activation API
-            response = requests.post(
-                f"{self.license_server_url}/api/license/activate",
-                json=payload,
-                timeout=30
-            )
-            
-            if response.status_code == 200:
-                result = response.json()
-                
-                # Save license locally
-                self._save_license_locally(
-                    product_key=product_key,
-                    activation_id=result["activation_id"],
-                    license_data=result["license_data"],
-                    expiry_date=result["expiry_date"],
-                    user_email=payload.get("user_email", ""),
-                    user_name=payload.get("user_name", "")
-                )
-                
-                return {
-                    "success": True,
-                    "message": result["message"],
-                    "remaining_credits": result["remaining_credits"],
-                    "expiry_date": result["expiry_date"]
-                }
-            else:
-                error_detail = response.json().get("detail", "Unknown error")
-                return {
-                    "success": False,
-                    "message": f"Activation failed: {error_detail}"
-                }
-                
-        except requests.RequestException as e:
-            return {
-                "success": False,
-                "message": f"Network error during activation: {str(e)}"
-            }
-        except Exception as e:
-            return {
-                "success": False,
-                "message": f"Activation error: {str(e)}"
-            }
-    
-    def validate_license(self) -> Dict[str, Any]:
+            payload = decode_key(product_key)
+        except ValueError as exc:
+            return {"success": False, "message": str(exc)}
+
+        # 2. How many credits already used on this machine?
+        credits_used = self._credits_used_locally(product_key)
+
+        # 3. Validate payload (expiry, credits, machine binding)
+        result = validate_payload(payload, self.machine_fingerprint, credits_used)
+        if not result["valid"]:
+            return {"success": False, "message": result["message"]}
+
+        # 4. Consume one credit and persist
+        self._save_license(
+            product_key=product_key,
+            payload=payload,
+            credits_used=credits_used + 1,
+            user_email=user_email,
+            user_name=user_name,
+        )
+
+        remaining = result["remaining_credits"] - 1  # we just used one
+        return {
+            "success": True,
+            "message": "License activated successfully.",
+            "remaining_credits": max(0, remaining),
+            "expiry_date": result["expiry"],
+        }
+
+    def validate_license(self) -> dict[str, Any]:
         """
-        Validate the current license.
-        
-        Returns:
-            Dictionary with validation result
+        Validate the saved license on every app launch — fully offline.
         """
+        saved = self._load_license()
+        if not saved:
+            return {"success": False, "message": "No license found. Please activate your product."}
+
+        # Re-verify the key signature (tamper detection)
         try:
-            # Load local license
-            local_license = self._load_local_license()
-            if not local_license:
-                return {
-                    "success": False,
-                    "message": "No license found. Please activate your product."
-                }
-            
-            # Verify product key signature locally first
-            try:
-                license_data = self.crypto.verify_product_key(local_license["product_key"])
-            except ValueError as e:
-                return {
-                    "success": False,
-                    "message": f"Invalid product key: {str(e)}"
-                }
-            
-            # Check expiry locally
-            expiry_date = datetime.fromisoformat(local_license["expiry_date"])
-            if datetime.now() > expiry_date:
-                return {
-                    "success": False,
-                    "message": "License has expired"
-                }
-            
-            # Validate online with server
-            payload = {
-                "product_key": local_license["product_key"],
-                "machine_fingerprint": self.machine_fingerprint,
-                "activation_id": local_license["activation_id"]
-            }
-            
-            response = requests.post(
-                f"{self.license_server_url}/api/license/validate",
-                json=payload,
-                timeout=8
-            )
-            
-            if response.status_code == 200:
-                result = response.json()
-                if result["is_valid"]:
-                    return {
-                        "success": True,
-                        "message": "License is valid",
-                        "license_data": result["license_data"],
-                        "remaining_credits": result["remaining_credits"]
-                    }
-                else:
-                    return {
-                        "success": False,
-                        "message": result["message"]
-                    }
-            else:
-                # If server is unreachable, use offline validation
-                return self._validate_offline(local_license, license_data)
-                
-        except requests.RequestException:
-            # Network unavailable - fall back to offline validation
-            local_license2 = self._load_local_license()
-            if local_license2:
-                try:
-                    ld = self.crypto.verify_product_key(local_license2["product_key"])
-                    return self._validate_offline(local_license2, ld)
-                except Exception:
-                    pass
-            return {
-                "success": False,
-                "message": "License check failed. Please connect to the internet for first-time validation."
-            }
-            
-    def _validate_offline(self, local_license: Dict[str, Any], license_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Perform offline license validation when server is unreachable.
-        The RSA signature was already verified locally before calling this.
-        Allows up to 120 days offline after last successful online validation.
-        """
-        expiry_date = datetime.fromisoformat(local_license["expiry_date"])
-        last_validated = datetime.fromisoformat(local_license.get("last_validated", "2026-09-01T00:00:00"))
-        now = datetime.now()
+            payload = decode_key(saved["product_key"])
+        except ValueError as exc:
+            return {"success": False, "message": f"License file is invalid: {exc}"}
 
-        # Basic clock sanity check
-        if now < last_validated:
-            return {
-                "success": False,
-                "message": "System time appears incorrect. Please check your clock."
-            }
-
-        # Check expiry
-        if now > expiry_date:
-            return {
-                "success": False,
-                "message": "License has expired"
-            }
-
-        # Allow up to 90 days offline
-        days_offline = (now - last_validated).days
-        if days_offline > 120:
-            return {
-                "success": False,
-                "message": "License requires online validation (120-day offline limit reached). Please connect to the internet."
-            }
+        # Validate payload with the stored credits_used count
+        result = validate_payload(
+            payload,
+            self.machine_fingerprint,
+            saved.get("credits_used", 1),
+        )
+        if not result["valid"]:
+            return {"success": False, "message": result["message"]}
 
         return {
             "success": True,
-            "message": "License is valid (offline mode)",
-            "license_data": license_data,
-            "remaining_credits": local_license.get("remaining_credits", 0)
+            "message": "License is valid.",
+            "remaining_credits": result["remaining_credits"],
+            "expiry_date": result["expiry"],
         }
-    
-    
-    def deactivate_license(self) -> Dict[str, Any]:
-        """
-        Deactivate the current license.
-        
-        Returns:
-            Dictionary with deactivation result
-        """
-        try:
-            local_license = self._load_local_license()
-            if not local_license:
-                return {
-                    "success": False,
-                    "message": "No license found to deactivate"
-                }
-            
-            payload = {
-                "product_key": local_license["product_key"],
-                "activation_id": local_license["activation_id"],
-                "reason": "User requested deactivation"
-            }
-            
-            response = requests.post(
-                f"{self.license_server_url}/api/license/deactivate",
-                json=payload,
-                timeout=30
-            )
-            
-            if response.status_code == 200:
-                result = response.json()
-                
-                # Remove local license file
-                if self.license_file_path.exists():
-                    self.license_file_path.unlink()
-                
-                return {
-                    "success": True,
-                    "message": result["message"],
-                    "credits_restored": result["credits_restored"]
-                }
-            else:
-                error_detail = response.json().get("detail", "Unknown error")
-                return {
-                    "success": False,
-                    "message": f"Deactivation failed: {error_detail}"
-                }
-                
-        except Exception as e:
-            return {
-                "success": False,
-                "message": f"Deactivation error: {str(e)}"
-            }
-    
-    def _save_license_locally(
+
+    def is_licensed(self) -> bool:
+        return self.validate_license().get("success", False)
+
+    def get_license_info(self) -> dict[str, Any] | None:
+        return self._load_license()
+
+    def deactivate_license(self) -> dict[str, Any]:
+        if _LICENSE_FILE.exists():
+            _LICENSE_FILE.unlink()
+        return {"success": True, "message": "License removed from this machine."}
+
+    # ------------------------------------------------------------------
+    # Internal helpers
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _normalise_key(key: str) -> str:
+        return key.strip().replace("-", "").replace(" ", "").replace("\r", "").replace("\n", "").upper()
+
+    def _credits_used_locally(self, normalised_key: str) -> int:
+        """Return credits already consumed if the same key is saved on this machine."""
+        saved = self._load_license()
+        if not saved:
+            return 0
+        saved_key = self._normalise_key(saved.get("product_key", ""))
+        saved_machine = saved.get("machine_fingerprint", "")
+        # Only reuse credits_used if same key AND same machine
+        if saved_key == normalised_key and saved_machine == self.machine_fingerprint:
+            return saved.get("credits_used", 1)
+        return 0
+
+    def _save_license(
         self,
         product_key: str,
-        activation_id: int,
-        license_data: Dict[str, Any],
-        expiry_date: str,
-        user_email: str = "",
-        user_name: str = ""
-    ):
-        """Save license information locally."""
-        license_info = {
-            "product_key": product_key,
-            "activation_id": activation_id,
-            "license_data": license_data,
-            "expiry_date": expiry_date,
+        payload: dict,
+        credits_used: int,
+        user_email: str,
+        user_name: str,
+    ) -> None:
+        data = {
+            "product_key"        : product_key,
+            "payload"            : payload,
+            "credits_used"       : credits_used,
             "machine_fingerprint": self.machine_fingerprint,
-            "user_email": user_email,
-            "user_name": user_name,
-            "last_validated": datetime.now().isoformat()
+            "user_email"         : user_email,
+            "user_name"          : user_name,
+            "activated_at"       : datetime.utcnow().isoformat(timespec="seconds"),
+            # legacy fields kept so the dialog can display them
+            "license_data"       : payload,
+            "expiry_date"        : payload.get("expiry", ""),
+            "last_validated"     : datetime.utcnow().isoformat(timespec="seconds"),
         }
-        
-        self.license_file_path.parent.mkdir(parents=True, exist_ok=True)
-        self.license_file_path.write_text(json.dumps(license_info, indent=2))
-    
-    def _load_local_license(self) -> Optional[Dict[str, Any]]:
-        """Load license information from local storage."""
-        if not self.license_file_path.exists():
+        _LICENSE_FILE.write_text(json.dumps(data, indent=2))
+
+    @staticmethod
+    def _load_license() -> dict[str, Any] | None:
+        if not _LICENSE_FILE.exists():
             return None
-        
         try:
-            return json.loads(self.license_file_path.read_text())
+            return json.loads(_LICENSE_FILE.read_text())
         except Exception:
             return None
-    
-    def get_license_info(self) -> Optional[Dict[str, Any]]:
-        """Get current license information without validation."""
-        return self._load_local_license()
-    
-    def is_licensed(self) -> bool:
-        """
-        Quick check if application is licensed.
-        
-        Returns:
-            True if licensed, False otherwise
-        """
-        validation_result = self.validate_license()
-        return validation_result.get("success", False)

@@ -1,203 +1,178 @@
+"""
+LLS-CBT Offline License Crypto
+================================
+Key format:  XXXX-XXXX-XXXX-XXXX  (16 alphanumeric chars + 3 dashes)
+
+Encoding (all base32-uppercase, no padding):
+    [0:4]   machine token  — first 4 chars of base32(machine_fingerprint[:3])
+                             OR "AAAA" for any-machine keys
+    [4:8]   expiry token   — base32 of 2-byte days-since-epoch (big-endian)
+    [8:10]  credits token  — base32 of 1-byte credits value
+    [10:16] hmac check     — first 6 chars of base32(HMAC-SHA256(secret, body))
+
+The HMAC covers the first 10 chars so the check cannot be forged without
+knowing _HMAC_SECRET, which is compiled into the app.
+"""
+
+from __future__ import annotations
+
 import base64
-import json
-from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import rsa, padding
-from cryptography.hazmat.backends import default_backend
-from typing import Dict, Any
+import hashlib
+import hmac
+import struct
+from datetime import datetime, date, timedelta
+from typing import Any
+
+# ---------------------------------------------------------------------------
+# Secret — baked into the binary, never in a file
+# Change this if you ever need to invalidate all existing keys.
+# ---------------------------------------------------------------------------
+_HMAC_SECRET = bytes.fromhex(
+    "2ecec492be11eb4351a825865fce7845"
+    "fdf72fa5152f90e4b732a998a9a1f2bf"
+)
+
+_EPOCH = date(2024, 1, 1)   # day-0 for the 2-byte expiry counter
+_ANY_MACHINE = "AAAA"       # sentinel for unbound keys
 
 
-class LicenseCrypto:
-    """Handles cryptographic operations for licensing."""
-    
-    def __init__(self, private_key_pem: str = None, public_key_pem: str = None):
-        """
-        Initialize with either private key (server) or public key (client).
-        
-        Args:
-            private_key_pem: PEM-formatted private key (server only)
-            public_key_pem: PEM-formatted public key (client only)
-        """
-        self.private_key = None
-        self.public_key = None
-        
-        if private_key_pem:
-            self.private_key = serialization.load_pem_private_key(
-                private_key_pem.encode(),
-                password=None,
-                backend=default_backend()
-            )
-            self.public_key = self.private_key.public_key()
-        
-        if public_key_pem:
-            self.public_key = serialization.load_pem_public_key(
-                public_key_pem.encode(),
-                backend=default_backend()
-            )
-    
-    @staticmethod
-    def generate_key_pair() -> tuple[str, str]:
-        """
-        Generate RSA-2048 key pair.
-        
-        Returns:
-            Tuple of (private_key_pem, public_key_pem)
-        """
-        private_key = rsa.generate_private_key(
-            public_exponent=65537,
-            key_size=2048,
-            backend=default_backend()
-        )
-        
-        private_pem = private_key.private_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PrivateFormat.PKCS8,
-            encryption_algorithm=serialization.NoEncryption()
-        ).decode()
-        
-        public_key = private_key.public_key()
-        public_pem = public_key.public_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PublicFormat.SubjectPublicKeyInfo
-        ).decode()
-        
-        return private_pem, public_pem
-    
-    def sign_product_key(self, license_data: Dict[str, Any]) -> str:
-        """
-        Sign license data to create a product key.
-        
-        Args:
-            license_data: Dictionary containing license metadata
-            
-        Returns:
-            Base64-encoded product key (signature + data)
-        """
-        if not self.private_key:
-            raise ValueError("Private key required for signing")
-        
-        # Serialize license data
-        data_json = json.dumps(license_data, sort_keys=True)
-        data_bytes = data_json.encode()
-        
-        # Sign the data
-        signature = self.private_key.sign(
-            data_bytes,
-            padding.PSS(
-                mgf=padding.MGF1(hashes.SHA256()),
-                salt_length=padding.PSS.MAX_LENGTH
-            ),
-            hashes.SHA256()
-        )
-        
-        # Combine signature and data
-        combined = {
-            "sig": base64.b64encode(signature).decode(),
-            "data": base64.b64encode(data_bytes).decode()
-        }
-        
-        # Encode as base64 for product key
-        product_key = base64.b64encode(json.dumps(combined).encode()).decode()
-        
-        # Format as XXXX-XXXX-XXXX-XXXX for readability
-        formatted_key = self._format_product_key(product_key)
-        
-        return formatted_key
-    
-    def verify_product_key(self, product_key: str) -> Dict[str, Any]:
-        """
-        Verify and decode a product key.
-        
-        Args:
-            product_key: Formatted product key string
-            
-        Returns:
-            Dictionary containing license data if valid
-            
-        Raises:
-            ValueError: If signature is invalid or key is malformed
-        """
-        if not self.public_key:
-            raise ValueError("Public key required for verification")
-        
-        try:
-            # Remove formatting, whitespace, and newlines
-            raw_key = product_key.strip().replace("-", "").replace(" ", "").replace("\r", "").replace("\n", "")
-            
-            # Add missing base64 padding if needed
-            missing_padding = len(raw_key) % 4
-            if missing_padding:
-                raw_key += "=" * (4 - missing_padding)
-            
-            # Decode base64
-            decoded_json = base64.b64decode(raw_key.encode()).decode("utf-8")
-            combined = json.loads(decoded_json)
-            
-            # Extract signature and data
-            signature = base64.b64decode(combined["sig"])
-            data_bytes = base64.b64decode(combined["data"])
-            
-            # Verify signature
-            self.public_key.verify(
-                signature,
-                data_bytes,
-                padding.PSS(
-                    mgf=padding.MGF1(hashes.SHA256()),
-                    salt_length=padding.PSS.MAX_LENGTH
-                ),
-                hashes.SHA256()
-            )
-            
-            # Decode and return license data
-            license_data = json.loads(data_bytes.decode("utf-8"))
-            return license_data
-            
-        except Exception as e:
-            raise ValueError(f"Invalid product key: {str(e)}")
-    
-    @staticmethod
-    def _format_product_key(key: str) -> str:
-        """Format a base64 key as XXXX-XXXX-XXXX-XXXX... (case-sensitive)"""
-        # Remove any existing formatting
-        clean_key = key.replace("-", "").replace(" ", "").strip()
-        
-        # Split into groups of 4
-        groups = [clean_key[i:i+4] for i in range(0, len(clean_key), 4)]
-        
-        # Join with hyphens, preserving Base64 case
-        return "-".join(groups)
-    
-    @staticmethod
-    def generate_license_data(
-        product_name: str,
-        version: str,
-        credits: int = 2,
-        expiry_days: int = 365,
-        metadata: Dict[str, Any] = None
-    ) -> Dict[str, Any]:
-        """
-        Generate license data structure.
-        
-        Args:
-            product_name: Name of the product
-            version: Product version
-            credits: Number of activation credits
-            expiry_days: Days until licence expires
-            metadata: Additional metadata
-            
-        Returns:
-            Dictionary with license data
-        """
-        from datetime import datetime, timedelta
-        
-        expiry_date = (datetime.now() + timedelta(days=expiry_days)).isoformat()
-        
-        license_data = {
-            "product": product_name,
-            "version": version,
-            "credits": credits,
-            "expiry": expiry_date,
-            "issued": datetime.now().isoformat(),
-            "metadata": metadata or {}
-        }
-        
-        return license_data
+# ---------------------------------------------------------------------------
+# Internal helpers
+# ---------------------------------------------------------------------------
+
+def _b32(data: bytes) -> str:
+    return base64.b32encode(data).decode().rstrip("=").upper()
+
+
+def _b32dec(s: str) -> bytes:
+    s = s.upper()
+    pad = (8 - len(s) % 8) % 8
+    return base64.b32decode(s + "=" * pad)
+
+
+def _hmac_check(body10: str) -> str:
+    """Return 6-char base32 HMAC tag over the first 10 key chars."""
+    tag = hmac.new(_HMAC_SECRET, body10.encode(), hashlib.sha256).digest()
+    return _b32(tag)[:6]
+
+
+def _machine_token(machine_fingerprint: str | None) -> str:
+    """4-char token derived from the machine fingerprint, or AAAA."""
+    if not machine_fingerprint:
+        return _ANY_MACHINE
+    raw = bytes.fromhex(machine_fingerprint[:8])   # 4 bytes → 8 hex chars
+    return _b32(raw)[:4]
+
+
+def _expiry_token(expiry_date: date) -> str:
+    """4-char token: days since _EPOCH as 2-byte big-endian → base32."""
+    days = (expiry_date - _EPOCH).days
+    days = max(0, min(days, 0xFFFF))
+    return _b32(struct.pack(">H", days))[:4]
+
+
+def _credits_token(credits: int) -> str:
+    """2-char token: 1-byte credits value → base32."""
+    return _b32(bytes([max(1, min(credits, 255))]))[:2]
+
+
+def _decode_expiry_token(token: str) -> date:
+    raw  = _b32dec(token.ljust(8, "A"))
+    days = struct.unpack(">H", raw[:2])[0]
+    return _EPOCH + timedelta(days=days)
+
+
+def _decode_credits_token(token: str) -> int:
+    raw = _b32dec(token.ljust(8, "A"))
+    return raw[0] if raw else 1
+
+
+# ---------------------------------------------------------------------------
+# Public API
+# ---------------------------------------------------------------------------
+
+def generate_key(
+    machine_fingerprint: str | None,
+    credits: int,
+    expiry_date: date,
+) -> str:
+    """
+    Generate a 16-char product key: XXXX-XXXX-XXXX-XXXX
+    """
+    m = _machine_token(machine_fingerprint)
+    e = _expiry_token(expiry_date)
+    c = _credits_token(credits)
+    body = m + e + c                    # 10 chars
+    h    = _hmac_check(body)            # 6 chars
+    raw  = body + h                     # 16 chars
+    return f"{raw[0:4]}-{raw[4:8]}-{raw[8:12]}-{raw[12:16]}"
+
+
+def decode_key(product_key: str) -> dict[str, Any]:
+    """
+    Verify and decode a product key.
+    Returns payload dict or raises ValueError.
+    """
+    raw = (
+        product_key.strip()
+        .replace("-", "")
+        .replace(" ", "")
+        .upper()
+    )
+
+    if len(raw) != 16:
+        raise ValueError(f"Product key must be 16 characters (got {len(raw)}).")
+
+    body   = raw[:10]
+    h_recv = raw[10:16]
+    h_calc = _hmac_check(body)
+
+    if not hmac.compare_digest(h_recv, h_calc):
+        raise ValueError("Product key is invalid or has been tampered with.")
+
+    machine_token  = body[0:4]
+    expiry_token   = body[4:8]
+    credits_token  = body[8:10]
+
+    expiry  = _decode_expiry_token(expiry_token)
+    credits = _decode_credits_token(credits_token)
+    machine = None if machine_token == _ANY_MACHINE else machine_token
+
+    return {
+        "machine_token" : machine_token,
+        "machine"       : machine,       # None = any-machine key
+        "expiry"        : expiry.isoformat(),
+        "credits"       : credits,
+    }
+
+
+def validate_payload(
+    payload: dict[str, Any],
+    machine_fingerprint: str,
+    credits_used: int = 0,
+) -> dict[str, Any]:
+    """
+    Check expiry, credits, and machine binding after decode_key().
+    """
+    # --- Expiry ---
+    try:
+        expiry_dt = date.fromisoformat(payload["expiry"])
+    except Exception:
+        return {"valid": False, "message": "License expiry is malformed.", "remaining_credits": 0, "expiry": ""}
+
+    if date.today() > expiry_dt:
+        return {"valid": False, "message": "This license has expired.", "remaining_credits": 0, "expiry": payload["expiry"]}
+
+    # --- Credits ---
+    remaining = int(payload.get("credits", 0)) - credits_used
+    if remaining <= 0:
+        return {"valid": False, "message": "All activation credits for this key have been used.", "remaining_credits": 0, "expiry": payload["expiry"]}
+
+    # --- Machine binding ---
+    bound_token = payload.get("machine")   # None = any-machine
+    if bound_token:
+        current_token = _machine_token(machine_fingerprint)
+        if current_token != bound_token:
+            return {"valid": False, "message": "This product key is locked to a different machine.", "remaining_credits": 0, "expiry": payload["expiry"]}
+
+    return {"valid": True, "message": "License is valid.", "remaining_credits": remaining, "expiry": payload["expiry"]}

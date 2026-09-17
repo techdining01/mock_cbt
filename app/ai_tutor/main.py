@@ -4,7 +4,6 @@ from contextlib import asynccontextmanager
 
 from app.database.database import init_database
 from app.ai_tutor.router import router
-from app.services.licensing.api import router as license_router
 
 
 @asynccontextmanager
@@ -15,13 +14,12 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="LLS-CBT AI Tutor & Licensing API",
+    title="LLS-CBT AI Tutor",
     version="1.0.0",
     lifespan=lifespan,
 )
 
 app.include_router(router)
-app.include_router(license_router)
 
 app.add_middleware(
     CORSMiddleware,

@@ -80,6 +80,10 @@ document.addEventListener("alpine:init", () => {
             school_address: "",
             school_logo_path: "",
             theme: "light",
+            ai_provider_preference: "ollama-only",
+            ollama_base_url: "http://127.0.0.1:11434",
+            ollama_model: "qwen2.5:0.5b-instruct",
+            gemini_api_key: "",
         },
         userCurrentPage: 1,
         userItemsPerPage: 10,
@@ -164,20 +168,12 @@ document.addEventListener("alpine:init", () => {
         creatingExam: false,
 
         // =========================================================
-        // AI TUTOR         
+        // AI TUTOR
         // =========================================================
 
         showTutor: false,
         tutorLoading: false,
         tutorError: "",
-        tutorAnswer: "",
-        tutorProvider: "",
-        tutorGreeting: "",
-        tutorExplanation: "",
-        tutorSteps: [],
-        tutorHint: "",
-        tutorEncouragement: "",
-        tutorFollowUp: "",
         tutorQuestion: null,
         tutorResponse: null,
 
@@ -452,6 +448,7 @@ document.addEventListener("alpine:init", () => {
             this.checkAuthStatus();
 
             this.waitForBridge();
+            this.startAIStatusPolling();
 
             // Load users, students, subjects, and questions when admin screen is accessed
             this.$watch('screen', (value) => {
@@ -4283,7 +4280,7 @@ document.addEventListener("alpine:init", () => {
                 if (path.startsWith("data:image")) return path;
                 return path.includes("?") ? path : `${path}?v=${this.logoVersion}`;
             }
-            return "images/school_logo.png";
+            return "images/default_logo.png";
         },
 
         loadAppSettings() {
@@ -4297,7 +4294,13 @@ document.addEventListener("alpine:init", () => {
                     const data = this.parseBridgeResponse(response);
                     if (data.success) {
                         this.appSettings = data.settings;
-                        this.settingsForm = { ...data.settings };
+                        this.settingsForm = {
+                            ...data.settings,
+                            ai_provider_preference: data.settings.ai_provider_preference || 'ollama-only',
+                            ollama_base_url: data.settings.ollama_base_url || 'http://127.0.0.1:11434',
+                            ollama_model: data.settings.ollama_model || 'qwen2.5:0.5b-instruct',
+                            gemini_api_key: data.settings.gemini_api_key || '',
+                        };
                         this.logoVersion = Date.now();
                         this.applyTheme(data.settings.theme);
                     }
@@ -4323,6 +4326,10 @@ document.addEventListener("alpine:init", () => {
                 this.settingsForm.school_address,
                 this.settingsForm.school_logo_path,
                 this.settingsForm.theme,
+                this.settingsForm.ai_provider_preference,
+                this.settingsForm.ollama_base_url,
+                this.settingsForm.ollama_model,
+                this.settingsForm.gemini_api_key,
                 (response) => {
                     try {
                         const data = this.parseBridgeResponse(response);
@@ -4394,36 +4401,262 @@ document.addEventListener("alpine:init", () => {
                     this.appSettings.school_address,
                     this.appSettings.school_logo_path,
                     next,
+                    this.appSettings.ai_provider_preference || 'ollama-only',
+                    this.appSettings.ollama_base_url || 'http://127.0.0.1:11434',
+                    this.appSettings.ollama_model || 'qwen2.5:0.5b-instruct',
+                    this.appSettings.gemini_api_key || '',
                     () => {}
                 );
             }
             showToast(`Switched to ${next === 'dark' ? 'Dark' : 'Light'} Mode`, 'info');
         },
 
+       
         backupDatabase() {
-            if (!window.examBridge || typeof window.examBridge.backup_database !== "function") {
+            if (
+                !window.examBridge ||
+                typeof window.examBridge.backup_database !== "function"
+            ) {
                 showToast("Backup not available", "error");
                 return;
             }
 
-            if (!confirm("Are you sure you want to create a database backup?")) {
-                return;
-            }
+            // Use the application's custom confirmation modal
+            this.showConfirmModal({
+                title: "Create Database Backup?",
+                message:
+                    "This will create a backup of your CBT database. " +
+                    "Your existing data will not be modified.",
+                confirmText: "Create Backup",
+                cancelText: "Cancel",
+                danger: false,
 
-            window.examBridge.backup_database((response) => {
-                try {
-                    const data = this.parseBridgeResponse(response);
-                    if (data.success) {
-                        showToast(`Database backed up to ${data.backup_path}`, "success");
-                    } else {
-                        showToast(data.error || "Backup failed", "error");
-                    }
-                } catch (error) {
-                    console.error("Backup error:", error);
-                    showToast("Backup failed", "error");
+                onConfirm: () => {
+                    window.examBridge.backup_database((response) => {
+                        try {
+                            const data = this.parseBridgeResponse(response);
+
+                            if (data.success) {
+                                showToast(
+                                    `Database backup created successfully`,
+                                    "success"
+                                );
+                            } else {
+                                showToast(
+                                    data.error || "Backup failed",
+                                    "error"
+                                );
+                            }
+                        } catch (error) {
+                            console.error("Backup error:", error);
+                            showToast("Backup failed", "error");
+                        }
+                    });
                 }
             });
         },
+
+       
+        showConfirmModal({
+            title = "Are you sure?",
+            message = "",
+            confirmText = "Confirm",
+            cancelText = "Cancel",
+            danger = false,
+            onConfirm = null
+        } = {}) {
+
+            // Remove any existing modal
+            const existingModal = document.getElementById(
+                "app-confirm-modal"
+            );
+
+            if (existingModal) {
+                existingModal.remove();
+            }
+
+            // Create modal
+            const modal = document.createElement("div");
+
+            modal.id = "app-confirm-modal";
+
+            modal.className =
+                "fixed inset-0 z-[9999] flex items-center justify-center " +
+                "bg-black/50 backdrop-blur-sm p-4";
+
+            modal.innerHTML = `
+                <div
+                    class="
+                        w-full max-w-md
+                        rounded-2xl
+                        bg-white dark:bg-gray-900
+                        shadow-2xl
+                        border border-gray-200 dark:border-gray-700
+                        overflow-hidden
+                    "
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="confirm-modal-title"
+                >
+
+                    <div class="px-6 pt-6">
+
+                        <div class="flex items-start gap-4">
+
+                            <div
+                                class="
+                                    flex h-11 w-11 shrink-0
+                                    items-center justify-center
+                                    rounded-full
+                                    bg-blue-100 dark:bg-blue-900/40
+                                    text-blue-600 dark:text-blue-400
+                                "
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="h-5 w-5"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M12 9v3.75m0 3.75h.008v.008H12v-.008ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                                    />
+                                </svg>
+                            </div>
+
+                            <div class="min-w-0">
+
+                                <h3
+                                    id="confirm-modal-title"
+                                    class="
+                                        text-lg font-semibold
+                                        text-gray-900 dark:text-white
+                                    "
+                                >
+                                    ${this.escapeHtml(title)}
+                                </h3>
+
+                                <p
+                                    class="
+                                        mt-2 text-sm leading-6
+                                        text-gray-600 dark:text-gray-300
+                                    "
+                                >
+                                    ${this.escapeHtml(message)}
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div
+                        class="
+                            flex flex-col-reverse sm:flex-row
+                            justify-end gap-3
+                            px-6 py-5
+                            mt-2
+                            bg-gray-50 dark:bg-gray-800/50
+                            border-t border-gray-200 dark:border-gray-700
+                        "
+                    >
+
+                        <button
+                            type="button"
+                            id="confirm-modal-cancel"
+                            class="
+                                w-full sm:w-auto
+                                rounded-xl
+                                border border-gray-300 dark:border-gray-600
+                                bg-white dark:bg-gray-800
+                                px-4 py-2.5
+                                text-sm font-medium
+                                text-gray-700 dark:text-gray-200
+                                hover:bg-gray-100 dark:hover:bg-gray-700
+                                transition
+                            "
+                        >
+                            ${this.escapeHtml(cancelText)}
+                        </button>
+
+                        <button
+                            type="button"
+                            id="confirm-modal-confirm"
+                            class="
+                                w-full sm:w-auto
+                                rounded-xl
+                                px-4 py-2.5
+                                text-sm font-semibold
+                                text-white
+                                bg-blue-600
+                                hover:bg-blue-700
+                                transition
+                                shadow-sm
+                            "
+                        >
+                            ${this.escapeHtml(confirmText)}
+                        </button>
+
+                    </div>
+
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            const cancelButton = document.getElementById(
+                "confirm-modal-cancel"
+            );
+
+            const confirmButton = document.getElementById(
+                "confirm-modal-confirm"
+            );
+
+            const closeModal = () => {
+                modal.remove();
+            };
+
+            cancelButton.addEventListener("click", closeModal);
+
+            confirmButton.addEventListener("click", () => {
+                closeModal();
+
+                if (typeof onConfirm === "function") {
+                    onConfirm();
+                }
+            });
+
+            // Clicking the dark background closes the modal
+            modal.addEventListener("click", (event) => {
+                if (event.target === modal) {
+                    closeModal();
+                }
+            });
+
+            // Escape closes the modal
+            const handleEscape = (event) => {
+                if (event.key === "Escape") {
+                    closeModal();
+                    document.removeEventListener(
+                        "keydown",
+                        handleEscape
+                    );
+                }
+            };
+
+            document.addEventListener("keydown", handleEscape);
+
+            // Put keyboard focus on Cancel initially
+            setTimeout(() => {
+                cancelButton.focus();
+            }, 50);
+        },
+
 
         // =========================================================
         // USER FILTERING & PAGINATION
@@ -4522,6 +4755,59 @@ document.addEventListener("alpine:init", () => {
         },
 
         // =========================================================
+        // AI PROVIDER STATUS
+        // =========================================================
+
+        aiActiveProvider: "",   // "cloud-ai" | "ollama" | ""
+        aiStatusInterval: null,
+
+        getApiBaseUrl() {
+            const cfg = window.__APP_CONFIG__ || {};
+            const v = typeof cfg.apiBaseUrl === "string" ? cfg.apiBaseUrl.trim() : "";
+            if (v) return v.replace(/\/+$/, "");
+            try {
+                if (location && (location.protocol === "http:" || location.protocol === "https:")) {
+                    return location.origin;
+                }
+            } catch (_) {
+            }
+            return "http://127.0.0.1:8000";
+        },
+
+        apiUrl(path) {
+            const base = this.getApiBaseUrl();
+            const p = path && path.startsWith("/") ? path : `/${path || ""}`;
+            return `${base}${p}`;
+        },
+
+        async checkAIStatus() {
+            try {
+                const r = await fetch(this.apiUrl("/api/v1/tutor/status"), { signal: AbortSignal.timeout(4000) });
+                if (r.ok) {
+                    const d = await r.json();
+                    this.aiActiveProvider = d.active_provider || "";
+                }
+            } catch (_) {
+                this.aiActiveProvider = "";
+            }
+        },
+
+        startAIStatusPolling() {
+            this.checkAIStatus();
+            this.aiStatusInterval = setInterval(() => this.checkAIStatus(), 30000);
+        },
+
+        get aiProviderLabel() {
+            if (this.aiActiveProvider === "cloud-ai") return "Gemini (Cloud)";
+            if (this.aiActiveProvider === "ollama") return "Ollama (Local)";
+            return "AI Offline";
+        },
+
+        get aiProviderOnline() {
+            return !!this.aiActiveProvider;
+        },
+
+        // =========================================================
         // GENERAL KNOWLEDGE CHAT
         // =========================================================
 
@@ -4589,7 +4875,7 @@ document.addEventListener("alpine:init", () => {
             const timeout = setTimeout(() => controller.abort(), 45000);
 
             try {
-                const response = await fetch("http://127.0.0.1:8000/api/v1/tutor/chat", {
+                const response = await fetch(this.apiUrl("/api/v1/tutor/chat"), {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     signal: controller.signal,
@@ -4660,7 +4946,7 @@ document.addEventListener("alpine:init", () => {
                 try {
 
                     const response = await fetch(
-                        "http://127.0.0.1:8000/api/v1/tutor/ask",
+                        this.apiUrl("/api/v1/tutor/ask"),
                         {
                             method: "POST",
 
@@ -5083,7 +5369,7 @@ document.addEventListener("alpine:init", () => {
                 }
 
                 const response = await fetch(
-                    "http://127.0.0.1:8000/api/v1/tutor/speak",
+                    this.apiUrl("/api/v1/tutor/speak"),
                     {
                         method: "POST",
                         headers: {
@@ -5618,6 +5904,10 @@ document.addEventListener("alpine:init", () => {
 
             this.stopTimers();
 
+            if (this.aiStatusInterval) {
+                clearInterval(this.aiStatusInterval);
+                this.aiStatusInterval = null;
+            }
 
             if (this.resultChart) {
 

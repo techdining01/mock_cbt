@@ -8,6 +8,8 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.9
+      - key: AI_PROVIDER_ROLE
+        value: server
       - key: GEMINI_API_KEY
         sync: false
       - key: LICENSE_PUBLIC_KEY

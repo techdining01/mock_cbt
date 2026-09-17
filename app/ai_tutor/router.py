@@ -1,7 +1,77 @@
 from __future__ import annotations
 
+import os
+import sys
+import threading
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+
+def _bootstrap_env():
+    """Load .env from sensible locations BEFORE any provider is constructed.
+
+    Runs at module-import time (before provider constructors) so that
+    GEMINI_API_KEY / LICENSE_SERVER_URL / OLLAMA_BASE_URL are visible
+    to every provider singleton whether we run in dev, in a PyInstaller
+    frozen EXE, or as a Render server worker.
+    """
+    candidates = []
+    if getattr(sys, "frozen", False):
+        # === PyInstaller frozen EXE (desktop) ===
+        meipass = Path(getattr(sys, "_MEIPASS", sys.executable)).resolve()
+        if meipass.is_dir():
+            candidates.append(meipass / ".env")
+        exe_dir = Path(sys.executable).resolve().parent
+        candidates.append(exe_dir / ".env")
+        if meipass.is_dir() and meipass.name == "_internal":
+            candidates.append(meipass.parent / ".env")
+    else:
+        # === Development / Render server ===
+        # router.py lives at app/ai_tutor/router.py
+        #   parents[0] = app/ai_tutor
+        #   parents[1] = app
+        #   parents[2] = PROJECT ROOT (mock_cbt)    <-- .env lives here
+        #   parents[3] = .. (too far up)
+        try:
+            project_root = Path(__file__).resolve().parents[2]
+        except (IndexError, NameError, TypeError):
+            project_root = Path.cwd()
+        candidates.append(project_root / ".env")
+        candidates.append(Path.cwd() / ".env")
+        # Also try 1 level up (in case someone runs tests from a subfolder)
+        candidates.append(Path.cwd().parent / ".env")
+
+    for candidate in candidates:
+        if not candidate or not candidate.is_file():
+            continue
+        try:
+            # On Windows, python-dotenv defaults to the OEM code page;
+            # explicit utf-8 ensures keys with non-ASCII edge cases load.
+            ok = load_dotenv(candidate, override=False, encoding="utf-8")
+            if ok:
+                print(f"[env:router] Loaded {candidate}", flush=True)
+        except Exception as exc:
+            print(f"[env:router] Failed to load {candidate}: {exc}", flush=True)
+
+    # Pin SSL CA bundle to certifi so httpx/requests/google-genai can verify
+    # Gemini / Render / Ollama HTTPS endpoints.
+    try:
+        import certifi
+
+        pem = Path(certifi.where())
+        if pem and pem.is_file():
+            for var in ("SSL_CERT_FILE", "REQUESTS_CA_BUNDLE", "CURL_CA_BUNDLE"):
+                os.environ.setdefault(var, str(pem))
+    except Exception as exc:
+        print(f"[env:router] certifi fix skipped: {exc}", flush=True)
+
+
+_bootstrap_env()
+
 from fastapi import APIRouter, HTTPException
 
+from pydantic import BaseModel, Field
 
 from app.ai_tutor.schemas import (
     TutorRequest,
@@ -9,28 +79,23 @@ from app.ai_tutor.schemas import (
     TutorSpeakRequest,
     ChatRequest,
     ChatResponse,
+    RawChatRequest,
 )
 
-from app.ai_tutor.services.providers.provider_manager import (
-    AIProviderManager,
-)
+from app.ai_tutor.services.providers.provider_manager import AIProviderManager
 
-from app.ai_tutor.services.providers.gemini import (
-    GeminiProvider,
-)
+from app.ai_tutor.services.providers.gemini import GeminiProvider
 
-from app.ai_tutor.services.providers.ollama import (
-    OllamaProvider,
-)
+from app.ai_tutor.services.providers.ollama import OllamaProvider
 
-from app.ai_tutor.services.providers.remote_server import (
-    RemoteServerProvider,
-)
+from app.ai_tutor.services.providers.remote_server import RemoteServerProvider
 
-from pathlib import Path
+from app.ai_tutor.services.ai_settings_resolver import (
+    resolve_env_from_db_settings,
+    get_preference,
+)
 
 from fastapi.responses import FileResponse
-
 
 
 router = APIRouter(
@@ -39,22 +104,90 @@ router = APIRouter(
 )
 
 
-provider_manager = AIProviderManager(
-    providers=[
-        GeminiProvider(),
-        RemoteServerProvider(),
-        OllamaProvider(),
-    ]
-)
+# ======================================================================
+# Provider resolution (honours ai_provider_preference)
+# ======================================================================
+
+
+_env_lock = threading.Lock()
+
+
+def _apply_db_ai_settings_once() -> None:
+    """Merge DB-backed AI settings into process env (once per call path).
+
+    Safe to call many times — the resolver only sets env vars that are
+    missing, so explicit .env values always win.
+    """
+    with _env_lock:
+        try:
+            from app.database.database import SessionLocal
+            from app.services.settings_service import SettingsService
+
+            with SessionLocal() as db:
+                svc = SettingsService(db)
+                ai = svc.get_ai_settings()
+            resolve_env_from_db_settings(ai)
+        except Exception as exc:
+            print(f"[router] DB AI settings not applied: {exc}", flush=True)
+
+
+_apply_db_ai_settings_once()
+
+
+def _build_provider_list() -> list:
+    """Build the provider list ordered by ai_provider_preference.
+
+    Ollama is ALWAYS the primary (first) provider except when the user
+    has explicitly chosen ``gemini-only``. This ensures the desktop app
+    works out-of-the-box without any API key — students just need a
+    running local Ollama plus ``ollama pull qwen2.5:0.5b-instruct``.
+    """
+    pref = get_preference()
+    _running_as_ai_server = (
+        os.getenv("AI_PROVIDER_ROLE", "").lower() == "server"
+    )
+
+    if _running_as_ai_server:
+        return [GeminiProvider(), OllamaProvider()]
+
+    gemini = GeminiProvider()
+    cloud = RemoteServerProvider()
+    ollama = OllamaProvider()
+
+    if pref == "gemini-only":
+        return [gemini, cloud]
+    if pref == "ollama-only":
+        return [ollama]
+    # local-first, cloud-first, and any unrecognised value — all keep
+    # Ollama in pole position so the app works with no API keys.
+    return [ollama, gemini, cloud]
+
+
+provider_manager = AIProviderManager(providers=_build_provider_list())
 
 
 @router.get("/health")
 async def tutor_health():
-
     return {
         "success": True,
         "service": "AI Tutor",
         "providers": provider_manager.health(),
+    }
+
+
+@router.get("/status")
+async def tutor_status():
+    """Lightweight status check: tells the frontend which AI backend is active."""
+    health = provider_manager.health()
+    active = next(
+        (name for name, info in health.items() if info.get("available")),
+        None,
+    )
+    return {
+        "success": True,
+        "active_provider": active,
+        "online": active is not None,
+        "providers": health,
     }
 
 
@@ -222,14 +355,15 @@ Respond in plain text only. No markdown, no bullet symbols, no JSON.
 @router.post("/chat", response_model=ChatResponse)
 async def general_chat(request: ChatRequest):
     try:
-        history_text = ""
-        for msg in request.history[-10:]:
-            role = "Student" if msg.role == "user" else "AI"
-            history_text += f"{role}: {msg.content}\n"
-
-        prompt = f"{CHAT_SYSTEM_PROMPT}\nCONVERSATION SO FAR:\n{history_text}Student: {request.message}\nAI:"
-
-        provider_name, reply = await provider_manager.chat(prompt)
+        # Pass structured (message, history) + the system prompt to the manager.
+        # Local providers (Gemini, Ollama) flatten locally with the system prompt.
+        # RemoteServerProvider skips system_prompt and forwards cleanly to Render's
+        # /chat endpoint, preventing double-wrapping and preserving chat history.
+        provider_name, reply = await provider_manager.chat(
+            request.message,
+            history=request.history,
+            system_prompt=CHAT_SYSTEM_PROMPT,
+        )
 
         return ChatResponse(success=True, reply=reply, provider=provider_name)
 
@@ -237,4 +371,140 @@ async def general_chat(request: ChatRequest):
         raise HTTPException(
             status_code=503,
             detail="General Knowledge AI is temporarily unavailable.",
+        ) from exc
+
+
+@router.post("/chat_raw", response_model=ChatResponse)
+async def general_chat_raw(request: RawChatRequest):
+    try:
+        provider_name, reply = await provider_manager.chat(
+            request.prompt,
+            history=[],
+            system_prompt=None,
+        )
+        return ChatResponse(success=True, reply=reply, provider=provider_name)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=503,
+            detail="General Knowledge AI is temporarily unavailable.",
+        ) from exc
+
+
+# ======================================================================
+# AI SETTINGS ENDPOINTS (read/write Gemini key + Ollama config)
+# ======================================================================
+
+
+class AISettingsUpdate(BaseModel):
+    gemini_api_key: str | None = Field(default=None)
+    ollama_base_url: str | None = Field(default=None)
+    ollama_model: str | None = Field(default=None)
+    ai_provider_preference: str | None = Field(default=None)
+
+
+@router.get("/settings")
+async def get_ai_settings():
+    """Return the current AI settings (key hidden with a mask)."""
+    try:
+        _apply_db_ai_settings_once()
+        from app.database.database import SessionLocal
+        from app.services.settings_service import SettingsService
+
+        with SessionLocal() as db:
+            svc = SettingsService(db)
+            raw = svc.get_ai_settings()
+        key = raw.get("gemini_api_key") or ""
+        masked = ""
+        if key:
+            if len(key) <= 8:
+                masked = "***"
+            else:
+                masked = key[:4] + "***" + key[-4:]
+        return {
+            "success": True,
+            "gemini_api_key_masked": masked,
+            "gemini_api_key_set": bool(key),
+            "ollama_base_url": raw.get("ollama_base_url")
+            or os.getenv("OLLAMA_BASE_URL")
+            or "http://127.0.0.1:11434",
+            "ollama_model": raw.get("ollama_model")
+            or os.getenv("OLLAMA_MODEL")
+            or "qwen2.5:0.5b-instruct",
+            "ai_provider_preference": get_preference(),
+            "active_provider": (await tutor_status()).get("active_provider", ""),
+        }
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Could not read AI settings: {exc}",
+        ) from exc
+
+
+@router.post("/settings")
+async def save_ai_settings(payload: AISettingsUpdate):
+    """Persist AI settings to DB and refresh the in-process env."""
+    try:
+        from app.database.database import SessionLocal
+        from app.services.settings_service import SettingsService
+
+        with SessionLocal() as db:
+            svc = SettingsService(db)
+            updated = svc.update_settings(
+                gemini_api_key=payload.gemini_api_key,
+                ollama_base_url=payload.ollama_base_url,
+                ollama_model=payload.ollama_model,
+                ai_provider_preference=payload.ai_provider_preference,
+            )
+            db.commit()
+            ai = svc.get_ai_settings()
+
+        resolve_env_from_db_settings(ai)
+
+        key = updated.gemini_api_key or ""
+        masked = ""
+        if key:
+            if len(key) <= 8:
+                masked = "***"
+            else:
+                masked = key[:4] + "***" + key[-4:]
+        return {
+            "success": True,
+            "gemini_api_key_masked": masked,
+            "gemini_api_key_set": bool(key),
+            "ollama_base_url": updated.ollama_base_url
+            or os.getenv("OLLAMA_BASE_URL")
+            or "http://127.0.0.1:11434",
+            "ollama_model": updated.ollama_model
+            or os.getenv("OLLAMA_MODEL")
+            or "qwen2.5:0.5b-instruct",
+            "ai_provider_preference": updated.ai_provider_preference,
+            "message": "AI settings saved. Changes apply on the next AI request.",
+        }
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Could not save AI settings: {exc}",
+        ) from exc
+
+
+@router.post("/refresh")
+async def refresh_ai_providers():
+    """Re-apply DB settings and rebuild the provider manager (e.g. after a save)."""
+    try:
+        _apply_db_ai_settings_once()
+        provider_manager.providers = _build_provider_list()
+        health = provider_manager.health()
+        active = next(
+            (name for name, info in health.items() if info.get("available")),
+            None,
+        )
+        return {
+            "success": True,
+            "active_provider": active,
+            "providers": health,
+        }
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Could not refresh AI providers: {exc}",
         ) from exc

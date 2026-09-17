@@ -1427,11 +1427,20 @@ class ExamBridge(QObject):
 
     @Slot(result=str)
     def get_app_settings(self):
-        """Get application settings (school name, logo, address, theme)."""
+        """Get application settings (school name, logo, address, theme, AI)."""
         try:
             with SessionLocal() as db:
                 settings_service = SettingsService(db)
                 settings = settings_service.get_settings()
+
+                # Hide the raw Gemini key but expose a masked version + flag
+                raw_key = getattr(settings, "gemini_api_key", None) or ""
+                masked_key = ""
+                if raw_key:
+                    if len(raw_key) <= 8:
+                        masked_key = "***"
+                    else:
+                        masked_key = raw_key[:4] + "***" + raw_key[-4:]
 
                 return json.dumps({
                     "success": True,
@@ -1440,18 +1449,31 @@ class ExamBridge(QObject):
                         "school_address": settings.school_address,
                         "school_logo_path": settings.school_logo_path,
                         "theme": settings.theme,
+                        "gemini_api_key_masked": masked_key,
+                        "gemini_api_key_set": bool(raw_key),
+                        "ollama_base_url": getattr(settings, "ollama_base_url", None)
+                        or "http://127.0.0.1:11434",
+                        "ollama_model": getattr(settings, "ollama_model", None)
+                        or "qwen2.5:0.5b-instruct",
+                        "ai_provider_preference": getattr(
+                            settings, "ai_provider_preference", "ollama-only"
+                        ),
                     }
                 })
         except Exception as exc:
             return self._error(exc)
 
-    @Slot(str, str, str, str, result=str)
+    @Slot(str, str, str, str, str, str, str, str, result=str)
     def update_app_settings(
         self,
         school_name: str,
         school_address: str,
         school_logo_path: str,
         theme: str,
+        ai_provider_preference: str,
+        ollama_base_url: str,
+        ollama_model: str,
+        gemini_api_key: str,
     ):
         """Update application settings (admin only)."""
         try:
@@ -1508,7 +1530,19 @@ class ExamBridge(QObject):
                     school_address=school_address_parsed,
                     school_logo_path=school_logo_path_parsed,
                     theme=theme_parsed,
+                    ai_provider_preference=ai_provider_preference if ai_provider_preference else None,
+                    ollama_base_url=ollama_base_url if ollama_base_url else None,
+                    ollama_model=ollama_model if ollama_model else None,
+                    gemini_api_key=gemini_api_key if gemini_api_key else None,
                 )
+
+                raw_key = getattr(settings, "gemini_api_key", None) or ""
+                masked_key = ""
+                if raw_key:
+                    if len(raw_key) <= 8:
+                        masked_key = "***"
+                    else:
+                        masked_key = raw_key[:4] + "***" + raw_key[-4:]
 
                 return json.dumps({
                     "success": True,
@@ -1517,10 +1551,131 @@ class ExamBridge(QObject):
                         "school_address": settings.school_address,
                         "school_logo_path": settings.school_logo_path,
                         "theme": settings.theme,
+                        "gemini_api_key_masked": masked_key,
+                        "gemini_api_key_set": bool(raw_key),
+                        "ollama_base_url": getattr(settings, "ollama_base_url", None)
+                        or "http://127.0.0.1:11434",
+                        "ollama_model": getattr(settings, "ollama_model", None)
+                        or "qwen2.5:0.5b-instruct",
+                        "ai_provider_preference": getattr(
+                            settings, "ai_provider_preference", "ollama-only"
+                        ),
                     }
                 })
         except Exception as exc:
             return self._error(exc)
+
+    # ========================================================
+    # AI SETTINGS (Gemini key, Ollama, provider preference)
+    # ========================================================
+
+    @Slot(str, str, str, str, result=str)
+    def save_ai_settings(
+        self,
+        gemini_api_key: str,
+        ollama_base_url: str,
+        ollama_model: str,
+        ai_provider_preference: str,
+    ):
+        """Save AI-specific settings (admin only)."""
+        try:
+            if not self._current_user or self._current_user.role != "admin":
+                return json.dumps(
+                    {"success": False, "error": "Access denied. Admin only."}
+                )
+
+            with SessionLocal() as db:
+                settings_service = SettingsService(db)
+                settings = settings_service.update_settings(
+                    gemini_api_key=gemini_api_key,
+                    ollama_base_url=ollama_base_url,
+                    ollama_model=ollama_model,
+                    ai_provider_preference=ai_provider_preference,
+                )
+                db.commit()
+
+            raw_key = getattr(settings, "gemini_api_key", None) or ""
+            masked_key = ""
+            if raw_key:
+                if len(raw_key) <= 8:
+                    masked_key = "***"
+                else:
+                    masked_key = raw_key[:4] + "***" + raw_key[-4:]
+
+            # Best-effort: notify the in-process FastAPI router via the REST API
+            # so changes take effect without a full app restart.
+            try:
+                refresh_url = "http://127.0.0.1:8000/api/v1/tutor/refresh"
+                requests.post(refresh_url, timeout=2)
+            except Exception:
+                pass
+
+            return json.dumps({
+                "success": True,
+                "message": "AI settings saved successfully.",
+                "settings": {
+                    "gemini_api_key_masked": masked_key,
+                    "gemini_api_key_set": bool(raw_key),
+                    "ollama_base_url": getattr(settings, "ollama_base_url", None)
+                    or "http://127.0.0.1:11434",
+                    "ollama_model": getattr(settings, "ollama_model", None)
+                    or "qwen2.5:0.5b-instruct",
+                    "ai_provider_preference": getattr(
+                        settings, "ai_provider_preference", "ollama-only"
+                    ),
+                },
+            })
+        except Exception as exc:
+            return self._error(exc)
+
+    @Slot(result=str)
+    def get_ai_settings(self):
+        """Return AI-specific settings (key masked)."""
+        try:
+            with SessionLocal() as db:
+                settings_service = SettingsService(db)
+                settings = settings_service.get_settings()
+
+            raw_key = getattr(settings, "gemini_api_key", None) or ""
+            masked_key = ""
+            if raw_key:
+                if len(raw_key) <= 8:
+                    masked_key = "***"
+                else:
+                    masked_key = raw_key[:4] + "***" + raw_key[-4:]
+
+            return json.dumps({
+                "success": True,
+                "settings": {
+                    "gemini_api_key_masked": masked_key,
+                    "gemini_api_key_set": bool(raw_key),
+                    "ollama_base_url": getattr(settings, "ollama_base_url", None)
+                    or "http://127.0.0.1:11434",
+                    "ollama_model": getattr(settings, "ollama_model", None)
+                    or "qwen2.5:0.5b-instruct",
+                    "ai_provider_preference": getattr(
+                        settings, "ai_provider_preference", "ollama-only"
+                    ),
+                },
+            })
+        except Exception as exc:
+            return self._error(exc)
+
+    @Slot(result=str)
+    def refresh_ai_providers(self):
+        """Trigger an in-process provider refresh via the local REST API."""
+        try:
+            refresh_url = "http://127.0.0.1:8000/api/v1/tutor/refresh"
+            response = requests.post(refresh_url, timeout=5)
+            if response.ok:
+                payload = response.json()
+                return json.dumps({"success": True, **payload})
+            return json.dumps({
+                "success": False,
+                "error": f"Refresh failed: HTTP {response.status_code}",
+            })
+        except Exception as exc:
+            return self._error(f"Could not refresh AI providers: {exc}")
 
     @Slot(result=str)
     def backup_database(self):
@@ -1542,7 +1697,7 @@ class ExamBridge(QObject):
             db_path = db_url.replace("sqlite:///", "")
 
             # Create backup filename with timestamp
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            timestamp = datetime.now().strftime("%d_%m_%Y_%H%M%S")
             backup_dir = Path(db_path).parent / "backups"
             backup_dir.mkdir(parents=True, exist_ok=True)
             backup_path = backup_dir / f"cbt_backup_{timestamp}.db"
@@ -2479,8 +2634,9 @@ class ExamBridge(QObject):
             # Call FastAPI
             # --------------------------------------------------
 
+            api_base_url = os.getenv("LOCAL_API_BASE_URL", "http://127.0.0.1:8000").rstrip("/")
             response = requests.post(
-                "http://127.0.0.1:8000/api/v1/tutor/ask",
+                f"{api_base_url}/api/v1/tutor/ask",
                 json=payload,
                 timeout=120,
             )

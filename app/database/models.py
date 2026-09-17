@@ -65,6 +65,31 @@ class AppSettings(Base):
         comment="Theme: light or dark",
     )
 
+    gemini_api_key: Mapped[str | None] = mapped_column(
+        String(500),
+        nullable=True,
+        comment="Optional user-provided Google Gemini API key",
+    )
+
+    ollama_base_url: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True,
+        comment="Ollama local server base URL (default: http://127.0.0.1:11434)",
+    )
+
+    ollama_model: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
+        comment="Ollama model name to use (default: qwen2.5:0.5b-instruct)",
+    )
+
+    ai_provider_preference: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+        default="ollama-only",
+        comment="AI provider order: local-first | cloud-first | gemini-only | ollama-only",
+    )
+
     updated_at: Mapped[datetime] = mapped_column(
         DateTime,
         server_default=func.now(),
@@ -896,215 +921,5 @@ class StudentAnswer(Base):
         Index(
             "ix_student_answers_selected_option",
             "selected_option_id",
-        ),
-    )
-
-
-# ============================================================
-# LICENSING MODELS
-# ============================================================
-
-
-class ProductLicense(Base):
-    """
-    A product license key with activation credits.
-    
-    Tracks product keys, their metadata, and remaining activation credits.
-    """
-
-    __tablename__ = "product_licenses"
-
-    id: Mapped[int] = mapped_column(
-        primary_key=True,
-    )
-
-    product_key: Mapped[str] = mapped_column(
-        Text,
-        nullable=False,
-        unique=True,
-    )
-
-    product_name: Mapped[str] = mapped_column(
-        String(100),
-        nullable=False,
-    )
-
-    version: Mapped[str] = mapped_column(
-        String(20),
-        nullable=False,
-    )
-
-    # Number of activation credits available
-    credits: Mapped[int] = mapped_column(
-        Integer,
-        nullable=False,
-        default=2,
-    )
-
-    # License expiry date
-    expiry_date: Mapped[datetime] = mapped_column(
-        DateTime,
-        nullable=False,
-    )
-
-    # Additional metadata (JSON encoded)
-    license_metadata: Mapped[str | None] = mapped_column(
-        Text,
-        nullable=True,
-    )
-
-    # Status tracking
-    is_active: Mapped[bool] = mapped_column(
-        Boolean,
-        default=True,
-        nullable=False,
-    )
-
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime,
-        server_default=func.now(),
-        nullable=False,
-    )
-
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime,
-        server_default=func.now(),
-        onupdate=func.now(),
-        nullable=False,
-    )
-
-    # --------------------------------------------------------
-    # Relationships
-    # --------------------------------------------------------
-
-    activations: Mapped[list["LicenseActivation"]] = relationship(
-        back_populates="license",
-        cascade="all, delete-orphan",
-    )
-
-    # --------------------------------------------------------
-    # Constraints
-    # --------------------------------------------------------
-
-    __table_args__ = (
-        CheckConstraint(
-            "credits >= 0",
-            name="ck_product_license_credits_non_negative",
-        ),
-        Index(
-            "ix_product_licenses_product_key",
-            "product_key",
-        ),
-    )
-
-
-class LicenseActivation(Base):
-    """
-    Records of license activations on specific machines.
-    
-    Tracks when and where a license was activated using machine fingerprinting.
-    """
-
-    __tablename__ = "license_activations"
-
-    id: Mapped[int] = mapped_column(
-        primary_key=True,
-    )
-
-    license_id: Mapped[int] = mapped_column(
-        ForeignKey(
-            "product_licenses.id",
-            ondelete="CASCADE",
-        ),
-        nullable=False,
-    )
-
-    # User information for support and tracking
-    user_email: Mapped[str | None] = mapped_column(
-        String(255),
-        nullable=True,
-    )
-
-    user_name: Mapped[str | None] = mapped_column(
-        String(150),
-        nullable=True,
-    )
-
-    # Machine fingerprint for this activation
-    machine_fingerprint: Mapped[str] = mapped_column(
-        String(64),
-        nullable=False,
-    )
-
-    # Additional machine info (optional)
-    machine_info: Mapped[str | None] = mapped_column(
-        Text,
-        nullable=True,
-    )
-
-    # Activation timestamp (server-side, can't be manipulated)
-    activated_at: Mapped[datetime] = mapped_column(
-        DateTime,
-        server_default=func.now(),
-        nullable=False,
-    )
-
-    # Server-trusted timestamp for expiry calculations
-    server_timestamp: Mapped[datetime] = mapped_column(
-        DateTime,
-        server_default=func.now(),
-        nullable=False,
-    )
-
-    # When this activation was last validated
-    last_validated: Mapped[datetime] = mapped_column(
-        DateTime,
-        server_default=func.now(),
-        nullable=False,
-    )
-
-    # Is this activation currently valid
-    is_valid: Mapped[bool] = mapped_column(
-        Boolean,
-        default=True,
-        nullable=False,
-    )
-
-    # Deactivation info (if revoked)
-    deactivated_at: Mapped[datetime | None] = mapped_column(
-        DateTime,
-        nullable=True,
-    )
-
-    deactivation_reason: Mapped[str | None] = mapped_column(
-        String(255),
-        nullable=True,
-    )
-
-    # --------------------------------------------------------
-    # Relationships
-    # --------------------------------------------------------
-
-    license: Mapped["ProductLicense"] = relationship(
-        back_populates="activations",
-    )
-
-    # --------------------------------------------------------
-    # Constraints
-    # --------------------------------------------------------
-
-    __table_args__ = (
-        Index(
-            "ix_license_activations_license_id",
-            "license_id",
-        ),
-        Index(
-            "ix_license_activations_machine_fingerprint",
-            "machine_fingerprint",
-        ),
-        UniqueConstraint(
-            "license_id",
-            "machine_fingerprint",
-            name="uq_license_machine",
         ),
     )

@@ -1,4 +1,4 @@
-﻿import shutil
+import shutil
 import sys
 from pathlib import Path
 from typing import Generator
@@ -289,6 +289,26 @@ def init_database() -> None:
                 conn.execute(text("ALTER TABLE exam_sessions ADD COLUMN exam_body VARCHAR(50) DEFAULT 'JAMB' NOT NULL"))
                 conn.commit()
                 print("Migrated exam_sessions table: added exam_body column.")
+
+            # Check app_settings table (AI config columns)
+            s_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(app_settings)")).fetchall()]
+            if len(s_cols) > 0:
+                if "gemini_api_key" not in s_cols:
+                    conn.execute(text("ALTER TABLE app_settings ADD COLUMN gemini_api_key VARCHAR(500)"))
+                    conn.commit()
+                    print("Migrated app_settings table: added gemini_api_key column.")
+                if "ollama_base_url" not in s_cols:
+                    conn.execute(text("ALTER TABLE app_settings ADD COLUMN ollama_base_url VARCHAR(255)"))
+                    conn.commit()
+                    print("Migrated app_settings table: added ollama_base_url column.")
+                if "ollama_model" not in s_cols:
+                    conn.execute(text("ALTER TABLE app_settings ADD COLUMN ollama_model VARCHAR(100)"))
+                    conn.commit()
+                    print("Migrated app_settings table: added ollama_model column.")
+                if "ai_provider_preference" not in s_cols:
+                    conn.execute(text("ALTER TABLE app_settings ADD COLUMN ai_provider_preference VARCHAR(50) NOT NULL DEFAULT 'local-first'"))
+                    conn.commit()
+                    print("Migrated app_settings table: added ai_provider_preference column.")
     except Exception as m_err:
         print("Schema migration check:", m_err)
 

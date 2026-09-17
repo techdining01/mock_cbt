@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 
-from app.ai_tutor.schemas import TutorRequest
+from app.ai_tutor.schemas import ChatMessage, TutorRequest
 from app.ai_tutor.services.providers.base import AIProvider
 from app.ai_tutor.services.response_validator import (
     validate_tutor_result,
@@ -39,10 +39,8 @@ class AIProviderManager:
 
             except Exception as exc:
                 last_error = exc
-                # Log specific error types for better debugging
                 error_type = type(exc).__name__
                 logger.warning("AI provider failed: %s - %s (%s)", provider.name, exc, error_type)
-                # Continue to next provider instead of immediately failing
                 continue
 
         if last_error is not None:
@@ -51,9 +49,12 @@ class AIProviderManager:
 
     async def chat(
         self,
-        prompt: str,
+        message: str,
+        history: list[ChatMessage] | None = None,
+        system_prompt: str | None = None,
     ) -> tuple[str, str]:
-        """Send a plain-text prompt and return (provider_name, reply_text)."""
+        """Send a structured chat message + history + optional system prompt.
+        Returns (provider_name, reply_text)."""
 
         last_error: Exception | None = None
 
@@ -63,16 +64,14 @@ class AIProviderManager:
                 continue
 
             try:
-                reply = await provider.chat(prompt)
+                reply = await provider.chat(message, history=history, system_prompt=system_prompt)
                 logger.info("Chat provider succeeded: %s", provider.name)
                 return (provider.name, reply)
 
             except Exception as exc:
                 last_error = exc
-                # Log specific error types for better debugging
                 error_type = type(exc).__name__
                 logger.warning("Chat provider failed: %s - %s (%s)", provider.name, exc, error_type)
-                # Continue to next provider instead of immediately failing
                 continue
 
         if last_error is not None:
