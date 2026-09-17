@@ -1,0 +1,24 @@
+LLS-CBT_Distribution/
+│
+├── LLS-CBT.exe                        <-- Main Standalone Native Executable (Compiled via Nuitka)
+├── app/
+│   └── web/                           <-- Frontend UI Assets (HTML, JS, CSS, Media)
+│       ├── index.html                 <-- Main Candidate & Admin CBT Interface
+│       ├── question_import.html       <-- OCR Question Paper Ingestion Workspace
+│       ├── css/
+│       │   ├── app.css                <-- Tailored CBT Theme & Layout Styling
+│       │   └── question_import.css    <-- OCR Studio & Review Styling
+│       ├── js/
+│       │   ├── app.js                 <-- Application State & Bridge Integration
+│       │   └── question_import.js     <-- OCR Ingestion Engine
+│       └── images/
+│           ├── company_logo.ico       <-- Application Window & Taskbar Icon
+│           ├── school_logo.png        <-- Default / Custom School Crest
+│           └── ai_tutor_avatar.png    <-- AI Learning Assistant Avatar
+│
+├── data/                              <-- Application Database & Output Directory
+│   ├── cbt.sqlite3                    <-- SQLite Database (Auto-migrated tables, questions, default admin)
+│   ├── question_imports/              <-- Temporary staging for uploaded PDF/Image pages
+│   └── reports/                       <-- Generated official PDF result transcripts
+│
+└── Qt6 Dynamic Libraries & Plugins    <-- Bundled automatically by Nuitka into distribution package

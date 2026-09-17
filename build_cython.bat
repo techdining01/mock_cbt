@@ -1,0 +1,42 @@
+@echo off
+setlocal enabledelayedexpansion
+
+echo ==============================================================================
+echo             BUILDING SECURE LLS CBT (CYTHON + PYINSTALLER)
+echo ==============================================================================
+echo.
+
+set "PYTHON_EXE=python"
+if exist ".venv\Scripts\python.exe" (
+    set "PYTHON_EXE=.venv\Scripts\python.exe"
+)
+
+echo [1/4] Installing build requirements...
+%PYTHON_EXE% -m pip install --quiet cython pyinstaller setuptools
+
+echo [2/4] Compiling core application to native C (.pyd)...
+%PYTHON_EXE% -c "from setuptools import setup; from Cython.Build import cythonize; import glob; setup(ext_modules=cythonize(glob.glob('app/**/*.py', recursive=True), compiler_directives={'language_level': '3'}))" build_ext --inplace
+
+echo [3/4] Packaging standalone bundle with PyInstaller (using LLS-CBT.spec)...
+%PYTHON_EXE% -m PyInstaller LLS-CBT.spec --noconfirm
+
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERROR] Build failed.
+    pause
+    exit /b %ERRORLEVEL%
+)
+
+echo [4/4] Syncing seeded database to distribution bundle...
+if not exist "dist\LLS-CBT\data" mkdir "dist\LLS-CBT\data"
+if exist "data\cbt.sqlite3" (
+    copy /y "data\cbt.sqlite3" "dist\LLS-CBT\data\cbt.sqlite3" >nul
+    echo   - Synced database: dist\LLS-CBT\data\cbt.sqlite3
+)
+
+echo.
+echo ==============================================================================
+echo Build finished successfully!
+echo Distribution bundle created at: dist\LLS-CBT\
+echo ==============================================================================
+echo.
+pause

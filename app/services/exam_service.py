@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import Session, joinedload
 
 from app.database.models import (
@@ -52,6 +52,8 @@ class ExamService:
         subject_ids: list[int],
         duration_minutes: int,
         student_name: str | None = None,
+        user_id: int | None = None,
+        exam_body: str = "JAMB",
     ) -> ExamSession:
 
         if not subject_ids:
@@ -61,20 +63,24 @@ class ExamService:
             raise ExamServiceError("Exam duration must be greater than zero.")
 
         subject_ids = list(dict.fromkeys(subject_ids))
+        normalized_body = (exam_body or "JAMB").upper().strip()
 
         subjects = self._get_selected_subjects(
             year=year,
             subject_ids=subject_ids,
+            exam_body=normalized_body,
         )
 
         if len(subjects) != len(subject_ids):
             raise ExamServiceError(
-                "One or more selected subjects have no questions for this year."
+                f"One or more selected subjects have no questions for {normalized_body} {year}."
             )
 
         exam = ExamSession(
+            exam_body=normalized_body,
             year=year,
             student_name=student_name,
+            user_id=user_id,
             duration_minutes=duration_minutes,
         )
 
@@ -88,10 +94,11 @@ class ExamService:
             questions = self._get_questions(
                 year=year,
                 subject_id=subject.id,
+                exam_body=normalized_body,
             )
 
             if not questions:
-                raise ExamServiceError(f"No questions found for {subject.name}.")
+                raise ExamServiceError(f"No questions found for {subject.name} in {normalized_body} {year}.")
 
             exam_subject = ExamSubject(
                 exam_session_id=exam.id,
@@ -135,6 +142,7 @@ class ExamService:
         self,
         year: int,
         subject_ids: list[int],
+        exam_body: str = "JAMB",
     ) -> list[Subject]:
 
         statement = (
@@ -146,6 +154,7 @@ class ExamService:
             .where(
                 Subject.id.in_(subject_ids),
                 Question.year == year,
+                Question.exam_body == exam_body,
                 Question.is_active.is_(True),
                 Subject.is_active.is_(True),
             )
@@ -170,6 +179,7 @@ class ExamService:
         self,
         year: int,
         subject_id: int,
+        exam_body: str = "JAMB",
     ) -> list[Question]:
 
         statement = (
@@ -177,6 +187,7 @@ class ExamService:
             .where(
                 Question.year == year,
                 Question.subject_id == subject_id,
+                Question.exam_body == exam_body,
                 Question.is_active.is_(True),
             )
             .options(joinedload(Question.options))
@@ -586,9 +597,18 @@ class ExamService:
             else 0
         )
 
+        full_name = (
+            exam.user.full_name
+            if (exam.user and exam.user.full_name)
+            else (exam.student_name or "Student")
+        )
+
         return {
             "exam_id": exam.id,
-            "student_name": exam.student_name,
+            "exam_body": getattr(exam, "exam_body", "JAMB") or "JAMB",
+            "student_name": full_name,
+            "student_full_name": full_name,
+            "username": exam.user.username if exam.user else None,
             "year": exam.year,
             "duration_minutes": (exam.duration_minutes),
             "started_at": (exam.started_at.isoformat() if exam.started_at else None),
@@ -610,13 +630,37 @@ class ExamService:
 
     def get_available_years(
         self,
+        exam_body: str | None = None,
     ) -> list[int]:
 
-        rows = (
-            self.db.query(Question.year).distinct().order_by(Question.year.asc()).all()
-        )
+        query = self.db.query(Question.year).distinct().filter(Question.is_active.is_(True))
+        if exam_body:
+            query = query.filter(Question.exam_body == exam_body.upper().strip())
+
+        rows = query.order_by(Question.year.desc()).all()
 
         return [row[0] for row in rows]
+
+    # ========================================================
+    # AVAILABLE EXAM BODIES
+    # ========================================================
+
+    def get_available_exam_bodies(self) -> list[str]:
+        """Return list of distinct exam bodies configured or present in DB."""
+        known_bodies = ["JAMB", "WAEC", "NECO", "NABTEB", "BECE", "SCHOOL"]
+        db_bodies = [
+            row[0].upper()
+            for row in self.db.query(Question.exam_body).distinct().all()
+            if row[0]
+        ]
+        # Union while preserving known order
+        combined = []
+        for body in known_bodies:
+            combined.append(body)
+        for body in db_bodies:
+            if body not in combined:
+                combined.append(body)
+        return combined
 
     # ========================================================
     # SUBJECTS FOR YEAR
@@ -625,19 +669,34 @@ class ExamService:
     def get_subjects_for_year(
         self,
         year: int,
+        exam_body: str | None = None,
     ) -> list[dict]:
 
-        rows = (
+        query = (
             self.db.query(
                 Subject.id,
                 Subject.name,
+                func.count(Question.id).label("question_count"),
             )
             .join(
                 Question,
                 Question.subject_id == Subject.id,
             )
-            .filter(Question.year == year)
-            .distinct()
+            .filter(
+                Question.year == year,
+                Question.is_active.is_(True),
+                Subject.is_active.is_(True),
+            )
+        )
+
+        if exam_body:
+            query = query.filter(Question.exam_body == exam_body.upper().strip())
+
+        rows = (
+            query.group_by(
+                Subject.id,
+                Subject.name,
+            )
             .order_by(Subject.name.asc())
             .all()
         )
@@ -646,6 +705,66 @@ class ExamService:
             {
                 "id": subject_id,
                 "name": subject_name,
+                "question_count": int(question_count),
             }
-            for subject_id, subject_name in rows
+            for (
+                subject_id,
+                subject_name,
+                question_count,
+            ) in rows
         ]
+
+    def get_tutor_context(
+        self,
+        exam_question_id: int,
+    ) -> dict:
+
+        exam_question = self.db.scalar(
+            select(ExamQuestion).where(
+                ExamQuestion.id == exam_question_id,
+            )
+        )
+        if not exam_question:
+            raise ValueError("Exam question not found.")
+
+        question = exam_question.question
+
+        answer = exam_question.answer
+
+        correct_option = None
+        selected_option = None
+
+        options = []
+
+        for option in question.options:
+            options.append(
+                {
+                    "id": option.id,
+                    "label": option.label,
+                    "text": option.text,
+                }
+            )
+
+            if option.is_correct:
+                correct_option = option
+
+            if answer and answer.selected_option_id == option.id:
+                selected_option = option
+
+        if not correct_option:
+            raise ValueError("This question has no correct answer configured.")
+
+        return {
+            "exam_question_id": exam_question.id,
+            "question_id": question.id,
+            "subject": question.subject.name,
+            "question": question.text,
+            "options": options,
+            "correct_answer": (f"{correct_option.label}. {correct_option.text}"),
+            "student_answer": (
+                (f"{selected_option.label}. {selected_option.text}")
+                if selected_option
+                else ""
+            ),
+            "explanation": (question.explanation or ""),
+        }

@@ -25,6 +25,136 @@ from app.database.database import Base
 
 
 # ============================================================
+# APP SETTINGS
+# ============================================================
+
+
+class AppSettings(Base):
+    """
+    Global application settings for the school/institution.
+    These settings apply to all users and are configured by admins.
+    """
+
+    __tablename__ = "app_settings"
+
+    id: Mapped[int] = mapped_column(
+        primary_key=True,
+    )
+
+    school_name: Mapped[str] = mapped_column(
+        String(200),
+        nullable=False,
+        default="Mock CBT Examination",
+    )
+
+    school_address: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
+    school_logo_path: Mapped[str | None] = mapped_column(
+        String(500),
+        nullable=True,
+        comment="Path to school logo image (base64 or file path)",
+    )
+
+    theme: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+        default="light",
+        comment="Theme: light or dark",
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
+
+
+# ============================================================
+# USER
+# ============================================================
+
+
+class User(Base):
+    """
+    A user of the CBT system with role-based access control.
+    
+    Roles:
+        - admin: Full access to all features including user management
+        - student: Can only take exams and view their own results
+    """
+
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(
+        primary_key=True,
+    )
+
+    username: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+        unique=True,
+    )
+
+    password: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+    )
+
+    full_name: Mapped[str] = mapped_column(
+        String(150),
+        nullable=False,
+    )
+
+    role: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+        default="student",
+    )
+
+    # Student-specific fields
+    student_class: Mapped[str | None] = mapped_column(
+        String(50),
+        nullable=True,
+    )
+
+    admission_year: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+    )
+
+    is_active: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+        nullable=False,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        server_default=func.now(),
+        nullable=False,
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
+
+    # --------------------------------------------------------
+    # Relationships
+    # --------------------------------------------------------
+
+    exam_sessions: Mapped[list["ExamSession"]] = relationship(
+        back_populates="user",
+    )
+
+
+# ============================================================
 # SUBJECT
 # ============================================================
 
@@ -95,7 +225,6 @@ class Subject(Base):
 # QUESTION
 # ============================================================
 
-
 class Question(Base):
     """
     A past examination question.
@@ -113,6 +242,13 @@ class Question(Base):
 
     id: Mapped[int] = mapped_column(
         primary_key=True,
+    )
+
+    exam_body: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+        default="JAMB",
+        server_default="JAMB",
     )
 
     subject_id: Mapped[int] = mapped_column(
@@ -162,9 +298,10 @@ class Question(Base):
     # Optional image
     # --------------------------------------------------------
 
-    image_path: Mapped[str | None] = mapped_column(
-        String(500),
-        nullable=True,
+    images: Mapped[list["QuestionImage"]] = relationship(
+        back_populates="question",
+        cascade="all, delete-orphan",
+        order_by="QuestionImage.position",
     )
 
     # --------------------------------------------------------
@@ -214,10 +351,11 @@ class Question(Base):
 
     __table_args__ = (
         UniqueConstraint(
+            "exam_body",
             "subject_id",
             "year",
             "question_number",
-            name="uq_question_year_subject_number",
+            name="uq_question_exam_year_subject_number",
         ),
         CheckConstraint(
             "year >= 1900 AND year <= 2100",
@@ -228,6 +366,12 @@ class Question(Base):
             name="ck_question_number_positive",
         ),
         Index(
+            "ix_questions_exam_year_subject",
+            "exam_body",
+            "year",
+            "subject_id",
+        ),
+        Index(
             "ix_questions_year_subject",
             "year",
             "subject_id",
@@ -236,8 +380,84 @@ class Question(Base):
             "ix_questions_subject",
             "subject_id",
         ),
+        Index(
+            "ix_questions_exam_body",
+            "exam_body",
+        ),
     )
 
+
+ 
+# ============================================================
+# QUESTION IMAGE
+# ============================================================
+
+
+class QuestionImage(Base):
+    """
+    An image/diagram belonging to a question.
+
+    The actual image file is stored on disk.
+    The database stores the path and metadata.
+    """
+
+    __tablename__ = "question_images"
+
+    id: Mapped[int] = mapped_column(
+        primary_key=True,
+    )
+
+    question_id: Mapped[int] = mapped_column(
+        ForeignKey(
+            "questions.id",
+            ondelete="CASCADE",
+        ),
+        nullable=False,
+    )
+
+    image_path: Mapped[str] = mapped_column(
+        String(500),
+        nullable=False,
+    )
+
+    position: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=1,
+    )
+
+    image_type: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+        default="diagram",
+    )
+
+    source_page: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        server_default=func.now(),
+        nullable=False,
+    )
+
+    question: Mapped["Question"] = relationship(
+        back_populates="images",
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "question_id",
+            "position",
+            name="uq_question_image_position",
+        ),
+        Index(
+            "ix_question_images_question",
+            "question_id",
+        ),
+    )
 
 # ============================================================
 # OPTION
@@ -343,9 +563,21 @@ class ExamSession(Base):
         primary_key=True,
     )
 
+    exam_body: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+        default="JAMB",
+        server_default="JAMB",
+    )
+
     year: Mapped[int] = mapped_column(
         Integer,
         nullable=False,
+    )
+
+    user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
     )
 
     student_name: Mapped[str | None] = mapped_column(
@@ -386,6 +618,10 @@ class ExamSession(Base):
     # --------------------------------------------------------
     # Relationships
     # --------------------------------------------------------
+
+    user: Mapped["User"] = relationship(
+        back_populates="exam_sessions",
+    )
 
     subjects: Mapped[list["ExamSubject"]] = relationship(
         back_populates="exam_session",
@@ -660,5 +896,215 @@ class StudentAnswer(Base):
         Index(
             "ix_student_answers_selected_option",
             "selected_option_id",
+        ),
+    )
+
+
+# ============================================================
+# LICENSING MODELS
+# ============================================================
+
+
+class ProductLicense(Base):
+    """
+    A product license key with activation credits.
+    
+    Tracks product keys, their metadata, and remaining activation credits.
+    """
+
+    __tablename__ = "product_licenses"
+
+    id: Mapped[int] = mapped_column(
+        primary_key=True,
+    )
+
+    product_key: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+        unique=True,
+    )
+
+    product_name: Mapped[str] = mapped_column(
+        String(100),
+        nullable=False,
+    )
+
+    version: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+    )
+
+    # Number of activation credits available
+    credits: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=2,
+    )
+
+    # License expiry date
+    expiry_date: Mapped[datetime] = mapped_column(
+        DateTime,
+        nullable=False,
+    )
+
+    # Additional metadata (JSON encoded)
+    license_metadata: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
+    # Status tracking
+    is_active: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+        nullable=False,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        server_default=func.now(),
+        nullable=False,
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
+
+    # --------------------------------------------------------
+    # Relationships
+    # --------------------------------------------------------
+
+    activations: Mapped[list["LicenseActivation"]] = relationship(
+        back_populates="license",
+        cascade="all, delete-orphan",
+    )
+
+    # --------------------------------------------------------
+    # Constraints
+    # --------------------------------------------------------
+
+    __table_args__ = (
+        CheckConstraint(
+            "credits >= 0",
+            name="ck_product_license_credits_non_negative",
+        ),
+        Index(
+            "ix_product_licenses_product_key",
+            "product_key",
+        ),
+    )
+
+
+class LicenseActivation(Base):
+    """
+    Records of license activations on specific machines.
+    
+    Tracks when and where a license was activated using machine fingerprinting.
+    """
+
+    __tablename__ = "license_activations"
+
+    id: Mapped[int] = mapped_column(
+        primary_key=True,
+    )
+
+    license_id: Mapped[int] = mapped_column(
+        ForeignKey(
+            "product_licenses.id",
+            ondelete="CASCADE",
+        ),
+        nullable=False,
+    )
+
+    # User information for support and tracking
+    user_email: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True,
+    )
+
+    user_name: Mapped[str | None] = mapped_column(
+        String(150),
+        nullable=True,
+    )
+
+    # Machine fingerprint for this activation
+    machine_fingerprint: Mapped[str] = mapped_column(
+        String(64),
+        nullable=False,
+    )
+
+    # Additional machine info (optional)
+    machine_info: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
+    # Activation timestamp (server-side, can't be manipulated)
+    activated_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        server_default=func.now(),
+        nullable=False,
+    )
+
+    # Server-trusted timestamp for expiry calculations
+    server_timestamp: Mapped[datetime] = mapped_column(
+        DateTime,
+        server_default=func.now(),
+        nullable=False,
+    )
+
+    # When this activation was last validated
+    last_validated: Mapped[datetime] = mapped_column(
+        DateTime,
+        server_default=func.now(),
+        nullable=False,
+    )
+
+    # Is this activation currently valid
+    is_valid: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+        nullable=False,
+    )
+
+    # Deactivation info (if revoked)
+    deactivated_at: Mapped[datetime | None] = mapped_column(
+        DateTime,
+        nullable=True,
+    )
+
+    deactivation_reason: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True,
+    )
+
+    # --------------------------------------------------------
+    # Relationships
+    # --------------------------------------------------------
+
+    license: Mapped["ProductLicense"] = relationship(
+        back_populates="activations",
+    )
+
+    # --------------------------------------------------------
+    # Constraints
+    # --------------------------------------------------------
+
+    __table_args__ = (
+        Index(
+            "ix_license_activations_license_id",
+            "license_id",
+        ),
+        Index(
+            "ix_license_activations_machine_fingerprint",
+            "machine_fingerprint",
+        ),
+        UniqueConstraint(
+            "license_id",
+            "machine_fingerprint",
+            name="uq_license_machine",
         ),
     )
