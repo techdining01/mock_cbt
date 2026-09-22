@@ -386,15 +386,34 @@ def create_splash() -> LLSSplash:
 
 def start_ai_tutor_server():
 
+    import traceback
+    log_file = Path(sys.executable).parent / "ai_tutor_server.log"
+
+    def log(msg):
+        with open(log_file, "a", encoding="utf-8") as f:
+            f.write(msg + "\n")
+        print(msg, flush=True)
+
+    log("[AI Tutor Server] Starting...")
+
     try:
 
         import asyncio
+
+        # Required on Windows in a frozen PyInstaller EXE.
+        # The default ProactorEventLoop is incompatible with uvicorn's asyncio loop.
+        if sys.platform == "win32":
+            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
         import uvicorn
+
+        log("[AI Tutor Server] Imports OK")
 
         from app.ai_tutor.main import app as tutor_app
 
-        loop = asyncio.new_event_loop()
+        log("[AI Tutor Server] App imported OK")
 
+        loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
 
         config = uvicorn.Config(
@@ -403,20 +422,19 @@ def start_ai_tutor_server():
             port=8000,
             log_level="warning",
             loop="asyncio",
+            log_config=None,
         )
 
         server = uvicorn.Server(config)
 
-        loop.run_until_complete(
-            server.serve()
-        )
+        log("[AI Tutor Server] Server created, serving...")
+
+        loop.run_until_complete(server.serve())
 
     except Exception as exc:
 
-        print(
-            f"[AI Tutor Server Error]: {exc}",
-            flush=True,
-        )
+        log(f"[AI Tutor Server Error]: {exc}")
+        log(f"[AI Tutor Server Traceback]: {traceback.format_exc()}")
 
 
 # ==============================================================================

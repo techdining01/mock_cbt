@@ -88,8 +88,6 @@ from app.ai_tutor.services.providers.gemini import GeminiProvider
 
 from app.ai_tutor.services.providers.ollama import OllamaProvider
 
-from app.ai_tutor.services.providers.remote_server import RemoteServerProvider
-
 from app.ai_tutor.services.ai_settings_resolver import (
     resolve_env_from_db_settings,
     get_preference,
@@ -131,16 +129,18 @@ def _apply_db_ai_settings_once() -> None:
             print(f"[router] DB AI settings not applied: {exc}", flush=True)
 
 
-_apply_db_ai_settings_once()
+try:
+    _apply_db_ai_settings_once()
+except Exception as _exc:
+    print(f"[router] Startup AI settings skipped: {_exc}", flush=True)
 
 
 def _build_provider_list() -> list:
     """Build the provider list ordered by ai_provider_preference.
 
     Ollama is ALWAYS the primary (first) provider except when the user
-    has explicitly chosen ``gemini-only``. This ensures the desktop app
-    works out-of-the-box without any API key — students just need a
-    running local Ollama plus ``ollama pull qwen2.5:0.5b-instruct``.
+    has explicitly chosen ``gemini-only`` and provided a Gemini API key.
+    This ensures the desktop app works out-of-the-box without any API key.
     """
     pref = get_preference()
     _running_as_ai_server = (
@@ -150,17 +150,21 @@ def _build_provider_list() -> list:
     if _running_as_ai_server:
         return [GeminiProvider(), OllamaProvider()]
 
-    gemini = GeminiProvider()
-    cloud = RemoteServerProvider()
     ollama = OllamaProvider()
+    providers = [ollama]
 
-    if pref == "gemini-only":
-        return [gemini, cloud]
+    # Only add Gemini if user has explicitly provided an API key
+    if os.getenv("GEMINI_API_KEY", "").strip():
+        gemini = GeminiProvider()
+        if pref == "gemini-only":
+            return [gemini, ollama]
+        providers.append(gemini)
+
+    # If user explicitly wants ollama-only, don't add anything else
     if pref == "ollama-only":
         return [ollama]
-    # local-first, cloud-first, and any unrecognised value — all keep
-    # Ollama in pole position so the app works with no API keys.
-    return [ollama, gemini, cloud]
+
+    return providers
 
 
 provider_manager = AIProviderManager(providers=_build_provider_list())
